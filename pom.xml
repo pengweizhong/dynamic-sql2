@@ -7,11 +7,45 @@
     <groupId>com.pengwz</groupId>
     <artifactId>dynamic-sql2</artifactId>
     <version>1.0.0</version>
-
+    <description>基于JDBC的单表增删改和多表查询</description>
+    <inceptionYear>2024</inceptionYear>
+    <url>https://github.com/pengweizhong/dynamic-sql2</url>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <developers>
+        <developer>
+            <name>pengweizhong</name>
+            <email>pengwz@hotmail.com</email>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <tag>${version}</tag>
+        <url>https://github.com/pengweizhong/dynamic-sql2</url>
+        <connection>https://github.com/pengweizhong/dynamic-sql2.git</connection>
+    </scm>
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.11.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>
