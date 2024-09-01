@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.utls;
+package com.pengwz.dynamic.sql2.utils;
 
 import org.junit.jupiter.api.Test;
 
@@ -45,5 +45,12 @@ class NamingUtilsTest {
         assertTrue(StringUtils.isEquals(NamingUtils.snakeToCamelCase("A_"), "A"));
         assertTrue(StringUtils.isEquals(NamingUtils.snakeToCamelCase("a_b"), "aB"));
         assertTrue(StringUtils.isEquals(NamingUtils.snakeToCamelCase("ab_"), "ab"));
+    }
+
+    @Test
+    void getBeanName() {
+        assertTrue(StringUtils.isEquals(NamingUtils.getBeanName("dataSource", "getDataSource"), "dataSource"));
+        assertTrue(StringUtils.isEquals(NamingUtils.getBeanName("", "getDataSource"), "dataSource"));
+        assertTrue(StringUtils.isEquals(NamingUtils.getBeanName("", "aDataSource"), "aDataSource"));
     }
 }

@@ -12,7 +12,7 @@ public @interface Table {
     /**
      * 表名
      *
-     * @return 返回trim()后的表名
+     * @return 表名
      */
     String value() default "";
 
@@ -23,5 +23,11 @@ public @interface Table {
      */
     boolean isCache() default true;
 
+    /**
+     * 数据源唯一名称
+     *
+     * @return 数据源名称
+     */
+    String dataSourceName() default "dataSource";
 
 }

@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.utls;
+package com.pengwz.dynamic.sql2.utils;
 
 public class NamingUtils {
     private NamingUtils() {
@@ -108,5 +108,33 @@ public class NamingUtils {
             }
         }
         return result.toString();
+    }
+
+    /**
+     * 获取Bean规范名称
+     *
+     * @param beanName   指定名
+     * @param methodName 原始方法名
+     * @return BeanName
+     */
+    public static String getBeanName(String beanName, String methodName) {
+        if (StringUtils.isNotBlank(beanName)) {
+            return beanName.trim();
+        }
+        if (StringUtils.isBlank(methodName)) {
+            throw new IllegalArgumentException("methodName is empty");
+        }
+        beanName = methodName.trim();
+        int length = beanName.length();
+        if (length < 3) {
+            return beanName;
+        }
+        String subPrefix = beanName.substring(0, 3);
+        if (StringUtils.isEqualsIgnoreCase("get", subPrefix)) {
+            String substring = beanName.substring(3);
+            String lowerCase = substring.substring(0, 1).toLowerCase();
+            return lowerCase + substring.substring(1);
+        }
+        return beanName;
     }
 }

@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.utls;
+package com.pengwz.dynamic.sql2.utils;
 
 import org.junit.jupiter.api.Test;
 
