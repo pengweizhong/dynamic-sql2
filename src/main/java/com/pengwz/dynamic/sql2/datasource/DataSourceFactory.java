@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DataSourceFactory {//NOSONAR
 
@@ -72,6 +73,10 @@ public class DataSourceFactory {//NOSONAR
             }
         }
         return null;
+    }
+
+    public List<String> getAllDataSourceName() {
+        return DATA_SOURCE_META_LIST.stream().map(DataSourceMeta::getDataSourceName).collect(Collectors.toList());
     }
 }
 

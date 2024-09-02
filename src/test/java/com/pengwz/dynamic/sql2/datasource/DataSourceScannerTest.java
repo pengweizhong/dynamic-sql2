@@ -2,9 +2,9 @@ package com.pengwz.dynamic.sql2.datasource;
 
 import org.junit.jupiter.api.Test;
 
-import javax.sql.DataSource;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DataSourceScannerTest {
 
@@ -14,5 +14,21 @@ class DataSourceScannerTest {
         DataSourceMeta defaultDataSourceMeta = DataSourceFactory.getInstance().getDefaultDataSourceMeta();
         System.out.println(defaultDataSourceMeta);
         assertNotNull(defaultDataSourceMeta);
+
+        List<String> allDataSourceName = DataSourceFactory.getInstance().getAllDataSourceName();
+        System.out.println(allDataSourceName);
     }
+
+    @Test
+    void test2() {
+        DataSourceUtils.scanAndInitDataSource("com.pengwz.dynamic.sql2.datasource",
+                "com.pengwz.dynamic.sql2.datasource2");
+        DataSourceMeta defaultDataSourceMeta = DataSourceFactory.getInstance().getDefaultDataSourceMeta();
+        System.out.println(defaultDataSourceMeta);
+        List<String> allDataSourceName = DataSourceFactory.getInstance().getAllDataSourceName();
+        System.out.println(allDataSourceName);
+        assertNotNull(allDataSourceName);
+    }
+
+
 }

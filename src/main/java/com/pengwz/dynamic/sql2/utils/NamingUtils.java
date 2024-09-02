@@ -131,10 +131,9 @@ public class NamingUtils {
         }
         String subPrefix = beanName.substring(0, 3);
         if (StringUtils.isEqualsIgnoreCase("get", subPrefix)) {
-            String substring = beanName.substring(3);
-            String lowerCase = substring.substring(0, 1).toLowerCase();
-            return lowerCase + substring.substring(1);
+            beanName = beanName.substring(3);
         }
-        return beanName;
+        String lowerCase = beanName.substring(0, 1).toLowerCase();
+        return lowerCase + beanName.substring(1);
     }
 }
