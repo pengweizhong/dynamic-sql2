@@ -1,8 +1,8 @@
 package com.pengwz.dynamic.sql2.core.column;
 
 @FunctionalInterface
-public interface IColumn {
+public interface IAliasColumn {
 
-    String getName();
+    String getAliasName();
 
 }

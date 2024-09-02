@@ -7,4 +7,5 @@ public class AllColumn implements IColumn {
     public String getName() {
         return "*";
     }
+
 }

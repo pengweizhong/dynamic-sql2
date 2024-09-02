@@ -58,6 +58,7 @@ public class TableUtils {
         Class<?> entityClass = tableEntity.getEntityClass();
         List<Field> fields = ReflectUtils.getAllFields(entityClass, excludeFieldTypes());
         TableMeta tableMeta = new TableMeta();
+        tableMeta.setCanonicalClassName(entityClass.getCanonicalName());
         tableMeta.setTableName(tableEntity.getTableName());
         tableMeta.setBindDataSourceName(tableEntity.getBindDataSourceName());
         List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(TableUtils::parseTableColumn)

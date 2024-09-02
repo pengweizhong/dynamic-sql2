@@ -7,6 +7,8 @@ class TableMeta {
     private String tableName;
     //绑定到数据源名称
     private String bindDataSourceName;
+    //映射实体
+    private String canonicalClassName;
     //列成员
     private List<ColumnMeta> columnMetas;
 
@@ -32,6 +34,14 @@ class TableMeta {
 
     public void setColumnMetas(List<ColumnMeta> columnMetas) {
         this.columnMetas = columnMetas;
+    }
+
+    public String getCanonicalClassName() {
+        return canonicalClassName;
+    }
+
+    public void setCanonicalClassName(String canonicalClassName) {
+        this.canonicalClassName = canonicalClassName;
     }
 
     @Override
