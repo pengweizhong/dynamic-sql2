@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TableProvider {//NOSONAR
 
@@ -40,5 +41,9 @@ public class TableProvider {//NOSONAR
 
     protected boolean existTable(String tableName) {
         return TABLE_META_LIST.stream().anyMatch(t -> t.getTableName().equals(tableName));
+    }
+
+    public List<String> getTableName() {
+        return TABLE_META_LIST.stream().map(TableMeta::getTableName).collect(Collectors.toList());
     }
 }

@@ -1,7 +1,5 @@
 package com.pengwz.dynamic.sql2.table;
 
-import com.pengwz.dynamic.sql2.enums.GenerationType;
-
 import java.lang.reflect.Field;
 
 class ColumnMeta {
@@ -10,7 +8,7 @@ class ColumnMeta {
     //是否为主键
     private boolean isPrimary;
     //主键生成策略
-    private GenerationType generationType;
+    private GeneratedStrategy generatedStrategy;
     //实体类字段
     private Field field;
 
@@ -30,12 +28,12 @@ class ColumnMeta {
         isPrimary = primary;
     }
 
-    public GenerationType getGenerationType() {
-        return generationType;
+    public GeneratedStrategy getGeneratedStrategy() {
+        return generatedStrategy;
     }
 
-    public void setGenerationType(GenerationType generationType) {
-        this.generationType = generationType;
+    public void setGeneratedStrategy(GeneratedStrategy generatedStrategy) {
+        this.generatedStrategy = generatedStrategy;
     }
 
     public Field getField() {
@@ -48,11 +46,12 @@ class ColumnMeta {
 
     @Override
     public String toString() {
-        return "ColumnMeta{" +
-                "columnName='" + columnName + '\'' +
-                ", isPrimary=" + isPrimary +
-                ", generationType=" + generationType +
-                ", field=" + field.getName() +
-                '}';
+        final StringBuffer sb = new StringBuffer("{");
+        sb.append("columnName='").append(columnName).append('\'');
+        sb.append(", isPrimary=").append(isPrimary);
+        sb.append(", generatedStrategy=").append(generatedStrategy);
+        sb.append(", field=").append(field);
+        sb.append('}');
+        return sb.toString();
     }
 }
