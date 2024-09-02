@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,12 +25,24 @@ public class TableUtils {
             log.debug("No table entities were detected");
             return;
         }
-        //反射获取字段成员信息
+//        tableEntities.stream().map(tableEntity -> {
+//            //反射获取字段成员信息
+//          return  parseTableClass(tableEntity);
+//        });
+//
+//        ReflectUtils.getAllFields()
 
+    }
 
+    private static Object parseTableClass(TableEntityMapping tableEntity) {
+        return null;
     }
 
     public static synchronized void initTable(String[] bindBasePackages) {
 
+    }
+
+    private static int[] excludeFieldTypes() {
+        return new int[]{Modifier.STATIC, Modifier.FINAL};
     }
 }
