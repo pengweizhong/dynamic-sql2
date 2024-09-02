@@ -17,6 +17,13 @@ public @interface Column {
     String value() default "";
 
     /**
+     * 忽略字段，被忽略的字段将不参与数据库交互
+     *
+     * @return 是否忽略当前字段
+     */
+    boolean ignore() default false;
+
+    /**
      * 当发生字段发生冲突时，告诉程序应该选择哪个字段。通常这种情况发生在父子类中。
      *
      * @return 将当前字段设置为唯一项
