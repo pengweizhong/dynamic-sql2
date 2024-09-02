@@ -28,7 +28,7 @@ public class DataSourceScanner {
      *
      * @param forPackage 检索基本路径
      */
-    public static List<DataSourceMapping> findDataSource(String forPackage) {
+    protected static List<DataSourceMapping> findDataSource(String forPackage) {
         log.debug("Find the data source based on the provided '{}' path. ", forPackage);
         Reflections reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(forPackage))

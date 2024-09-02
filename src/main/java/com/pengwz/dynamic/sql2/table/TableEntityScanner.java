@@ -24,7 +24,7 @@ public class TableEntityScanner {
      *
      * @param forPackage 检索基本路径
      */
-    public static List<TableEntityMapping> findTableEntities(String forPackage) {
+    protected static List<TableEntityMapping> findTableEntities(String forPackage) {
         log.debug("Find the table entities based on the provided '{}' path. ", forPackage);
         Reflections reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(forPackage))
