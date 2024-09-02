@@ -18,6 +18,8 @@ class DataSourceMeta {
     private DataSource dataSource;
     //数据源类型
     private DbType dbType;
+    //数据源版本号
+    private String version;
 
     public String getDataSourceName() {
         return dataSourceName;
@@ -67,6 +69,14 @@ class DataSourceMeta {
         this.dbType = dbType;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     @Override
     public String toString() {
         return "DataSourceMeta{" +
@@ -76,6 +86,7 @@ class DataSourceMeta {
                 ", bindBasePackages=" + Arrays.toString(bindBasePackages) +
                 ", dataSource=" + dataSource +
                 ", dbType=" + dbType +
+                ", version='" + version + '\'' +
                 '}';
     }
 }

@@ -24,7 +24,7 @@ public class DataSourceScanner {
     private static final Logger log = LoggerFactory.getLogger(DataSourceScanner.class);
 
     /**
-     * 适用于单体项目中检索数据源
+     * 检索数据源
      *
      * @param forPackage 检索基本路径
      */

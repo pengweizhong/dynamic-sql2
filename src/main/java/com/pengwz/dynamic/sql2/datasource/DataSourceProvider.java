@@ -2,20 +2,21 @@ package com.pengwz.dynamic.sql2.datasource;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class DataSourceFactory {//NOSONAR
+public class DataSourceProvider {//NOSONAR
 
-    private static final DataSourceFactory INSTANCE = new DataSourceFactory();
+    private static final DataSourceProvider INSTANCE = new DataSourceProvider();
 
-    private static final List<DataSourceMeta> DATA_SOURCE_META_LIST = Collections.synchronizedList(new ArrayList<>());
+    private static final List<DataSourceMeta> DATA_SOURCE_META_LIST = new ArrayList<>();
 
-    private DataSourceFactory() {
+    private DataSourceProvider() {
     }
 
-    protected static DataSourceFactory getInstance() {
+    public static DataSourceProvider getInstance() {
         return INSTANCE;
     }
 
@@ -31,7 +32,7 @@ public class DataSourceFactory {//NOSONAR
         return null;
     }
 
-    protected void setDataSourceMeta(DataSourceMeta dataSourceMeta) {
+    protected synchronized void saveDataSourceMeta(DataSourceMeta dataSourceMeta) {
         if (dataSourceMeta == null) {
             throw new NullPointerException("dataSourceMeta is null");
         }
@@ -77,6 +78,26 @@ public class DataSourceFactory {//NOSONAR
 
     public List<String> getAllDataSourceName() {
         return DATA_SOURCE_META_LIST.stream().map(DataSourceMeta::getDataSourceName).collect(Collectors.toList());
+    }
+
+    public boolean existDataSource(String dataSourceName) {
+        return getAllDataSourceName().contains(dataSourceName);
+    }
+
+    public Map<String, String[]> getDataSourceBoundPath() {
+        HashMap<String, String[]> hashMap = new HashMap<>();
+        for (DataSourceMeta dataSourceMeta : DATA_SOURCE_META_LIST) {
+            hashMap.put(dataSourceMeta.getDataSourceName(), dataSourceMeta.getBindBasePackages());
+        }
+        return hashMap;
+    }
+
+    public String getDefaultDataSourceName() {
+        DataSourceMeta defaultDataSourceMeta = getDefaultDataSourceMeta();
+        if (defaultDataSourceMeta == null) {
+            return null;
+        }
+        return defaultDataSourceMeta.getDataSourceName();
     }
 }
 

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,13 +51,15 @@ public class DataSourceUtils {
             Connection connection = null;
             try {
                 connection = ConnectionHolder.getConnection(dataSourceMapping.getDataSource());
-                String url = connection.getMetaData().getURL();
-                DbType dbType = matchDbType(url);
-                String schema = matchSchema(dbType, url);
+                DatabaseMetaData metaData = connection.getMetaData();
+                DbType dbType = matchDbType(metaData.getURL());
+                String schema = matchSchema(dbType, metaData.getURL());
+                String version = metaData.getDatabaseProductVersion();
                 initDataSource(dataSourceMapping.getDataSourceName(),
-                        schema, dbType,
+                        dbType, schema,
                         dataSourceMapping.getDataSource(),
                         dataSourceMapping.isGlobalDefault(),
+                        version,
                         dataSourceMapping.getBindBasePackages());
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to read meta information", e);
@@ -70,22 +73,24 @@ public class DataSourceUtils {
     }
 
 
-     /**
+    /**
      * 初始化已知数据源
      *
      * @param dataSourceName   数据源名称
-     * @param schema           命名空间
      * @param dbType           数据源类型
+     * @param schema           命名空间
      * @param dataSource       数据源原始对象
      * @param isGlobalDefault  是否全局默认数据源
      * @param bindBasePackages 绑定的实体类路径
      */
     public static synchronized void initDataSource(String dataSourceName,
-                                                   String schema,
                                                    DbType dbType,
+                                                   String schema,
                                                    DataSource dataSource,
                                                    boolean isGlobalDefault,
-                                                   String[] bindBasePackages) {
+                                                   String version,
+                                                   String[] bindBasePackages
+    ) {
         log.debug("Initializing DataSource dataSourceName: {}, schema:{}, isGlobalDefault:{}, bindBasePackages:{}",
                 dataSourceName, schema, isGlobalDefault, bindBasePackages);
         if (StringUtils.isBlank(dataSourceName)) {
@@ -107,7 +112,8 @@ public class DataSourceUtils {
         meta.setBindBasePackages(bindBasePackages);
         meta.setDataSource(dataSource);
         meta.setDbType(dbType);
-        DataSourceFactory.getInstance().setDataSourceMeta(meta);
+        meta.setVersion(version);
+        DataSourceProvider.getInstance().saveDataSourceMeta(meta);
         log.info("Initialized DataSource dataSourceName: {}", dataSourceName);
     }
 

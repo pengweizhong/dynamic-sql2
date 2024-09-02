@@ -11,11 +11,11 @@ class DataSourceScannerTest {
     @Test
     void test() {
         DataSourceUtils.scanAndInitDataSource("com.pengwz.dynamic.sql2.datasource");
-        DataSourceMeta defaultDataSourceMeta = DataSourceFactory.getInstance().getDefaultDataSourceMeta();
+        DataSourceMeta defaultDataSourceMeta = DataSourceProvider.getInstance().getDefaultDataSourceMeta();
         System.out.println(defaultDataSourceMeta);
         assertNotNull(defaultDataSourceMeta);
 
-        List<String> allDataSourceName = DataSourceFactory.getInstance().getAllDataSourceName();
+        List<String> allDataSourceName = DataSourceProvider.getInstance().getAllDataSourceName();
         System.out.println(allDataSourceName);
     }
 
@@ -23,9 +23,9 @@ class DataSourceScannerTest {
     void test2() {
         DataSourceUtils.scanAndInitDataSource("com.pengwz.dynamic.sql2.datasource",
                 "com.pengwz.dynamic.sql2.datasource2");
-        DataSourceMeta defaultDataSourceMeta = DataSourceFactory.getInstance().getDefaultDataSourceMeta();
+        DataSourceMeta defaultDataSourceMeta = DataSourceProvider.getInstance().getDefaultDataSourceMeta();
         System.out.println(defaultDataSourceMeta);
-        List<String> allDataSourceName = DataSourceFactory.getInstance().getAllDataSourceName();
+        List<String> allDataSourceName = DataSourceProvider.getInstance().getAllDataSourceName();
         System.out.println(allDataSourceName);
         assertNotNull(allDataSourceName);
     }
@@ -33,9 +33,9 @@ class DataSourceScannerTest {
     @Test
     void test3() {
         DataSourceUtils.scanAndInitDataSource("com.pengwz.dynamic.sql2.");
-        DataSourceMeta defaultDataSourceMeta = DataSourceFactory.getInstance().getDefaultDataSourceMeta();
+        DataSourceMeta defaultDataSourceMeta = DataSourceProvider.getInstance().getDefaultDataSourceMeta();
         System.out.println(defaultDataSourceMeta);
-        List<String> allDataSourceName = DataSourceFactory.getInstance().getAllDataSourceName();
+        List<String> allDataSourceName = DataSourceProvider.getInstance().getAllDataSourceName();
         System.out.println(allDataSourceName);
         assertNotNull(allDataSourceName);
     }

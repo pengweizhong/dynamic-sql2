@@ -24,10 +24,10 @@ public @interface Table {
     boolean isCache() default true;
 
     /**
-     * 数据源唯一名称
+     * 数据源唯一名称，此选项优先级最高
      *
      * @return 数据源名称
      */
-    String dataSourceName() default "dataSource";
+    String dataSourceName() default "";
 
 }
