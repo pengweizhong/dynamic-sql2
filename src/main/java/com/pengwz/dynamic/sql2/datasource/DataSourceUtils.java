@@ -46,7 +46,7 @@ public class DataSourceUtils {
             }
         });
         for (DataSourceMapping dataSourceMapping : dataSources) {
-            log.debug("Test the data source connection to get the URL.");
+            log.debug("Test the data source connection to get the URL For '{}'. ", dataSourceMapping.getDataSourceName());
             Connection connection = null;
             try {
                 connection = ConnectionHolder.getConnection(dataSourceMapping.getDataSource());
@@ -70,7 +70,7 @@ public class DataSourceUtils {
     }
 
 
-    /**
+     /**
      * 初始化已知数据源
      *
      * @param dataSourceName   数据源名称
@@ -86,6 +86,8 @@ public class DataSourceUtils {
                                                    DataSource dataSource,
                                                    boolean isGlobalDefault,
                                                    String[] bindBasePackages) {
+        log.debug("Initializing DataSource dataSourceName: {}, schema:{}, isGlobalDefault:{}, bindBasePackages:{}",
+                dataSourceName, schema, isGlobalDefault, bindBasePackages);
         if (StringUtils.isBlank(dataSourceName)) {
             throw new IllegalArgumentException("The bean name must be provided");
         }
@@ -98,8 +100,6 @@ public class DataSourceUtils {
         if (dbType == null) {
             throw new IllegalArgumentException("The dbType must be provided");
         }
-        log.debug("Initializing DataSource dataSourceName: {}, schema:{}, isGlobalDefault:{}, bindBasePackages:{}",
-                dataSourceName, schema, isGlobalDefault, bindBasePackages);
         DataSourceMeta meta = new DataSourceMeta();
         meta.setDataSourceName(dataSourceName);
         meta.setSchema(schema);
@@ -108,7 +108,7 @@ public class DataSourceUtils {
         meta.setDataSource(dataSource);
         meta.setDbType(dbType);
         DataSourceFactory.getInstance().setDataSourceMeta(meta);
-        log.debug("Initialized DataSource dataSourceName: {}", dataSourceName);
+        log.info("Initialized DataSource dataSourceName: {}", dataSourceName);
     }
 
     public static DbType matchDbType(String jdbcUrl) {

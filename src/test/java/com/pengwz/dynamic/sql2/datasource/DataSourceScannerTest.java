@@ -30,5 +30,13 @@ class DataSourceScannerTest {
         assertNotNull(allDataSourceName);
     }
 
-
+    @Test
+    void test3() {
+        DataSourceUtils.scanAndInitDataSource("com.pengwz.dynamic.sql2.");
+        DataSourceMeta defaultDataSourceMeta = DataSourceFactory.getInstance().getDefaultDataSourceMeta();
+        System.out.println(defaultDataSourceMeta);
+        List<String> allDataSourceName = DataSourceFactory.getInstance().getAllDataSourceName();
+        System.out.println(allDataSourceName);
+        assertNotNull(allDataSourceName);
+    }
 }
