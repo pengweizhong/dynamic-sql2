@@ -10,7 +10,9 @@ class DataSourceScannerTest {
 
     @Test
     void test() {
-//        DataSource dataSource = DataSourceScanner.findDataSource("com.pengwz.dynamic.sql2.datasource");
-//        System.out.println(dataSource);
+        DataSourceUtils.scanAndInitDataSource("com.pengwz.dynamic.sql2.datasource");
+        DataSourceMeta defaultDataSourceMeta = DataSourceFactory.getInstance().getDefaultDataSourceMeta();
+        System.out.println(defaultDataSourceMeta);
+        assertNotNull(defaultDataSourceMeta);
     }
 }

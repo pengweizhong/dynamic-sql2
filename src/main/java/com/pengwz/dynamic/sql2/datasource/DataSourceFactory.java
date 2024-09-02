@@ -39,10 +39,12 @@ public class DataSourceFactory {//NOSONAR
         if (exists != null) {
             throw new IllegalArgumentException("Duplicate datasource name: " + dataSourceName);
         }
-        DataSourceMeta defaultDataSourceMeta = getDefaultDataSourceMeta();
-        if (defaultDataSourceMeta != null) {
-            throw new IllegalArgumentException("Duplicate default data sources are specified, " +
-                    "namely '" + dataSourceName + "' and '" + defaultDataSourceMeta.getDataSourceName() + "'");
+        if (dataSourceMeta.isGlobalDefault()) {
+            DataSourceMeta defaultDataSourceMeta = getDefaultDataSourceMeta();
+            if (defaultDataSourceMeta != null) {
+                throw new IllegalArgumentException("Duplicate default data sources are specified, " +
+                        "namely '" + dataSourceName + "' and '" + defaultDataSourceMeta.getDataSourceName() + "'");
+            }
         }
         DATA_SOURCE_META_LIST.add(dataSourceMeta);
     }
