@@ -15,6 +15,10 @@ public class WhereRelation {
         return null;
     }
 
+    public <R> List<R> toList() {
+        return null;
+    }
+
     static class Relation {
         private Supplier<Boolean> condition;
 

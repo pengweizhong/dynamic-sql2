@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.core;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -21,6 +22,10 @@ public class TableRelation {
         }
         whereRelation = new WhereRelation(condition);
         return whereRelation;
+    }
+
+    public <R> List<R> toList() {
+        return null;
     }
 
     static class Relation {
