@@ -1,13 +1,13 @@
 package com.pengwz.dynamic.sql2.core.crud.select;
 
+import com.pengwz.dynamic.sql2.core.AliasTableRelation;
 import com.pengwz.dynamic.sql2.core.ColumnRelation;
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.column.IAliasColumn;
-import com.pengwz.dynamic.sql2.core.column.function.AbstractFuncColumn;
+import com.pengwz.dynamic.sql2.core.TableRelation;
+import com.pengwz.dynamic.sql2.core.column.conventional.Column;
+import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
-public class Selector {
-
-    private ColumnRelation columnRelation = new ColumnRelation();
+public class Selector extends QueryFieldExtractor {
 
     private Selector() {
     }
@@ -18,19 +18,28 @@ public class Selector {
     }
 
     public ColumnRelation allColumn() {
-        return columnRelation;
+        queryFields.add(new Column("*"));
+        return new ColumnRelation(new Column("*"));
     }
 
-
+    @Override
     public <T, F> ColumnRelation column(Fn<T, F> fn) {
+        ColumnRelation columnRelation = new ColumnRelation(fn);
+        queryFields.add(new Column(fn));
         return columnRelation;
     }
 
-    public ColumnRelation column(IAliasColumn aliasColumn) {
+    @Override
+    public ColumnRelation column(IColumFunction iColumFunction) {
+        System.out.println("测试函数结果 --> " + iColumFunction.getFunctionToString());
+        ColumnRelation columnRelation = new ColumnRelation(iColumFunction);
+        queryFields.add(iColumFunction);
         return columnRelation;
     }
 
-    public ColumnRelation column(AbstractFuncColumn abstractFuncColumn) {
-        return columnRelation;
+    @Override
+    public <T> AliasTableRelation from(T tableClass) {
+        TableRelation tableRelation = new TableRelation(tableClass.getClass().getCanonicalName());
+        return new AliasTableRelation(tableRelation);
     }
 }

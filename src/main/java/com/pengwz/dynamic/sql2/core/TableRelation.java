@@ -28,6 +28,10 @@ public class TableRelation {
         return null;
     }
 
+    public OnJoinTableRelation join(Class<?> tableClass) {
+        return null;
+    }
+
     static class Relation {
         String canonicalName;
 

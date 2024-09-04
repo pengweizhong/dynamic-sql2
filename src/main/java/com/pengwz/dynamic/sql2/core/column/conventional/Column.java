@@ -1,29 +1,28 @@
 package com.pengwz.dynamic.sql2.core.column.conventional;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.column.IAliasColumn;
+import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
-public class Column implements IAliasColumn {
-    private final String columnName;
-    private String aliasName;
+public class Column implements IColumFunction {
 
-    public Column(String columnName, String aliasName) {
+    protected String columnName;
+
+    public Column(String columnName) {
         this.columnName = columnName;
     }
 
     public <T, F> Column(Fn<T, F> fn) {
-        this.columnName = "";
+        this.columnName = "我是列名";
+    }
+
+    @Override
+    public String getFunctionToString() {
+        return getColumnName();
     }
 
     @Override
     public String getColumnName() {
         return columnName;
     }
-
-    @Override
-    public String getAliasName() {
-        return aliasName;
-    }
-
 
 }

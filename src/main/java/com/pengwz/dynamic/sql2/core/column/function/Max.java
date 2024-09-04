@@ -2,23 +2,18 @@ package com.pengwz.dynamic.sql2.core.column.function;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 
-public class Max extends AbstractFuncColumn {
-    public Max(String columnName) {
-        super(columnName);
-    }
+public class Max extends ColumnFunctionDecorator {
 
-    @Override
-    public String getFuncToString() {
-        return "max(" + getColumnName() + ")";
+    public Max(IColumFunction delegateFunction) {
+        super(delegateFunction);
     }
 
     public <T, F> Max(Fn<T, F> fn) {
-        super(fn.toString());
+        super(fn);
     }
 
-    public Max(AbstractFuncColumn funcColumn) {
-        super(funcColumn.getColumnName());
+    @Override
+    public String getFunctionToString() {
+        return "max(" + delegateFunction.getFunctionToString() + ")";
     }
-
-
 }
