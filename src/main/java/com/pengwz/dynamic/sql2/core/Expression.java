@@ -4,4 +4,8 @@ public class Expression {
     public String eq(Expression t2) {
         return null;
     }
+
+    public <T, F> Expression column(Fn<T, F> fn) {
+        return null;
+    }
 }
