@@ -29,6 +29,11 @@ class SelectorTest {
 //        System.out.println(list);
 //    }
 
+    /**
+     * 需要参考：org.jooq
+     * Result<Record> record = dsl.selectFrom(poetTable.innerJoin(poetryTable).on(poetTable.ID.eq(poetryTable.POET_ID))).where(poetTable.ID.eq(poetId)).fetch();
+     * Result<Record3<String, String, String>> res = dsl.select(poetTable.NAME, poetryTable.TITLE, poetryTable.CONTENT).from(poetTable, poetryTable).where(poetTable.ID.eq(poetryTable.POET_ID)).and(poetTable.ID.eq(poetId)).fetch();
+     */
     @Test
     void test3() {
         Selector.instance()
