@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.entites;
 
+import com.pengwz.dynamic.sql2.anno.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table("exam_result")
 public class ExamResult {
     public int resultId;
     public int studentId;

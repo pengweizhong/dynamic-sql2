@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.entites;
 
+import com.pengwz.dynamic.sql2.anno.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table("teacher")
 public class Teacher {
     public int teacherId;
     public String firstName;

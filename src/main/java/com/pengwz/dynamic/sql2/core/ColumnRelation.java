@@ -16,17 +16,6 @@ public class ColumnRelation extends QueryFieldExtractor {
         queryFields.add(new Column(fn));
     }
 
-    @Override
-    public <T> AliasTableRelation from(T tableClass) {
-        if (tableClass == null) {
-            throw new NullPointerException("tableEntity is null");
-        }
-        if (tableRelation != null) {
-            throw new UnsupportedOperationException("Only one 'form' can be declared for the first time.");
-        }
-        tableRelation = new TableRelation(tableClass.getClass().getCanonicalName());
-        return new AliasTableRelation(tableRelation);
-    }
 
     @Override
     public <T, F> ColumnRelation column(Fn<T, F> fn) {
@@ -39,6 +28,12 @@ public class ColumnRelation extends QueryFieldExtractor {
         System.out.println("测试函数结果 --> " + iColumFunction.getFunctionToString());
         queryFields.add(iColumFunction);
         return this;
+    }
+
+    @Override
+    public <T> TableRelation from(Class<T> tableClass) {
+        tableRelation = new TableRelation(tableClass);
+        return tableRelation;
     }
 
     public static class AlisaRelation {

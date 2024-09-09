@@ -1,8 +1,8 @@
 package com.pengwz.dynamic.sql2.core.crud.select;
 
-import com.pengwz.dynamic.sql2.core.AliasTableRelation;
 import com.pengwz.dynamic.sql2.core.ColumnRelation;
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.TableRelation;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
 import java.util.ArrayList;
@@ -19,6 +19,6 @@ public abstract class QueryFieldExtractor {
         return this;
     }
 
-    public abstract <T> AliasTableRelation from(T tableClass);
+    public abstract <T> TableRelation from(Class<T> tableClass);
 
 }

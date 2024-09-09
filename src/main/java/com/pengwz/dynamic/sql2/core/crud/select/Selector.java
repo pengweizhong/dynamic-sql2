@@ -1,6 +1,5 @@
 package com.pengwz.dynamic.sql2.core.crud.select;
 
-import com.pengwz.dynamic.sql2.core.AliasTableRelation;
 import com.pengwz.dynamic.sql2.core.ColumnRelation;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.TableRelation;
@@ -38,8 +37,9 @@ public class Selector extends QueryFieldExtractor {
     }
 
     @Override
-    public <T> AliasTableRelation from(T tableClass) {
-        TableRelation tableRelation = new TableRelation(tableClass.getClass().getCanonicalName());
-        return new AliasTableRelation(tableRelation);
+    public <T> TableRelation from(Class<T> tableClass) {
+        TableRelation tableRelation = new TableRelation(tableClass);
+        return tableRelation;
     }
+
 }

@@ -7,9 +7,5 @@ public class AliasTableRelation {
         this.tableRelation = tableRelation;
     }
 
-    public JoinTableRelation as(String alias) {
-        return new JoinTableRelation();
-    }
-
 
 }

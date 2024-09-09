@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class WhereRelation {
-    private final List<Relation> relations = new ArrayList<>();
+public class WhereCondition {
+    private final List<Condition> conditions = new ArrayList<>();
 
-    public WhereRelation(Supplier<Boolean> condition) {
-        relations.add(new Relation(condition));
+    public WhereCondition() {
+
     }
 
     public <T> T result() {
@@ -19,10 +19,10 @@ public class WhereRelation {
         return null;
     }
 
-    static class Relation {
+    static class Condition {
         private Supplier<Boolean> condition;
 
-        public Relation(Supplier<Boolean> condition) {
+        public Condition(Supplier<Boolean> condition) {
             this.condition = condition;
         }
     }

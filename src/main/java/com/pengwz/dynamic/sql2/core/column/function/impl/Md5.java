@@ -1,6 +1,8 @@
-package com.pengwz.dynamic.sql2.core.column.function;
+package com.pengwz.dynamic.sql2.core.column.function.impl;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
+import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
 public class Md5 extends ColumnFunctionDecorator {
 

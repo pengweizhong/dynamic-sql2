@@ -6,7 +6,7 @@ public class JoinTableRelation {
         return new AliasTableRelation(null);
     }
 
-    public OnJoinTableRelation on(String alias) {
-        return new OnJoinTableRelation();
+    public JoinTableRelation on(OnJoinTableCondition alias) {
+        return new JoinTableRelation();
     }
 }

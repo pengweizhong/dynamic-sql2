@@ -17,6 +17,13 @@ public @interface Table {
     String value() default "";
 
     /**
+     * 表别名。要求全局唯一，默认为表名
+     *
+     * @return 别名
+     */
+    String alias() default "";
+
+    /**
      * 是否将该表实体缓存到程序缓存中。默认缓存。
      *
      * @return 是否缓存表实体

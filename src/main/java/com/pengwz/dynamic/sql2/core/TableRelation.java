@@ -1,36 +1,67 @@
 package com.pengwz.dynamic.sql2.core;
 
+import com.pengwz.dynamic.sql2.core.crud.select.IFetchResult;
+
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * 表关联关系
  */
-public class TableRelation {
-    private WhereRelation whereRelation;
+public class TableRelation<R> implements IFetchResult {
+    private WhereCondition whereRelation;
+    private Class<R> tableClass;
 
-    public TableRelation(String canonicalName) {
-
+    public TableRelation(Class<R> tableClass) {
+        this.tableClass = tableClass;
     }
 
-    public WhereRelation where(Supplier<Boolean> condition) {
-        if (condition == null) {
-            throw new NullPointerException("condition is null");
-        }
-        if (whereRelation != null) {
-            throw new UnsupportedOperationException("Only one 'where' can be declared for the first time.");
-        }
-        whereRelation = new WhereRelation(condition);
-        return whereRelation;
-    }
-
-    public <R> List<R> toList() {
+    public IFetchResult where(WhereCondition condition) {
         return null;
     }
 
-    public OnJoinTableRelation join(Class<?> tableClass) {
+    @Override
+    public <R> R fetchOne() {
         return null;
     }
+
+    @Override
+    public <T> T fetchOne(Class<T> returnType) {
+        return null;
+    }
+
+    @Override
+    public <R> List<R> fetchList() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public <T> List<T> fetchList(Class<T> returnType) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public <R> Set<R> fetchSet() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public <T> Set<T> fetchSet(Class<T> returnType) {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public <R> Stream<R> fetchStream() {
+        return Stream.empty();
+    }
+
+    @Override
+    public <T> Stream<T> fetchStream(Class<T> returnType) {
+        return Stream.empty();
+    }
+
 
     static class Relation {
         String canonicalName;
