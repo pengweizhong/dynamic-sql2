@@ -98,6 +98,14 @@
             <version>2.11.0</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jooq/jooq -->
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>3.19.11</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -61,7 +61,7 @@ public class TableUtils {
         tableMeta.setCanonicalClassName(entityClass.getCanonicalName());
         tableMeta.setTableName(tableEntity.getTableName());
         tableMeta.setBindDataSourceName(tableEntity.getBindDataSourceName());
-        List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(TableUtils::parseTableColumn)
+        List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(entityClass, f))
                 .filter(Objects::nonNull).collect(Collectors.toList());
         //检查列声明标识是否合规
         List<ColumnMeta> columnMetas = assertAndFilterColumn(columnMetaSymbols, tableMeta.getTableName());
@@ -105,7 +105,7 @@ public class TableUtils {
         return columnMetas;
     }
 
-    private static ColumnMetaSymbol parseTableColumn(Field field) {
+    private static ColumnMetaSymbol parseTableColumn(Class<?> entityClass, Field field) {
         ColumnMetaSymbol columnMetaSymbol = new ColumnMetaSymbol();
         ColumnMeta columnMeta = new ColumnMeta();
         columnMetaSymbol.setColumnMeta(columnMeta);
@@ -135,6 +135,12 @@ public class TableUtils {
                 }
                 columnMeta.setGeneratedStrategy(generatedStrategy);
             }
+        }
+        //检测字段是否为基本类型
+        if (log.isDebugEnabled() && field.getType().isPrimitive()) {
+            log.debug("It is not recommended that the field type be a basic type," +
+                            " because the basic type is not equal to null at any time. Field position: {}#{}",
+                    entityClass.getName(), field.getName());
         }
         return columnMetaSymbol;
     }
