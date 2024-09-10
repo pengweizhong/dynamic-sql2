@@ -1,11 +1,8 @@
 package com.pengwz.dynamic.sql2.core.crud.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
-import com.pengwz.dynamic.sql2.core.WhereCondition;
 import com.pengwz.dynamic.sql2.entites.Teacher;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 
 class SelectorTest extends InitializingContext {
@@ -29,19 +26,24 @@ class SelectorTest extends InitializingContext {
 
     @Test
     public void select3() {
-       Selector.instance()
+        Selector.instance()
                 .column(Teacher::getTeacherId)
                 .column(Teacher::getFirstName)
                 .from(Teacher.class).fetchList(Teacher.class);
-
     }
+
     @Test
     public void select4() {
         Selector.instance()
                 .column(Teacher::getTeacherId)
                 .column(Teacher::getFirstName)
                 .from(Teacher.class)
-                .where(new WhereCondition())
+                .where(
+                        condition -> {
+                            condition.andEq(Teacher::getTeacherId, 1)
+                                    .orEq(Teacher::getTeacherId, 2);
+                        }
+                )
                 .fetchSet();
 
     }

@@ -5,6 +5,7 @@ import com.pengwz.dynamic.sql2.core.crud.select.IFetchResult;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
@@ -16,12 +17,17 @@ public class TableRelation<R> implements IFetchResult {
 
     public TableRelation(Class<R> tableClass) {
         this.tableClass = tableClass;
+        this.whereRelation = new WhereCondition();
     }
 
-    public IFetchResult where(WhereCondition condition) {
+    public IFetchResult where(Consumer<WhereCondition> condition) {
+        // 确保传递的是 WhereCondition
+//        condition.accept(whereRelation);
         return null;
     }
-
+    public void test(Consumer<WhereCondition> condition) {
+        System.out.println("zxcvbnm");
+    }
     @Override
     public <R> R fetchOne() {
         return null;

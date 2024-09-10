@@ -31,8 +31,8 @@ public class ColumnRelation extends QueryFieldExtractor {
     }
 
     @Override
-    public <T> TableRelation from(Class<T> tableClass) {
-        tableRelation = new TableRelation(tableClass);
+    public <T> TableRelation<T> from(Class<T> tableClass) {
+        tableRelation = new TableRelation<>(tableClass);
         return tableRelation;
     }
 
