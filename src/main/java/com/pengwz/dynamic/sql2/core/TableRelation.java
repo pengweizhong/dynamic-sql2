@@ -20,14 +20,16 @@ public class TableRelation<R> implements IFetchResult {
         this.whereRelation = new WhereCondition();
     }
 
-    public IFetchResult where(Consumer<WhereCondition> condition) {
+    public IFetchResult where(Consumer<ICondition> condition) {
         // 确保传递的是 WhereCondition
 //        condition.accept(whereRelation);
         return null;
     }
+
     public void test(Consumer<WhereCondition> condition) {
         System.out.println("zxcvbnm");
     }
+
     @Override
     public <R> R fetchOne() {
         return null;

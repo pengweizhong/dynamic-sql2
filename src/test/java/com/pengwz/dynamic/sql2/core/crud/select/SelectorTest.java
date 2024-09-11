@@ -39,10 +39,7 @@ class SelectorTest extends InitializingContext {
                 .column(Teacher::getFirstName)
                 .from(Teacher.class)
                 .where(
-                        condition -> {
-                            condition.andEq(Teacher::getTeacherId, 1)
-                                    .orEq(Teacher::getTeacherId, 2);
-                        }
+                        condition -> condition.andIsEmpty(Teacher::getTeacherId)
                 )
                 .fetchSet();
 
