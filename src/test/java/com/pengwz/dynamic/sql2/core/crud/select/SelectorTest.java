@@ -4,7 +4,10 @@ import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.entites.Student;
 import com.pengwz.dynamic.sql2.entites.TClass;
 import com.pengwz.dynamic.sql2.entites.Teacher;
+import com.pengwz.dynamic.sql2.enums.SortOrder;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
 
 
 class SelectorTest extends InitializingContext {
@@ -53,6 +56,21 @@ class SelectorTest extends InitializingContext {
                 .selfJoin("a", on -> on.andEqualTo(Student::getClassId, Student::getClassId))
                 .where(condition -> condition.andIsNull(Student::getClassId))
                 .fetch(Student.class).toSet();
+    }
+
+    @Test
+    public void select5() {
+        Map<Integer, Integer> map = Selector.instance()
+                .column(Student::getStudentId)
+                .column(Teacher::getTeacherId)
+                .from(Student.class)
+                .where(condition -> condition.andIsNull(Teacher::getTeacherId))
+                .groupBy(Teacher::getTeacherId)
+                .orderBy(Student::getEnrollmentDate, SortOrder.DESC)
+                .thenOrderBy(Student::getBirthDate, SortOrder.ASC)
+                .thenOrderBy("", SortOrder.ASC)
+                .fetch().toMap(Student::getStudentId, Teacher::getTeacherId);
+        System.out.println(map);
     }
 }
 
