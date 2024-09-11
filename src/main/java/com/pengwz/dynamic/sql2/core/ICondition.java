@@ -1,5 +1,7 @@
 package com.pengwz.dynamic.sql2.core;
 
+import java.util.function.Consumer;
+
 /**
  * SQL 查询条件接口，用于构建动态 SQL 查询条件。
  * <p>
@@ -607,6 +609,44 @@ public interface ICondition {
      * @return 当前 ICondition 实例
      */
     <T, F> ICondition orIsNegative(Fn<T, F> fn);
+
+    /**
+     * 添加一组条件，并且运算。
+     * <p>
+     * 该方法允许将一组条件作为当前条件的子条件进行添加，并且将它们合并为一个结果。
+     * 其中传入的 {@link Consumer} 对象接受一个 {@link ICondition} 实例，
+     * 用于设置嵌套的条件组合。
+     * <p>
+     * 例如：
+     * <pre>
+     *     condition.andCondition(nestedCondition -> {
+     *         nestedCondition.andEqualTo(SomeClass::getA, 1);
+     *         nestedCondition.orCondition(innerCondition -> {
+     *             innerCondition.andEqualTo(SomeClass::getB, 2);
+     *             innerCondition.orEqualTo(SomeClass::getC, 2);
+     *         });
+     *     });
+     * </pre>
+     *
+     * @param nestedCondition 用于配置嵌套条件的 {@link Consumer} 对象
+     * @return 当前的 {@link ICondition} 实例，以便实现链式调用
+     */
+    default ICondition andCondition(Consumer<ICondition> nestedCondition) {
+        nestedCondition.accept(this);
+        return this;
+    }
+
+    /**
+     * 添加一个嵌套条件，或运算。
+     *
+     * @param nestedCondition 用于配置嵌套条件的 {@link Consumer} 对象
+     * @return 当前的 {@link ICondition} 实例，以便实现链式调用
+     * @see this#andCondition(Consumer)
+     */
+    default ICondition orCondition(Consumer<ICondition> nestedCondition) {
+        nestedCondition.accept(this);
+        return this;
+    }
 
     /**
      * 添加自定义 SQL 条件子句到查询中。

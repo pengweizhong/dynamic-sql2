@@ -40,6 +40,7 @@ class SelectorTest extends InitializingContext {
                 .from(Teacher.class)
                 .where(
                         condition -> condition.andIsEmpty(Teacher::getTeacherId)
+                                .andComplexCondition(c->c.andIsNull(Teacher::getTeacherId))
                 )
                 .fetchSet();
 
