@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 /**
  * SQL 查询条件接口，用于构建动态 SQL 查询条件。
+ * 此接口同时支持 WHERE 和 ON 条件的使用。
  * <p>
  * 此接口提供了一组方法，以流式（链式）方式构建 SQL 查询条件，
  * 支持常见的 SQL 操作符和函数，例如相等、比较、范围、模糊匹配等。
@@ -45,6 +46,22 @@ public interface ICondition {
     <T, F> ICondition andEqualTo(Fn<T, F> fn, Object value);
 
     /**
+     * 添加等值连接条件，并且运算。
+     * <pre>
+     *     on.andEqualTo(Student::getClassId, Class::getId);
+     * </pre>
+     * 这将会生成 SQL 中的 "ON Student.classId = Class.id" 条件。
+     *
+     * @param field1 第一个字段，来自第一个实体类
+     * @param field2 第二个字段，来自第二个实体类
+     * @param <T1>   第一个实体类类型
+     * @param <T2>   第二个实体类类型
+     * @param <F>    字段类型
+     * @return 当前的 {@link ICondition} 实例，以便实现链式调用
+     */
+    <T1, T2, F> ICondition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    /**
      * 添加等于条件，或运算。
      *
      * @param fn    用于获取字段值的函数
@@ -54,6 +71,18 @@ public interface ICondition {
      * @return 当前 ICondition 实例
      */
     <T, F> ICondition orEqualTo(Fn<T, F> fn, Object value);
+
+    /**
+     * 添加字段等值连接条件，或运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition orEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加不等于条件，并且运算。
@@ -67,6 +96,18 @@ public interface ICondition {
     <T, F> ICondition andNotEqualTo(Fn<T, F> fn, Object value);
 
     /**
+     * 添加字段不等值连接条件，并且运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition andNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    /**
      * 添加不等于条件，或运算。
      *
      * @param fn    用于获取字段值的函数
@@ -76,6 +117,18 @@ public interface ICondition {
      * @return 当前 ICondition 实例
      */
     <T, F> ICondition orNotEqualTo(Fn<T, F> fn, Object value);
+
+    /**
+     * 添加字段不等值连接条件，或运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition orNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加长度等于条件，并且运算。
@@ -235,6 +288,18 @@ public interface ICondition {
     <T, F> ICondition andGreaterThan(Fn<T, F> fn, Object value);
 
     /**
+     * 添加字段大于连接条件，并且运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition andGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    /**
      * 添加字段大于指定值条件，或运算。
      *
      * @param fn    用于获取字段值的函数
@@ -244,6 +309,41 @@ public interface ICondition {
      * @return 当前 ICondition 实例
      */
     <T, F> ICondition orGreaterThan(Fn<T, F> fn, Object value);
+
+    /**
+     * 添加字段大于连接条件，或运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition orGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    /**
+     * 添加字段大于或等于指定值条件，并且运算。
+     *
+     * @param fn    用于获取字段值的函数
+     * @param value 匹配的值
+     * @param <T>   实体类类型
+     * @param <F>   字段类型
+     * @return 当前 ICondition 实例
+     */
+    <T, F> ICondition andGreaterThanOrEqualTo(Fn<T, F> fn, Object value);
+
+    /**
+     * 添加字段大于或等于连接条件，并且运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition andGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段大于或等于指定值条件，或运算。
@@ -257,6 +357,18 @@ public interface ICondition {
     <T, F> ICondition orGreaterThanOrEqualTo(Fn<T, F> fn, Object value);
 
     /**
+     * 添加字段大于或等于连接条件，或运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition orGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    /**
      * 添加字段小于指定值条件，并且运算。
      *
      * @param fn    用于获取字段值的函数
@@ -266,6 +378,18 @@ public interface ICondition {
      * @return 当前 ICondition 实例
      */
     <T, F> ICondition andLessThan(Fn<T, F> fn, Object value);
+
+    /**
+     * 添加字段小于连接条件，并且运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition andLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段小于指定值条件，或运算。
@@ -279,6 +403,18 @@ public interface ICondition {
     <T, F> ICondition orLessThan(Fn<T, F> fn, Object value);
 
     /**
+     * 添加字段小于连接条件，或运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition orLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    /**
      * 添加字段小于或等于指定值条件，并且运算。
      *
      * @param fn    用于获取字段值的函数
@@ -290,6 +426,18 @@ public interface ICondition {
     <T, F> ICondition andLessThanOrEqualTo(Fn<T, F> fn, Object value);
 
     /**
+     * 添加字段小于或等于连接条件，并且运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition andLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    /**
      * 添加字段小于或等于指定值条件，或运算。
      *
      * @param fn    用于获取字段值的函数
@@ -299,6 +447,18 @@ public interface ICondition {
      * @return 当前 ICondition 实例
      */
     <T, F> ICondition orLessThanOrEqualTo(Fn<T, F> fn, Object value);
+
+    /**
+     * 添加字段小于或等于连接条件，或运算。
+     *
+     * @param <T1>   实体类类型1
+     * @param <T2>   实体类类型2
+     * @param <F>    字段类型
+     * @param field1 用于获取第一个字段值的函数
+     * @param field2 用于获取第二个字段值的函数
+     * @return 当前 {@link ICondition} 实例
+     */
+    <T1, T2, F> ICondition orLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段在指定值集合中条件，并且运算。
@@ -357,6 +517,36 @@ public interface ICondition {
     <T, F> ICondition andBetween(Fn<T, F> fn, Object start, Object end);
 
     /**
+     * 添加字段 BETWEEN 连接条件，并且运算。
+     * <p>
+     * 该方法用于构建一个 BETWEEN 连接条件，将指定字段的值与起始值和结束值之间的范围进行比较。
+     * 在调用此方法时，可以传入一个用于获取字段值的函数，以及两个用于获取起始值和结束值的函数。
+     * 这将生成一个 BETWEEN 条件，将其与当前条件组合使用。
+     * <p>
+     * 例如，假设有两个表 `Order` 和 `Product`，你可以使用此方法将 `Order` 表的某个字段与 `Product` 表中的起始和结束字段之间的范围进行比较：
+     * <pre>
+     *     condition.andBetween(
+     *         Order::getOrderDate,           // Order 表的字段
+     *         Product::getStartDate,         // Product 表中的起始字段
+     *         Product::getEndDate            // Product 表中的结束字段
+     *     );
+     * </pre>
+     * 这将生成类似于以下 SQL 条件：
+     * <pre>
+     *     Order.orderDate BETWEEN Product.startDate AND Product.endDate
+     * </pre>
+     *
+     * @param <T1>       实体类类型1，表示第一个表的实体类
+     * @param <T2>       实体类类型2，表示第二个表的实体类
+     * @param <F>        字段类型，表示字段的数据类型
+     * @param field1     用于获取字段值的函数，表示要进行 BETWEEN 比较的字段
+     * @param startField 用于获取起始值的函数，表示范围的起始值
+     * @param endField   用于获取结束值的函数，表示范围的结束值
+     * @return 当前 {@link ICondition} 实例，以便实现链式调用
+     */
+    <T1, T2, F> ICondition andBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField);
+
+    /**
      * 添加字段在指定范围内条件，或运算。
      *
      * @param fn    用于获取字段值的函数
@@ -367,6 +557,20 @@ public interface ICondition {
      * @return 当前 ICondition 实例
      */
     <T, F> ICondition orBetween(Fn<T, F> fn, Object start, Object end);
+
+    /**
+     * 添加字段 BETWEEN 连接条件，或运算。
+     *
+     * @param <T1>       实体类类型1
+     * @param <T2>       实体类类型2
+     * @param <F>        字段类型
+     * @param field1     用于获取字段值的函数
+     * @param startField 用于获取起始值的函数
+     * @param endField   用于获取结束值的函数
+     * @return 当前 {@link ICondition} 实例
+     * @see this#andBetween(Fn, Fn, Fn)
+     */
+    <T1, T2, F> ICondition orBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField);
 
     /**
      * 添加字段不在指定范围内条件，并且运算。
@@ -401,7 +605,7 @@ public interface ICondition {
      * @param <F>     字段类型
      * @return 当前 ICondition 实例
      */
-    <T, F> ICondition andLike(Fn<T, F> fn, Object pattern);
+    <T, F> ICondition andLike(Fn<T, F> fn, String pattern);
 
     /**
      * 添加字段匹配指定模式条件，或运算。
@@ -412,7 +616,7 @@ public interface ICondition {
      * @param <F>     字段类型
      * @return 当前 ICondition 实例
      */
-    <T, F> ICondition orLike(Fn<T, F> fn, Object pattern);
+    <T, F> ICondition orLike(Fn<T, F> fn, String pattern);
 
     /**
      * 添加字段不匹配指定模式条件，并且运算。
@@ -423,7 +627,7 @@ public interface ICondition {
      * @param <F>     字段类型
      * @return 当前 ICondition 实例
      */
-    <T, F> ICondition andNotLike(Fn<T, F> fn, Object pattern);
+    <T, F> ICondition andNotLike(Fn<T, F> fn, String pattern);
 
     /**
      * 添加字段不匹配指定模式条件，或运算。
@@ -434,7 +638,7 @@ public interface ICondition {
      * @param <F>     字段类型
      * @return 当前 ICondition 实例
      */
-    <T, F> ICondition orNotLike(Fn<T, F> fn, Object pattern);
+    <T, F> ICondition orNotLike(Fn<T, F> fn, String pattern);
 
     /**
      * 添加字段匹配正则表达式条件，并且运算。
@@ -653,7 +857,7 @@ public interface ICondition {
      * <p>
      * 使用此方法可以添加任何不在接口预定义方法中的 SQL 条件。适用于复杂的查询条件，或者数据库特定的 SQL 语法。
      * <p>
-     * 例如，如果你需要添加类似 `AND column BETWEEN ? AND ?` 这样的条件，
+     * 例如，如果需要添加类似 `AND column BETWEEN ? AND ?` 这样的条件，
      * 可以使用此方法来指定自定义的 SQL 子句和对应的参数。
      *
      * @param customClause 自定义的 SQL 条件子句，这里应包含一个有效的 SQL 片段，通常是一个条件表达式

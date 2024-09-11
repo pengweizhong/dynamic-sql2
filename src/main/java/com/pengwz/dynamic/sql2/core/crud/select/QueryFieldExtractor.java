@@ -2,7 +2,6 @@ package com.pengwz.dynamic.sql2.core.crud.select;
 
 import com.pengwz.dynamic.sql2.core.ColumnRelation;
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.TableRelation;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
 import java.util.ArrayList;

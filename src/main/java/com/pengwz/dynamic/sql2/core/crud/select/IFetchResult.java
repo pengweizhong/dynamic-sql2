@@ -1,24 +1,21 @@
 package com.pengwz.dynamic.sql2.core.crud.select;
 
+import com.pengwz.dynamic.sql2.core.Fn;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
-public interface IFetchResult {
+public interface IFetchResult<R> {
+    R toOne();
 
-    <R> R fetchOne();
+    List<R> toList();
 
-    <T> T fetchOne(Class<T> returnType);
+    Set<R> toSet();
 
-    <R> List<R> fetchList();
+    <T1, T2, K, V> Map<K, V> toMap(Fn<T1, K> fnKey, Fn<T2, V> fnValue);
 
-    <T> List<T> fetchList(Class<T> returnType);
+    //TODO 回头研究一下分组方法
+    //void toGroupingBy();
 
-    <R> Set<R> fetchSet();
-
-    <T> Set<T> fetchSet(Class<T> returnType);
-
-    <R> Stream<R> fetchStream();
-
-    <T> Stream<T> fetchStream(Class<T> returnType);
 }

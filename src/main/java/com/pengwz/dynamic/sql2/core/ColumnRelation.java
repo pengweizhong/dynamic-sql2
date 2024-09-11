@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 import com.pengwz.dynamic.sql2.core.crud.select.QueryFieldExtractor;
+import com.pengwz.dynamic.sql2.core.crud.select.TableRelation;
 
 public class ColumnRelation extends QueryFieldExtractor {
     private IColumFunction iColumFunction;
