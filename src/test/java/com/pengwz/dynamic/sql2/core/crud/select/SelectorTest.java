@@ -7,6 +7,7 @@ import com.pengwz.dynamic.sql2.entites.Teacher;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.Map;
 
 
@@ -25,7 +26,7 @@ class SelectorTest extends InitializingContext {
     @Test
     public void select2() {
         Selector.instance()
-                .column(Teacher::getTeacherId)
+                .column(Teacher::getTeacherId).as("name")
                 .column(Teacher::getFirstName)
                 .from(Teacher.class)
                 .where(
@@ -55,7 +56,9 @@ class SelectorTest extends InitializingContext {
                 .join(Student.class, on -> on.andEqualTo(TClass::getClassId, Student::getClassId))
                 .selfJoin("a", on -> on.andEqualTo(Student::getClassId, Student::getClassId))
                 .where(condition -> condition.andIsNull(Student::getClassId))
-                .fetch(Student.class).toSet();
+                .fetch(Student.class)
+                .toSet(HashSet::new);
+        ;
     }
 
     @Test
@@ -68,8 +71,10 @@ class SelectorTest extends InitializingContext {
                 .groupBy(Teacher::getTeacherId)
                 .orderBy(Student::getEnrollmentDate, SortOrder.DESC)
                 .thenOrderBy(Student::getBirthDate, SortOrder.ASC)
-                .thenOrderBy("", SortOrder.ASC)
-                .fetch().toMap(Student::getStudentId, Teacher::getTeacherId);
+                .thenOrderBy("id is null", SortOrder.ASC)
+                .fetch().toMap(Student::getStudentId, Teacher::getTeacherId)
+//                .fetch().toma
+                ;
         System.out.println(map);
     }
 }

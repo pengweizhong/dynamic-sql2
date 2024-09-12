@@ -21,9 +21,8 @@ public class Selector extends QueryFieldExtractor {
     }
 
     @Override
-    public <T, F> ColumnRelation column(Fn<T, F> fn) {
+    public final <T, F> ColumnRelation column(Fn<T, F> fn) {
         ColumnRelation columnRelation = new ColumnRelation(fn);
-        queryFields.add(new Column(fn));
         return columnRelation;
     }
 
@@ -36,7 +35,7 @@ public class Selector extends QueryFieldExtractor {
     }
 
     @Override
-    public <T> TableRelation from(Class<T> tableClass) {
+    public <T> TableRelation<T> from(Class<T> tableClass) {
         TableRelation tableRelation = new TableRelation(tableClass);
         return tableRelation;
     }

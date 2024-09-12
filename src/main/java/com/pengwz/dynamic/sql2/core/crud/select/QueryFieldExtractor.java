@@ -18,6 +18,6 @@ public abstract class QueryFieldExtractor {
         return this;
     }
 
-    public abstract <T> TableRelation from(Class<T> tableClass);
+    public abstract <T> TableRelation<T> from(Class<T> tableClass);
 
 }

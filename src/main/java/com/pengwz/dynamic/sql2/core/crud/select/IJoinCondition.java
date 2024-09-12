@@ -17,29 +17,58 @@ public interface IJoinCondition extends IFetchable {
     }
 
     /**
-     * 表示 INNER JOIN 连接
+     * 构建一个 INNER JOIN 连接，用于将当前查询与另一个表关联。
+     * <p>
+     * 通过传入实体类和条件构建器动态生成 ON 条件，从而定义连接的逻辑。
+     * <p>
+     * 示例：
+     * <pre>
+     *     query.innerJoin(User.class, condition -> {
+     *         condition.andEqualTo("userId", "orderUserId");
+     *     });
+     * </pre>
      *
-     * @param clazz       表对应的实体类
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象
-     * @return 当前的 {@link IJoinCondition} 实例
+     * @param clazz       需要连接的表对应的实体类
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link ICondition} 接口定义连接条件
+     * @return 当前查询上下文的 {@link IJoinCondition} 实例，用于继续构建查询链
      */
     IJoinCondition innerJoin(Class<?> clazz, Consumer<ICondition> onCondition);
 
     /**
-     * 表示 LEFT JOIN 连接
+     * 构建一个 LEFT JOIN 连接，用于将当前查询与另一个表进行左连接。
+     * <p>
+     * LEFT JOIN 返回左表中的所有记录，即使在右表中没有匹配的记录。
+     * 通过传入实体类和条件构建器动态生成 ON 条件，从而定义连接的逻辑。
+     * <p>
+     * 示例：
+     * <pre>
+     *     query.leftJoin(Order.class, condition -> {
+     *         condition.andEqualTo("orderId", "userOrderId");
+     *     });
+     * </pre>
      *
-     * @param clazz       表对应的实体类
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象
-     * @return 当前的 {@link IJoinCondition} 实例
+     * @param clazz       需要左连接的表对应的实体类
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link ICondition} 接口定义连接条件
+     * @return 当前查询上下文的 {@link IJoinCondition} 实例，用于继续构建查询链
      */
     IJoinCondition leftJoin(Class<?> clazz, Consumer<ICondition> onCondition);
 
     /**
-     * 表示 RIGHT JOIN 连接
+     * 构建一个 RIGHT JOIN 连接，用于将当前查询与另一个表进行右连接。
+     * <p>
+     * RIGHT JOIN 返回右表中的所有记录，即使在左表中没有匹配的记录。
+     * 通过传入实体类和条件构建器动态生成 ON 条件，从而定义连接的逻辑。
+     * <p>
+     * 示例：
+     * <pre>
+     *     query.rightJoin(Product.class, condition -> {
+     *         condition.andEqualTo("productId", "orderProductId");
+     *     });
+     * </pre>
      *
-     * @param clazz       表对应的实体类
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象
-     * @return 当前的 {@link IJoinCondition} 实例
+     * @param clazz       需要右连接的表对应的实体类
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link ICondition} 接口定义连接条件
+     * @return 当前查询上下文的 {@link IJoinCondition} 实例，用于继续构建查询链
      */
     IJoinCondition rightJoin(Class<?> clazz, Consumer<ICondition> onCondition);
 
