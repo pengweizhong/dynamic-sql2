@@ -2,6 +2,8 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.SqlContext;
+import com.pengwz.dynamic.sql2.core.column.function.impl.Max;
+import com.pengwz.dynamic.sql2.core.column.function.impl.Md5;
 import com.pengwz.dynamic.sql2.entites.Student;
 import com.pengwz.dynamic.sql2.entites.TClass;
 import com.pengwz.dynamic.sql2.entites.Teacher;
@@ -9,6 +11,7 @@ import com.pengwz.dynamic.sql2.enums.SortOrder;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 
@@ -74,10 +77,18 @@ class SelectTest extends InitializingContext {
                 .orderBy(Student::getEnrollmentDate, SortOrder.DESC)
                 .thenOrderBy(Student::getBirthDate, SortOrder.ASC)
                 .thenOrderBy("id is null desc")
-                .fetch().toMap(Student::getStudentId, Teacher::getTeacherId)
-//                .fetch().toma
-                ;
+                .fetch().toMap(Student::getStudentId, Teacher::getTeacherId);
         System.out.println(map);
+    }
+
+    @Test
+    void select6() {
+        List<Student> list = sqlContext.select()
+                .column(Student::getStudentId)
+                .column(new Md5(new Max(Student::getFirstName)))
+                .from(Student.class)
+                .fetch().toList();
+        System.out.println(list);
     }
 }
 

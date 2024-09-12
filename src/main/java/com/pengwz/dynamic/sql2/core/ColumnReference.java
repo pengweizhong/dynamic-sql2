@@ -8,6 +8,8 @@ import com.pengwz.dynamic.sql2.core.dml.select.TableRelation;
 public class ColumnReference extends AbstractColumnReference {
     private IColumFunction iColumFunction;
 
+    public ColumnReference() {
+    }
 
     public ColumnReference(IColumFunction iColumFunction) {
         this.iColumFunction = iColumFunction;

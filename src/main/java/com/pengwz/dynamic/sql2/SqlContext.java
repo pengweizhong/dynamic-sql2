@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2;
 
+import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 
 public class SqlContext {
@@ -12,8 +13,8 @@ public class SqlContext {
         return new SqlContext();
     }
 
-    public Select select() {
-        return new Select();
+    public AbstractColumnReference select() {
+        return new Select().loadColumReference();
     }
 
 
