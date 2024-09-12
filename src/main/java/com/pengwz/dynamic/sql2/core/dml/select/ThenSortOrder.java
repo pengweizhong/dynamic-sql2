@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.core.crud.select;
+package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
@@ -20,8 +20,8 @@ public class ThenSortOrder implements IFetchable {
         return this;
     }
 
-    public ThenSortOrder thenOrderBy(String orderingFragment, SortOrder sortOrder) {
-        orderBys.add(new OrderBy(orderingFragment, sortOrder));
+    public ThenSortOrder thenOrderBy(String orderingFragmentSql) {
+        orderBys.add(new OrderBy(orderingFragmentSql));
         return this;
     }
 

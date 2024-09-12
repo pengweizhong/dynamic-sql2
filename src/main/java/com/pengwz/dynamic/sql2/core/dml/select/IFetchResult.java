@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.core.crud.select;
+package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 

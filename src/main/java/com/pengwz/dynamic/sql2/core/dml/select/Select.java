@@ -1,19 +1,11 @@
-package com.pengwz.dynamic.sql2.core.crud.select;
+package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.ColumnRelation;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
-public class Selector extends QueryFieldExtractor {
-
-    private Selector() {
-    }
-
-    public static Selector instance() {
-        Selector selector = new Selector();
-        return selector;
-    }
+public class Select extends QueryFieldExtractor {
 
     public ColumnRelation allColumn() {
         queryFields.add(new Column("*"));
@@ -21,13 +13,24 @@ public class Selector extends QueryFieldExtractor {
     }
 
     @Override
-    public final <T, F> ColumnRelation column(Fn<T, F> fn) {
+    public <T, F> ColumnRelation column(Fn<T, F> fn) {
+        return column(fn, null);
+    }
+
+    @Override
+    public <T, F> ColumnRelation column(Fn<T, F> fn, String alias) {
         ColumnRelation columnRelation = new ColumnRelation(fn);
         return columnRelation;
     }
 
     @Override
     public ColumnRelation column(IColumFunction iColumFunction) {
+        return this.column(iColumFunction, null);
+    }
+
+
+    @Override
+    public ColumnRelation column(IColumFunction iColumFunction, String alias) {
         System.out.println("测试函数结果 --> " + iColumFunction.getFunctionToString());
         ColumnRelation columnRelation = new ColumnRelation(iColumFunction);
         queryFields.add(iColumFunction);

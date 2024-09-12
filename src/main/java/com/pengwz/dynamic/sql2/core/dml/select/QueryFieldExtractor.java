@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.core.crud.select;
+package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.ColumnRelation;
 import com.pengwz.dynamic.sql2.core.Fn;
@@ -12,11 +12,11 @@ public abstract class QueryFieldExtractor {
 
     public abstract <T, F> ColumnRelation column(Fn<T, F> fn);
 
+    public abstract <T, F> ColumnRelation column(Fn<T, F> fn, String alias);
+
     public abstract ColumnRelation column(IColumFunction iColumFunction);
 
-    public QueryFieldExtractor as(String aliasName) {
-        return this;
-    }
+    public abstract ColumnRelation column(IColumFunction iColumFunction, String alias);
 
     public abstract <T> TableRelation<T> from(Class<T> tableClass);
 

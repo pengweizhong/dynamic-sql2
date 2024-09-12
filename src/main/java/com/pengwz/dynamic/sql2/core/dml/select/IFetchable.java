@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.core.crud.select;
+package com.pengwz.dynamic.sql2.core.dml.select;
 
 /**
  * 定义数据获取操作的接口，提供了两种方式来获取查询结果。

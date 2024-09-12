@@ -1,6 +1,7 @@
-package com.pengwz.dynamic.sql2.core.crud.select;
+package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.SqlContext;
 import com.pengwz.dynamic.sql2.entites.Student;
 import com.pengwz.dynamic.sql2.entites.TClass;
 import com.pengwz.dynamic.sql2.entites.Teacher;
@@ -11,22 +12,23 @@ import java.util.HashSet;
 import java.util.Map;
 
 
-class SelectorTest extends InitializingContext {
+class SelectTest extends InitializingContext {
 
+    SqlContext sqlContext = SqlContext.createSqlContext();
 
     @Test
-    public void select1() {
-        Selector.instance()
-                .column(Teacher::getTeacherId)
-                .column(Teacher::getFirstName).as("name")
+    void select1() {
+        sqlContext.select()
+                .column(Teacher::getTeacherId, "id")
+                .column(Teacher::getFirstName)
                 .from(Teacher.class)
                 .fetch().toList();
     }
 
     @Test
-    public void select2() {
-        Selector.instance()
-                .column(Teacher::getTeacherId).as("name")
+    void select2() {
+        sqlContext.select()
+                .column(Teacher::getTeacherId)
                 .column(Teacher::getFirstName)
                 .from(Teacher.class)
                 .where(
@@ -39,8 +41,8 @@ class SelectorTest extends InitializingContext {
     }
 
     @Test
-    public void select3() {
-        Selector.instance()
+    void select3() {
+        sqlContext.select()
                 .allColumn()
                 .from(TClass.class)
                 .join(Student.class, on -> on.andEqualTo(TClass::getClassId, Student::getClassId))
@@ -49,8 +51,8 @@ class SelectorTest extends InitializingContext {
     }
 
     @Test
-    public void select4() {
-        Selector.instance()
+    void select4() {
+        sqlContext.select()
                 .allColumn()
                 .from(TClass.class)
                 .join(Student.class, on -> on.andEqualTo(TClass::getClassId, Student::getClassId))
@@ -62,8 +64,8 @@ class SelectorTest extends InitializingContext {
     }
 
     @Test
-    public void select5() {
-        Map<Integer, Integer> map = Selector.instance()
+    void select5() {
+        Map<Integer, Integer> map = sqlContext.select()
                 .column(Student::getStudentId)
                 .column(Teacher::getTeacherId)
                 .from(Student.class)
@@ -71,7 +73,7 @@ class SelectorTest extends InitializingContext {
                 .groupBy(Teacher::getTeacherId)
                 .orderBy(Student::getEnrollmentDate, SortOrder.DESC)
                 .thenOrderBy(Student::getBirthDate, SortOrder.ASC)
-                .thenOrderBy("id is null", SortOrder.ASC)
+                .thenOrderBy("id is null desc")
                 .fetch().toMap(Student::getStudentId, Teacher::getTeacherId)
 //                .fetch().toma
                 ;

@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.core.crud.select;
+package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
@@ -8,10 +8,10 @@ public class OrderBy {
     private final Fn fn;
     private final SortOrder sortOrder;
 
-    public OrderBy(String orderingFragment, SortOrder sortOrder) {
+    public OrderBy(String orderingFragment) {
         this.orderingFragment = orderingFragment;
         this.fn = null;
-        this.sortOrder = sortOrder;
+        this.sortOrder = null;
     }
 
     public <T, F> OrderBy(Fn<T, F> fn, SortOrder sortOrder) {

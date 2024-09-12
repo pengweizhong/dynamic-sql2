@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core;
 
-import com.pengwz.dynamic.sql2.core.crud.select.TableRelation;
+import com.pengwz.dynamic.sql2.core.dml.select.TableRelation;
 
 public class AliasTableRelation {
     private TableRelation tableRelation;
