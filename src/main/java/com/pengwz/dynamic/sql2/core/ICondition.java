@@ -523,7 +523,7 @@ public interface ICondition {
      * 在调用此方法时，可以传入一个用于获取字段值的函数，以及两个用于获取起始值和结束值的函数。
      * 这将生成一个 BETWEEN 条件，将其与当前条件组合使用。
      * <p>
-     * 例如，假设有两个表 `Order` 和 `Product`，你可以使用此方法将 `Order` 表的某个字段与 `Product` 表中的起始和结束字段之间的范围进行比较：
+     * 例如，假设有两个表 `Order` 和 `Product`，可以使用此方法将 `Order` 表的某个字段与 `Product` 表中的起始和结束字段之间的范围进行比较：
      * <pre>
      *     condition.andBetween(
      *         Order::getOrderDate,           // Order 表的字段
