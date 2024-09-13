@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.ICondition;
+import com.pengwz.dynamic.sql2.core.IWhereCondition;
 
 import java.util.function.Consumer;
 
@@ -154,7 +155,7 @@ public interface IJoinCondition extends IFetchable {
      * @param condition 用于构建 where 条件的 {@link Consumer} 对象。
      * @return 返回表连接的实例
      */
-    TableRelation<?> where(Consumer<ICondition> condition);//NOSONAR
+    TableRelation<?> where(Consumer<IWhereCondition> condition);//NOSONAR
 
 
 }

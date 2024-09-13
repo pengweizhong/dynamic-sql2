@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.ICondition;
+import com.pengwz.dynamic.sql2.core.IWhereCondition;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 
 import java.util.function.Consumer;
@@ -47,7 +48,7 @@ public class TableRelation<R> implements IJoinCondition {
     }
 
     @Override
-    public TableRelation<R> where(Consumer<ICondition> condition) {
+    public TableRelation<R> where(Consumer<IWhereCondition> condition) {
         return this;
     }
 

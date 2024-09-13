@@ -106,6 +106,14 @@ class SelectTest extends InitializingContext {
                 }, "aaa")
                 .column(Student::getBirthDate)
                 .from(Student.class)
+                .where(condition ->
+                        condition.andEqualTo(Student::getLastName, nestedSelect -> {
+                                    nestedSelect.select().column(Student::getStudentId).from(Student.class);
+                                })
+                                .orEqualTo(Student::getLastName, "123")
+                                .orEqualTo(Student::getLastName, Student::getClassId)
+
+                )
                 .fetch().toList();
         System.out.println(list);
     }
