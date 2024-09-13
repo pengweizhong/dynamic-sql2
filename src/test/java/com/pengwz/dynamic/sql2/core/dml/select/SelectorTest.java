@@ -64,7 +64,7 @@ class SelectTest extends InitializingContext {
                 .allColumn()
                 .from(TClass.class)
                 .join(Student.class, on -> on.andEqualTo(TClass::getClassId, Student::getClassId))
-                .selfJoin("a", on -> on.andEqualTo(Student::getClassId, Student::getClassId))
+                .leftJoin(TClass.class, on -> on.andEqualTo(Student::getClassId, TClass::getClassId))
                 .where(condition -> condition.andIsNull(Student::getClassId))
                 .fetch()
                 .toSet(HashSet::new);
@@ -127,7 +127,7 @@ class SelectTest extends InitializingContext {
     @Test
     void select0() {
         Student one = sqlContext.select()
-                .column(CaseWhen.builder(Student::getStudentId).build())
+                .column(CaseWhen.builder(Student::getStudentId).build()).allColumn()
                 .from(Student.class)
                 .where()
                 .exists(nestedSelect -> nestedSelect.select().one().from(Student.class))

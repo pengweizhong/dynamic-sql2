@@ -29,6 +29,11 @@ public abstract class AbstractColumnReference {
         return new AllColumnReference();
     }
 
+    //TODO 多表时需要指定取哪个表的全部列，发生字段冲突时以谁的为准
+    public AbstractColumnReference allColumn(Class<?> tableClass/*, merge...*/) {
+        return new AllColumnReference();
+    }
+
     public abstract <T> TableRelation<T> from(Class<T> tableClass);
 
     public static class AllColumnReference extends ColumnReference {
