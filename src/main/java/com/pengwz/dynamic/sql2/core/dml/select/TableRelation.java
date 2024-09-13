@@ -52,6 +52,14 @@ public class TableRelation<R> implements IJoinCondition {
         return this;
     }
 
+    public TableRelation<R> where() {
+        return this;
+    }
+
+    public TableRelation<R> exists(Consumer<NestedSelect> nestedSelect) {
+        return this;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public IFetchResult<R> fetch() {
@@ -87,4 +95,5 @@ public class TableRelation<R> implements IJoinCondition {
         ThenSortOrder sortOrderChain = new ThenSortOrder(null);
         return sortOrderChain;
     }
+
 }
