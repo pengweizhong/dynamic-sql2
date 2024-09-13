@@ -51,7 +51,7 @@ public interface IFetchResult<R> {
      * @param <S>         集合类型，与 {@code setSupplier} 传入的类型一致
      * @return 包含查询结果的集合实例
      */
-    <S extends Set<R>> S toSet(Supplier<S> setSupplier);
+    <S extends Set<?>> S toSet(Supplier<S> setSupplier);
 
     /**
      * 将查询结果转换为一个 {@link Map} 映射。通过指定的键和值的函数，

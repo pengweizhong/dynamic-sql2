@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 class SelectTest extends InitializingContext {
@@ -21,7 +22,7 @@ class SelectTest extends InitializingContext {
 
     @Test
     void select1() {
-        sqlContext.select()
+        List<Teacher> list = sqlContext.select()
                 .column(Teacher::getTeacherId, "id")
                 .column(Teacher::getFirstName)
                 .from(Teacher.class)
@@ -30,7 +31,7 @@ class SelectTest extends InitializingContext {
 
     @Test
     void select2() {
-        sqlContext.select()
+        Set<Teacher> set = sqlContext.select()
                 .column(Teacher::getTeacherId)
                 .column(Teacher::getFirstName)
                 .from(Teacher.class)
@@ -39,31 +40,32 @@ class SelectTest extends InitializingContext {
                                 .andCondition(c -> c.andIsNull(Teacher::getTeacherId)
                                         .orCondition(d -> d.andLengthEquals(Teacher::getTeacherId, 2)))
                 )
-                .fetch(Teacher.class).toSet();
-
+                .fetch().toSet();
+        System.out.println(set.size());
     }
 
     @Test
     void select3() {
-        sqlContext.select()
+        List<Student> a = sqlContext.select()
                 .allColumn()
                 .from(TClass.class)
                 .join(Student.class, on -> on.andEqualTo(TClass::getClassId, Student::getClassId))
                 .selfJoin("a", on -> on.andEqualTo(Student::getClassId, Student::getClassId))
-                .fetch().toList();
+                .fetch(Student.class).toList();
+        System.out.println(a.size());
     }
 
     @Test
     void select4() {
-        sqlContext.select()
+        HashSet<Student> a = sqlContext.select()
                 .allColumn()
                 .from(TClass.class)
                 .join(Student.class, on -> on.andEqualTo(TClass::getClassId, Student::getClassId))
                 .selfJoin("a", on -> on.andEqualTo(Student::getClassId, Student::getClassId))
                 .where(condition -> condition.andIsNull(Student::getClassId))
-                .fetch(Student.class)
+                .fetch()
                 .toSet(HashSet::new);
-        ;
+        System.out.println(a.size());
     }
 
     @Test
@@ -87,6 +89,10 @@ class SelectTest extends InitializingContext {
                 .column(Student::getStudentId)
                 .column(new Md5(new Max(Student::getFirstName)))
                 .from(Student.class)
+                .where(w -> w.andEqualTo(Student::getLastName, 1))
+                .groupBy(Student::getStudentId)
+                .having(w -> w.andEqualTo(new Max(Student::getLastName), 2)
+                        .andIsNotNull(Student::getStudentId))
                 .fetch().toList();
         System.out.println(list);
     }

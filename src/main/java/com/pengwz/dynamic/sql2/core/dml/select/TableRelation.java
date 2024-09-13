@@ -47,8 +47,8 @@ public class TableRelation<R> implements IJoinCondition {
     }
 
     @Override
-    public <T> TableRelation<T> where(Consumer<ICondition> condition) {
-        return null;
+    public TableRelation<R> where(Consumer<ICondition> condition) {
+        return this;
     }
 
     @Override
@@ -64,6 +64,12 @@ public class TableRelation<R> implements IJoinCondition {
 
     @SafeVarargs
     public final <T, K> TableRelation<R> groupBy(Fn<T, K>... fnKey) {
+        return this;
+    }
+
+    //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;
+    //  public abstract AbstractColumnReference column(IColumFunction iColumFunction);
+    public TableRelation<R> having(Consumer<IHavingCondition> condition) {
         return this;
     }
 

@@ -152,9 +152,9 @@ public interface IJoinCondition extends IFetchable {
      * 追加where条件
      *
      * @param condition 用于构建 where 条件的 {@link Consumer} 对象。
-     * @param <T>       当前表实体泛型
      * @return 返回表连接的实例
      */
-    <T> TableRelation<T> where(Consumer<ICondition> condition);
+    TableRelation<?> where(Consumer<ICondition> condition);//NOSONAR
+
 
 }
