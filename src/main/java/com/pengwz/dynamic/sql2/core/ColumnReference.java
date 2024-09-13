@@ -24,6 +24,11 @@ public class ColumnReference extends AbstractColumnReference {
 
 
     @Override
+    public AbstractColumnReference one() {
+        return this;
+    }
+
+    @Override
     public <T, F> ColumnReference column(Fn<T, F> fn) {
         return this.column(fn, null);
     }

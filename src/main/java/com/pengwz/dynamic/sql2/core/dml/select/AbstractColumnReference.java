@@ -12,6 +12,9 @@ import java.util.function.Consumer;
 public abstract class AbstractColumnReference {
     protected List<IColumFunction> queryFields = new ArrayList<>();
 
+    //简简单单的  select 1 from ...
+    public abstract AbstractColumnReference one();
+
     public abstract <T, F> AbstractColumnReference column(Fn<T, F> fn);
 
     public abstract <T, F> AbstractColumnReference column(Fn<T, F> fn, String alias);

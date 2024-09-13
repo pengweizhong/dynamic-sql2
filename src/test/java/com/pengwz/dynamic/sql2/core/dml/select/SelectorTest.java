@@ -129,7 +129,7 @@ class SelectTest extends InitializingContext {
                 .column(CaseWhen.builder(Student::getStudentId).build())
                 .from(Student.class)
                 .where()
-                .exists(nestedSelect -> nestedSelect.select().column(Student::getStudentId).from(Student.class))
+                .exists(nestedSelect -> nestedSelect.select().one().from(Student.class))
                 .fetch().toOne();
         System.out.println(one);
     }
