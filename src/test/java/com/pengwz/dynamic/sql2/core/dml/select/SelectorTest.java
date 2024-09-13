@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.SqlContext;
+import com.pengwz.dynamic.sql2.core.column.function.impl.Avg;
 import com.pengwz.dynamic.sql2.core.column.function.impl.Max;
 import com.pengwz.dynamic.sql2.core.column.function.impl.Md5;
 import com.pengwz.dynamic.sql2.entites.Student;
@@ -112,8 +113,10 @@ class SelectTest extends InitializingContext {
                                 })
                                 .orEqualTo(Student::getLastName, "123")
                                 .orEqualTo(Student::getLastName, Student::getClassId)
-
                 )
+                .groupBy(Student::getStudentId)
+                .having(w -> w.andEqualTo(new Max(Student::getLastName), 2)
+                        .andEqualTo(new Avg(Student::getLastName), nestedSelect -> nestedSelect.select().column(Student::getStudentId).from(Student.class)))
                 .fetch().toList();
         System.out.println(list);
     }
