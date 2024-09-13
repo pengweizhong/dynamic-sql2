@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.SqlContext;
 import com.pengwz.dynamic.sql2.core.column.function.impl.Avg;
+import com.pengwz.dynamic.sql2.core.column.function.impl.CaseWhen;
 import com.pengwz.dynamic.sql2.core.column.function.impl.Max;
 import com.pengwz.dynamic.sql2.core.column.function.impl.Md5;
 import com.pengwz.dynamic.sql2.entites.Student;
@@ -101,7 +102,7 @@ class SelectTest extends InitializingContext {
     @Test
     void select7() {
         List<Student> list = sqlContext.select()
-                .column(Student::getStudentId)
+                .column(CaseWhen.builder(Student::getStudentId).build())
                 .column(nestedSelect -> {
                     nestedSelect.select().column(Student::getStudentId).from(Student.class);
                 }, "aaa")
@@ -116,7 +117,8 @@ class SelectTest extends InitializingContext {
                 )
                 .groupBy(Student::getStudentId)
                 .having(w -> w.andEqualTo(new Max(Student::getLastName), 2)
-                        .andEqualTo(new Avg(Student::getLastName), nestedSelect -> nestedSelect.select().column(Student::getStudentId).from(Student.class)))
+                        .andEqualTo(new Avg(Student::getLastName),
+                                nestedSelect -> nestedSelect.select().column(Student::getStudentId).from(Student.class)))
                 .fetch().toList();
         System.out.println(list);
     }
