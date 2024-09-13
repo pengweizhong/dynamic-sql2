@@ -7,6 +7,7 @@ import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class AbstractColumnReference {
     protected List<IColumFunction> queryFields = new ArrayList<>();
@@ -18,6 +19,8 @@ public abstract class AbstractColumnReference {
     public abstract AbstractColumnReference column(IColumFunction iColumFunction);
 
     public abstract AbstractColumnReference column(IColumFunction iColumFunction, String alias);
+
+    public abstract AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String alias);
 
     public AbstractColumnReference allColumn() {
         return new AllColumnReference();

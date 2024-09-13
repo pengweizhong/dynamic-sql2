@@ -3,7 +3,10 @@ package com.pengwz.dynamic.sql2.core;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
+import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.TableRelation;
+
+import java.util.function.Consumer;
 
 public class ColumnReference extends AbstractColumnReference {
     private IColumFunction iColumFunction;
@@ -40,6 +43,11 @@ public class ColumnReference extends AbstractColumnReference {
     public ColumnReference column(IColumFunction iColumFunction, String alias) {
         System.out.println("测试函数结果 --> " + iColumFunction.getFunctionToString());
         queryFields.add(iColumFunction);
+        return this;
+    }
+
+    @Override
+    public AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String alias) {
         return this;
     }
 

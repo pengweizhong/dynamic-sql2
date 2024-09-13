@@ -96,6 +96,19 @@ class SelectTest extends InitializingContext {
                 .fetch().toList();
         System.out.println(list);
     }
+
+    @Test
+    void select7() {
+        List<Student> list = sqlContext.select()
+                .column(Student::getStudentId)
+                .column(nestedSelect -> {
+                    nestedSelect.select().column(Student::getStudentId).from(Student.class);
+                }, "aaa")
+                .column(Student::getBirthDate)
+                .from(Student.class)
+                .fetch().toList();
+        System.out.println(list);
+    }
 }
 
 

@@ -80,7 +80,8 @@ public class SqlContext {
     private SqlContext() {
     }
 
-    //TODO 回头把扫描包配置作为参数传进来  比如指定扫描的数据源位置、实体类位置、是否开启实时加载表等等
+    //TODO 回头把扫描包配置作为参数传进来  比如指定扫描的数据源位置、实体类位置、是否开启候补实时加载表等等
+    //当涉及子表嵌套查询时，是否分开多条SQL执行？
     public static SqlContext createSqlContext() {
         return new SqlContext();
     }

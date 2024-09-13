@@ -8,6 +8,7 @@ import java.util.List;
 
 public class Select {
     private List<ColumnReference> columnReferences = new ArrayList<>();
+    private List<NestedSelect> nestedSelects = new ArrayList<>();
 
     public AbstractColumnReference loadColumReference() {
         return new ColumnReference();
