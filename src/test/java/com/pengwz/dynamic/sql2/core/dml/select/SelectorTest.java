@@ -29,6 +29,7 @@ class SelectTest extends InitializingContext {
                 .column(Teacher::getFirstName)
                 .from(Teacher.class)
                 .fetch().toList();
+        System.out.println(list);
     }
 
     @Test
