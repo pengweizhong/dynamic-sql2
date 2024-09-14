@@ -157,5 +157,20 @@ public interface IJoinCondition extends IFetchable {
      */
     TableRelation<?> where(Consumer<IWhereCondition> condition);//NOSONAR
 
+    /**
+     * 限制查询结果的返回行数
+     *
+     * @param offset 需要跳过的行数
+     * @param limit  返回的最大行数
+     * @return 当前查询构建器的实例
+     */
+    IFetchable limit(int offset, int limit);
 
+    /**
+     * 限制查询结果的返回行数
+     *
+     * @param limit 返回的最大行数
+     * @return 当前查询构建器的实例
+     */
+    IFetchable limit(int limit);
 }

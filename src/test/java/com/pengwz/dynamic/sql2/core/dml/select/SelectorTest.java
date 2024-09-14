@@ -120,6 +120,7 @@ class SelectTest extends InitializingContext {
                                 })
                                 .orEqualTo(Student::getLastName, "123")
                                 .orEqualTo(Student::getLastName, Student::getClassId)
+                                .limit(1)
                 )
                 .groupBy(Student::getStudentId)
                 .having(w -> w.andEqualTo(new Max(Student::getLastName), 2)
@@ -174,6 +175,17 @@ class SelectTest extends InitializingContext {
                 .allColumn()
                 .from(Student.class)
                 .join(TClass.class, on -> on.andEqualTo(Student::getClassId, TClass::getClassId))
+                .limit(5, 10)
+                .fetch(Student.class)
+                .toList();
+        System.out.println(list);
+    }
+
+    @Test
+    void select12() {
+        List<Student> list = sqlContext.select()
+                .allColumn()
+                .from(Student.class).limit(1)
                 .fetch(Student.class)
                 .toList();
         System.out.println(list);

@@ -52,6 +52,16 @@ public class TableRelation<R> implements IJoinCondition {
         return this;
     }
 
+    @Override
+    public IFetchable limit(int offset, int limit) {
+        return null;
+    }
+
+    @Override
+    public IFetchable limit(int limit) {
+        return null;
+    }
+
     public TableRelation<R> where() {
         return this;
     }

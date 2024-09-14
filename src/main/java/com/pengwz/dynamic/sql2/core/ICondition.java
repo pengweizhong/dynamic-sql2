@@ -815,6 +815,23 @@ public interface ICondition {
     <T, F> ICondition orIsNegative(Fn<T, F> fn);
 
     /**
+     * 限制查询结果的返回行数
+     *
+     * @param offset 需要跳过的行数
+     * @param limit  返回的最大行数
+     * @return 当前 ICondition 实例
+     */
+    ICondition limit(int offset, int limit);
+
+    /**
+     * 限制查询结果的返回行数
+     *
+     * @param limit 返回的最大行数
+     * @return 当前 ICondition 实例
+     */
+    ICondition limit(int limit);
+
+    /**
      * 添加一组条件，并且运算。
      * <p>
      * 该方法允许将一组条件作为当前条件的子条件进行添加，并且将它们合并为一个结果。
@@ -866,4 +883,5 @@ public interface ICondition {
      * @throws IllegalArgumentException 如果提供的 SQL 条件子句不合法或者参数与子句中的占位符数量不匹配
      */
     ICondition customCondition(String customClause, Object... params);
+
 }
