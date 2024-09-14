@@ -5,23 +5,28 @@ import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
 import com.pengwz.dynamic.sql2.core.column.function.IAggregateFunction;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
-public class Avg extends ColumnFunctionDecorator implements IAggregateFunction {
+public class Sum extends ColumnFunctionDecorator implements IAggregateFunction {
 
-    public Avg(IColumFunction delegateFunction) {
+    public Sum(IColumFunction delegateFunction) {
         super(delegateFunction);
     }
 
-    public <T, F> Avg(Fn<T, F> fn) {
+    public <T, F> Sum(Fn<T, F> fn) {
         super(fn);
     }
 
+
     @Override
     public String getFunctionToString() {
-        return "avg(" + delegateFunction.getFunctionToString() + ")";
+        return "sum(" + delegateFunction.getFunctionToString() + ")";
     }
 
     @Override
     public String apply(Over over) {
-        return "";
+        //
+//        String sql = windowsFunction.apply(over) + " OVER (" +
+//                partitionByClause + " ORDER BY " + orderByClause +
+//                " " + frameSpecification + ") AS " + alias;
+      return "";
     }
 }

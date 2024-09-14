@@ -4,6 +4,8 @@ import com.pengwz.dynamic.sql2.core.ColumnReference;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.IWindowsFunction;
+import com.pengwz.dynamic.sql2.core.column.function.impl.Over;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,8 @@ public abstract class AbstractColumnReference {
     public abstract AbstractColumnReference column(IColumFunction iColumFunction);
 
     public abstract AbstractColumnReference column(IColumFunction iColumFunction, String alias);
+
+    public abstract AbstractColumnReference column(IWindowsFunction windowsFunction, Over over, String alias);
 
     public abstract AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String alias);
 

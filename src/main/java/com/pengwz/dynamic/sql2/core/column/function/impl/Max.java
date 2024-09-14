@@ -15,8 +15,15 @@ public class Max extends ColumnFunctionDecorator implements IAggregateFunction {
         super(fn);
     }
 
+
+
     @Override
     public String getFunctionToString() {
         return "max(" + delegateFunction.getFunctionToString() + ")";
+    }
+
+    @Override
+    public String apply(Over over) {
+        return "";
     }
 }

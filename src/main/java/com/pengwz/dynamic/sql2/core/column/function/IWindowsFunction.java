@@ -1,5 +1,7 @@
 package com.pengwz.dynamic.sql2.core.column.function;
 
+import com.pengwz.dynamic.sql2.core.column.function.impl.Over;
+
 /**
  * 窗口函数是在 OVER() 子句中定义的函数，用于在查询结果的某个窗口内执行计算。这个窗口可以是整个结果集或结果集的一个分区（子集），
  * 并且窗口函数的结果通常与行的上下文相关，而不是单独的行。
@@ -31,5 +33,7 @@ package com.pengwz.dynamic.sql2.core.column.function;
  * •	CUME_DIST()：计算每一行的累积分布。
  */
 public interface IWindowsFunction extends IColumFunction {
+
+    String apply(Over over);
 
 }

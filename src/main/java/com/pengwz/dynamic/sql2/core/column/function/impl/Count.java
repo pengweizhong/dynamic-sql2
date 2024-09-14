@@ -2,9 +2,10 @@ package com.pengwz.dynamic.sql2.core.column.function.impl;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
+import com.pengwz.dynamic.sql2.core.column.function.IAggregateFunction;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
-public class Count extends ColumnFunctionDecorator {
+public class Count extends ColumnFunctionDecorator implements IAggregateFunction {
 
     public Count(IColumFunction delegateFunction) {
         super(delegateFunction);
@@ -21,5 +22,10 @@ public class Count extends ColumnFunctionDecorator {
     @Override
     public String getFunctionToString() {
         return "count(" + delegateFunction.getFunctionToString() + ")";
+    }
+
+    @Override
+    public String apply(Over over) {
+        return "";
     }
 }

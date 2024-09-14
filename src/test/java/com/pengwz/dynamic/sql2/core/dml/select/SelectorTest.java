@@ -2,10 +2,8 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.SqlContext;
-import com.pengwz.dynamic.sql2.core.column.function.impl.Avg;
-import com.pengwz.dynamic.sql2.core.column.function.impl.CaseWhen;
-import com.pengwz.dynamic.sql2.core.column.function.impl.Max;
-import com.pengwz.dynamic.sql2.core.column.function.impl.Md5;
+import com.pengwz.dynamic.sql2.core.column.function.impl.*;
+import com.pengwz.dynamic.sql2.entites.ExamResult;
 import com.pengwz.dynamic.sql2.entites.Student;
 import com.pengwz.dynamic.sql2.entites.TClass;
 import com.pengwz.dynamic.sql2.entites.Teacher;
@@ -103,7 +101,7 @@ class SelectTest extends InitializingContext {
     @Test
     void select7() {
         List<Student> list = sqlContext.select()
-                .column(CaseWhen.builder(Student::getStudentId).build(),"vvv")
+                .column(CaseWhen.builder(Student::getStudentId).build(), "vvv")
                 .column(nestedSelect -> {
                     nestedSelect.select().column(Student::getStudentId).from(Student.class);
                 }, "aaa")
@@ -125,7 +123,7 @@ class SelectTest extends InitializingContext {
     }
 
     @Test
-    void select0() {
+    void select8() {
         Student one = sqlContext.select()
                 .column(CaseWhen.builder(Student::getStudentId).build())
                 .column(Student::getBirthDate)
@@ -133,6 +131,18 @@ class SelectTest extends InitializingContext {
                 .from(Student.class)
                 .where()
                 .exists(nestedSelect -> nestedSelect.select().one().from(Student.class))
+                .fetch().toOne();
+        System.out.println(one);
+    }
+
+    @Test
+    void select9() {
+        ExamResult one = sqlContext.select()
+                //SUM(score) OVER (ORDER BY score DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_score
+                .column(new Sum(ExamResult::getScore),
+                        Over.builder().orderBy(ExamResult::getScore).currentRowToUnboundedFollowing().build(),
+                        "aaa")
+                .from(ExamResult.class)
                 .fetch().toOne();
         System.out.println(one);
     }
