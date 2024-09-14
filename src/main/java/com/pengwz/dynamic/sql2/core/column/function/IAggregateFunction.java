@@ -7,6 +7,6 @@ package com.pengwz.dynamic.sql2.core.column.function;
  * 允许对数据集合进行各种聚合操作，例如求和、平均值、计数等。
  * </p>
  */
-public interface IAggregateFunction extends IColumFunction{
+public interface IAggregateFunction extends IWindowsFunction {
 
 }

@@ -14,6 +14,10 @@ public abstract class ColumnFunctionDecorator implements IColumFunction {
         this.delegateFunction = new Column(fn);
     }
 
+    public ColumnFunctionDecorator(int value) {
+
+    }
+
     @Override
     public String getFunctionToString() {
         return delegateFunction.getFunctionToString();

@@ -103,7 +103,7 @@ class SelectTest extends InitializingContext {
     @Test
     void select7() {
         List<Student> list = sqlContext.select()
-                .column(CaseWhen.builder(Student::getStudentId).build())
+                .column(CaseWhen.builder(Student::getStudentId).build(),"vvv")
                 .column(nestedSelect -> {
                     nestedSelect.select().column(Student::getStudentId).from(Student.class);
                 }, "aaa")
@@ -127,7 +127,9 @@ class SelectTest extends InitializingContext {
     @Test
     void select0() {
         Student one = sqlContext.select()
-                .column(CaseWhen.builder(Student::getStudentId).build()).allColumn()
+                .column(CaseWhen.builder(Student::getStudentId).build())
+                .column(Student::getBirthDate)
+                .allColumn()
                 .from(Student.class)
                 .where()
                 .exists(nestedSelect -> nestedSelect.select().one().from(Student.class))
