@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.core.column.function.impl;
+package com.pengwz.dynamic.sql2.core.column.function.windows;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.enums.SortOrder;

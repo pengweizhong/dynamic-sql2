@@ -1,4 +1,6 @@
-package com.pengwz.dynamic.sql2.core.column.function;
+package com.pengwz.dynamic.sql2.core.column.function.scalar.number;
+
+import com.pengwz.dynamic.sql2.core.column.function.scalar.IScalarFunction;
 
 /**
  * •	ABS(x): 返回 x 的绝对值。
@@ -11,7 +13,7 @@ package com.pengwz.dynamic.sql2.core.column.function;
  * •	LOG(x): 返回 x 的自然对数。
  * •	LOG10(x): 返回 x 的以 10 为底的对数。
  */
-public interface INumberFunction extends IColumFunction {
+public interface INumberFunction extends IScalarFunction {
 
 
 }

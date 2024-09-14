@@ -2,7 +2,12 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.SqlContext;
-import com.pengwz.dynamic.sql2.core.column.function.impl.*;
+import com.pengwz.dynamic.sql2.core.column.function.aggregate.Avg;
+import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
+import com.pengwz.dynamic.sql2.core.column.function.aggregate.Sum;
+import com.pengwz.dynamic.sql2.core.column.function.logical.CaseWhen;
+import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
+import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.entites.ExamResult;
 import com.pengwz.dynamic.sql2.entites.Student;
 import com.pengwz.dynamic.sql2.entites.TClass;

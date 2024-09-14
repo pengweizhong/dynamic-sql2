@@ -2,7 +2,8 @@ package com.pengwz.dynamic.sql2.core.column.function;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
-import com.pengwz.dynamic.sql2.core.column.function.impl.Over;
+import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
+import com.pengwz.dynamic.sql2.core.column.function.windows.IWindowsFunction;
 
 public abstract class ColumnFunctionDecorator implements IColumFunction {
     protected IColumFunction delegateFunction;

@@ -1,11 +1,12 @@
-package com.pengwz.dynamic.sql2.core.column.function.impl;
+package com.pengwz.dynamic.sql2.core.column.function.aggregate;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
-import com.pengwz.dynamic.sql2.core.column.function.IAggregateFunction;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.windows.IWindowsFunction;
+import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 
-public class Avg extends ColumnFunctionDecorator implements IAggregateFunction {
+public class Avg extends ColumnFunctionDecorator implements IAggregateFunction, IWindowsFunction {
 
     public Avg(IColumFunction delegateFunction) {
         super(delegateFunction);

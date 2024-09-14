@@ -4,8 +4,8 @@ import com.pengwz.dynamic.sql2.core.ColumnReference;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
-import com.pengwz.dynamic.sql2.core.column.function.IWindowsFunction;
-import com.pengwz.dynamic.sql2.core.column.function.impl.Over;
+import com.pengwz.dynamic.sql2.core.column.function.windows.IWindowsFunction;
+import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 
 import java.util.ArrayList;
 import java.util.List;
