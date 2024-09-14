@@ -6,6 +6,8 @@ import com.pengwz.dynamic.sql2.core.column.function.aggregate.Avg;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Sum;
+import com.pengwz.dynamic.sql2.core.column.function.json.JsonExtract;
+import com.pengwz.dynamic.sql2.core.column.function.json.JsonUnquote;
 import com.pengwz.dynamic.sql2.core.column.function.logical.CaseWhen;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.number.Round;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
@@ -184,8 +186,9 @@ class SelectTest extends InitializingContext {
     @Test
     void select12() {
         List<Student> list = sqlContext.select()
-                .allColumn()
-                .from(Student.class).limit(1)
+                .column(new JsonUnquote(new JsonExtract(Student::getLastName, "$.name")))
+                .from(Student.class)
+                .limit(1)
                 .fetch(Student.class)
                 .toList();
         System.out.println(list);
