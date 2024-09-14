@@ -213,4 +213,8 @@ class SelectTest extends InitializingContext {
     }
 }
 ```
+# 开源支持
 
+感谢 [JetBrains](https://www.jetbrains.com/) 提供的开源许可证支持，使我能够更好地开发和维护本项目。
+  
+![jetbrains.png](jetbrains.png)
