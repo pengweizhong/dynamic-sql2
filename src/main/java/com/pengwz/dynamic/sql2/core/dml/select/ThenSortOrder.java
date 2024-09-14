@@ -6,7 +6,7 @@ import com.pengwz.dynamic.sql2.enums.SortOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ThenSortOrder implements IFetchable {
+public class ThenSortOrder<R> implements IFetchable {
 
     private List<OrderBy> orderBys = new ArrayList<>();
     private IFetchable fetchable;
@@ -15,18 +15,19 @@ public class ThenSortOrder implements IFetchable {
         this.fetchable = fetchable;
     }
 
-    public <T, F> ThenSortOrder thenOrderBy(Fn<T, F> orderByValue, SortOrder sortOrder) {
+    public <T, F> ThenSortOrder<R> thenOrderBy(Fn<T, F> orderByValue, SortOrder sortOrder) {
         orderBys.add(new OrderBy(orderByValue, sortOrder));
         return this;
     }
 
-    public ThenSortOrder thenOrderBy(String orderingFragmentSql) {
+    public ThenSortOrder<R> thenOrderBy(String orderingFragmentSql) {
         orderBys.add(new OrderBy(orderingFragmentSql));
         return this;
     }
 
     @Override
-    public <R> IFetchResult<R> fetch() {
+    @SuppressWarnings("unchecked")
+    public IFetchResult<R> fetch() {
         return fetchable.fetch();
     }
 
@@ -34,4 +35,5 @@ public class ThenSortOrder implements IFetchable {
     public <T> IFetchResult<T> fetch(Class<T> returnClass) {
         return fetchable.fetch(returnClass);
     }
+
 }

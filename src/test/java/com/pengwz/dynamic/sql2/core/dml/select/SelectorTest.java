@@ -157,14 +157,15 @@ class SelectTest extends InitializingContext {
     @Test
     void select10() {
         // ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM t_pro_ret_phased), 2) AS percentage
-        ExamResult one = sqlContext.select()
+        ExamResult percentage = sqlContext.select()
                 .column(new Round(new Count(1).multiply(100).divide(
                         nestedSelect -> {
                             nestedSelect.select().column(new Count(1)).from(Student.class);
                         }), 2), "percentage")
                 .from(ExamResult.class)
+                .orderByField(">10%", "5~10%", "0~5%", "0%", "<-10%")
                 .fetch().toOne();
-        System.out.println(one);
+        System.out.println(percentage);
     }
 }
 

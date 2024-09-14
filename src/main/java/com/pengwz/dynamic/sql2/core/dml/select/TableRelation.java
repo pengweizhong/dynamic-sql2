@@ -82,16 +82,21 @@ public class TableRelation<R> implements IJoinCondition {
         return this;
     }
 
-
     //ORDER BY column1 [ASC|DESC], column2 [ASC|DESC];
     //TODO 需要构建更为复杂的order By
-    public <T, F> ThenSortOrder orderBy(Fn<T, F> orderByValue, SortOrder sortOrder) {
+    public <T, F> ThenSortOrder<R> orderBy(Fn<T, F> orderByValue, SortOrder sortOrder) {
         ThenSortOrder sortOrderChain = new ThenSortOrder(null);
         return sortOrderChain;
     }
 
     //order by d is null asc ,d asc;
-    public ThenSortOrder orderBy(String orderingFragment, SortOrder sortOrder) {
+    public ThenSortOrder<R> orderBy(String orderingFragment, SortOrder sortOrder) {
+        ThenSortOrder sortOrderChain = new ThenSortOrder(null);
+        return sortOrderChain;
+    }
+
+    //ORDER BY FIELD(profit_range, '>10%', '5~10%', '0~5%', '0%', '0~-5%', '-5~-10%', '<-10%')
+    public ThenSortOrder<R> orderByField(String... name) {
         ThenSortOrder sortOrderChain = new ThenSortOrder(null);
         return sortOrderChain;
     }
