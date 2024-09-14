@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * 该抽象类提供了 SQL 查询列的引用及其相关操作的基础实现。
+ * 包括选择特定列、应用函数、使用别名等。
+ */
 public abstract class AbstractColumnReference {
     protected List<IColumFunction> queryFields = new ArrayList<>();
 

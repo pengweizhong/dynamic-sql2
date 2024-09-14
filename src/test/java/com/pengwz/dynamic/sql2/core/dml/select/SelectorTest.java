@@ -3,9 +3,11 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.SqlContext;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Avg;
+import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Sum;
 import com.pengwz.dynamic.sql2.core.column.function.logical.CaseWhen;
+import com.pengwz.dynamic.sql2.core.column.function.scalar.number.Round;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.entites.ExamResult;
@@ -147,6 +149,19 @@ class SelectTest extends InitializingContext {
                 .column(new Sum(ExamResult::getScore),
                         Over.builder().orderBy(ExamResult::getScore).currentRowToUnboundedFollowing().build(),
                         "aaa")
+                .from(ExamResult.class)
+                .fetch().toOne();
+        System.out.println(one);
+    }
+
+    @Test
+    void select10() {
+        // ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM t_pro_ret_phased), 2) AS percentage
+        ExamResult one = sqlContext.select()
+                .column(new Round(new Count(1).multiply(100).divide(
+                        nestedSelect -> {
+                            nestedSelect.select().column(new Count(1)).from(Student.class);
+                        }), 2), "percentage")
                 .from(ExamResult.class)
                 .fetch().toOne();
         System.out.println(one);
