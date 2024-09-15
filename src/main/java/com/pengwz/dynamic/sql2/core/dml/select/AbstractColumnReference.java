@@ -6,6 +6,7 @@ import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.IWindowsFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
+import com.pengwz.dynamic.sql2.core.dml.select.cte.ICommonTableExpression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,8 @@ public abstract class AbstractColumnReference {
     }
 
     public abstract <T> TableRelation<T> from(Class<T> tableClass);
+
+    public abstract TableRelation<?> from(ICommonTableExpression commonTableExpression);
 
     public static class AllColumnReference extends ColumnReference {
         public AllColumnReference() {

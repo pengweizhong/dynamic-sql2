@@ -12,6 +12,7 @@ import com.pengwz.dynamic.sql2.core.column.function.logical.CaseWhen;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.number.Round;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
+import com.pengwz.dynamic.sql2.core.dml.select.cte.CommonTableExpression;
 import com.pengwz.dynamic.sql2.entites.ExamResult;
 import com.pengwz.dynamic.sql2.entites.Student;
 import com.pengwz.dynamic.sql2.entites.TClass;
@@ -192,6 +193,18 @@ class SelectTest extends InitializingContext {
                 .fetch(Student.class)
                 .toList();
         System.out.println(list);
+    }
+
+    @Test
+    void select13() {
+        CommonTableExpression cte =  CommonTableExpression.cte("XXX").with(nestedSelect ->
+                nestedSelect
+                        .select()
+                        .column(Student::getStudentId)
+                        .column(Student::getEnrollmentDate)
+                        .from(Student.class)
+        );
+        sqlContext.select().allColumn().from(cte);
     }
 }
 
