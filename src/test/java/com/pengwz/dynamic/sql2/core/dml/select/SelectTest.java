@@ -13,10 +13,7 @@ import com.pengwz.dynamic.sql2.core.column.function.scalar.number.Round;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CommonTableExpression;
-import com.pengwz.dynamic.sql2.entites.ExamResult;
-import com.pengwz.dynamic.sql2.entites.Student;
-import com.pengwz.dynamic.sql2.entites.TClass;
-import com.pengwz.dynamic.sql2.entites.Teacher;
+import com.pengwz.dynamic.sql2.entites.*;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 import org.junit.jupiter.api.Test;
 
@@ -197,14 +194,14 @@ class SelectTest extends InitializingContext {
 
     @Test
     void select13() {
-        CommonTableExpression cte = new CommonTableExpression().with("xxx", nestedSelect ->
+        CommonTableExpression cte = new CommonTableExpression().with(ObjectCTE.class, nestedSelect ->
                 nestedSelect
                         .select()
                         .column(Student::getStudentId)
                         .column(Student::getEnrollmentDate)
                         .from(Student.class));
-        sqlContext.select().allColumn().from(cte.cteTable("xxx"))
-                .join(cte.cteTable("xxx"), on -> on.andEqualTo(Student::getStudentId, Student::getStudentId));
+        sqlContext.select().allColumn().from(cte.cteTable(Student.class))
+                .join(cte.cteTable(TClass.class), on -> on.andEqualTo(Student::getStudentId, Student::getStudentId));
     }
 }
 

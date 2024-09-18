@@ -3,21 +3,21 @@ package com.pengwz.dynamic.sql2.anno;
 import java.lang.annotation.*;
 
 /**
- * 表注解，作用在实体类类名上，value 和数据库表对应
+ * CTE注解，作用在实体类类名上
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Table {
+public @interface CTETable {
     /**
-     * 表名
+     * CTE名
      *
-     * @return 表名
+     * @return CTE名
      */
     String value() default "";
 
     /**
-     * 表别名，默认为表名
+     * CTE别名。默认为CTE名
      *
      * @return 别名
      */
