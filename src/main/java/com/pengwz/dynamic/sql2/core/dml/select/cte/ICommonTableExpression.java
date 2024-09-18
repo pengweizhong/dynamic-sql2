@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 
 public interface ICommonTableExpression {
 
-    ICommonTableExpression with(Consumer<NestedSelect> nestedSelect);
+    ICommonTableExpression with(String cteName, Consumer<NestedSelect> nestedSelect);
 
-    ICommonTableExpression withRecursive(Consumer<NestedSelect> nestedSelect);
+    ICommonTableExpression withRecursive(String cteName, Consumer<NestedSelect> nestedSelect);
 
 }

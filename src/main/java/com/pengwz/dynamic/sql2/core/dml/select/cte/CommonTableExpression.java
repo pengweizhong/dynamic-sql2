@@ -2,29 +2,25 @@ package com.pengwz.dynamic.sql2.core.dml.select.cte;
 
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class CommonTableExpression implements ICommonTableExpression {
-    private String cteName;
+    private List<CteTable> cteList = new ArrayList<>();
 
-    private CommonTableExpression() {
+    public CommonTableExpression with(String cteName, Consumer<NestedSelect> nestedSelect) {
+        cteList.add(new CteTable(cteName, nestedSelect));
+        return this;
     }
 
-    public static CommonTableExpression cte(String cteName) {
-        CommonTableExpression commonTableExpression = new CommonTableExpression();
-        commonTableExpression.cteName = cteName;
-        return commonTableExpression;
+    public CommonTableExpression withRecursive(String cteName, Consumer<NestedSelect> nestedSelect) {
+        cteList.add(new CteTable(cteName, nestedSelect));
+        return this;
     }
 
-    @Override
-    public CommonTableExpression with(Consumer<NestedSelect> nestedSelect) {
-        this.cteName = cteName;
-        return null;
+    public CteTable cteTable(String cteName) {
+        return cteList.stream().filter(cte -> cte.getCteName().equals(cteName)).findFirst().orElse(null);
     }
 
-    @Override
-    public CommonTableExpression withRecursive(Consumer<NestedSelect> nestedSelect) {
-        this.cteName = cteName;
-        return null;
-    }
 }

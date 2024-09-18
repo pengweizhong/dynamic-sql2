@@ -7,6 +7,7 @@ import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.TableRelation;
+import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.ICommonTableExpression;
 
 import java.util.function.Consumer;
@@ -83,7 +84,7 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
-    public TableRelation<?> from(ICommonTableExpression commonTableExpression) {
+    public TableRelation<?> from(CteTable cteTable) {
         return null;
     }
 

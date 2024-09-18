@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.ICondition;
 import com.pengwz.dynamic.sql2.core.IWhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 
 import java.util.function.Consumer;
 
@@ -15,6 +16,20 @@ public interface IJoinCondition extends IFetchable {
      */
     default IJoinCondition join(Class<?> clazz, Consumer<ICondition> onCondition) {
         return innerJoin(clazz, onCondition);
+    }
+
+    /**
+     * 表示 INNER JOIN 连接，支持与 CTE 进行连接。
+     * <p>
+     * 使用 CTE（CommonTableExpression）作为连接的目标表进行 INNER JOIN。
+     * <p>
+     *
+     * @param cte         需要连接的 CTE 实例，表示要与当前表进行 INNER JOIN 的 CTE 表。
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，定义当前表与 CTE 之间的连接条件。
+     * @return 当前的 {@link IJoinCondition} 实例，用于继续构建查询链。
+     */
+    default IJoinCondition join(CteTable cte, Consumer<ICondition> onCondition) {
+        return innerJoin(cte, onCondition);
     }
 
     /**
@@ -35,6 +50,8 @@ public interface IJoinCondition extends IFetchable {
      */
     IJoinCondition innerJoin(Class<?> clazz, Consumer<ICondition> onCondition);
 
+    IJoinCondition innerJoin(CteTable cte, Consumer<ICondition> onCondition);
+
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与另一个表进行左连接。
      * <p>
@@ -54,6 +71,8 @@ public interface IJoinCondition extends IFetchable {
      */
     IJoinCondition leftJoin(Class<?> clazz, Consumer<ICondition> onCondition);
 
+    IJoinCondition leftJoin(CteTable cte, Consumer<ICondition> onCondition);
+
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与另一个表进行右连接。
      * <p>
@@ -72,6 +91,8 @@ public interface IJoinCondition extends IFetchable {
      * @return 当前查询上下文的 {@link IJoinCondition} 实例，用于继续构建查询链
      */
     IJoinCondition rightJoin(Class<?> clazz, Consumer<ICondition> onCondition);
+
+    IJoinCondition rightJoin(CteTable cte, Consumer<ICondition> onCondition);
 
     /**
      * 表示 FULL JOIN 连接。
@@ -101,6 +122,8 @@ public interface IJoinCondition extends IFetchable {
      */
     IJoinCondition fullJoin(Class<?> clazz, Consumer<ICondition> onCondition);
 
+    IJoinCondition fullJoin(CteTable cte, Consumer<ICondition> onCondition);
+
     /**
      * 表示 CROSS JOIN 连接。
      * <p>
@@ -122,6 +145,8 @@ public interface IJoinCondition extends IFetchable {
      * @return 当前的 {@link IJoinCondition} 实例，以便实现链式调用，继续进行其他连接或查询操作。
      */
     IJoinCondition crossJoin(Class<?> clazz);
+
+    IJoinCondition crossJoin(CteTable cte);
 
     /**
      * 表示 SELF JOIN 连接。
@@ -148,6 +173,8 @@ public interface IJoinCondition extends IFetchable {
      * @return 当前的 {@link IJoinCondition} 实例，以便实现链式调用，继续进行其他连接或查询操作。
      */
     IJoinCondition selfJoin(String alias, Consumer<ICondition> onCondition);
+
+    IJoinCondition selfJoin(CteTable cte, Consumer<ICondition> onCondition);
 
     /**
      * 追加where条件

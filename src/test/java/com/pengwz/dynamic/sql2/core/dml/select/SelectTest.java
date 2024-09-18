@@ -197,14 +197,14 @@ class SelectTest extends InitializingContext {
 
     @Test
     void select13() {
-        CommonTableExpression cte =  CommonTableExpression.cte("XXX").with(nestedSelect ->
+        CommonTableExpression cte = new CommonTableExpression().with("xxx", nestedSelect ->
                 nestedSelect
                         .select()
                         .column(Student::getStudentId)
                         .column(Student::getEnrollmentDate)
-                        .from(Student.class)
-        );
-        sqlContext.select().allColumn().from(cte);
+                        .from(Student.class));
+        sqlContext.select().allColumn().from(cte.cteTable("xxx"))
+                .join(cte.cteTable("xxx"), on -> on.andEqualTo(Student::getStudentId, Student::getStudentId));
     }
 }
 
