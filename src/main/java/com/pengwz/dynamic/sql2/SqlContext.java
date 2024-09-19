@@ -4,6 +4,8 @@ import com.pengwz.dynamic.sql2.core.dml.insert.DataInserter;
 import com.pengwz.dynamic.sql2.core.dml.insert.Insert;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
+import com.pengwz.dynamic.sql2.core.dml.update.DataUpdater;
+import com.pengwz.dynamic.sql2.core.dml.update.Update;
 
 
 public class SqlContext {
@@ -26,5 +28,9 @@ public class SqlContext {
 
     public DataInserter insert() {
         return new Insert();
+    }
+
+    public DataUpdater update() {
+        return new Update();
     }
 }
