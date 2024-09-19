@@ -1,7 +1,6 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
-import com.pengwz.dynamic.sql2.SqlContext;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Avg;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
@@ -24,8 +23,6 @@ import java.util.Set;
 
 
 class SelectTest extends InitializingContext {
-
-    SqlContext sqlContext = SqlContext.createSqlContext();
 
     @Test
     void select1() {

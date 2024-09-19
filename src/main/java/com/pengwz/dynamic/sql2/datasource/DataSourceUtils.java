@@ -125,7 +125,8 @@ public class DataSourceUtils {
         } else if (jdbcUrl.startsWith("jdbc:oracle:")) {
             return DbType.ORACLE;
         }
-        throw new UnsupportedOperationException("Unknown database type: " + jdbcUrl);
+        return DbType.OTHER;
+//        throw new UnsupportedOperationException("Unknown database type: " + jdbcUrl);
     }
 
     public static String matchSchema(DbType dbType, String url) {
