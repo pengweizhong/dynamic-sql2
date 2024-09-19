@@ -5,6 +5,8 @@ import java.util.List;
 class TableMeta {
     //表名称
     private String tableName;
+    //表别名
+    private String tableAlias;
     //绑定到数据源名称
     private String bindDataSourceName;
     //映射实体
@@ -44,12 +46,23 @@ class TableMeta {
         this.canonicalClassName = canonicalClassName;
     }
 
+    public String getTableAlias() {
+        return tableAlias;
+    }
+
+    public void setTableAlias(String tableAlias) {
+        this.tableAlias = tableAlias;
+    }
+
     @Override
     public String toString() {
-        return "TableMeta{" +
-                "tableName='" + tableName + '\'' +
-                ", bindDataSourceName='" + bindDataSourceName + '\'' +
-                ", columnMetas=" + columnMetas +
-                '}';
+        final StringBuffer sb = new StringBuffer("TableMeta{");
+        sb.append("tableName='").append(tableName).append('\'');
+        sb.append(", tableAlias='").append(tableAlias).append('\'');
+        sb.append(", bindDataSourceName='").append(bindDataSourceName).append('\'');
+        sb.append(", canonicalClassName='").append(canonicalClassName).append('\'');
+        sb.append(", columnMetas=").append(columnMetas);
+        sb.append('}');
+        return sb.toString();
     }
 }

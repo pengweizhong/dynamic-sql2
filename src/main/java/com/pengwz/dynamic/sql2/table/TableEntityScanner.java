@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 public class TableEntityScanner {
+    private static final Logger log = LoggerFactory.getLogger(TableEntityScanner.class);
+
     private TableEntityScanner() {
     }
-
-    private static final Logger log = LoggerFactory.getLogger(TableEntityScanner.class);
 
     /**
      * 检索表实体类
@@ -41,6 +41,11 @@ public class TableEntityScanner {
                 //判断应当归属哪个数据源
                 TableEntityMapping tableEntityMapping = new TableEntityMapping();
                 tableEntityMapping.setTableName(table.value().trim());
+                String tableAlias = table.alias().trim();
+                if (StringUtils.isBlank(tableAlias)) {
+                    tableAlias = tableEntityMapping.getTableName();
+                }
+                tableEntityMapping.setTableAlias(tableAlias);
                 tableEntityMapping.setEntityClass(annotatedClass);
                 tableEntityMapping.setCache(table.isCache());
                 tableEntityMapping.setBindDataSourceName(matchBestDataSourceName(annotatedClass, table.dataSourceName()));

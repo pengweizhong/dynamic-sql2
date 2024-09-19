@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.table;
 
 public class TableEntityMapping {
     private String tableName;
+    private String tableAlias;
     private boolean isCache;
     private String bindDataSourceName;
     private Class<?> entityClass;
@@ -38,13 +39,22 @@ public class TableEntityMapping {
         this.entityClass = entityClass;
     }
 
+    public String getTableAlias() {
+        return tableAlias;
+    }
+
+    public void setTableAlias(String tableAlias) {
+        this.tableAlias = tableAlias;
+    }
+
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("{");
+        final StringBuffer sb = new StringBuffer("TableEntityMapping{");
         sb.append("tableName='").append(tableName).append('\'');
+        sb.append(", tableAlias='").append(tableAlias).append('\'');
         sb.append(", isCache=").append(isCache);
         sb.append(", bindDataSourceName='").append(bindDataSourceName).append('\'');
-        sb.append(", entityClass=").append(entityClass.getCanonicalName());
+        sb.append(", entityClass=").append(entityClass);
         sb.append('}');
         return sb.toString();
     }

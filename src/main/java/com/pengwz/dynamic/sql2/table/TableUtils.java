@@ -19,10 +19,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class TableUtils {
+    private static final Logger log = LoggerFactory.getLogger(TableUtils.class);
+
     private TableUtils() {
     }
-
-    private static final Logger log = LoggerFactory.getLogger(TableUtils.class);
 
     public static void scanAndInitTable(String... packagePath) {
         if (packagePath == null || packagePath.length == 0) {
@@ -60,6 +60,13 @@ public class TableUtils {
         TableMeta tableMeta = new TableMeta();
         tableMeta.setCanonicalClassName(entityClass.getCanonicalName());
         tableMeta.setTableName(tableEntity.getTableName());
+        if (StringUtils.isBlank(tableMeta.getTableName())) {
+            throw new IllegalArgumentException("The table name is empty");
+        }
+        tableMeta.setTableAlias(tableEntity.getTableAlias());
+        if (StringUtils.isBlank(tableMeta.getTableAlias())) {
+            throw new IllegalArgumentException("The table alias is empty");
+        }
         tableMeta.setBindDataSourceName(tableEntity.getBindDataSourceName());
         List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(entityClass, f))
                 .filter(Objects::nonNull).collect(Collectors.toList());
