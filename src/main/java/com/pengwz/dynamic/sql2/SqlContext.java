@@ -1,5 +1,7 @@
 package com.pengwz.dynamic.sql2;
 
+import com.pengwz.dynamic.sql2.core.dml.insert.DataInserter;
+import com.pengwz.dynamic.sql2.core.dml.insert.Insert;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 
@@ -22,4 +24,7 @@ public class SqlContext {
     }
 
 
+    public DataInserter insert() {
+        return new Insert();
+    }
 }
