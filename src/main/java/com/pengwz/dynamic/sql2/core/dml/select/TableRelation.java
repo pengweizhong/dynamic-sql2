@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.ICondition;
 import com.pengwz.dynamic.sql2.core.IWhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 
 import java.util.function.Consumer;
@@ -23,7 +24,17 @@ public class TableRelation<R> implements IJoinCondition {
     }
 
     @Override
+    public IJoinCondition innerJoin(CteTable cte, Consumer<ICondition> onCondition) {
+        return null;
+    }
+
+    @Override
     public IJoinCondition leftJoin(Class<?> clazz, Consumer<ICondition> onCondition) {
+        return null;
+    }
+
+    @Override
+    public IJoinCondition leftJoin(CteTable cte, Consumer<ICondition> onCondition) {
         return null;
     }
 
@@ -33,7 +44,17 @@ public class TableRelation<R> implements IJoinCondition {
     }
 
     @Override
+    public IJoinCondition rightJoin(CteTable cte, Consumer<ICondition> onCondition) {
+        return null;
+    }
+
+    @Override
     public IJoinCondition fullJoin(Class<?> clazz, Consumer<ICondition> onCondition) {
+        return null;
+    }
+
+    @Override
+    public IJoinCondition fullJoin(CteTable cte, Consumer<ICondition> onCondition) {
         return null;
     }
 
@@ -43,7 +64,17 @@ public class TableRelation<R> implements IJoinCondition {
     }
 
     @Override
+    public IJoinCondition crossJoin(CteTable cte) {
+        return null;
+    }
+
+    @Override
     public IJoinCondition selfJoin(String alias, Consumer<ICondition> onCondition) {
+        return null;
+    }
+
+    @Override
+    public IJoinCondition selfJoin(CteTable cte, Consumer<ICondition> onCondition) {
         return null;
     }
 

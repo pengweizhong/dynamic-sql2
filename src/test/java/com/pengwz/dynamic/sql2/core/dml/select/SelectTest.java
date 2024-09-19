@@ -185,7 +185,8 @@ class SelectTest extends InitializingContext {
     void select12() {
         List<Student> list = sqlContext.select()
                 .column(new JsonUnquote(new JsonExtract(Student::getLastName, "$.name")))
-                .from(Student.class)
+                .from(Student.class).where(condition ->
+                        condition.andEqualTo(Student::getLastName, new JsonExtract(Student::getLastName, "$.name")))
                 .limit(1)
                 .fetch(Student.class)
                 .toList();
