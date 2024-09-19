@@ -1,5 +1,8 @@
 package com.pengwz.dynamic.sql2.anno;
 
+import com.pengwz.dynamic.sql2.conversion.AttributeConverter;
+import com.pengwz.dynamic.sql2.conversion.AutoAttributeConverter;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -29,4 +32,11 @@ public @interface Column {
      * @return 将当前字段设置为唯一项
      */
     boolean primary() default false;
+
+    /**
+     * 定义数据库值和实体类值的转换器
+     *
+     * @return 转换器
+     */
+    Class<? extends AttributeConverter> converter() default AutoAttributeConverter.class;
 }
