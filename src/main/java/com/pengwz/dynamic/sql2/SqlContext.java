@@ -34,84 +34,72 @@ public class SqlContext implements DataInserter, DataUpdater, DataDeleter {
 
     @Override
     public <T> int delete(Class<T> entityClass, Consumer<IWhereCondition> condition) {
-        return 0;
+        return new Delete().delete(entityClass, condition);
     }
 
     @Override
     public <T> int deleteByPrimaryKey(Class<T> entityClass, Object key) {
-        return 0;
+        return new Delete().deleteByPrimaryKey(entityClass, key);
     }
 
     @Override
     public <T> int insertSelective(T entity) {
-        return 0;
+        return new Insert().insertSelective(entity);
     }
 
     @Override
     public <T, F> int insertSelective(T entity, Collection<Fn<T, F>> forcedFields) {
-        return 0;
+        return new Insert().insertSelective(entity, forcedFields);
     }
 
     @Override
     public <T> int insert(T entity) {
-        return 0;
+        return new Insert().insert(entity);
     }
 
     @Override
     public <T> int batchInsert(Collection<T> entities) {
-        return 0;
+        return new Insert().batchInsert(entities);
     }
 
     @Override
     public <T> int upsert(T entity) {
-        return 0;
+        return new Insert().upsert(entity);
     }
 
     @Override
     public <T> int batchUpsert(Collection<T> entities) {
-        return 0;
+        return new Insert().batchUpsert(entities);
     }
 
     @Override
     public <T> int update(T data, Consumer<IWhereCondition> condition) {
-        return 0;
+        return new Update().update(data, condition);
     }
 
     @Override
     public <T> int updateSelective(T entity, Consumer<IWhereCondition> condition) {
-        return 0;
+        return new Update().updateSelective(entity, condition);
     }
 
     @Override
     public <T, F> int updateSelective(T entity, Collection<Fn<T, F>> forcedFields) {
-        return 0;
+        return new Update().updateSelective(entity, forcedFields);
     }
 
     @Override
     public <T, F> int updateSelective(T entity, Collection<Fn<T, F>> forcedFields, Consumer<IWhereCondition> condition) {
-        return 0;
+        return new Update().updateSelective(entity, forcedFields, condition);
     }
 
     @Override
     public <T> int updateByPrimaryKey(T entity) {
-        return 0;
+        return new Update().updateByPrimaryKey(entity);
     }
 
     @Override
     public <T> int updateSelectiveByPrimaryKey(T entity) {
-        return 0;
+        return new Update().updateSelectiveByPrimaryKey(entity);
     }
 
-
-//    public DataInserter insert() {
-//        return new Insert();
-//    }
-//
-//    public DataUpdater update() {
-//        return new Update();
-//    }
-//
-//    public DataDeleter delete() {
-//        return new Delete();
-//    }
 }
