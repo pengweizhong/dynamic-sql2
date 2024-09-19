@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.scalar.datetime;
 
-import com.pengwz.dynamic.sql2.core.column.function.scalar.IScalarFunction;
+import com.pengwz.dynamic.sql2.core.column.function.scalar.ScalarFunction;
 
 /**
  * •	CURRENT_DATE 或 CURDATE(): 返回当前日期。
@@ -12,7 +12,7 @@ import com.pengwz.dynamic.sql2.core.column.function.scalar.IScalarFunction;
  * •	DAY(date): 返回日期的天数。
  * •	DATE_FORMAT(date, format): 格式化日期为指定的格式。
  */
-public interface IDatetimeFunction extends IScalarFunction {
+public interface DatetimeFunction extends ScalarFunction {
 
 
 }

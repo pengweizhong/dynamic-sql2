@@ -1,14 +1,14 @@
 package com.pengwz.dynamic.sql2.core.column.function.aggregate;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
-import com.pengwz.dynamic.sql2.core.column.function.windows.IWindowsFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
+import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 
-public class Count extends ColumnFunctionDecorator implements IAggregateFunction, IWindowsFunction {
+public class Count extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
 
-    public Count(IColumFunction delegateFunction) {
+    public Count(ColumFunction delegateFunction) {
         super(delegateFunction);
     }
 

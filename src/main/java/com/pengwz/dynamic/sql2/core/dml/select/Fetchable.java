@@ -3,7 +3,7 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 /**
  * 定义数据获取操作的接口，提供了两种方式来获取查询结果。
  */
-public interface IFetchable {
+public interface Fetchable {
 
     /**
      * 获取查询结果，返回 {@link IFetchResult}<br/>
@@ -12,7 +12,7 @@ public interface IFetchable {
      *
      * @return 查询结果的封装 {@link IFetchResult}
      */
-    <R> IFetchResult<R> fetch();
+    <R> FetchResult<R> fetch();
 
     /**
      * 获取查询结果，返回指定类型的数据。
@@ -21,5 +21,5 @@ public interface IFetchable {
      * @param returnClass 结果数据类型的 {@link Class} 对象
      * @return 查询结果的封装 {@link IFetchResult}
      */
-    <T> IFetchResult<T> fetch(Class<T> returnClass);
+    <T> FetchResult<T> fetch(Class<T> returnClass);
 }

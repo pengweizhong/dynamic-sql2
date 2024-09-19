@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.scalar;
 
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 
 /**
  * 标量函数 (Scalar Functions)
@@ -12,5 +12,5 @@ import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
  * •	计算范围: 作用于单一的行或单一的列值。
  * •	结果类型: 返回一个单一的结果值。
  */
-public interface IScalarFunction extends IColumFunction {
+public interface ScalarFunction extends ColumFunction {
 }

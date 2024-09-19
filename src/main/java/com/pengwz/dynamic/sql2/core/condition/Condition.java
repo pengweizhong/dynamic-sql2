@@ -1,4 +1,6 @@
-package com.pengwz.dynamic.sql2.core;
+package com.pengwz.dynamic.sql2.core.condition;
+
+import com.pengwz.dynamic.sql2.core.Fn;
 
 import java.util.function.Consumer;
 
@@ -25,14 +27,14 @@ import java.util.function.Consumer;
  * <p>
  * 示例：
  * <pre>
- * ICondition condition = new SqlConditionBuilder()
+ * Condition condition = new SqlConditionBuilder()
  *     .andEqualTo(User::getName, "John")
  *     .orGreaterThan(User::getAge, 30)
  *     .andCustomCondition("custom_column BETWEEN ? AND ?", 10, 20);
  * </pre>
  * 以上代码将构建一个包含“姓名等于 John”或者“年龄大于 30”并且“custom_column 在 10 到 20 之间”的查询条件。
  */
-public interface ICondition {
+public interface Condition {
 
     /**
      * 添加等于条件，并且运算。
@@ -41,9 +43,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andEqualTo(Fn<T, F> fn, Object value);
+    <T, F> Condition andEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 添加等值连接条件，并且运算。
@@ -57,9 +59,9 @@ public interface ICondition {
      * @param <T1>   第一个实体类类型
      * @param <T2>   第二个实体类类型
      * @param <F>    字段类型
-     * @return 当前的 {@link ICondition} 实例，以便实现链式调用
+     * @return 当前的 {@link Condition} 实例，以便实现链式调用
      */
-    <T1, T2, F> ICondition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加等于条件，或运算。
@@ -68,9 +70,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orEqualTo(Fn<T, F> fn, Object value);
+    <T, F> Condition orEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段等值连接条件，或运算。
@@ -80,9 +82,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition orEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition orEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加不等于条件，并且运算。
@@ -91,9 +93,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andNotEqualTo(Fn<T, F> fn, Object value);
+    <T, F> Condition andNotEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段不等值连接条件，并且运算。
@@ -103,9 +105,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition andNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition andNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加不等于条件，或运算。
@@ -114,9 +116,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orNotEqualTo(Fn<T, F> fn, Object value);
+    <T, F> Condition orNotEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段不等值连接条件，或运算。
@@ -126,9 +128,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition orNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition orNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加长度等于条件，并且运算。
@@ -137,9 +139,9 @@ public interface ICondition {
      * @param length 匹配的长度
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andLengthEquals(Fn<T, F> fn, int length);
+    <T, F> Condition andLengthEquals(Fn<T, F> fn, int length);
 
     /**
      * 添加长度等于条件，或运算。
@@ -148,9 +150,9 @@ public interface ICondition {
      * @param length 匹配的长度
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orLengthEquals(Fn<T, F> fn, int length);
+    <T, F> Condition orLengthEquals(Fn<T, F> fn, int length);
 
     /**
      * 添加长度大于条件，并且运算。
@@ -159,9 +161,9 @@ public interface ICondition {
      * @param length 匹配的长度
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andLengthGreaterThan(Fn<T, F> fn, int length);
+    <T, F> Condition andLengthGreaterThan(Fn<T, F> fn, int length);
 
     /**
      * 添加长度大于条件，或运算。
@@ -170,9 +172,9 @@ public interface ICondition {
      * @param length 匹配的长度
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orLengthGreaterThan(Fn<T, F> fn, int length);
+    <T, F> Condition orLengthGreaterThan(Fn<T, F> fn, int length);
 
     /**
      * 添加长度小于条件，并且运算。
@@ -181,9 +183,9 @@ public interface ICondition {
      * @param length 匹配的长度
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andLengthLessThan(Fn<T, F> fn, int length);
+    <T, F> Condition andLengthLessThan(Fn<T, F> fn, int length);
 
     /**
      * 添加长度小于条件，或运算。
@@ -192,9 +194,9 @@ public interface ICondition {
      * @param length 匹配的长度
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orLengthLessThan(Fn<T, F> fn, int length);
+    <T, F> Condition orLengthLessThan(Fn<T, F> fn, int length);
 
     /**
      * 添加字段为空条件，并且运算。
@@ -202,9 +204,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andIsEmpty(Fn<T, F> fn);
+    <T, F> Condition andIsEmpty(Fn<T, F> fn);
 
     /**
      * 添加字段为空条件，或运算。
@@ -212,9 +214,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orIsEmpty(Fn<T, F> fn);
+    <T, F> Condition orIsEmpty(Fn<T, F> fn);
 
     /**
      * 添加字段非空条件，并且运算。
@@ -222,9 +224,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andIsNotEmpty(Fn<T, F> fn);
+    <T, F> Condition andIsNotEmpty(Fn<T, F> fn);
 
     /**
      * 添加字段非空条件，或运算。
@@ -232,9 +234,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orIsNotEmpty(Fn<T, F> fn);
+    <T, F> Condition orIsNotEmpty(Fn<T, F> fn);
 
     /**
      * 添加字段为空值条件，并且运算。
@@ -242,9 +244,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andIsNull(Fn<T, F> fn);
+    <T, F> Condition andIsNull(Fn<T, F> fn);
 
     /**
      * 添加字段为空值条件，或运算。
@@ -252,9 +254,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orIsNull(Fn<T, F> fn);
+    <T, F> Condition orIsNull(Fn<T, F> fn);
 
     /**
      * 添加字段非空值条件，并且运算。
@@ -262,9 +264,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andIsNotNull(Fn<T, F> fn);
+    <T, F> Condition andIsNotNull(Fn<T, F> fn);
 
     /**
      * 添加字段非空值条件，或运算。
@@ -272,9 +274,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orIsNotNull(Fn<T, F> fn);
+    <T, F> Condition orIsNotNull(Fn<T, F> fn);
 
     /**
      * 添加字段大于指定值条件，并且运算。
@@ -283,9 +285,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andGreaterThan(Fn<T, F> fn, Object value);
+    <T, F> Condition andGreaterThan(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段大于连接条件，并且运算。
@@ -295,9 +297,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition andGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition andGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段大于指定值条件，或运算。
@@ -306,9 +308,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orGreaterThan(Fn<T, F> fn, Object value);
+    <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段大于连接条件，或运算。
@@ -318,9 +320,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition orGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition orGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段大于或等于指定值条件，并且运算。
@@ -329,9 +331,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andGreaterThanOrEqualTo(Fn<T, F> fn, Object value);
+    <T, F> Condition andGreaterThanOrEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段大于或等于连接条件，并且运算。
@@ -341,9 +343,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition andGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition andGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段大于或等于指定值条件，或运算。
@@ -352,9 +354,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orGreaterThanOrEqualTo(Fn<T, F> fn, Object value);
+    <T, F> Condition orGreaterThanOrEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段大于或等于连接条件，或运算。
@@ -364,9 +366,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition orGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition orGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段小于指定值条件，并且运算。
@@ -375,9 +377,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andLessThan(Fn<T, F> fn, Object value);
+    <T, F> Condition andLessThan(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段小于连接条件，并且运算。
@@ -387,9 +389,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition andLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition andLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段小于指定值条件，或运算。
@@ -398,9 +400,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orLessThan(Fn<T, F> fn, Object value);
+    <T, F> Condition orLessThan(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段小于连接条件，或运算。
@@ -410,9 +412,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition orLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition orLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段小于或等于指定值条件，并且运算。
@@ -421,9 +423,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andLessThanOrEqualTo(Fn<T, F> fn, Object value);
+    <T, F> Condition andLessThanOrEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段小于或等于连接条件，并且运算。
@@ -433,9 +435,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition andLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition andLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段小于或等于指定值条件，或运算。
@@ -444,9 +446,9 @@ public interface ICondition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orLessThanOrEqualTo(Fn<T, F> fn, Object value);
+    <T, F> Condition orLessThanOrEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 添加字段小于或等于连接条件，或运算。
@@ -456,9 +458,9 @@ public interface ICondition {
      * @param <F>    字段类型
      * @param field1 用于获取第一个字段值的函数
      * @param field2 用于获取第二个字段值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> ICondition orLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> Condition orLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 添加字段在指定值集合中条件，并且运算。
@@ -467,9 +469,9 @@ public interface ICondition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> Condition andIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 添加字段在指定值集合中条件，或运算。
@@ -478,9 +480,9 @@ public interface ICondition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> Condition orIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 添加字段不在指定值集合中条件，并且运算。
@@ -489,9 +491,9 @@ public interface ICondition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andNotIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> Condition andNotIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 添加字段不在指定值集合中条件，或运算。
@@ -500,9 +502,9 @@ public interface ICondition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orNotIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> Condition orNotIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 添加字段在指定范围内条件，并且运算。
@@ -512,9 +514,9 @@ public interface ICondition {
      * @param end   范围结束值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andBetween(Fn<T, F> fn, Object start, Object end);
+    <T, F> Condition andBetween(Fn<T, F> fn, Object start, Object end);
 
     /**
      * 添加字段 BETWEEN 连接条件，并且运算。
@@ -542,9 +544,9 @@ public interface ICondition {
      * @param field1     用于获取字段值的函数，表示要进行 BETWEEN 比较的字段
      * @param startField 用于获取起始值的函数，表示范围的起始值
      * @param endField   用于获取结束值的函数，表示范围的结束值
-     * @return 当前 {@link ICondition} 实例，以便实现链式调用
+     * @return 当前 {@link Condition} 实例，以便实现链式调用
      */
-    <T1, T2, F> ICondition andBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField);
+    <T1, T2, F> Condition andBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField);
 
     /**
      * 添加字段在指定范围内条件，或运算。
@@ -554,9 +556,9 @@ public interface ICondition {
      * @param end   范围结束值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orBetween(Fn<T, F> fn, Object start, Object end);
+    <T, F> Condition orBetween(Fn<T, F> fn, Object start, Object end);
 
     /**
      * 添加字段 BETWEEN 连接条件，或运算。
@@ -567,10 +569,10 @@ public interface ICondition {
      * @param field1     用于获取字段值的函数
      * @param startField 用于获取起始值的函数
      * @param endField   用于获取结束值的函数
-     * @return 当前 {@link ICondition} 实例
+     * @return 当前 {@link Condition} 实例
      * @see this#andBetween(Fn, Fn, Fn)
      */
-    <T1, T2, F> ICondition orBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField);
+    <T1, T2, F> Condition orBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField);
 
     /**
      * 添加字段不在指定范围内条件，并且运算。
@@ -580,9 +582,9 @@ public interface ICondition {
      * @param end   范围结束值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andNotBetween(Fn<T, F> fn, Object start, Object end);
+    <T, F> Condition andNotBetween(Fn<T, F> fn, Object start, Object end);
 
     /**
      * 添加字段不在指定范围内条件，或运算。
@@ -592,9 +594,9 @@ public interface ICondition {
      * @param end   范围结束值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orNotBetween(Fn<T, F> fn, Object start, Object end);
+    <T, F> Condition orNotBetween(Fn<T, F> fn, Object start, Object end);
 
     /**
      * 添加字段匹配指定模式条件，并且运算。
@@ -603,9 +605,9 @@ public interface ICondition {
      * @param pattern 匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>     实体类类型
      * @param <F>     字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andLike(Fn<T, F> fn, String pattern);
+    <T, F> Condition andLike(Fn<T, F> fn, String pattern);
 
     /**
      * 添加字段匹配指定模式条件，或运算。
@@ -614,9 +616,9 @@ public interface ICondition {
      * @param pattern 匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>     实体类类型
      * @param <F>     字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orLike(Fn<T, F> fn, String pattern);
+    <T, F> Condition orLike(Fn<T, F> fn, String pattern);
 
     /**
      * 添加字段不匹配指定模式条件，并且运算。
@@ -625,9 +627,9 @@ public interface ICondition {
      * @param pattern 匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>     实体类类型
      * @param <F>     字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andNotLike(Fn<T, F> fn, String pattern);
+    <T, F> Condition andNotLike(Fn<T, F> fn, String pattern);
 
     /**
      * 添加字段不匹配指定模式条件，或运算。
@@ -636,9 +638,9 @@ public interface ICondition {
      * @param pattern 匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>     实体类类型
      * @param <F>     字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orNotLike(Fn<T, F> fn, String pattern);
+    <T, F> Condition orNotLike(Fn<T, F> fn, String pattern);
 
     /**
      * 添加字段匹配正则表达式条件，并且运算。
@@ -647,9 +649,9 @@ public interface ICondition {
      * @param regex 正则表达式模式
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andMatches(Fn<T, F> fn, String regex);
+    <T, F> Condition andMatches(Fn<T, F> fn, String regex);
 
     /**
      * 添加字段匹配正则表达式条件，或运算。
@@ -658,9 +660,9 @@ public interface ICondition {
      * @param regex 正则表达式模式
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orMatches(Fn<T, F> fn, String regex);
+    <T, F> Condition orMatches(Fn<T, F> fn, String regex);
 
     /**
      * 添加字段在指定集合中条件，并且运算（使用 FIND_IN_SET 函数）。
@@ -669,9 +671,9 @@ public interface ICondition {
      * @param item 指定的项目
      * @param <T>  实体类类型
      * @param <F>  字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andFindInSet(Fn<T, F> fn, Object item);
+    <T, F> Condition andFindInSet(Fn<T, F> fn, Object item);
 
     /**
      * 添加字段在指定集合中条件，并且运算（使用 FIND_IN_SET 函数），并指定分隔符。
@@ -681,9 +683,9 @@ public interface ICondition {
      * @param separator 分隔符
      * @param <T>       实体类类型
      * @param <F>       字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andFindInSet(Fn<T, F> fn, Object item, String separator);
+    <T, F> Condition andFindInSet(Fn<T, F> fn, Object item, String separator);
 
     /**
      * 添加字段在指定集合中条件，或运算（使用 FIND_IN_SET 函数）。
@@ -692,9 +694,9 @@ public interface ICondition {
      * @param item 指定的项目
      * @param <T>  实体类类型
      * @param <F>  字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orFindInSet(Fn<T, F> fn, Object item);
+    <T, F> Condition orFindInSet(Fn<T, F> fn, Object item);
 
     /**
      * 添加字段在指定集合中条件，或运算（使用 FIND_IN_SET 函数），并指定分隔符。
@@ -704,9 +706,9 @@ public interface ICondition {
      * @param separator 分隔符
      * @param <T>       实体类类型
      * @param <F>       字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orFindInSet(Fn<T, F> fn, Object item, String separator);
+    <T, F> Condition orFindInSet(Fn<T, F> fn, Object item, String separator);
 
     /**
      * 添加字段包含指定子串条件，并且运算。
@@ -715,9 +717,9 @@ public interface ICondition {
      * @param substring 指定的子串
      * @param <T>       实体类类型
      * @param <F>       字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andContains(Fn<T, F> fn, String substring);
+    <T, F> Condition andContains(Fn<T, F> fn, String substring);
 
     /**
      * 添加字段包含指定子串条件，或运算。
@@ -726,9 +728,9 @@ public interface ICondition {
      * @param substring 指定的子串
      * @param <T>       实体类类型
      * @param <F>       字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orContains(Fn<T, F> fn, String substring);
+    <T, F> Condition orContains(Fn<T, F> fn, String substring);
 
     /**
      * 添加字段在指定值集合中有任意值条件，并且运算。
@@ -737,9 +739,9 @@ public interface ICondition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andAnyIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> Condition andAnyIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 添加字段在指定值集合中有任意值条件，或运算。
@@ -748,9 +750,9 @@ public interface ICondition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orAnyIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> Condition orAnyIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 添加字段在指定值集合中包含所有值条件，并且运算。
@@ -759,9 +761,9 @@ public interface ICondition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andAllIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> Condition andAllIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 添加字段在指定值集合中包含所有值条件，或运算。
@@ -770,9 +772,9 @@ public interface ICondition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orAllIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> Condition orAllIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 添加字段为正值条件，并且运算。
@@ -780,9 +782,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andIsPositive(Fn<T, F> fn);
+    <T, F> Condition andIsPositive(Fn<T, F> fn);
 
     /**
      * 添加字段为正值条件，或运算。
@@ -790,9 +792,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orIsPositive(Fn<T, F> fn);
+    <T, F> Condition orIsPositive(Fn<T, F> fn);
 
     /**
      * 添加字段为负值条件，并且运算。
@@ -800,9 +802,9 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition andIsNegative(Fn<T, F> fn);
+    <T, F> Condition andIsNegative(Fn<T, F> fn);
 
     /**
      * 添加字段为负值条件，或运算。
@@ -810,32 +812,32 @@ public interface ICondition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    <T, F> ICondition orIsNegative(Fn<T, F> fn);
+    <T, F> Condition orIsNegative(Fn<T, F> fn);
 
     /**
      * 限制查询结果的返回行数
      *
      * @param offset 需要跳过的行数
      * @param limit  返回的最大行数
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    ICondition limit(int offset, int limit);
+    Condition limit(int offset, int limit);
 
     /**
      * 限制查询结果的返回行数
      *
      * @param limit 返回的最大行数
-     * @return 当前 ICondition 实例
+     * @return 当前 Condition 实例
      */
-    ICondition limit(int limit);
+    Condition limit(int limit);
 
     /**
      * 添加一组条件，并且运算。
      * <p>
      * 该方法允许将一组条件作为当前条件的子条件进行添加，并且将它们合并为一个结果。
-     * 其中传入的 {@link Consumer} 对象接受一个 {@link ICondition} 实例，
+     * 其中传入的 {@link Consumer} 对象接受一个 {@link Condition} 实例，
      * 用于设置嵌套的条件组合。
      * <p>
      * 例如：
@@ -850,9 +852,9 @@ public interface ICondition {
      * </pre>
      *
      * @param nestedCondition 用于配置嵌套条件的 {@link Consumer} 对象
-     * @return 当前的 {@link ICondition} 实例，以便实现链式调用
+     * @return 当前的 {@link Condition} 实例，以便实现链式调用
      */
-    default ICondition andCondition(Consumer<ICondition> nestedCondition) {
+    default Condition andCondition(Consumer<Condition> nestedCondition) {
         nestedCondition.accept(this);
         return this;
     }
@@ -861,10 +863,10 @@ public interface ICondition {
      * 添加一个嵌套条件，或运算。
      *
      * @param nestedCondition 用于配置嵌套条件的 {@link Consumer} 对象
-     * @return 当前的 {@link ICondition} 实例，以便实现链式调用
+     * @return 当前的 {@link Condition} 实例，以便实现链式调用
      * @see this#andCondition(Consumer)
      */
-    default ICondition orCondition(Consumer<ICondition> nestedCondition) {
+    default Condition orCondition(Consumer<Condition> nestedCondition) {
         nestedCondition.accept(this);
         return this;
     }
@@ -879,9 +881,9 @@ public interface ICondition {
      *
      * @param customClause 自定义的 SQL 条件子句，这里应包含一个有效的 SQL 片段，通常是一个条件表达式
      * @param params       条件子句中占位符的参数，按照自定义条件子句中占位符的顺序提供
-     * @return 当前 ICondition 实例，以便进行链式调用
+     * @return 当前 Condition 实例，以便进行链式调用
      * @throws IllegalArgumentException 如果提供的 SQL 条件子句不合法或者参数与子句中的占位符数量不匹配
      */
-    ICondition customCondition(String customClause, Object... params);
+    Condition customCondition(String customClause, Object... params);
 
 }

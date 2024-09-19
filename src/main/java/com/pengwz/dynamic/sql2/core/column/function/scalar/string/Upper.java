@@ -1,12 +1,12 @@
 package com.pengwz.dynamic.sql2.core.column.function.scalar.string;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
 public class Upper extends ColumnFunctionDecorator {
 
-    public Upper(IColumFunction delegateFunction) {
+    public Upper(ColumFunction delegateFunction) {
         super(delegateFunction);
     }
 

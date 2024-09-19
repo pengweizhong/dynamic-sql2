@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.windows;
 
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 
 /**
  * 窗口函数是在 OVER() 子句中定义的函数，用于在查询结果的某个窗口内执行计算。这个窗口可以是整个结果集或结果集的一个分区（子集），
@@ -32,7 +32,7 @@ import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
  * •	PERCENT_RANK()：计算每一行的百分位排名。
  * •	CUME_DIST()：计算每一行的累积分布。
  */
-public interface IWindowsFunction extends IColumFunction {
+public interface WindowsFunction extends ColumFunction {
 
     String apply(Over over);
 

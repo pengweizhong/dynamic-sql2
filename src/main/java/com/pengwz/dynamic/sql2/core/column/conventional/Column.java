@@ -1,9 +1,9 @@
 package com.pengwz.dynamic.sql2.core.column.conventional;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 
-public class Column implements IColumFunction {
+public class Column implements ColumFunction {
 
     protected String columnName;
 

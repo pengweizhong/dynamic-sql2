@@ -1,29 +1,29 @@
 package com.pengwz.dynamic.sql2.core.column.function.scalar.string;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
 public class Like extends ColumnFunctionDecorator {
     private String leftSymbol;
     private String rightSymbol;
 
-    public Like(IColumFunction delegateFunction) {
+    public Like(ColumFunction delegateFunction) {
         super(delegateFunction);
     }
 
-    public Like(String leftSymbol, IColumFunction delegateFunction, String rightSymbol) {
+    public Like(String leftSymbol, ColumFunction delegateFunction, String rightSymbol) {
         super(delegateFunction);
         this.leftSymbol = leftSymbol;
         this.rightSymbol = rightSymbol;
     }
 
-    public Like(String leftSymbol, IColumFunction delegateFunction) {
+    public Like(String leftSymbol, ColumFunction delegateFunction) {
         super(delegateFunction);
         this.leftSymbol = leftSymbol;
     }
 
-    public Like(IColumFunction delegateFunction, String rightSymbol) {
+    public Like(ColumFunction delegateFunction, String rightSymbol) {
         super(delegateFunction);
         this.rightSymbol = rightSymbol;
     }

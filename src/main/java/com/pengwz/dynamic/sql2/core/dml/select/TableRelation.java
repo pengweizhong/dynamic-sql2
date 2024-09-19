@@ -1,8 +1,8 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.ICondition;
-import com.pengwz.dynamic.sql2.core.IWhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.Condition;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 
@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 /**
  * 表关联关系
  */
-public class TableRelation<R> implements IJoinCondition {
+public class TableRelation<R> implements JoinCondition {
     private Class<R> tableClass;
 
     public TableRelation(Class<R> tableClass) {
@@ -19,77 +19,77 @@ public class TableRelation<R> implements IJoinCondition {
     }
 
     @Override
-    public IJoinCondition innerJoin(Class<?> clazz, Consumer<ICondition> onCondition) {
+    public JoinCondition innerJoin(Class<?> clazz, Consumer<Condition> onCondition) {
         return null;
     }
 
     @Override
-    public IJoinCondition innerJoin(CteTable cte, Consumer<ICondition> onCondition) {
+    public JoinCondition innerJoin(CteTable cte, Consumer<Condition> onCondition) {
         return null;
     }
 
     @Override
-    public IJoinCondition leftJoin(Class<?> clazz, Consumer<ICondition> onCondition) {
+    public JoinCondition leftJoin(Class<?> clazz, Consumer<Condition> onCondition) {
         return null;
     }
 
     @Override
-    public IJoinCondition leftJoin(CteTable cte, Consumer<ICondition> onCondition) {
+    public JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition) {
         return null;
     }
 
     @Override
-    public IJoinCondition rightJoin(Class<?> clazz, Consumer<ICondition> onCondition) {
+    public JoinCondition rightJoin(Class<?> clazz, Consumer<Condition> onCondition) {
         return null;
     }
 
     @Override
-    public IJoinCondition rightJoin(CteTable cte, Consumer<ICondition> onCondition) {
+    public JoinCondition rightJoin(CteTable cte, Consumer<Condition> onCondition) {
         return null;
     }
 
     @Override
-    public IJoinCondition fullJoin(Class<?> clazz, Consumer<ICondition> onCondition) {
+    public JoinCondition fullJoin(Class<?> clazz, Consumer<Condition> onCondition) {
         return null;
     }
 
     @Override
-    public IJoinCondition fullJoin(CteTable cte, Consumer<ICondition> onCondition) {
+    public JoinCondition fullJoin(CteTable cte, Consumer<Condition> onCondition) {
         return null;
     }
 
     @Override
-    public IJoinCondition crossJoin(Class<?> clazz) {
+    public JoinCondition crossJoin(Class<?> clazz) {
         return null;
     }
 
     @Override
-    public IJoinCondition crossJoin(CteTable cte) {
+    public JoinCondition crossJoin(CteTable cte) {
         return null;
     }
 
     @Override
-    public IJoinCondition selfJoin(String alias, Consumer<ICondition> onCondition) {
+    public JoinCondition selfJoin(String alias, Consumer<Condition> onCondition) {
         return null;
     }
 
     @Override
-    public IJoinCondition selfJoin(CteTable cte, Consumer<ICondition> onCondition) {
+    public JoinCondition selfJoin(CteTable cte, Consumer<Condition> onCondition) {
         return null;
     }
 
     @Override
-    public TableRelation<R> where(Consumer<IWhereCondition> condition) {
+    public TableRelation<R> where(Consumer<WhereCondition> condition) {
         return this;
     }
 
     @Override
-    public IFetchable limit(int offset, int limit) {
+    public Fetchable limit(int offset, int limit) {
         return null;
     }
 
     @Override
-    public IFetchable limit(int limit) {
+    public Fetchable limit(int limit) {
         return null;
     }
 
@@ -103,12 +103,12 @@ public class TableRelation<R> implements IJoinCondition {
 
     @Override
     @SuppressWarnings("unchecked")
-    public IFetchResult<R> fetch() {
+    public FetchResult<R> fetch() {
         return null;
     }
 
     @Override
-    public <T> IFetchResult<T> fetch(Class<T> returnClass) {
+    public <T> FetchResult<T> fetch(Class<T> returnClass) {
         return null;
     }
 
@@ -119,7 +119,7 @@ public class TableRelation<R> implements IJoinCondition {
 
     //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;
     //  public abstract AbstractColumnReference column(IColumFunction iColumFunction);
-    public TableRelation<R> having(Consumer<IHavingCondition> condition) {
+    public TableRelation<R> having(Consumer<HavingCondition> condition) {
         return this;
     }
 

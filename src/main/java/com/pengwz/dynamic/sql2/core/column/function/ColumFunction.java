@@ -1,9 +1,9 @@
 package com.pengwz.dynamic.sql2.core.column.function;
 
-import com.pengwz.dynamic.sql2.core.column.IColumn;
+import com.pengwz.dynamic.sql2.core.column.Column;
 
 @FunctionalInterface
-public interface IColumFunction extends IColumn {
+public interface ColumFunction extends Column {
     String getFunctionToString();
 
     @Override

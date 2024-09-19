@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.json;
 
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 
 /**
  * 处理 JSON 数据的函数接口。
@@ -34,5 +34,5 @@ import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
  * -- 	•	筛选 JSON 数组中的特定元素
  * SELECT * FROM my_table WHERE JSON_CONTAINS(data, '"John"', '$.names');
  */
-public interface IJsonFunction extends IColumFunction {
+public interface JsonFunction extends ColumFunction {
 }

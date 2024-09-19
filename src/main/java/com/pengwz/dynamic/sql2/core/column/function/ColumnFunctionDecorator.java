@@ -1,22 +1,22 @@
 package com.pengwz.dynamic.sql2.core.column.function;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.IColumnArithmetic;
+import com.pengwz.dynamic.sql2.core.column.ColumnArithmetic;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
-import com.pengwz.dynamic.sql2.core.column.function.windows.IWindowsFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
+import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 
 import java.io.Serializable;
 import java.util.function.Consumer;
 
 public abstract class ColumnFunctionDecorator
-        implements IColumFunction, IColumnArithmetic, Serializable {
-    protected IColumFunction delegateFunction;
+        implements ColumFunction, ColumnArithmetic, Serializable {
+    protected ColumFunction delegateFunction;
     //count 1
     protected int value;
 
-    public ColumnFunctionDecorator(IColumFunction delegateFunction) {
+    public ColumnFunctionDecorator(ColumFunction delegateFunction) {
         this.delegateFunction = delegateFunction;
     }
 
@@ -29,7 +29,7 @@ public abstract class ColumnFunctionDecorator
     }
 
     //窗口函数
-    public ColumnFunctionDecorator(IWindowsFunction windowsFunction, Over over) {
+    public ColumnFunctionDecorator(WindowsFunction windowsFunction, Over over) {
         this.delegateFunction = windowsFunction;
     }
 

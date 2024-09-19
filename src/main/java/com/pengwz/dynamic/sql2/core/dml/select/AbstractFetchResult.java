@@ -4,7 +4,7 @@ import com.pengwz.dynamic.sql2.core.Fn;
 
 import java.util.*;
 
-public abstract class AbstractFetchResult<R> implements IFetchResult<R> {
+public abstract class AbstractFetchResult<R> implements FetchResult<R> {
 
     @Override
     public List<R> toList() {

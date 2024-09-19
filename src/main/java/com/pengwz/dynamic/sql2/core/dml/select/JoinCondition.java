@@ -1,20 +1,20 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
-import com.pengwz.dynamic.sql2.core.ICondition;
-import com.pengwz.dynamic.sql2.core.IWhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.Condition;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 
 import java.util.function.Consumer;
 
-public interface IJoinCondition extends IFetchable {
+public interface JoinCondition extends Fetchable {
     /**
      * 表示 INNER JOIN 连接。此方法是 {@link #innerJoin(Class, Consumer)} 的别名。
      *
      * @param clazz       表对应的实体类
      * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象
-     * @return 当前的 {@link IJoinCondition} 实例
+     * @return 当前的 {@link JoinCondition} 实例
      */
-    default IJoinCondition join(Class<?> clazz, Consumer<ICondition> onCondition) {
+    default JoinCondition join(Class<?> clazz, Consumer<Condition> onCondition) {
         return innerJoin(clazz, onCondition);
     }
 
@@ -26,9 +26,9 @@ public interface IJoinCondition extends IFetchable {
      *
      * @param cte         需要连接的 CTE 实例，表示要与当前表进行 INNER JOIN 的 CTE 表。
      * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，定义当前表与 CTE 之间的连接条件。
-     * @return 当前的 {@link IJoinCondition} 实例，用于继续构建查询链。
+     * @return 当前的 {@link JoinCondition} 实例，用于继续构建查询链。
      */
-    default IJoinCondition join(CteTable cte, Consumer<ICondition> onCondition) {
+    default JoinCondition join(CteTable cte, Consumer<Condition> onCondition) {
         return innerJoin(cte, onCondition);
     }
 
@@ -45,12 +45,12 @@ public interface IJoinCondition extends IFetchable {
      * </pre>
      *
      * @param clazz       需要连接的表对应的实体类
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link ICondition} 接口定义连接条件
-     * @return 当前查询上下文的 {@link IJoinCondition} 实例，用于继续构建查询链
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    IJoinCondition innerJoin(Class<?> clazz, Consumer<ICondition> onCondition);
+    JoinCondition innerJoin(Class<?> clazz, Consumer<Condition> onCondition);
 
-    IJoinCondition innerJoin(CteTable cte, Consumer<ICondition> onCondition);
+    JoinCondition innerJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与另一个表进行左连接。
@@ -66,12 +66,12 @@ public interface IJoinCondition extends IFetchable {
      * </pre>
      *
      * @param clazz       需要左连接的表对应的实体类
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link ICondition} 接口定义连接条件
-     * @return 当前查询上下文的 {@link IJoinCondition} 实例，用于继续构建查询链
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    IJoinCondition leftJoin(Class<?> clazz, Consumer<ICondition> onCondition);
+    JoinCondition leftJoin(Class<?> clazz, Consumer<Condition> onCondition);
 
-    IJoinCondition leftJoin(CteTable cte, Consumer<ICondition> onCondition);
+    JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与另一个表进行右连接。
@@ -87,12 +87,12 @@ public interface IJoinCondition extends IFetchable {
      * </pre>
      *
      * @param clazz       需要右连接的表对应的实体类
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link ICondition} 接口定义连接条件
-     * @return 当前查询上下文的 {@link IJoinCondition} 实例，用于继续构建查询链
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    IJoinCondition rightJoin(Class<?> clazz, Consumer<ICondition> onCondition);
+    JoinCondition rightJoin(Class<?> clazz, Consumer<Condition> onCondition);
 
-    IJoinCondition rightJoin(CteTable cte, Consumer<ICondition> onCondition);
+    JoinCondition rightJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**
      * 表示 FULL JOIN 连接。
@@ -106,23 +106,23 @@ public interface IJoinCondition extends IFetchable {
      * <p>
      * 使用示例：
      * <pre>
-     *     IJoinCondition joinCondition = ...; // 获取 IJoinCondition 实例
+     *     JoinCondition joinCondition = ...; // 获取 JoinCondition 实例
      *     joinCondition.fullJoin(AnotherEntity.class, condition -> {
      *         condition.andEqualTo(SomeEntity::getId, AnotherEntity::getForeignKey);
      *     });
      * </pre>
      * 在上述示例中，`AnotherEntity.class` 是要与当前表进行 FULL JOIN 的目标表的实体类。`condition` 是一个
-     * {@link Consumer<ICondition>} 对象，用于定义连接条件。在这个例子中，连接条件是将 `SomeEntity` 表的 `id`
+     * {@link Consumer<Condition>} 对象，用于定义连接条件。在这个例子中，连接条件是将 `SomeEntity` 表的 `id`
      * 字段与 `AnotherEntity` 表的 `foreignKey` 字段进行匹配。
      *
      * @param clazz       表对应的实体类，表示要与当前表进行 FULL JOIN 的目标表。
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象。该对象接受一个 {@link ICondition} 实例，
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象。该对象接受一个 {@link Condition} 实例，
      *                    用于定义表之间的连接条件。
-     * @return 当前的 {@link IJoinCondition} 实例，以便实现链式调用，继续进行其他连接或查询操作。
+     * @return 当前的 {@link JoinCondition} 实例，以便实现链式调用，继续进行其他连接或查询操作。
      */
-    IJoinCondition fullJoin(Class<?> clazz, Consumer<ICondition> onCondition);
+    JoinCondition fullJoin(Class<?> clazz, Consumer<Condition> onCondition);
 
-    IJoinCondition fullJoin(CteTable cte, Consumer<ICondition> onCondition);
+    JoinCondition fullJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**
      * 表示 CROSS JOIN 连接。
@@ -135,18 +135,18 @@ public interface IJoinCondition extends IFetchable {
      * <p>
      * 使用示例：
      * <pre>
-     *     IJoinCondition joinCondition = ...; // 获取 IJoinCondition 实例
+     *     JoinCondition joinCondition = ...; // 获取 JoinCondition 实例
      *     joinCondition.crossJoin(AnotherEntity.class);
      * </pre>
      * 在上述示例中，`AnotherEntity.class` 是要与当前表进行 CROSS JOIN 的实体类。该方法将生成当前表和 `AnotherEntity` 表
      * 之间的所有可能行组合。
      *
      * @param clazz 表对应的实体类，表示要与当前表进行 CROSS JOIN 的目标表。
-     * @return 当前的 {@link IJoinCondition} 实例，以便实现链式调用，继续进行其他连接或查询操作。
+     * @return 当前的 {@link JoinCondition} 实例，以便实现链式调用，继续进行其他连接或查询操作。
      */
-    IJoinCondition crossJoin(Class<?> clazz);
+    JoinCondition crossJoin(Class<?> clazz);
 
-    IJoinCondition crossJoin(CteTable cte);
+    JoinCondition crossJoin(CteTable cte);
 
     /**
      * 表示 SELF JOIN 连接。
@@ -159,7 +159,7 @@ public interface IJoinCondition extends IFetchable {
      * <p>
      * 使用示例：
      * <pre>
-     *     IJoinCondition joinCondition = ...; // 获取 IJoinCondition 实例
+     *     JoinCondition joinCondition = ...; // 获取 JoinCondition 实例
      *     joinCondition.selfJoin("alias1", on -> {
      *         on.andEqualTo(MyEntity::getParentId, MyEntity::getId); // 例如，连接条件为父 ID 等于子 ID
      *     });
@@ -168,13 +168,13 @@ public interface IJoinCondition extends IFetchable {
      * 通过将表的父 ID 字段与子 ID 字段进行比较。
      *
      * @param alias       用于给当前表设置的别名。这个别名在连接条件中用于区分表的不同实例。
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象。该对象接受一个 {@link ICondition} 实例，
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象。该对象接受一个 {@link Condition} 实例，
      *                    用于设置连接条件，例如字段匹配或其他逻辑条件。
-     * @return 当前的 {@link IJoinCondition} 实例，以便实现链式调用，继续进行其他连接或查询操作。
+     * @return 当前的 {@link JoinCondition} 实例，以便实现链式调用，继续进行其他连接或查询操作。
      */
-    IJoinCondition selfJoin(String alias, Consumer<ICondition> onCondition);
+    JoinCondition selfJoin(String alias, Consumer<Condition> onCondition);
 
-    IJoinCondition selfJoin(CteTable cte, Consumer<ICondition> onCondition);
+    JoinCondition selfJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**
      * 追加where条件
@@ -182,7 +182,7 @@ public interface IJoinCondition extends IFetchable {
      * @param condition 用于构建 where 条件的 {@link Consumer} 对象。
      * @return 返回表连接的实例
      */
-    TableRelation<?> where(Consumer<IWhereCondition> condition);//NOSONAR
+    TableRelation<?> where(Consumer<WhereCondition> condition);//NOSONAR
 
     /**
      * 限制查询结果的返回行数
@@ -191,7 +191,7 @@ public interface IJoinCondition extends IFetchable {
      * @param limit  返回的最大行数
      * @return 当前查询构建器的实例
      */
-    IFetchable limit(int offset, int limit);
+    Fetchable limit(int offset, int limit);
 
     /**
      * 限制查询结果的返回行数
@@ -199,5 +199,5 @@ public interface IJoinCondition extends IFetchable {
      * @param limit 返回的最大行数
      * @return 当前查询构建器的实例
      */
-    IFetchable limit(int limit);
+    Fetchable limit(int limit);
 }

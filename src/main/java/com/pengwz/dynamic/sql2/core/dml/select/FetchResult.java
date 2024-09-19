@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  *
  * @param <R> 结果对象的类型
  */
-public interface IFetchResult<R> {
+public interface FetchResult<R> {
     /**
      * 将查询结果转换为单个对象
      *

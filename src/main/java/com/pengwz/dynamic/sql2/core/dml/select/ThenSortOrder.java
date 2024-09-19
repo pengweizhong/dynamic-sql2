@@ -6,12 +6,12 @@ import com.pengwz.dynamic.sql2.enums.SortOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ThenSortOrder<R> implements IFetchable {
+public class ThenSortOrder<R> implements Fetchable {
 
     private List<OrderBy> orderBys = new ArrayList<>();
-    private IFetchable fetchable;
+    private Fetchable fetchable;
 
-    public ThenSortOrder(IFetchable fetchable) {
+    public ThenSortOrder(Fetchable fetchable) {
         this.fetchable = fetchable;
     }
 
@@ -27,12 +27,12 @@ public class ThenSortOrder<R> implements IFetchable {
 
     @Override
     @SuppressWarnings("unchecked")
-    public IFetchResult<R> fetch() {
+    public FetchResult<R> fetch() {
         return fetchable.fetch();
     }
 
     @Override
-    public <T> IFetchResult<T> fetch(Class<T> returnClass) {
+    public <T> FetchResult<T> fetch(Class<T> returnClass) {
         return fetchable.fetch(returnClass);
     }
 

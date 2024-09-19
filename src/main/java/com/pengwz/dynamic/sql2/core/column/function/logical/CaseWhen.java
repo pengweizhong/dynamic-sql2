@@ -1,8 +1,8 @@
 package com.pengwz.dynamic.sql2.core.column.function.logical;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public class CaseWhen extends ColumnFunctionDecorator {
     private String elseCondition;
 
     // 构造方法
-    protected CaseWhen(IColumFunction delegateFunction) {
+    protected CaseWhen(ColumFunction delegateFunction) {
         super(delegateFunction);
     }
 
@@ -25,7 +25,7 @@ public class CaseWhen extends ColumnFunctionDecorator {
         return new CaseWhenBuilder(new CaseWhen(fn));
     }
 
-    public static CaseWhenBuilder builder(IColumFunction delegateFunction) {
+    public static CaseWhenBuilder builder(ColumFunction delegateFunction) {
         return new CaseWhenBuilder(new CaseWhen(delegateFunction));
     }
 

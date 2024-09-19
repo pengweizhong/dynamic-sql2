@@ -1,8 +1,8 @@
 package com.pengwz.dynamic.sql2.core.column.function.json;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
 /**
  * 提取 JSON 数据中的值
@@ -10,7 +10,7 @@ import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 public class JsonExtract extends ColumnFunctionDecorator {
     private String jsonPath;
 
-    public JsonExtract(IColumFunction delegateFunction, String jsonPath) {
+    public JsonExtract(ColumFunction delegateFunction, String jsonPath) {
         super(delegateFunction);
         this.jsonPath = jsonPath;
     }

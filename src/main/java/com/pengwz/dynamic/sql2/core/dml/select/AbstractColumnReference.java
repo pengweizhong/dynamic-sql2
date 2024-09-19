@@ -3,9 +3,9 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 import com.pengwz.dynamic.sql2.core.ColumnReference;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
-import com.pengwz.dynamic.sql2.core.column.function.windows.IWindowsFunction;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
+import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.function.Consumer;
  * 包括选择特定列、应用函数、使用别名等。
  */
 public abstract class AbstractColumnReference {
-    protected List<IColumFunction> queryFields = new ArrayList<>();
+    protected List<ColumFunction> queryFields = new ArrayList<>();
 
     //简简单单的  select 1 from ...
     public abstract AbstractColumnReference one();
@@ -26,11 +26,11 @@ public abstract class AbstractColumnReference {
 
     public abstract <T, F> AbstractColumnReference column(Fn<T, F> fn, String alias);
 
-    public abstract AbstractColumnReference column(IColumFunction iColumFunction);
+    public abstract AbstractColumnReference column(ColumFunction iColumFunction);
 
-    public abstract AbstractColumnReference column(IColumFunction iColumFunction, String alias);
+    public abstract AbstractColumnReference column(ColumFunction iColumFunction, String alias);
 
-    public abstract AbstractColumnReference column(IWindowsFunction windowsFunction, Over over, String alias);
+    public abstract AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String alias);
 
     public abstract AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String alias);
 

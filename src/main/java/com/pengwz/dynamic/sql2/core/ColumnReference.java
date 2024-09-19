@@ -1,25 +1,24 @@
 package com.pengwz.dynamic.sql2.core;
 
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
-import com.pengwz.dynamic.sql2.core.column.function.windows.IWindowsFunction;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
+import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.TableRelation;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
-import com.pengwz.dynamic.sql2.core.dml.select.cte.ICommonTableExpression;
 
 import java.util.function.Consumer;
 
 public class ColumnReference extends AbstractColumnReference {
-    private IColumFunction iColumFunction;
+    private ColumFunction columnFunction;
 
     public ColumnReference() {
     }
 
-    public ColumnReference(IColumFunction iColumFunction) {
-        this.iColumFunction = iColumFunction;
+    public ColumnReference(ColumFunction columnFunction) {
+        this.columnFunction = columnFunction;
     }
 
     public <T, F> ColumnReference(Fn<T, F> fn) {
@@ -44,19 +43,19 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
-    public ColumnReference column(IColumFunction iColumFunction) {
+    public ColumnReference column(ColumFunction iColumFunction) {
         return this.column(iColumFunction, null);
     }
 
     @Override
-    public ColumnReference column(IColumFunction iColumFunction, String alias) {
+    public ColumnReference column(ColumFunction iColumFunction, String alias) {
         System.out.println("测试函数结果 --> " + iColumFunction.getFunctionToString());
         queryFields.add(iColumFunction);
         return this;
     }
 
     @Override
-    public AbstractColumnReference column(IWindowsFunction windowsFunction, Over over, String alias) {
+    public AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String alias) {
         // Build the SQL part for the window function
         String orderByClause = String.join(", ", over.getOrderByColumns());
         String partitionByClause = over.getPartitionByClause();

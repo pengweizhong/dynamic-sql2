@@ -1,12 +1,12 @@
 package com.pengwz.dynamic.sql2.core.column.function.scalar.string;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
 
 public class Md5 extends ColumnFunctionDecorator {
 
-    public Md5(IColumFunction delegateFunction) {
+    public Md5(ColumFunction delegateFunction) {
         super(delegateFunction);
     }
 

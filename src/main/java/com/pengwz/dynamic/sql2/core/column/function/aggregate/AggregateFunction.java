@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.aggregate;
 
-import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 
 /**
  * 聚合函数 (Aggregate Functions)
@@ -13,6 +13,6 @@ import com.pengwz.dynamic.sql2.core.column.function.IColumFunction;
  * •	MIN(): 查找数值列的最小值。
  * •	MAX(): 查找数值列的最大值。
  */
-public interface IAggregateFunction extends IColumFunction {
+public interface AggregateFunction extends ColumFunction {
 
 }

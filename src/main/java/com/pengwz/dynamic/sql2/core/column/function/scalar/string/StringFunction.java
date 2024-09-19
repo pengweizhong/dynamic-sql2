@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.scalar.string;
 
-import com.pengwz.dynamic.sql2.core.column.function.scalar.IScalarFunction;
+import com.pengwz.dynamic.sql2.core.column.function.scalar.ScalarFunction;
 
 /**
  * •	CONCAT(str1, str2, ...): 连接两个或多个字符串。
@@ -9,7 +9,7 @@ import com.pengwz.dynamic.sql2.core.column.function.scalar.IScalarFunction;
  * •	TRIM(str): 删除字符串前后的空格。
  * •	REPLACE(str, search, replace): 替换字符串中的子串。
  */
-public interface IStringFunction extends IScalarFunction {
+public interface StringFunction extends ScalarFunction {
 
 
 }
