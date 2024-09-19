@@ -34,7 +34,7 @@ public @interface Column {
     boolean primary() default false;
 
     /**
-     * 定义数据库值和实体类值的转换器
+     * 定义数据库值和实体类值的转换器，该转换器必须允许空的构造函数
      *
      * @return 转换器
      */
