@@ -13,16 +13,16 @@ class InsertTest extends InitializingContext {
 
     @Test
     void insert1() {
-        sqlContext.insert().insert(new Student());
+        sqlContext.insert(new Student());
     }
 
     @Test
     void insert2() {
-        sqlContext.insert().insertSelective(new Student());
+        sqlContext.insertSelective(new Student());
     }
 
     @Test
     void insert3() {
-        sqlContext.insert().insertSelective(new Student(), Arrays.asList(Student::getStudentId, Student::getClassId));
+        sqlContext.insertSelective(new Student(), Arrays.asList(Student::getStudentId, Student::getClassId));
     }
 }

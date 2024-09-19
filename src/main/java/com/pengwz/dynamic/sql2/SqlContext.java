@@ -1,5 +1,9 @@
 package com.pengwz.dynamic.sql2;
 
+import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.IWhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.delete.DataDeleter;
+import com.pengwz.dynamic.sql2.core.dml.delete.Delete;
 import com.pengwz.dynamic.sql2.core.dml.insert.DataInserter;
 import com.pengwz.dynamic.sql2.core.dml.insert.Insert;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
@@ -7,8 +11,11 @@ import com.pengwz.dynamic.sql2.core.dml.select.Select;
 import com.pengwz.dynamic.sql2.core.dml.update.DataUpdater;
 import com.pengwz.dynamic.sql2.core.dml.update.Update;
 
+import java.util.Collection;
+import java.util.function.Consumer;
 
-public class SqlContext {
+
+public class SqlContext implements DataInserter, DataUpdater, DataDeleter {
 
     private SqlContext() {
     }
@@ -25,12 +32,86 @@ public class SqlContext {
         return new Select().loadColumReference();
     }
 
-
-    public DataInserter insert() {
-        return new Insert();
+    @Override
+    public <T> int delete(Class<T> entityClass, Consumer<IWhereCondition> condition) {
+        return 0;
     }
 
-    public DataUpdater update() {
-        return new Update();
+    @Override
+    public <T> int deleteByPrimaryKey(Class<T> entityClass, Object key) {
+        return 0;
     }
+
+    @Override
+    public <T> int insertSelective(T entity) {
+        return 0;
+    }
+
+    @Override
+    public <T, F> int insertSelective(T entity, Collection<Fn<T, F>> forcedFields) {
+        return 0;
+    }
+
+    @Override
+    public <T> int insert(T entity) {
+        return 0;
+    }
+
+    @Override
+    public <T> int batchInsert(Collection<T> entities) {
+        return 0;
+    }
+
+    @Override
+    public <T> int upsert(T entity) {
+        return 0;
+    }
+
+    @Override
+    public <T> int batchUpsert(Collection<T> entities) {
+        return 0;
+    }
+
+    @Override
+    public <T> int update(T data, Consumer<IWhereCondition> condition) {
+        return 0;
+    }
+
+    @Override
+    public <T> int updateSelective(T entity, Consumer<IWhereCondition> condition) {
+        return 0;
+    }
+
+    @Override
+    public <T, F> int updateSelective(T entity, Collection<Fn<T, F>> forcedFields) {
+        return 0;
+    }
+
+    @Override
+    public <T, F> int updateSelective(T entity, Collection<Fn<T, F>> forcedFields, Consumer<IWhereCondition> condition) {
+        return 0;
+    }
+
+    @Override
+    public <T> int updateByPrimaryKey(T entity) {
+        return 0;
+    }
+
+    @Override
+    public <T> int updateSelectiveByPrimaryKey(T entity) {
+        return 0;
+    }
+
+
+//    public DataInserter insert() {
+//        return new Insert();
+//    }
+//
+//    public DataUpdater update() {
+//        return new Update();
+//    }
+//
+//    public DataDeleter delete() {
+//        return new Delete();
+//    }
 }

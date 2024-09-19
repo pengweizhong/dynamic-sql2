@@ -10,10 +10,10 @@ class UpdateTest extends InitializingContext {
 
     @Test
     void test1() {
-        sqlContext.update().update(new Student(), condition->condition.andEqualTo(Student::getStudentId,1));
+        sqlContext.update(new Student(), condition->condition.andEqualTo(Student::getStudentId,1));
     }
     @Test
     void test2() {
-        sqlContext.update().update(new Student(), null);
+        sqlContext.update(new Student(), null);
     }
 }
