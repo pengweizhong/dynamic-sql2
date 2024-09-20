@@ -15,7 +15,7 @@ public class ContextInitializer {
         if (sqlContextProperties == null) {
             throw new RuntimeException("sqlContextProperties must not null");
         }
-        DataSourceUtils.scanAndInitDataSource(sqlContextProperties, sqlContextProperties.getScanDatabasePackage());
+        DataSourceUtils.scanAndInitDataSource(sqlContextProperties);
         TableUtils.scanAndInitTable(sqlContextProperties.getScanTablePackage());
     }
 }

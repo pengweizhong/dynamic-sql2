@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.datasource;
 
 import com.pengwz.dynamic.sql2.config.SqlContextProperties;
 import com.pengwz.dynamic.sql2.enums.DbType;
+import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.plugins.schema.DbSchemaMatcher;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 import org.slf4j.Logger;
@@ -27,7 +28,8 @@ public class DataSourceUtils {
      *
      * @param packagePath 包路径
      */
-    public static void scanAndInitDataSource(SqlContextProperties sqlContextProperties, String... packagePath) {
+    public static void scanAndInitDataSource(SqlContextProperties sqlContextProperties) {
+        String[] packagePath = sqlContextProperties.getScanDatabasePackage();
         if (packagePath == null || packagePath.length == 0) {
             throw new IllegalArgumentException("The package path to search must be provided");
         }
@@ -59,8 +61,14 @@ public class DataSourceUtils {
                 String schema = matchSchema(sqlContextProperties.getSchemaMatchers(), dbType, metaData.getURL());
                 String version = sqlContextProperties.getDatabaseProductVersion() == null
                         ? metaData.getDatabaseProductVersion() : sqlContextProperties.getDatabaseProductVersion();
+                SqlDialect sqlDialect = sqlContextProperties.getSqlDialect();
+                if (sqlDialect == null && dbType.equals(DbType.OTHER)) {
+                    log.error("Unsupported SQL dialect, If your database supports an existing SQL dialect, manually specify the dialect type.");
+                    throw new UnsupportedOperationException("Unsupported SQL dialect");
+                }
+                sqlDialect = sqlDialect == null ? SqlDialect.valueOf(dbType.name()) : sqlDialect;
                 initDataSource(dataSourceMapping.getDataSourceName(),
-                        dbType, schema,
+                        dbType, sqlDialect, schema,
                         dataSourceMapping.getDataSource(),
                         dataSourceMapping.isGlobalDefault(),
                         version,
@@ -86,6 +94,7 @@ public class DataSourceUtils {
      */
     public static synchronized void initDataSource(String dataSourceName,
                                                    DbType dbType,
+                                                   SqlDialect sqlDialect,
                                                    String schema,
                                                    DataSource dataSource,
                                                    boolean isGlobalDefault,

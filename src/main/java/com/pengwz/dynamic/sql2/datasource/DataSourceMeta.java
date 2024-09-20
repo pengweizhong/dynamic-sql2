@@ -1,9 +1,9 @@
 package com.pengwz.dynamic.sql2.datasource;
 
 import com.pengwz.dynamic.sql2.enums.DbType;
+import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
 import javax.sql.DataSource;
-import java.util.Arrays;
 
 class DataSourceMeta {
     //数据源名称
@@ -18,6 +18,8 @@ class DataSourceMeta {
     private DataSource dataSource;
     //数据源类型
     private DbType dbType;
+    //数据库方言
+    private SqlDialect sqlDialect;
     //数据源版本号
     private String version;
 
@@ -77,16 +79,11 @@ class DataSourceMeta {
         this.version = version;
     }
 
-    @Override
-    public String toString() {
-        return "DataSourceMeta{" +
-                "dataSourceName='" + dataSourceName + '\'' +
-                ", schema='" + schema + '\'' +
-                ", isGlobalDefault=" + isGlobalDefault +
-                ", bindBasePackages=" + Arrays.toString(bindBasePackages) +
-                ", dataSource=" + dataSource +
-                ", dbType=" + dbType +
-                ", version='" + version + '\'' +
-                '}';
+    public SqlDialect getSqlDialect() {
+        return sqlDialect;
+    }
+
+    public void setSqlDialect(SqlDialect sqlDialect) {
+        this.sqlDialect = sqlDialect;
     }
 }
