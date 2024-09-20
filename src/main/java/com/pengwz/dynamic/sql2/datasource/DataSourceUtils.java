@@ -1,6 +1,8 @@
 package com.pengwz.dynamic.sql2.datasource;
 
+import com.pengwz.dynamic.sql2.config.SqlContextProperties;
 import com.pengwz.dynamic.sql2.enums.DbType;
+import com.pengwz.dynamic.sql2.plugins.schema.DbSchemaMatcher;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,20 +13,21 @@ import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DataSourceUtils {
+    private static final Logger log = LoggerFactory.getLogger(DataSourceUtils.class);
+
     private DataSourceUtils() {
     }
-
-    private static final Logger log = LoggerFactory.getLogger(DataSourceUtils.class);
 
     /**
      * 根据包路径检索数据源
      *
      * @param packagePath 包路径
      */
-    public static void scanAndInitDataSource(String... packagePath) {
+    public static void scanAndInitDataSource(SqlContextProperties sqlContextProperties, String... packagePath) {
         if (packagePath == null || packagePath.length == 0) {
             throw new IllegalArgumentException("The package path to search must be provided");
         }
@@ -53,8 +56,9 @@ public class DataSourceUtils {
                 connection = ConnectionHolder.getConnection(dataSourceMapping.getDataSource());
                 DatabaseMetaData metaData = connection.getMetaData();
                 DbType dbType = matchDbType(metaData.getURL());
-                String schema = matchSchema(dbType, metaData.getURL());
-                String version = metaData.getDatabaseProductVersion();
+                String schema = matchSchema(sqlContextProperties.getSchemaMatchers(), dbType, metaData.getURL());
+                String version = sqlContextProperties.getDatabaseProductVersion() == null
+                        ? metaData.getDatabaseProductVersion() : sqlContextProperties.getDatabaseProductVersion();
                 initDataSource(dataSourceMapping.getDataSourceName(),
                         dbType, schema,
                         dataSourceMapping.getDataSource(),
@@ -66,10 +70,7 @@ public class DataSourceUtils {
             } finally {
                 ConnectionHolder.releaseConnection(connection);
             }
-            log.debug("Test okay.");
         }
-
-
     }
 
 
@@ -129,41 +130,15 @@ public class DataSourceUtils {
 //        throw new UnsupportedOperationException("Unknown database type: " + jdbcUrl);
     }
 
-    public static String matchSchema(DbType dbType, String url) {
-        //mysql mariadb
-        if (dbType.equals(DbType.MYSQL) || dbType.equals(DbType.MARIADB)) {
-            // 处理 MySQL 和 MariaDB 的 URL
-            String[] parts = url.split("/");
-            if (parts.length > 3) {
-                // 取 URL 中的最后一部分作为 schema 名称
-                return parts[3].split("\\?")[0];
-            }
-        }
-        //oracle
-        else if (dbType.equals(DbType.ORACLE)) {
-            // 处理 Oracle 的 URL
-            // Oracle SID URL 格式: jdbc:oracle:thin:@host:port:sid
-            // Oracle 服务名称 URL 格式: jdbc:oracle:thin:@//host:port/service_name
-
-            // 去掉jdbc:oracle:thin:@ 前缀
-            String oracleUrl = url.substring("jdbc:oracle:thin:@".length());
-            // 判断 URL 是否包含斜杠
-            if (oracleUrl.startsWith("//")) {
-                // 服务名称格式: jdbc:oracle:thin:@//host:port/service_name
-                String[] parts = oracleUrl.substring(2).split("/");
-                if (parts.length > 1) {
-                    return parts[1].split("\\?")[0];
+    public static String matchSchema(Set<DbSchemaMatcher> dbSchemaMatchers, DbType dbType, String url) {
+        for (DbSchemaMatcher schemaMatcher : dbSchemaMatchers) {
+            if (schemaMatcher.supports(dbType)) {
+                String schema = schemaMatcher.matchSchema(url);
+                if (StringUtils.isNotBlank(schema)) {
+                    return schema;
                 }
-            } else {
-                // SID 格式: jdbc:oracle:thin:@host:port:sid 或 jdbc:oracle:thin:@host:sid
-                String[] parts = oracleUrl.split(":");
-                if (parts.length == 3) {
-                    // host:port:sid 格式
-                    return parts[2];
-                } else if (parts.length == 2) {
-                    // host:sid 格式
-                    return parts[1];
-                }
+                log.warn("'{}' supports the '{}' type but returns an empty string when parsing the database name",
+                        schemaMatcher.getClass().getCanonicalName(), dbType);
             }
         }
         throw new IllegalArgumentException("Unsupported jdbc url: " + url);

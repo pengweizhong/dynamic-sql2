@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 public interface DataUpdater {
 
-    <T> int update(T data, Consumer<WhereCondition> condition);
+    <T> int update(T entity, Consumer<WhereCondition> condition);
 
     <T> int updateSelective(T entity, Consumer<WhereCondition> condition);
 

@@ -12,7 +12,7 @@ import java.util.List;
 class TableEntityScannerTest {
     @BeforeAll
     static void setUp() {
-        DataSourceUtils.scanAndInitDataSource("com.pengwz.dynamic.sql2", "");
+//        DataSourceUtils.scanAndInitDataSource("com.pengwz.dynamic.sql2", "");
     }
 
     @Test

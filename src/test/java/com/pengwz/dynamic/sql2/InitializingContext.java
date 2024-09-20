@@ -1,24 +1,17 @@
 package com.pengwz.dynamic.sql2;
 
-import com.pengwz.dynamic.sql2.datasource.DataSourceUtils;
-import com.pengwz.dynamic.sql2.table.TableUtils;
+import com.pengwz.dynamic.sql2.config.SqlContextProperties;
 import org.junit.jupiter.api.BeforeAll;
 
 public class InitializingContext {
-    protected SqlContext sqlContext;
+    protected static SqlContext sqlContext;
 
     @BeforeAll
     static void setUp() {
-        SqlContextProperties sqlContextProperties = new SqlContextProperties();
+        SqlContextProperties sqlContextProperties = SqlContextProperties.defaultSqlContextProperties();
+        sqlContextProperties.setScanTablePackage("com.pengwz.dynamic.sql2");
         sqlContextProperties.setScanDatabasePackage("com.pengwz.dynamic.sql2");
-        sqlContextProperties.setScanTablePackage("com.pengwz.dynamic.sql2.utils",
-                "com.pengwz.dynamic.sql2.entites");
-        DataSourceUtils.scanAndInitDataSource("com.pengwz.dynamic.sql2");
-        String[] tablePaths = new String[]{
-                "com.pengwz.dynamic.sql2.utils",
-                "com.pengwz.dynamic.sql2.entites",
-        };
-        TableUtils.scanAndInitTable(tablePaths);
+        sqlContext = SqlContext.createSqlContext(sqlContextProperties);
     }
 
 }
