@@ -30,7 +30,7 @@ public class CaseWhen extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getMySqlFunction() {
+    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
         StringBuilder caseExpression = new StringBuilder("case ");
         for (String condition : conditions) {
             caseExpression.append(condition).append(" ");

@@ -15,7 +15,7 @@ public class Upper extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getMySqlFunction() {
-        return "upper(" + delegateFunction.getMySqlFunction() + ")";
+    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
+        return "upper(" + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ")";
     }
 }

@@ -16,7 +16,7 @@ public class Column implements ColumFunction {
     }
 
     @Override
-    public String getMySqlFunction() {
+    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
         /*拼接限定符号*/
         return "`" + getColumnName() + "`";
     }

@@ -32,12 +32,12 @@ public class Sum extends ColumnFunctionDecorator implements AggregateFunction, W
     }
 
     @Override
-    public String getMySqlFunction() {
-        return "sum(" + delegateFunction.getMySqlFunction() + ")";
+    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
+        return "sum(" + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ")";
     }
 
     @Override
     public String getOracleFunction() {
-        return "SUM(" + delegateFunction.getMySqlFunction() + ")";
+        return "SUM(" + delegateFunction.getOracleFunction() + ")";
     }
 }

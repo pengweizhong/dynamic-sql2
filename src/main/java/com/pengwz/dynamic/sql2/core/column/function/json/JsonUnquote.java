@@ -18,8 +18,8 @@ public class JsonUnquote extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getMySqlFunction() {
-        return "json_unquote(" + delegateFunction.getMySqlFunction() + ")";
+    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
+        return "json_unquote(" + delegateFunction.getMySqlFunction(majorVersionNumber,minorVersionNumber,patchVersionNumber) + ")";
     }
 
 

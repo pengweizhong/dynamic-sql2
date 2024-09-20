@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.json;
 
+import com.pengwz.dynamic.sql2.asserts.FunctionAssert;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
@@ -21,8 +22,11 @@ public class JsonExtract extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getMySqlFunction() {
-        return "json_extract(" + delegateFunction.getMySqlFunction() + ", " + jsonPath + ")";
+    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
+        if (majorVersionNumber < 5 && minorVersionNumber < 7) {
+            FunctionAssert.throwNotSupported("json_extract", majorVersionNumber, minorVersionNumber, patchVersionNumber);
+        }
+        return "json_extract(" + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ", " + jsonPath + ")";
     }
 
     @Override

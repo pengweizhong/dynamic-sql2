@@ -99,7 +99,8 @@ public class ColumnReference extends AbstractColumnReference {
                     sqlFunction = columFunction.getOracleFunction();
                     break;
                 case MYSQL:
-                    sqlFunction = columFunction.getMySqlFunction();
+                    sqlFunction = columFunction.getMySqlFunction(dataSourceMeta.getMajorVersionNumber(),
+                            dataSourceMeta.getMinorVersionNumber(), dataSourceMeta.getPatchVersionNumber());
                     break;
                 default:
                     throw new UnsupportedOperationException("Unsupported SQL dialect: " + dataSourceMeta.getSqlDialect());

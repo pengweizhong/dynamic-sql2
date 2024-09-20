@@ -49,16 +49,16 @@ public class Like extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getMySqlFunction() {
+    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
         if (leftSymbol != null && rightSymbol != null) {
-            return "concat('" + leftSymbol + "', " + delegateFunction.getMySqlFunction() + ", '" + rightSymbol + "')";
+            return "concat('" + leftSymbol + "', " + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ", '" + rightSymbol + "')";
         }
         if (leftSymbol != null) {
-            return "concat('" + leftSymbol + "', " + delegateFunction.getMySqlFunction() + ")";
+            return "concat('" + leftSymbol + "', " + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ")";
         }
         if (rightSymbol != null) {
-            return "concat(" + delegateFunction.getMySqlFunction() + ", '" + rightSymbol + "')";
+            return "concat(" + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ", '" + rightSymbol + "')";
         }
-        return delegateFunction.getMySqlFunction();
+        return delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber);
     }
 }

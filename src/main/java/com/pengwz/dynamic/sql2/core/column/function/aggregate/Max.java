@@ -22,12 +22,12 @@ public class Max extends ColumnFunctionDecorator implements AggregateFunction, W
     }
 
     @Override
-    public String getMySqlFunction() {
-        return "max(" + delegateFunction.getMySqlFunction() + ")";
+    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
+        return "max(" + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ")";
     }
 
     @Override
     public String getOracleFunction() {
-        return "MAX(" + delegateFunction.getMySqlFunction() + ")";
+        return "MAX(" + delegateFunction.getOracleFunction() + ")";
     }
 }

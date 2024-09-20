@@ -26,8 +26,8 @@ public class Count extends ColumnFunctionDecorator implements AggregateFunction,
     }
 
     @Override
-    public String getMySqlFunction() {
-        return "count(" + delegateFunction.getMySqlFunction() + ")";
+    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
+        return "count(" + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ")";
     }
 
     @Override
