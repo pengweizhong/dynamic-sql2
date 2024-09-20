@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 public abstract class ColumnFunctionDecorator
         implements ColumFunction, ColumnArithmetic, Serializable {
+
     protected ColumFunction delegateFunction;
     //count 1
     protected int value;
@@ -92,4 +93,5 @@ public abstract class ColumnFunctionDecorator
     public ColumnFunctionDecorator divide(Consumer<NestedSelect> nestedSelect) {
         return null;
     }
+
 }

@@ -15,7 +15,8 @@ public class Md5 extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
-        return "md5(" + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ")";
+    public String getMySqlFunction() {
+
+        return "md5(" + delegateFunction.getMySqlFunction() + ")";
     }
 }

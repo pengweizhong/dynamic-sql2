@@ -22,8 +22,8 @@ public class Max extends ColumnFunctionDecorator implements AggregateFunction, W
     }
 
     @Override
-    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
-        return "max(" + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ")";
+    public String getMySqlFunction() {
+        return "max(" + delegateFunction.getMySqlFunction() + ")";
     }
 
     @Override

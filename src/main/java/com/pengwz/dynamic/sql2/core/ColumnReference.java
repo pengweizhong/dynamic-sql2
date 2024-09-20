@@ -92,20 +92,27 @@ public class ColumnReference extends AbstractColumnReference {
 
     private void parseColumnFunction(Class<?> tableClass) {
         DataSourceMeta dataSourceMeta = DataSourceProvider.getInstance().getDataSourceMeta(tableClass);
-        for (ColumFunction columFunction : columFunctions) {
-            String sqlFunction;
-            switch (dataSourceMeta.getSqlDialect()) {
-                case ORACLE:
-                    sqlFunction = columFunction.getOracleFunction();
-                    break;
-                case MYSQL:
-                    sqlFunction = columFunction.getMySqlFunction(dataSourceMeta.getMajorVersionNumber(),
-                            dataSourceMeta.getMinorVersionNumber(), dataSourceMeta.getPatchVersionNumber());
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Unsupported SQL dialect: " + dataSourceMeta.getSqlDialect());
+        try {
+            Version.setMajorVersion(dataSourceMeta.getMajorVersionNumber());
+            Version.setMinorVersion(dataSourceMeta.getMinorVersionNumber());
+            Version.setPatchVersion(dataSourceMeta.getPatchVersionNumber());
+            for (ColumFunction columFunction : columFunctions) {
+                String sqlFunction;
+                switch (dataSourceMeta.getSqlDialect()) {
+                    case ORACLE:
+                        sqlFunction = columFunction.getOracleFunction();
+                        break;
+                    case MYSQL:
+                        sqlFunction = columFunction.getMySqlFunction();
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Unsupported SQL dialect: " + dataSourceMeta.getSqlDialect());
+                }
+                System.out.println("测试函数输出结果 ---> " + sqlFunction);
             }
-            System.out.println("测试函数输出结果 ---> " + sqlFunction);
+        } finally {
+            Version.clear();
         }
+
     }
 }

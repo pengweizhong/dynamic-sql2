@@ -16,12 +16,6 @@ public class Sum extends ColumnFunctionDecorator implements AggregateFunction, W
         super(fn);
     }
 
-
-//    @Override
-//    public String getFunctionToString() {
-//        return "sum(" + delegateFunction.getFunctionToString() + ")";
-//    }
-
     @Override
     public String apply(Over over) {
         //
@@ -32,8 +26,8 @@ public class Sum extends ColumnFunctionDecorator implements AggregateFunction, W
     }
 
     @Override
-    public String getMySqlFunction(int majorVersionNumber, int minorVersionNumber, int patchVersionNumber) {
-        return "sum(" + delegateFunction.getMySqlFunction(majorVersionNumber, minorVersionNumber, patchVersionNumber) + ")";
+    public String getMySqlFunction() {
+        return "sum(" + delegateFunction.getMySqlFunction() + ")";
     }
 
     @Override
