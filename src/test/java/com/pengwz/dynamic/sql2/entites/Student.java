@@ -2,17 +2,13 @@ package com.pengwz.dynamic.sql2.entites;
 
 import com.pengwz.dynamic.sql2.anno.Column;
 import com.pengwz.dynamic.sql2.anno.Table;
-import com.pengwz.dynamic.sql2.conversion.EnumConverter;
-import com.pengwz.dynamic.sql2.utils.MapUtils;
+import com.pengwz.dynamic.sql2.plugins.conversion.EnumConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-
-import static com.pengwz.dynamic.sql2.entites.Student.GenderEnum.Female;
-import static com.pengwz.dynamic.sql2.entites.Student.GenderEnum.Male;
 
 @Data
 @AllArgsConstructor
@@ -23,13 +19,16 @@ public class Student {
     public int studentId;
     public String firstName;
     public String lastName;
+    // 枚举转换有两种方案，第一种是枚举直接继承EnumConverter，
+    // 第二种是自定义单独实现类 @Column(converter = GenderEnumConverter.class)
+    // 同时存在时注解内生效
     @Column(converter = GenderEnumConverter.class)
     public GenderEnum gender;
     public Date birthDate;
     public Date enrollmentDate;
     public int classId;
 
-    public enum GenderEnum {
+    public enum GenderEnum implements EnumConverter<GenderEnum, String> {
         Female("女"), Male("男");
         private final String gender;
 
@@ -48,14 +47,28 @@ public class Student {
         public String getGender() {
             return gender;
         }
+
+        @Override
+        public String toDatabaseValue(GenderEnum attribute) {
+            return attribute.gender;
+        }
+
+        @Override
+        public GenderEnum fromDatabaseValue(String dbData) {
+            return GenderEnum.valueOf(gender);
+        }
     }
 
-    public static class GenderEnumConverter extends EnumConverter<GenderEnum, String> {
+    public static class GenderEnumConverter implements EnumConverter<GenderEnum, String> {
 
+        @Override
+        public String toDatabaseValue(GenderEnum attribute) {
+            return attribute.gender;
+        }
 
-        // 定义数据库值和枚举值之间的映射关系
-        public GenderEnumConverter() {
-            super(MapUtils.of("女", Female, "男", Male));
+        @Override
+        public GenderEnum fromDatabaseValue(String gender) {
+            return GenderEnum.valueOf(gender);
         }
     }
 }

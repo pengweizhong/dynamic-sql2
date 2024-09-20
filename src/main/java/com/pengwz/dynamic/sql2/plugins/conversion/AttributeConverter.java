@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.conversion;
+package com.pengwz.dynamic.sql2.plugins.conversion;
 
 /**
  * 用于在实体属性和数据库列值之间进行转换的接口。

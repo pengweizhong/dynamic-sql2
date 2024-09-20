@@ -1,7 +1,7 @@
 package com.pengwz.dynamic.sql2.anno;
 
-import com.pengwz.dynamic.sql2.conversion.AttributeConverter;
-import com.pengwz.dynamic.sql2.conversion.AutoAttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.impl.DefaultAttributeConverter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -38,5 +38,5 @@ public @interface Column {
      *
      * @return 转换器
      */
-    Class<? extends AttributeConverter> converter() default AutoAttributeConverter.class;
+    Class<? extends AttributeConverter> converter() default DefaultAttributeConverter.class;
 }
