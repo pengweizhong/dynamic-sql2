@@ -17,8 +17,11 @@ public class DefaultEnumConverter<E extends Enum<E>> implements EnumConverter<E,
     }
 
     public E fromDatabaseValue(Class<E> enumClass, Object dbData) {
-        if (dbData == null || enumClass == null) {
+        if (dbData == null) {
             return null;
+        }
+        if (enumClass == null) {
+            throw new IllegalArgumentException("enumClass must not be null");
         }
         //默认按照名字匹配
         String enumName = String.valueOf(dbData);
