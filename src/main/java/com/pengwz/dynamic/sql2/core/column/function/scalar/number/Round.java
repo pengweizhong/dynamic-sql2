@@ -20,9 +20,7 @@ public class Round extends ColumnFunctionDecorator implements NumberFunction {
     }
 
     @Override
-    public String getFunctionToString() {
-        return "Round(" + delegateFunction.getFunctionToString() + ", " + scale + ")";
+    public String getMySqlFunction() {
+        return "round(" + delegateFunction.getMySqlFunction() + ", " + scale + ")";
     }
-
-
 }

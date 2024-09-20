@@ -18,7 +18,14 @@ public class JsonUnquote extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getFunctionToString() {
-        return "JSON_UNQUOTE(" + delegateFunction.getFunctionToString() + ")";
+    public String getMySqlFunction() {
+        return "json_unquote(" + delegateFunction.getMySqlFunction() + ")";
+    }
+
+
+    @Override
+    public String getOracleFunction() {
+        //oracle不需要，提取出的数据本身就不带引号，直接调用源对象
+        return delegateFunction.getOracleFunction();
     }
 }

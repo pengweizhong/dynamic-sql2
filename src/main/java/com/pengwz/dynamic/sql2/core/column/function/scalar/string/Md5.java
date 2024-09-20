@@ -15,7 +15,7 @@ public class Md5 extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getFunctionToString() {
-        return "md5(" + delegateFunction.getFunctionToString() + ")";
+    public String getMySqlFunction() {
+        return "md5(" + delegateFunction.getMySqlFunction() + ")";
     }
 }

@@ -34,12 +34,6 @@ public abstract class ColumnFunctionDecorator
     }
 
     @Override
-    public String getFunctionToString() {
-        return delegateFunction.getFunctionToString();
-    }
-
-
-    @Override
     public <T, F> ColumnFunctionDecorator add(Fn<T, F> column) {
         return null;
     }

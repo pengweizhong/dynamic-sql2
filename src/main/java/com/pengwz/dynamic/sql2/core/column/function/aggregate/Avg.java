@@ -17,12 +17,17 @@ public class Avg extends ColumnFunctionDecorator implements AggregateFunction, W
     }
 
     @Override
-    public String getFunctionToString() {
-        return "avg(" + delegateFunction.getFunctionToString() + ")";
+    public String apply(Over over) {
+        return "";
     }
 
     @Override
-    public String apply(Over over) {
-        return "";
+    public String getMySqlFunction() {
+        return "avg(" + delegateFunction.getMySqlFunction() + ")";
+    }
+
+    @Override
+    public String getOracleFunction() {
+        return "AVG(" + delegateFunction.getMySqlFunction() + ")";
     }
 }

@@ -2,15 +2,15 @@ package com.pengwz.dynamic.sql2.table;
 
 import java.util.List;
 
-class TableMeta {
+public class TableMeta {
+//    //映射实体类
+//    private Class<?> tableClass;
     //表名称
     private String tableName;
     //表别名
     private String tableAlias;
     //绑定到数据源名称
     private String bindDataSourceName;
-    //映射实体
-    private String canonicalClassName;
     //列成员
     private List<ColumnMeta> columnMetas;
 
@@ -38,14 +38,6 @@ class TableMeta {
         this.columnMetas = columnMetas;
     }
 
-    public String getCanonicalClassName() {
-        return canonicalClassName;
-    }
-
-    public void setCanonicalClassName(String canonicalClassName) {
-        this.canonicalClassName = canonicalClassName;
-    }
-
     public String getTableAlias() {
         return tableAlias;
     }
@@ -54,15 +46,11 @@ class TableMeta {
         this.tableAlias = tableAlias;
     }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("TableMeta{");
-        sb.append("tableName='").append(tableName).append('\'');
-        sb.append(", tableAlias='").append(tableAlias).append('\'');
-        sb.append(", bindDataSourceName='").append(bindDataSourceName).append('\'');
-        sb.append(", canonicalClassName='").append(canonicalClassName).append('\'');
-        sb.append(", columnMetas=").append(columnMetas);
-        sb.append('}');
-        return sb.toString();
-    }
+//    public Class<?> getTableClass() {
+//        return tableClass;
+//    }
+//
+//    public void setTableClass(Class<?> tableClass) {
+//        this.tableClass = tableClass;
+//    }
 }

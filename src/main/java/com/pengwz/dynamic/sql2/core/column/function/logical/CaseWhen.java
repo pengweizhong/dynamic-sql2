@@ -29,17 +29,16 @@ public class CaseWhen extends ColumnFunctionDecorator {
         return new CaseWhenBuilder(new CaseWhen(delegateFunction));
     }
 
-    // 构建最终的CASE表达式
     @Override
-    public String getFunctionToString() {
-        StringBuilder caseExpression = new StringBuilder("CASE ");
+    public String getMySqlFunction() {
+        StringBuilder caseExpression = new StringBuilder("case ");
         for (String condition : conditions) {
             caseExpression.append(condition).append(" ");
         }
         if (elseCondition != null) {
             caseExpression.append(elseCondition).append(" ");
         }
-        caseExpression.append("END");
+        caseExpression.append("end");
         return caseExpression.toString();
     }
 

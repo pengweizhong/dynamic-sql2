@@ -16,17 +16,22 @@ public class Count extends ColumnFunctionDecorator implements AggregateFunction,
         super(fn);
     }
 
-    public <T, F> Count(int value) {
-        super(1);
-    }
-
-    @Override
-    public String getFunctionToString() {
-        return "count(" + delegateFunction.getFunctionToString() + ")";
+    public Count(int value) {
+        super(value);
     }
 
     @Override
     public String apply(Over over) {
         return "";
+    }
+
+    @Override
+    public String getMySqlFunction() {
+        return "count(" + delegateFunction.getMySqlFunction() + ")";
+    }
+
+    @Override
+    public String getOracleFunction() {
+        return "COUNT(" + delegateFunction.getOracleFunction() + ")";
     }
 }

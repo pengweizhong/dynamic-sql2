@@ -49,16 +49,16 @@ public class Like extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getFunctionToString() {
+    public String getMySqlFunction() {
         if (leftSymbol != null && rightSymbol != null) {
-            return "CONCAT('" + leftSymbol + "', " + delegateFunction.getFunctionToString() + ", '" + rightSymbol + "')";
+            return "concat('" + leftSymbol + "', " + delegateFunction.getMySqlFunction() + ", '" + rightSymbol + "')";
         }
         if (leftSymbol != null) {
-            return "CONCAT('" + leftSymbol + "', " + delegateFunction.getFunctionToString() + ")";
+            return "concat('" + leftSymbol + "', " + delegateFunction.getMySqlFunction() + ")";
         }
         if (rightSymbol != null) {
-            return "CONCAT(" + delegateFunction.getFunctionToString() + ", '" + rightSymbol + "')";
+            return "concat(" + delegateFunction.getMySqlFunction() + ", '" + rightSymbol + "')";
         }
-        return delegateFunction.getFunctionToString();
+        return delegateFunction.getMySqlFunction();
     }
 }

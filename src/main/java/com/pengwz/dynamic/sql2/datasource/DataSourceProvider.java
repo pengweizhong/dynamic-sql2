@@ -1,17 +1,18 @@
 package com.pengwz.dynamic.sql2.datasource;
 
-import javax.sql.DataSource;
-import java.util.ArrayList;
+import com.pengwz.dynamic.sql2.table.TableMeta;
+import com.pengwz.dynamic.sql2.table.TableProvider;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DataSourceProvider {//NOSONAR
 
     private static final DataSourceProvider INSTANCE = new DataSourceProvider();
 
-    private static final List<DataSourceMeta> DATA_SOURCE_META_LIST = new ArrayList<>();
+    //key 是数据源名称
+    private static final Map<String, DataSourceMeta> DATA_SOURCE_META_MAP = new ConcurrentHashMap<>();
 
     private DataSourceProvider() {
     }
@@ -20,23 +21,29 @@ public class DataSourceProvider {//NOSONAR
         return INSTANCE;
     }
 
-    protected DataSourceMeta getDataSourceMeta(String dataSourceName) {
-        if (DATA_SOURCE_META_LIST.isEmpty()) {
+    public DataSourceMeta getDataSourceMeta(String dataSourceName) {
+        if (DATA_SOURCE_META_MAP.isEmpty()) {
             return null;
         }
-        for (DataSourceMeta dataSourceMeta : DATA_SOURCE_META_LIST) {
-            if (dataSourceMeta.getDataSourceName().equals(dataSourceName)) {
-                return dataSourceMeta;
+        return DATA_SOURCE_META_MAP.get(dataSourceName);
+    }
+
+    public String getDataSourceName(DataSourceMeta dataSourceMeta) {
+        if (DATA_SOURCE_META_MAP.isEmpty()) {
+            return null;
+        }
+        for (Map.Entry<String, DataSourceMeta> entry : DATA_SOURCE_META_MAP.entrySet()) {
+            if (entry.getValue().equals(dataSourceMeta)) {
+                return entry.getKey();
             }
         }
         return null;
     }
 
-    protected synchronized void saveDataSourceMeta(DataSourceMeta dataSourceMeta) {
+    protected synchronized void saveDataSourceMeta(String dataSourceName, DataSourceMeta dataSourceMeta) {
         if (dataSourceMeta == null) {
             throw new NullPointerException("dataSourceMeta is null");
         }
-        String dataSourceName = dataSourceMeta.getDataSourceName();
         DataSourceMeta exists = getDataSourceMeta(dataSourceName);
         if (exists != null) {
             throw new IllegalArgumentException("Duplicate datasource name: " + dataSourceName);
@@ -45,30 +52,18 @@ public class DataSourceProvider {//NOSONAR
             DataSourceMeta defaultDataSourceMeta = getDefaultDataSourceMeta();
             if (defaultDataSourceMeta != null) {
                 throw new IllegalArgumentException("Duplicate default data sources are specified, " +
-                        "namely '" + dataSourceName + "' and '" + defaultDataSourceMeta.getDataSourceName() + "'");
+                        "namely '" + dataSourceName + "' and '" + getDefaultDataSourceName() + "'");
             }
         }
-        DATA_SOURCE_META_LIST.add(dataSourceMeta);
+        DATA_SOURCE_META_MAP.put(dataSourceName, dataSourceMeta);
     }
 
-    protected String matchDataSourceName(DataSource dataSource) {
-        if (DATA_SOURCE_META_LIST.isEmpty()) {
-            return null;
-        }
-        for (int i = 0; i < DATA_SOURCE_META_LIST.size(); i++) {
-            DataSourceMeta dataSourceMeta = DATA_SOURCE_META_LIST.get(i);
-            if (dataSourceMeta.getDataSource().equals(dataSource)) {
-                return dataSourceMeta.getDataSourceName();
-            }
-        }
-        return null;
-    }
 
-    protected DataSourceMeta getDefaultDataSourceMeta() {
-        if (DATA_SOURCE_META_LIST.isEmpty()) {
+    public DataSourceMeta getDefaultDataSourceMeta() {
+        if (DATA_SOURCE_META_MAP.isEmpty()) {
             return null;
         }
-        for (DataSourceMeta dataSourceMeta : DATA_SOURCE_META_LIST) {
+        for (DataSourceMeta dataSourceMeta : DATA_SOURCE_META_MAP.values()) {
             if (dataSourceMeta.isGlobalDefault()) {
                 return dataSourceMeta;
             }
@@ -76,19 +71,21 @@ public class DataSourceProvider {//NOSONAR
         return null;
     }
 
-    public List<String> getAllDataSourceName() {
-        return DATA_SOURCE_META_LIST.stream().map(DataSourceMeta::getDataSourceName).collect(Collectors.toList());
+    public DataSourceMeta getDataSourceMeta(Class<?> tableClass) {
+        TableMeta tableMeta = TableProvider.getInstance().getTableMeta(tableClass);
+        String bindDataSourceName = tableMeta.getBindDataSourceName();
+        return DATA_SOURCE_META_MAP.get(bindDataSourceName);
     }
 
     public boolean existDataSource(String dataSourceName) {
-        return getAllDataSourceName().contains(dataSourceName);
+        return DATA_SOURCE_META_MAP.containsKey(dataSourceName);
     }
 
     public Map<String, String[]> getDataSourceBoundPath() {
         HashMap<String, String[]> hashMap = new HashMap<>();
-        for (DataSourceMeta dataSourceMeta : DATA_SOURCE_META_LIST) {
-            hashMap.put(dataSourceMeta.getDataSourceName(), dataSourceMeta.getBindBasePackages());
-        }
+        DATA_SOURCE_META_MAP.forEach((key, value) -> {
+            hashMap.put(key, value.getBindBasePackages());
+        });
         return hashMap;
     }
 
@@ -97,7 +94,7 @@ public class DataSourceProvider {//NOSONAR
         if (defaultDataSourceMeta == null) {
             return null;
         }
-        return defaultDataSourceMeta.getDataSourceName();
+        return getDataSourceName(defaultDataSourceMeta);
     }
 }
 

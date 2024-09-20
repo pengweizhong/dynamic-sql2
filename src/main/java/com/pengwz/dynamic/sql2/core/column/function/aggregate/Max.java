@@ -16,14 +16,18 @@ public class Max extends ColumnFunctionDecorator implements AggregateFunction, W
         super(fn);
     }
 
-
-    @Override
-    public String getFunctionToString() {
-        return "max(" + delegateFunction.getFunctionToString() + ")";
-    }
-
     @Override
     public String apply(Over over) {
         return "";
+    }
+
+    @Override
+    public String getMySqlFunction() {
+        return "max(" + delegateFunction.getMySqlFunction() + ")";
+    }
+
+    @Override
+    public String getOracleFunction() {
+        return "MAX(" + delegateFunction.getMySqlFunction() + ")";
     }
 }

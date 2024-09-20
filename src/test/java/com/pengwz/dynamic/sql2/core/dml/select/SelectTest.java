@@ -201,6 +201,12 @@ class SelectTest extends InitializingContext {
         sqlContext.select().allColumn().from(cte.cteTable(Student.class))
                 .join(cte.cteTable(TClass.class), on -> on.andEqualTo(Student::getStudentId, Student::getStudentId));
     }
+
+    @Test
+    void select14() {
+        sqlContext.select().column(new JsonUnquote(new JsonExtract(Student::getLastName, "$.name"))).from(Student.class);
+    }
+
 }
 
 

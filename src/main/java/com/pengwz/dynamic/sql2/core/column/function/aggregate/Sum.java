@@ -17,10 +17,10 @@ public class Sum extends ColumnFunctionDecorator implements AggregateFunction, W
     }
 
 
-    @Override
-    public String getFunctionToString() {
-        return "sum(" + delegateFunction.getFunctionToString() + ")";
-    }
+//    @Override
+//    public String getFunctionToString() {
+//        return "sum(" + delegateFunction.getFunctionToString() + ")";
+//    }
 
     @Override
     public String apply(Over over) {
@@ -29,5 +29,15 @@ public class Sum extends ColumnFunctionDecorator implements AggregateFunction, W
 //                partitionByClause + " ORDER BY " + orderByClause +
 //                " " + frameSpecification + ") AS " + alias;
         return "";
+    }
+
+    @Override
+    public String getMySqlFunction() {
+        return "sum(" + delegateFunction.getMySqlFunction() + ")";
+    }
+
+    @Override
+    public String getOracleFunction() {
+        return "SUM(" + delegateFunction.getMySqlFunction() + ")";
     }
 }

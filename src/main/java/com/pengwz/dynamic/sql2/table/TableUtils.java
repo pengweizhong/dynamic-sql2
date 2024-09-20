@@ -36,29 +36,20 @@ public class TableUtils {
             log.info("No table entities were detected");
             return;
         }
-        List<TableEntityMapping> collected = tableEntities.stream().filter(te -> {
+        tableEntities.stream().filter(te -> {
             if (log.isTraceEnabled() && !te.isCache()) {
                 log.trace("Table name '{}' does not need to be cached", te.getTableName());
             }
             return te.isCache();
-        }).collect(Collectors.toList());
-        //反射获取字段成员信息
-        List<TableMeta> tableMetas = collected.stream().map(TableUtils::parseTableClass)
-                .collect(Collectors.toList());
-        tableMetas.forEach(TableUtils::initTable);
+        }).forEach(TableUtils::parseAndInitTableClass);
     }
 
-    protected static synchronized void initTable(TableMeta tableMeta) {
-        log.trace("Initialize '{}' into the cache", tableMeta.getTableName());
-        TableProvider.getInstance().saveTableMeta(tableMeta);
-    }
 
-    private static TableMeta parseTableClass(TableEntityMapping tableEntity) {
+    private static void parseAndInitTableClass(TableEntityMapping tableEntity) {
         log.trace("Parsing table class: {}", tableEntity);
         Class<?> entityClass = tableEntity.getEntityClass();
         List<Field> fields = ReflectUtils.getAllFields(entityClass, excludeFieldTypes());
         TableMeta tableMeta = new TableMeta();
-        tableMeta.setCanonicalClassName(entityClass.getCanonicalName());
         tableMeta.setTableName(tableEntity.getTableName());
         if (StringUtils.isBlank(tableMeta.getTableName())) {
             throw new IllegalArgumentException("The table name is empty");
@@ -73,7 +64,8 @@ public class TableUtils {
         //检查列声明标识是否合规
         List<ColumnMeta> columnMetas = assertAndFilterColumn(columnMetaSymbols, tableMeta.getTableName());
         tableMeta.setColumnMetas(columnMetas);
-        return tableMeta;
+        log.trace("Initialize '{}' into the cache", tableMeta.getTableName());
+        TableProvider.getInstance().saveTableMeta(entityClass, tableMeta);
     }
 
     private static List<ColumnMeta> assertAndFilterColumn(List<ColumnMetaSymbol> columnMetaSymbols, String tableName) {

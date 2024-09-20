@@ -25,8 +25,6 @@ public class DataSourceUtils {
 
     /**
      * 根据包路径检索数据源
-     *
-     * @param packagePath 包路径
      */
     public static void scanAndInitDataSource(SqlContextProperties sqlContextProperties) {
         String[] packagePath = sqlContextProperties.getScanDatabasePackage();
@@ -116,14 +114,14 @@ public class DataSourceUtils {
             throw new IllegalArgumentException("The dbType must be provided");
         }
         DataSourceMeta meta = new DataSourceMeta();
-        meta.setDataSourceName(dataSourceName);
         meta.setSchema(schema);
         meta.setGlobalDefault(isGlobalDefault);
         meta.setBindBasePackages(bindBasePackages);
         meta.setDataSource(dataSource);
         meta.setDbType(dbType);
+        meta.setSqlDialect(sqlDialect);
         meta.setVersion(version);
-        DataSourceProvider.getInstance().saveDataSourceMeta(meta);
+        DataSourceProvider.getInstance().saveDataSourceMeta(dataSourceName, meta);
         log.info("Initialized DataSource dataSourceName: {}", dataSourceName);
     }
 

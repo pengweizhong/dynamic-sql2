@@ -16,8 +16,14 @@ public class Column implements ColumFunction {
     }
 
     @Override
-    public String getFunctionToString() {
-        return getColumnName();
+    public String getMySqlFunction() {
+        /*拼接限定符号*/
+        return "`" + getColumnName() + "`";
+    }
+
+    @Override
+    public String getOracleFunction() {
+        return "\"" + getColumnName() + "\"";
     }
 
     @Override

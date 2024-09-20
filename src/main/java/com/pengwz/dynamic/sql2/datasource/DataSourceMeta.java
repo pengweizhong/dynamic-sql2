@@ -5,9 +5,9 @@ import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
 import javax.sql.DataSource;
 
-class DataSourceMeta {
-    //数据源名称
-    private String dataSourceName;
+public class DataSourceMeta {
+    //    //数据源名称
+//    private String dataSourceName;
     //命名空间
     private String schema;
     //是否全局默认数据源
@@ -23,13 +23,13 @@ class DataSourceMeta {
     //数据源版本号
     private String version;
 
-    public String getDataSourceName() {
-        return dataSourceName;
-    }
-
-    public void setDataSourceName(String dataSourceName) {
-        this.dataSourceName = dataSourceName;
-    }
+//    public String getDataSourceName() {
+//        return dataSourceName;
+//    }
+//
+//    public void setDataSourceName(String dataSourceName) {
+//        this.dataSourceName = dataSourceName;
+//    }
 
     public String getSchema() {
         return schema;

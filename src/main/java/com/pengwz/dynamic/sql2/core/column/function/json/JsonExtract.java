@@ -21,7 +21,12 @@ public class JsonExtract extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getFunctionToString() {
-        return "JSON_EXTRACT(" + delegateFunction.getFunctionToString() + ", " + jsonPath + ")";
+    public String getMySqlFunction() {
+        return "json_extract(" + delegateFunction.getMySqlFunction() + ", " + jsonPath + ")";
+    }
+
+    @Override
+    public String getOracleFunction() {
+        return "JSON_VALUE(" + delegateFunction.getOracleFunction() + ", " + jsonPath + ")";
     }
 }

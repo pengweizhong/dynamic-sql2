@@ -8,21 +8,24 @@ import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.TableRelation;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
+import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
+import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 
 import java.util.function.Consumer;
 
 public class ColumnReference extends AbstractColumnReference {
-    private ColumFunction columnFunction;
+//    private ColumFunction columnFunction;
 
     public ColumnReference() {
     }
 
     public ColumnReference(ColumFunction columnFunction) {
-        this.columnFunction = columnFunction;
+//        this.columnFunction = columnFunction;
+        columFunctions.add(columnFunction);
     }
 
     public <T, F> ColumnReference(Fn<T, F> fn) {
-        queryFields.add(new Column(fn));
+        columFunctions.add(new Column(fn));
     }
 
 
@@ -38,7 +41,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public <T, F> ColumnReference column(Fn<T, F> fn, String alias) {
-        queryFields.add(new Column(fn));
+        columFunctions.add(new Column(fn));
         return this;
     }
 
@@ -49,8 +52,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public ColumnReference column(ColumFunction iColumFunction, String alias) {
-        System.out.println("测试函数结果 --> " + iColumFunction.getFunctionToString());
-        queryFields.add(iColumFunction);
+        columFunctions.add(iColumFunction);
         return this;
     }
 
@@ -79,6 +81,7 @@ public class ColumnReference extends AbstractColumnReference {
     public <T> TableRelation<T> from(Class<T> tableClass) {
         TableRelation tableRelation;
         tableRelation = new TableRelation<>(tableClass);
+        parseColumnFunction(tableClass);
         return tableRelation;
     }
 
@@ -87,4 +90,21 @@ public class ColumnReference extends AbstractColumnReference {
         return null;
     }
 
+    private void parseColumnFunction(Class<?> tableClass) {
+        DataSourceMeta dataSourceMeta = DataSourceProvider.getInstance().getDataSourceMeta(tableClass);
+        for (ColumFunction columFunction : columFunctions) {
+            String sqlFunction;
+            switch (dataSourceMeta.getSqlDialect()) {
+                case ORACLE:
+                    sqlFunction = columFunction.getOracleFunction();
+                    break;
+                case MYSQL:
+                    sqlFunction = columFunction.getMySqlFunction();
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unsupported SQL dialect: " + dataSourceMeta.getSqlDialect());
+            }
+            System.out.println("测试函数输出结果 ---> " + sqlFunction);
+        }
+    }
 }
