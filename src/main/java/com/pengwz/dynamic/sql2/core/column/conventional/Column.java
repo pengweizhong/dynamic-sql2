@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.column.conventional;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
+import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 
 public class Column implements ColumFunction {
 
@@ -12,7 +13,7 @@ public class Column implements ColumFunction {
     }
 
     public <T, F> Column(Fn<T, F> fn) {
-        this.columnName = "我是列名";
+        this.columnName = ReflectUtils.fnToFieldName(fn);
     }
 
     @Override
