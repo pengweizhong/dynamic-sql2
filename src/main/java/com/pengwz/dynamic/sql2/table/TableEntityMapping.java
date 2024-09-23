@@ -46,16 +46,4 @@ public class TableEntityMapping {
     public void setTableAlias(String tableAlias) {
         this.tableAlias = tableAlias;
     }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("TableEntityMapping{");
-        sb.append("tableName='").append(tableName).append('\'');
-        sb.append(", tableAlias='").append(tableAlias).append('\'');
-        sb.append(", isCache=").append(isCache);
-        sb.append(", bindDataSourceName='").append(bindDataSourceName).append('\'');
-        sb.append(", entityClass=").append(entityClass);
-        sb.append('}');
-        return sb.toString();
-    }
 }

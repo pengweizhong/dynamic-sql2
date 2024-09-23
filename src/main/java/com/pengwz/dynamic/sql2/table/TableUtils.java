@@ -4,6 +4,7 @@ import com.pengwz.dynamic.sql2.anno.Column;
 import com.pengwz.dynamic.sql2.anno.GeneratedValue;
 import com.pengwz.dynamic.sql2.anno.Id;
 import com.pengwz.dynamic.sql2.enums.GenerationType;
+import com.pengwz.dynamic.sql2.utils.MapUtils;
 import com.pengwz.dynamic.sql2.utils.NamingUtils;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
@@ -41,11 +42,15 @@ public class TableUtils {
                 log.trace("Table name '{}' does not need to be cached", te.getTableName());
             }
             return te.isCache();
-        }).forEach(TableUtils::parseAndInitTableClass);
+        }).map(TableUtils::parseTableClass).forEach(metaMap -> metaMap.forEach((cls, meta) -> initTableMeta(meta, cls)));
     }
 
+    public static TableMeta parseTableClass(Class<?> tableClazz) {
+        TableEntityMapping tableEntityMapping = TableEntityScanner.parseTableEntityMapping(tableClazz);
+        return parseTableClass(tableEntityMapping).get(tableClazz);
+    }
 
-    private static void parseAndInitTableClass(TableEntityMapping tableEntity) {
+    private static Map<Class<?>, TableMeta> parseTableClass(TableEntityMapping tableEntity) {
         log.trace("Parsing table class: {}", tableEntity);
         Class<?> entityClass = tableEntity.getEntityClass();
         List<Field> fields = ReflectUtils.getAllFields(entityClass, excludeFieldTypes());
@@ -64,6 +69,10 @@ public class TableUtils {
         //检查列声明标识是否合规
         List<ColumnMeta> columnMetas = assertAndFilterColumn(columnMetaSymbols, tableMeta.getTableName());
         tableMeta.setColumnMetas(columnMetas);
+        return MapUtils.of(entityClass, tableMeta);
+    }
+
+    private static void initTableMeta(TableMeta tableMeta, Class<?> entityClass) {
         log.trace("Initialize '{}' into the cache", tableMeta.getTableName());
         TableProvider.getInstance().saveTableMeta(entityClass, tableMeta);
     }

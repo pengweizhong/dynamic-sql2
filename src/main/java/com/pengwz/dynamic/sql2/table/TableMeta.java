@@ -3,8 +3,6 @@ package com.pengwz.dynamic.sql2.table;
 import java.util.List;
 
 public class TableMeta {
-//    //映射实体类
-//    private Class<?> tableClass;
     //表名称
     private String tableName;
     //表别名
@@ -45,12 +43,4 @@ public class TableMeta {
     public void setTableAlias(String tableAlias) {
         this.tableAlias = tableAlias;
     }
-
-//    public Class<?> getTableClass() {
-//        return tableClass;
-//    }
-//
-//    public void setTableClass(Class<?> tableClass) {
-//        this.tableClass = tableClass;
-//    }
 }

@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.table;
 
+import com.pengwz.dynamic.sql2.anno.CTETable;
 import com.pengwz.dynamic.sql2.anno.Table;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
@@ -24,43 +25,27 @@ public class TableEntityScanner {
      *
      * @param forPackage 检索基本路径
      */
-    protected static List<TableEntityMapping> findTableEntities(String forPackage) {
+    public static List<TableEntityMapping> findTableEntities(String forPackage) {
         log.debug("Find the table entities based on the provided '{}' path. ", forPackage);
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
+        Reflections reflections = getReflections(forPackage);
+        Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(Table.class);
+        List<TableEntityMapping> tableEntityMappings = new ArrayList<>();
+        try {
+            for (Class<?> annotatedClass : annotatedClasses) {
+                tableEntityMappings.add(parseTableEntityMapping(annotatedClass));
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("An exception occurred while retrieving entities.", e);
+        }
+        return tableEntityMappings;
+    }
+
+    private static Reflections getReflections(String forPackage) {
+        return new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(forPackage))
                 //只关心指定包
                 .filterInputsBy(new FilterBuilder().includePackage(forPackage))
                 .setScanners(Scanners.TypesAnnotated));
-
-        Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(Table.class);
-
-        List<TableEntityMapping> tableEntityMappings = new ArrayList<>();
-        try {
-            for (Class<?> annotatedClass : annotatedClasses) {
-                Table table = annotatedClass.getAnnotation(Table.class);
-                //判断应当归属哪个数据源
-                TableEntityMapping tableEntityMapping = new TableEntityMapping();
-                tableEntityMapping.setTableName(table.value().trim());
-                String tableAlias = table.alias().trim();
-                if (StringUtils.isBlank(tableAlias)) {
-                    tableAlias = tableEntityMapping.getTableName();
-                }
-                tableEntityMapping.setTableAlias(tableAlias);
-                tableEntityMapping.setEntityClass(annotatedClass);
-                tableEntityMapping.setCache(table.isCache());
-                tableEntityMapping.setBindDataSourceName(matchBestDataSourceName(annotatedClass, table.dataSourceName()));
-                tableEntityMappings.add(tableEntityMapping);
-            }
-            if (log.isDebugEnabled()) {
-                for (TableEntityMapping tb : tableEntityMappings) {
-                    log.debug("Table retrieved: '{}', belonging to '{}' data source.",
-                            tb.getTableName(), tb.getBindDataSourceName());
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException("An exception occurred while retrieving table entities.", e);
-        }
-        return tableEntityMappings;
     }
 
     /**
@@ -70,7 +55,7 @@ public class TableEntityScanner {
      * @param inLineDataSourceName 内联数据源
      * @return 匹配到绑定的数据源
      */
-    protected static String matchBestDataSourceName(Class<?> annotatedClass, String inLineDataSourceName) {
+    public static String matchBestDataSourceName(Class<?> annotatedClass, String inLineDataSourceName) {
         DataSourceProvider dataSourceProvider = DataSourceProvider.getInstance();
         if (StringUtils.isNotBlank(inLineDataSourceName)) {
             if (!dataSourceProvider.existDataSource(inLineDataSourceName)) {
@@ -109,7 +94,7 @@ public class TableEntityScanner {
                 + "' cannot be matched to any data source");
     }
 
-    protected static String getBestMatch(String classPath, String[] paths) {
+    public static String getBestMatch(String classPath, String[] paths) {
         String bestMatch = null;
         int maxDepth = -1;
         int maxLength = -1;
@@ -127,6 +112,41 @@ public class TableEntityScanner {
             }
         }
         return bestMatch;
+    }
+
+    public static TableEntityMapping parseTableEntityMapping(Class<?> annotatedClass) {
+        Table table = annotatedClass.getAnnotation(Table.class);
+        //判断应当归属哪个数据源
+        TableEntityMapping tableEntityMapping = new TableEntityMapping();
+        tableEntityMapping.setTableName(table.value().trim());
+        String tableAlias = table.alias().trim();
+        if (StringUtils.isBlank(tableAlias)) {
+            tableAlias = tableEntityMapping.getTableName();
+        }
+        tableEntityMapping.setTableAlias(tableAlias);
+        tableEntityMapping.setEntityClass(annotatedClass);
+        tableEntityMapping.setCache(table.isCache());
+        tableEntityMapping.setBindDataSourceName(matchBestDataSourceName(annotatedClass, table.dataSourceName()));
+        return tableEntityMapping;
+    }
+
+    private static TableEntityMapping parseCTETableEntityMapping(Class<?> annotatedClass) {
+        CTETable table = annotatedClass.getAnnotation(CTETable.class);
+        if (!table.isCache()) {
+            return null;
+        }
+        //判断应当归属哪个数据源
+        TableEntityMapping tableEntityMapping = new TableEntityMapping();
+        tableEntityMapping.setTableName(table.value().trim());
+        String tableAlias = table.alias().trim();
+        if (StringUtils.isBlank(tableAlias)) {
+            tableAlias = tableEntityMapping.getTableName();
+        }
+        tableEntityMapping.setTableAlias(tableAlias);
+        tableEntityMapping.setEntityClass(annotatedClass);
+        tableEntityMapping.setCache(table.isCache());
+        tableEntityMapping.setBindDataSourceName(matchBestDataSourceName(annotatedClass, table.dataSourceName()));
+        return tableEntityMapping;
     }
 
 }
