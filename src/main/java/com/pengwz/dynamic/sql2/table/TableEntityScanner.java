@@ -40,6 +40,11 @@ public class TableEntityScanner {
         return tableEntityMappings;
     }
 
+    public static Set<Class<?>> findCTEEntities(String forPackage) {
+        Reflections reflections = getReflections(forPackage);
+        return reflections.getTypesAnnotatedWith(CTETable.class);
+    }
+
     private static Reflections getReflections(String forPackage) {
         return new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forPackage(forPackage))
@@ -116,25 +121,6 @@ public class TableEntityScanner {
 
     public static TableEntityMapping parseTableEntityMapping(Class<?> annotatedClass) {
         Table table = annotatedClass.getAnnotation(Table.class);
-        //判断应当归属哪个数据源
-        TableEntityMapping tableEntityMapping = new TableEntityMapping();
-        tableEntityMapping.setTableName(table.value().trim());
-        String tableAlias = table.alias().trim();
-        if (StringUtils.isBlank(tableAlias)) {
-            tableAlias = tableEntityMapping.getTableName();
-        }
-        tableEntityMapping.setTableAlias(tableAlias);
-        tableEntityMapping.setEntityClass(annotatedClass);
-        tableEntityMapping.setCache(table.isCache());
-        tableEntityMapping.setBindDataSourceName(matchBestDataSourceName(annotatedClass, table.dataSourceName()));
-        return tableEntityMapping;
-    }
-
-    private static TableEntityMapping parseCTETableEntityMapping(Class<?> annotatedClass) {
-        CTETable table = annotatedClass.getAnnotation(CTETable.class);
-        if (!table.isCache()) {
-            return null;
-        }
         //判断应当归属哪个数据源
         TableEntityMapping tableEntityMapping = new TableEntityMapping();
         tableEntityMapping.setTableName(table.value().trim());

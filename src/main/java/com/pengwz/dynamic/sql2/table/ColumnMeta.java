@@ -2,7 +2,7 @@ package com.pengwz.dynamic.sql2.table;
 
 import java.lang.reflect.Field;
 
-class ColumnMeta {
+public class ColumnMeta {
     //数据库字段名
     private String columnName;
     //是否为主键
@@ -44,14 +44,4 @@ class ColumnMeta {
         this.field = field;
     }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("{");
-        sb.append("columnName='").append(columnName).append('\'');
-        sb.append(", isPrimary=").append(isPrimary);
-        sb.append(", generatedStrategy=").append(generatedStrategy);
-        sb.append(", field=").append(field);
-        sb.append('}');
-        return sb.toString();
-    }
 }

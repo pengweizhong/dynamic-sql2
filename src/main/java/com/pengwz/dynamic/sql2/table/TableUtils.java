@@ -1,22 +1,19 @@
 package com.pengwz.dynamic.sql2.table;
 
+import com.pengwz.dynamic.sql2.anno.CTETable;
 import com.pengwz.dynamic.sql2.anno.Column;
 import com.pengwz.dynamic.sql2.anno.GeneratedValue;
 import com.pengwz.dynamic.sql2.anno.Id;
 import com.pengwz.dynamic.sql2.enums.GenerationType;
-import com.pengwz.dynamic.sql2.utils.MapUtils;
-import com.pengwz.dynamic.sql2.utils.NamingUtils;
-import com.pengwz.dynamic.sql2.utils.ReflectUtils;
-import com.pengwz.dynamic.sql2.utils.StringUtils;
+import com.pengwz.dynamic.sql2.table.cte.CTEColumnMeta;
+import com.pengwz.dynamic.sql2.table.cte.CTEMeta;
+import com.pengwz.dynamic.sql2.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TableUtils {
@@ -42,7 +39,22 @@ public class TableUtils {
                 log.trace("Table name '{}' does not need to be cached", te.getTableName());
             }
             return te.isCache();
-        }).map(TableUtils::parseTableClass).forEach(metaMap -> metaMap.forEach((cls, meta) -> initTableMeta(meta, cls)));
+        }).map(TableUtils::parseTableClass).forEach(metaMap -> metaMap.forEach((cls, meta) ->
+                TableProvider.getInstance().saveTableMeta(cls, meta)));
+    }
+
+    public static void scanAndInitCTETableInfo(String... packagePath) {
+        if (packagePath == null || packagePath.length == 0) {
+            throw new IllegalArgumentException("The package path to search must be provided");
+        }
+        for (String path : packagePath) {
+            Set<Class<?>> cteEntities = TableEntityScanner.findCTEEntities(path);
+            if (CollectionUtils.isNotEmpty(cteEntities)) {
+                cteEntities.forEach(cte -> {
+                    TableProvider.getInstance().saveCTEMeta(cte, parseCTEClass(cte));
+                });
+            }
+        }
     }
 
     public static TableMeta parseTableClass(Class<?> tableClazz) {
@@ -72,9 +84,25 @@ public class TableUtils {
         return MapUtils.of(entityClass, tableMeta);
     }
 
-    private static void initTableMeta(TableMeta tableMeta, Class<?> entityClass) {
-        log.trace("Initialize '{}' into the cache", tableMeta.getTableName());
-        TableProvider.getInstance().saveTableMeta(entityClass, tableMeta);
+    public static CTEMeta parseCTEClass(Class<?> annotatedClass) {
+        CTETable cteTable = annotatedClass.getAnnotation(CTETable.class);
+        if (cteTable == null) {
+            return null;
+        }
+        CTEMeta cteMeta = new CTEMeta();
+        cteMeta.setCteName(cteTable.value());
+        List<Field> fields = ReflectUtils.getAllFields(annotatedClass, excludeFieldTypes());
+        List<CTEColumnMeta> cteColumnMetas = fields.stream().map(field -> {
+            Column column = field.getDeclaredAnnotation(Column.class);
+            String columnValue = column != null ? column.value() : null;
+            String columnName = NamingUtils.camelToSnakeCase(StringUtils.isBlank(columnValue) ? field.getName() : columnValue);
+            CTEColumnMeta meta = new CTEColumnMeta();
+            meta.setColumnName(columnName);
+            meta.setField(field);
+            return meta;
+        }).collect(Collectors.toList());
+        cteMeta.setCteColumnMetas(cteColumnMetas);
+        return cteMeta;
     }
 
     private static List<ColumnMeta> assertAndFilterColumn(List<ColumnMetaSymbol> columnMetaSymbols, String tableName) {
@@ -152,7 +180,6 @@ public class TableUtils {
         }
         return columnMetaSymbol;
     }
-
 
     private static int[] excludeFieldTypes() {
         return new int[]{Modifier.STATIC, Modifier.FINAL};

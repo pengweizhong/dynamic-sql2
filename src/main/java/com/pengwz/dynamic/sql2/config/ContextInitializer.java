@@ -1,7 +1,8 @@
 package com.pengwz.dynamic.sql2.config;
 
-import com.pengwz.dynamic.sql2.datasource.DataSourceUtils;
-import com.pengwz.dynamic.sql2.table.TableUtils;
+import static com.pengwz.dynamic.sql2.datasource.DataSourceUtils.scanAndInitDataSource;
+import static com.pengwz.dynamic.sql2.table.TableUtils.scanAndInitCTETableInfo;
+import static com.pengwz.dynamic.sql2.table.TableUtils.scanAndInitTable;
 
 public class ContextInitializer {
 
@@ -15,7 +16,8 @@ public class ContextInitializer {
         if (sqlContextProperties == null) {
             throw new RuntimeException("sqlContextProperties must not null");
         }
-        DataSourceUtils.scanAndInitDataSource(sqlContextProperties);
-        TableUtils.scanAndInitTable(sqlContextProperties.getScanTablePackage());
+        scanAndInitDataSource(sqlContextProperties);
+        scanAndInitTable(sqlContextProperties.getScanTablePackage());
+        scanAndInitCTETableInfo(sqlContextProperties.getScanTablePackage());
     }
 }

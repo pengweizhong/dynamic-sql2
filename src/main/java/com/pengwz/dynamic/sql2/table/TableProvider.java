@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.table;
 
+import com.pengwz.dynamic.sql2.table.cte.CTEMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,7 @@ public class TableProvider {//NOSONAR
 
     private static final Logger log = LoggerFactory.getLogger(TableProvider.class);
     private static final Map<Class<?>, TableMeta> TABLE_META_MAP = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, CTEMeta> CTE_META_MAP = new ConcurrentHashMap<>();
     private static final TableProvider INSTANCE = new TableProvider();
 
     private TableProvider() {
@@ -18,6 +20,7 @@ public class TableProvider {//NOSONAR
     public static TableProvider getInstance() {
         return INSTANCE;
     }
+
 
     protected void saveTableMeta(Class<?> tableClass, TableMeta tableMeta) {
         if (TABLE_META_MAP.containsKey(tableClass)) {
@@ -30,5 +33,16 @@ public class TableProvider {//NOSONAR
 
     public TableMeta getTableMeta(Class<?> tableClass) {
         return TABLE_META_MAP.get(tableClass);
+    }
+
+    protected void saveCTEMeta(Class<?> tableClass, CTEMeta cteMeta) {
+        if (CTE_META_MAP.containsKey(tableClass)) {
+            return;
+        }
+        CTE_META_MAP.put(tableClass, cteMeta);
+    }
+
+    public CTEMeta getCTEMeta(Class<?> tableClass) {
+        return CTE_META_MAP.get(tableClass);
     }
 }
