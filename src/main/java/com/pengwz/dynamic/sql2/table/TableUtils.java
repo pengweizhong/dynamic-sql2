@@ -7,6 +7,7 @@ import com.pengwz.dynamic.sql2.enums.GenerationType;
 import com.pengwz.dynamic.sql2.table.cte.CTEColumnMeta;
 import com.pengwz.dynamic.sql2.table.cte.CTEEntityMapping;
 import com.pengwz.dynamic.sql2.table.cte.CTEMeta;
+import com.pengwz.dynamic.sql2.table.view.ViewMeta;
 import com.pengwz.dynamic.sql2.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class TableUtils {
         }
         List<TableEntityMapping> tableEntities = new ArrayList<>();
         for (String path : packagePath) {
-            tableEntities.addAll(TableEntityScanner.findTableEntities(path));
+            tableEntities.addAll(SchemaStructureScanner.findTableEntities(path));
         }
         if (tableEntities.isEmpty()) {
             log.info("No table entities were detected");
@@ -51,7 +52,7 @@ public class TableUtils {
             throw new IllegalArgumentException("The package path to search must be provided");
         }
         for (String path : packagePath) {
-            List<CTEEntityMapping> cteEntities = TableEntityScanner.findCTEEntities(path);
+            List<CTEEntityMapping> cteEntities = SchemaStructureScanner.findCTEEntities(path);
             if (CollectionUtils.isNotEmpty(cteEntities)) {
                 cteEntities.forEach(cte -> {
                     if (!cte.isCache()) {
@@ -63,8 +64,20 @@ public class TableUtils {
         }
     }
 
+    public static void scanAndInitViewInfo(String... packagePath) {
+        if (packagePath == null || packagePath.length == 0) {
+            throw new IllegalArgumentException("The package path to search must be provided");
+        }
+        for (String path : packagePath) {
+            Map<Class<?>, ViewMeta> viewEntities = SchemaStructureScanner.findViewEntities(path);
+            viewEntities.forEach((cls, viewMeta) -> {
+                TableProvider.getInstance().saveViewMeta(cls, viewMeta);
+            });
+        }
+    }
+
     public static TableMeta parseTableClass(Class<?> tableClazz) {
-        TableEntityMapping tableEntityMapping = TableEntityScanner.parseTableEntityMapping(tableClazz);
+        TableEntityMapping tableEntityMapping = SchemaStructureScanner.parseTableEntityMapping(tableClazz);
         return parseTableClass(tableEntityMapping).get(tableClazz);
     }
 
@@ -183,7 +196,7 @@ public class TableUtils {
         return columnMetaSymbol;
     }
 
-    private static int[] excludeFieldTypes() {
+    public static int[] excludeFieldTypes() {
         return new int[]{Modifier.STATIC, Modifier.FINAL};
     }
 

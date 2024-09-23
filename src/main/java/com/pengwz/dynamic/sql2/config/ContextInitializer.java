@@ -1,8 +1,7 @@
 package com.pengwz.dynamic.sql2.config;
 
 import static com.pengwz.dynamic.sql2.datasource.DataSourceUtils.scanAndInitDataSource;
-import static com.pengwz.dynamic.sql2.table.TableUtils.scanAndInitCTETableInfo;
-import static com.pengwz.dynamic.sql2.table.TableUtils.scanAndInitTable;
+import static com.pengwz.dynamic.sql2.table.TableUtils.*;
 
 public class ContextInitializer {
 
@@ -19,5 +18,6 @@ public class ContextInitializer {
         scanAndInitDataSource(sqlContextProperties);
         scanAndInitTable(sqlContextProperties.getScanTablePackage());
         scanAndInitCTETableInfo(sqlContextProperties.getScanTablePackage());
+        scanAndInitViewInfo(sqlContextProperties.getScanTablePackage());
     }
 }

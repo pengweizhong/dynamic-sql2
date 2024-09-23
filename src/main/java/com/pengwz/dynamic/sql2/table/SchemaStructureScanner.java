@@ -1,9 +1,15 @@
 package com.pengwz.dynamic.sql2.table;
 
 import com.pengwz.dynamic.sql2.anno.CTETable;
+import com.pengwz.dynamic.sql2.anno.Column;
 import com.pengwz.dynamic.sql2.anno.Table;
+import com.pengwz.dynamic.sql2.anno.View;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.table.cte.CTEEntityMapping;
+import com.pengwz.dynamic.sql2.table.view.ViewColumnMeta;
+import com.pengwz.dynamic.sql2.table.view.ViewMeta;
+import com.pengwz.dynamic.sql2.utils.NamingUtils;
+import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
@@ -13,13 +19,16 @@ import org.reflections.util.FilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TableEntityScanner {
-    private static final Logger log = LoggerFactory.getLogger(TableEntityScanner.class);
+import static com.pengwz.dynamic.sql2.table.TableUtils.excludeFieldTypes;
 
-    private TableEntityScanner() {
+public class SchemaStructureScanner {
+    private static final Logger log = LoggerFactory.getLogger(SchemaStructureScanner.class);
+
+    private SchemaStructureScanner() {
     }
 
     /**
@@ -52,6 +61,27 @@ public class TableEntityScanner {
             cteEntityMapping.setCteClass(cte);
             return cteEntityMapping;
         }).collect(Collectors.toList());
+    }
+
+    public static Map<Class<?>, ViewMeta> findViewEntities(String forPackage) {
+        Reflections reflections = getReflections(forPackage);
+        Map<Class<?>, ViewMeta> viewMap = new HashMap<>();
+        reflections.getTypesAnnotatedWith(View.class).forEach(cls -> {
+            ViewMeta viewMeta = new ViewMeta();
+            List<Field> allFields = ReflectUtils.getAllFields(cls, excludeFieldTypes());
+            List<ViewColumnMeta> viewColumnMetas = allFields.stream().map(field -> {
+                Column column = field.getDeclaredAnnotation(Column.class);
+                String columnValue = column != null ? column.value() : null;
+                String columnName = NamingUtils.camelToSnakeCase(StringUtils.isBlank(columnValue) ? field.getName() : columnValue);
+                ViewColumnMeta viewColumnMeta = new ViewColumnMeta();
+                viewColumnMeta.setColumnName(columnName);
+                viewColumnMeta.setField(field);
+                return viewColumnMeta;
+            }).collect(Collectors.toList());
+            viewMeta.setViewColumnMetas(viewColumnMetas);
+            viewMap.put(cls, viewMeta);
+        });
+        return viewMap;
     }
 
     private static Reflections getReflections(String forPackage) {
