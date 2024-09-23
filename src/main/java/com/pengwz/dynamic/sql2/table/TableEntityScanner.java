@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.table;
 import com.pengwz.dynamic.sql2.anno.CTETable;
 import com.pengwz.dynamic.sql2.anno.Table;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
+import com.pengwz.dynamic.sql2.table.cte.CTEEntityMapping;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TableEntityScanner {
     private static final Logger log = LoggerFactory.getLogger(TableEntityScanner.class);
@@ -40,9 +42,16 @@ public class TableEntityScanner {
         return tableEntityMappings;
     }
 
-    public static Set<Class<?>> findCTEEntities(String forPackage) {
+    public static List<CTEEntityMapping> findCTEEntities(String forPackage) {
         Reflections reflections = getReflections(forPackage);
-        return reflections.getTypesAnnotatedWith(CTETable.class);
+        return reflections.getTypesAnnotatedWith(CTETable.class).stream().map(cte -> {
+            CTETable cteTable = cte.getDeclaredAnnotation(CTETable.class);
+            CTEEntityMapping cteEntityMapping = new CTEEntityMapping();
+            cteEntityMapping.setCteName(cteTable.value());
+            cteEntityMapping.setCache(cteTable.isCache());
+            cteEntityMapping.setCteClass(cte);
+            return cteEntityMapping;
+        }).collect(Collectors.toList());
     }
 
     private static Reflections getReflections(String forPackage) {

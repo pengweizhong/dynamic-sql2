@@ -1,11 +1,11 @@
 package com.pengwz.dynamic.sql2.table;
 
-import com.pengwz.dynamic.sql2.anno.CTETable;
 import com.pengwz.dynamic.sql2.anno.Column;
 import com.pengwz.dynamic.sql2.anno.GeneratedValue;
 import com.pengwz.dynamic.sql2.anno.Id;
 import com.pengwz.dynamic.sql2.enums.GenerationType;
 import com.pengwz.dynamic.sql2.table.cte.CTEColumnMeta;
+import com.pengwz.dynamic.sql2.table.cte.CTEEntityMapping;
 import com.pengwz.dynamic.sql2.table.cte.CTEMeta;
 import com.pengwz.dynamic.sql2.utils.*;
 import org.slf4j.Logger;
@@ -13,7 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class TableUtils {
@@ -48,10 +51,13 @@ public class TableUtils {
             throw new IllegalArgumentException("The package path to search must be provided");
         }
         for (String path : packagePath) {
-            Set<Class<?>> cteEntities = TableEntityScanner.findCTEEntities(path);
+            List<CTEEntityMapping> cteEntities = TableEntityScanner.findCTEEntities(path);
             if (CollectionUtils.isNotEmpty(cteEntities)) {
                 cteEntities.forEach(cte -> {
-                    TableProvider.getInstance().saveCTEMeta(cte, parseCTEClass(cte));
+                    if (!cte.isCache()) {
+                        return;
+                    }
+                    TableProvider.getInstance().saveCTEMeta(cte.getCteClass(), parseCTEClass(cte));
                 });
             }
         }
@@ -84,14 +90,10 @@ public class TableUtils {
         return MapUtils.of(entityClass, tableMeta);
     }
 
-    public static CTEMeta parseCTEClass(Class<?> annotatedClass) {
-        CTETable cteTable = annotatedClass.getAnnotation(CTETable.class);
-        if (cteTable == null) {
-            return null;
-        }
+    public static CTEMeta parseCTEClass(CTEEntityMapping cteEntityMapping) {
         CTEMeta cteMeta = new CTEMeta();
-        cteMeta.setCteName(cteTable.value());
-        List<Field> fields = ReflectUtils.getAllFields(annotatedClass, excludeFieldTypes());
+        cteMeta.setCteName(cteEntityMapping.getCteName());
+        List<Field> fields = ReflectUtils.getAllFields(cteEntityMapping.getCteClass(), excludeFieldTypes());
         List<CTEColumnMeta> cteColumnMetas = fields.stream().map(field -> {
             Column column = field.getDeclaredAnnotation(Column.class);
             String columnValue = column != null ? column.value() : null;
