@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2;
 
-import com.pengwz.dynamic.sql2.config.ContextInitializer;
+import com.pengwz.dynamic.sql2.config.SqlContextConfigurer;
 import com.pengwz.dynamic.sql2.config.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
@@ -22,10 +22,16 @@ public class SqlContext implements DataInserter, DataUpdater, DataDeleter {
     private SqlContext() {
     }
 
+    public static SqlContext createSqlContext() {
+        SqlContextConfigurer sqlContextConfigurer = new SqlContextConfigurer(new SqlContext());
+        sqlContextConfigurer.initializeContext();
+        return sqlContextConfigurer.getSqlContext();
+    }
+
     public static SqlContext createSqlContext(SqlContextProperties sqlContextProperties) {
-        ContextInitializer contextInitializer = new ContextInitializer(sqlContextProperties);
-        contextInitializer.setUp();
-        return new SqlContext();
+        SqlContextConfigurer sqlContextConfigurer = new SqlContextConfigurer(sqlContextProperties, new SqlContext());
+        sqlContextConfigurer.initializeContext();
+        return sqlContextConfigurer.getSqlContext();
     }
 
     public AbstractColumnReference select() {

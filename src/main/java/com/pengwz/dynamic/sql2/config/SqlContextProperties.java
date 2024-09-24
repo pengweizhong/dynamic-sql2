@@ -18,6 +18,8 @@ public class SqlContextProperties {
     // 是否开启兼容版本模式，开启后动态SQL以最终结果为目的尝试解决版本不兼容的问题
     // 该方案主要是为了解决因版本降低或迁移数据库的场景，尽可能降低迁移成本
     private boolean enableCompatibilityMode;
+    // 否在查询中使用数据库模式（Schema）
+    private boolean useSchemaInQuery;
     // 数据库命名空间匹配器
     private Set<DbSchemaMatcher> schemaMatchers;
     // 数据库版本
@@ -26,6 +28,7 @@ public class SqlContextProperties {
     public static SqlContextProperties defaultSqlContextProperties() {
         SqlContextProperties sqlContextProperties = new SqlContextProperties();
         sqlContextProperties.enableCompatibilityMode = false;
+        sqlContextProperties.useSchemaInQuery = false;
         Set<DbSchemaMatcher> dbSchemaMatchers = new LinkedHashSet<>();
         dbSchemaMatchers.add(new MysqlSchemaMatcher());
         dbSchemaMatchers.add(new OracleSchemaMatcher());
@@ -79,5 +82,13 @@ public class SqlContextProperties {
 
     public void setDatabaseProductVersion(String databaseProductVersion) {
         this.databaseProductVersion = databaseProductVersion;
+    }
+
+    public boolean isUseSchemaInQuery() {
+        return useSchemaInQuery;
+    }
+
+    public void setUseSchemaInQuery(boolean useSchemaInQuery) {
+        this.useSchemaInQuery = useSchemaInQuery;
     }
 }
