@@ -124,7 +124,7 @@ public class DataSourceUtils {
         meta.setSqlDialect(sqlDialect);
         meta.setVersion(version);
         DataSourceProvider.getInstance().saveDataSourceMeta(dataSourceName, meta);
-        log.info("Initialized DataSource dataSourceName: {}", dataSourceName);
+        log.info("Initialized DataSource: {}", dataSourceName);
     }
 
     public static DbType matchDbType(String jdbcUrl) {
@@ -136,7 +136,6 @@ public class DataSourceUtils {
             return DbType.ORACLE;
         }
         return DbType.OTHER;
-//        throw new UnsupportedOperationException("Unknown database type: " + jdbcUrl);
     }
 
     public static String matchSchema(Set<DbSchemaMatcher> dbSchemaMatchers, DbType dbType, String url) {
