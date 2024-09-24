@@ -1,7 +1,7 @@
 package com.pengwz.dynamic.sql2.context;
 
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
-import com.pengwz.dynamic.sql2.core.CrudOperations;
+import com.pengwz.dynamic.sql2.core.SqlContext;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -13,14 +13,14 @@ public class SqlContextProxy implements InvocationHandler {
     private final SqlContextConfigurer sqlContextConfigurer;
 
     private SqlContextProxy(SqlContextProperties sqlContextProperties) {
-        sqlContextConfigurer = new SqlContextConfigurer(sqlContextProperties, new SqlContext());
+        sqlContextConfigurer = new SqlContextConfigurer(sqlContextProperties, new DefaultSqlContext());
         sqlContextConfigurer.initializeContext();
     }
 
-    public static CrudOperations newInstance(SqlContextProperties sqlContextProperties) {
-        return (CrudOperations) Proxy.newProxyInstance(
-                CrudOperations.class.getClassLoader(),
-                new Class<?>[]{CrudOperations.class},
+    public static SqlContext newInstance(SqlContextProperties sqlContextProperties) {
+        return (SqlContext) Proxy.newProxyInstance(
+                SqlContext.class.getClassLoader(),
+                new Class<?>[]{SqlContext.class},
                 new SqlContextProxy(sqlContextProperties)
         );
     }

@@ -1,7 +1,7 @@
 package com.pengwz.dynamic.sql2.context;
 
-import com.pengwz.dynamic.sql2.core.CrudOperations;
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.SqlContext;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.delete.Delete;
 import com.pengwz.dynamic.sql2.core.dml.insert.Insert;
@@ -13,8 +13,8 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 
-public class SqlContext implements CrudOperations {
-    protected SqlContext() {
+public class DefaultSqlContext implements SqlContext {
+    protected DefaultSqlContext() {
     }
 
     @Override

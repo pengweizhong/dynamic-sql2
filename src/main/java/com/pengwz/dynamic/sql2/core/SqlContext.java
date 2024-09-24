@@ -5,7 +5,7 @@ import com.pengwz.dynamic.sql2.core.dml.insert.DataInserter;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.update.DataUpdater;
 
-public interface CrudOperations extends DataInserter, DataUpdater, DataDeleter {
+public interface SqlContext extends DataInserter, DataUpdater, DataDeleter {
 
     AbstractColumnReference select();
 

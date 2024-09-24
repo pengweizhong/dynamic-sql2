@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.context;
 
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
+import com.pengwz.dynamic.sql2.core.SqlContext;
 
 import static com.pengwz.dynamic.sql2.datasource.DataSourceUtils.scanAndInitDataSource;
 import static com.pengwz.dynamic.sql2.table.TableUtils.*;

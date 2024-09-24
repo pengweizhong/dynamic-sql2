@@ -2,11 +2,11 @@ package com.pengwz.dynamic.sql2;
 
 import com.pengwz.dynamic.sql2.context.SqlContextProxy;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
-import com.pengwz.dynamic.sql2.core.CrudOperations;
+import com.pengwz.dynamic.sql2.core.SqlContext;
 import org.junit.jupiter.api.BeforeAll;
 
 public class InitializingContext {
-    protected static CrudOperations sqlContext;
+    protected static SqlContext sqlContext;
 
     @BeforeAll
     static void setUp() {
