@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Avg;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
@@ -135,7 +136,7 @@ class SelectTest extends InitializingContext {
                 .allColumn()
                 .from(Student.class)
                 .where()
-                .exists(nestedSelect -> nestedSelect.select().one().from(Student.class))
+                .exists(nestedSelect -> nestedSelect.select().column(new NumberColumn(1)).from(Student.class))
                 .fetch().toOne();
         System.out.println(one);
     }

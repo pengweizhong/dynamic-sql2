@@ -1,5 +1,7 @@
 package com.pengwz.dynamic.sql2.asserts;
 
+import com.pengwz.dynamic.sql2.core.Version;
+
 public class FunctionAssert {
 
     private FunctionAssert() {
@@ -14,9 +16,10 @@ public class FunctionAssert {
      * @param patchVersion 补丁号
      * @throws UnsupportedOperationException 函数不受支持
      */
-    public static void throwNotSupported(String functionName, int majorVersion, int minorVersion, int patchVersion) {
+    public static void throwNotSupportedException(String functionName) {
         throw new UnsupportedOperationException(
-                String.format("Function %s is not supported in version %d.%d.%d", functionName, majorVersion, minorVersion, patchVersion)
+                String.format("Function %s is not supported in version %d.%d.%d", functionName,
+                        Version.getMajorVersion(), Version.getMinorVersion(), Version.getPatchVersion())
         );
     }
 

@@ -7,6 +7,7 @@ import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
+import com.pengwz.dynamic.sql2.core.dml.select.ColumnInfo;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.TableRelation;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
@@ -18,25 +19,6 @@ import com.pengwz.dynamic.sql2.table.TableProvider;
 import java.util.function.Consumer;
 
 public class ColumnReference extends AbstractColumnReference {
-//    private ColumFunction columnFunction;
-
-    public ColumnReference() {
-    }
-
-    public ColumnReference(ColumFunction columnFunction) {
-//        this.columnFunction = columnFunction;
-        columFunctions.add(columnFunction);
-    }
-
-    public <T, F> ColumnReference(Fn<T, F> fn) {
-        columFunctions.add(new Column(fn));
-    }
-
-
-    @Override
-    public AbstractColumnReference one() {
-        return this;
-    }
 
     @Override
     public <T, F> ColumnReference column(Fn<T, F> fn) {
@@ -45,7 +27,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public <T, F> ColumnReference column(Fn<T, F> fn, String alias) {
-        columFunctions.add(new Column(fn));
+        columFunctions.add(ColumnInfo.builder().columFunction(new Column(fn)).alias(alias).build());
         return this;
     }
 
@@ -56,28 +38,20 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public ColumnReference column(ColumFunction iColumFunction, String alias) {
-        columFunctions.add(iColumFunction);
+        columFunctions.add(ColumnInfo.builder().columFunction(iColumFunction).alias(alias).build());
         return this;
     }
 
     @Override
     public AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String alias) {
-        // Build the SQL part for the window function
-        String orderByClause = String.join(", ", over.getOrderByColumns());
-        String partitionByClause = over.getPartitionByClause();
-        String frameSpecification = over.getFrameSpecification();
-
-        String sql = windowsFunction.apply(over) + " OVER (" +
-                partitionByClause + " ORDER BY " + orderByClause +
-                " " + frameSpecification + ") AS " + alias;
-
-        // Add this SQL part to the select query
-        // Assuming some internal mechanism to store/select SQL parts
+        columFunctions.add(ColumnInfo.builder().columFunction(windowsFunction).alias(alias).over(over).build());
         return this;
     }
 
     @Override
     public AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String alias) {
+        NestedSelect nested = new NestedSelect();
+        nestedSelect.accept(nested);
         return this;
     }
 
@@ -102,20 +76,20 @@ public class ColumnReference extends AbstractColumnReference {
             Version.setMinorVersion(dataSourceMeta.getMinorVersionNumber());
             Version.setPatchVersion(dataSourceMeta.getPatchVersionNumber());
             SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
-            for (ColumFunction columFunction : columFunctions) {
-                String sqlFunction;
-                switch (schemaProperties.getSqlDialect()) {
-                    case ORACLE:
-                        sqlFunction = columFunction.getOracleFunction();
-                        break;
-                    case MYSQL:
-                        sqlFunction = columFunction.getMySqlFunction();
-                        break;
-                    default:
-                        throw new UnsupportedOperationException("Unsupported SQL dialect: " + schemaProperties.getSqlDialect());
-                }
-                System.out.println("测试函数输出结果 ---> " + sqlFunction);
-            }
+//            for (ColumFunction columFunction : columFunctions) {
+//                String sqlFunction;
+//                switch (schemaProperties.getSqlDialect()) {
+//                    case ORACLE:
+//                        sqlFunction = columFunction.getOracleFunction();
+//                        break;
+//                    case MYSQL:
+//                        sqlFunction = columFunction.getMySqlFunction();
+//                        break;
+//                    default:
+//                        throw new UnsupportedOperationException("Unsupported SQL dialect: " + schemaProperties.getSqlDialect());
+//                }
+//                System.out.println("测试函数输出结果 ---> " + sqlFunction);
+//            }
         } finally {
             Version.clear();
         }

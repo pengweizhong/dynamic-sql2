@@ -17,10 +17,7 @@ import java.util.function.Consumer;
  * 包括选择特定列、应用函数、使用别名等。
  */
 public abstract class AbstractColumnReference {
-    protected List<ColumFunction> columFunctions = new ArrayList<>();
-
-    //简简单单的  select 1 from ...
-    public abstract AbstractColumnReference one();
+    protected final List<ColumnInfo> columFunctions = new ArrayList<>();
 
     public abstract <T, F> AbstractColumnReference column(Fn<T, F> fn);
 
@@ -48,7 +45,7 @@ public abstract class AbstractColumnReference {
 
     public static class AllColumnReference extends ColumnReference {
         public AllColumnReference() {
-            columFunctions.add(new Column("*"));
+            columFunctions.add(ColumnInfo.builder().columFunction(new Column("*")).build());
         }
     }
 }
