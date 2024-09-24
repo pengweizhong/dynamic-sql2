@@ -59,12 +59,14 @@ public class DataSourceUtils {
                 String schema = matchSchema(sqlContextProperties.getSchemaMatchers(), dbType, metaData.getURL());
                 String version = sqlContextProperties.getDatabaseProductVersion() == null
                         ? metaData.getDatabaseProductVersion() : sqlContextProperties.getDatabaseProductVersion();
+                sqlContextProperties.setDatabaseProductVersion(version);
                 SqlDialect sqlDialect = sqlContextProperties.getSqlDialect();
                 if (sqlDialect == null && dbType.equals(DbType.OTHER)) {
                     log.error("Unsupported SQL dialect, If your database supports an existing SQL dialect, manually specify the dialect type.");
                     throw new UnsupportedOperationException("Unsupported SQL dialect");
                 }
                 sqlDialect = sqlDialect == null ? SqlDialect.valueOf(dbType.name()) : sqlDialect;
+                sqlContextProperties.setSqlDialect(sqlDialect);
                 initDataSource(dataSourceMapping.getDataSourceName(),
                         dbType, sqlDialect, schema,
                         dataSourceMapping.getDataSource(),
