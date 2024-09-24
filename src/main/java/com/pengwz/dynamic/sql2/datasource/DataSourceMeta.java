@@ -1,25 +1,22 @@
 package com.pengwz.dynamic.sql2.datasource;
 
 import com.pengwz.dynamic.sql2.enums.DbType;
-import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
 import javax.sql.DataSource;
 
 public class DataSourceMeta {
-    //    //数据源名称
+//    //数据源名称
 //    private String dataSourceName;
     //命名空间
     private String schema;
     //是否全局默认数据源
     private boolean isGlobalDefault;
-    //绑定的实体类路径
+    //    //绑定的实体类路径
     private String[] bindBasePackages;
     //数据源原始对象
     private DataSource dataSource;
     //数据源类型
     private DbType dbType;
-    //数据库方言
-    private SqlDialect sqlDialect;
     //数据源版本号(字符串完整表现形式)
     private String version;
     //主版本号
@@ -28,14 +25,6 @@ public class DataSourceMeta {
     private int minorVersionNumber;
     //补丁号
     private int patchVersionNumber;
-
-//    public String getDataSourceName() {
-//        return dataSourceName;
-//    }
-//
-//    public void setDataSourceName(String dataSourceName) {
-//        this.dataSourceName = dataSourceName;
-//    }
 
     public String getSchema() {
         return schema;
@@ -116,11 +105,4 @@ public class DataSourceMeta {
         return patchVersionNumber;
     }
 
-    public SqlDialect getSqlDialect() {
-        return sqlDialect;
-    }
-
-    public void setSqlDialect(SqlDialect sqlDialect) {
-        this.sqlDialect = sqlDialect;
-    }
 }

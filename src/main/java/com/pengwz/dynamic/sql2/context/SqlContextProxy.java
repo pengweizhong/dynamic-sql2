@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.context;
 
+import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
 
@@ -27,17 +28,15 @@ public class SqlContextProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        SqlContextHolder.setSqlContextConfigurer(sqlContextConfigurer);
+        for (SchemaProperties schemaProperty : sqlContextConfigurer.getSqlContextProperties().getSchemaProperties()) {
+            SchemaContextHolder.addSchemaProperties(schemaProperty);
+        }
         Object invoke;
         try {
             invoke = method.invoke(sqlContextConfigurer.getSqlContext(), args);
         } catch (InvocationTargetException e) {
             // 提取被调用方法抛出的实际异常
             throw e.getTargetException();
-        } catch (Exception e) {
-            throw new RuntimeException("Error invoking SqlContext method", e);
-        } finally {
-            SqlContextHolder.clear();
         }
         return invoke;
     }

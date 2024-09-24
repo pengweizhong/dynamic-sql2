@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.datasource;
 
+import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.enums.DbType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -26,7 +27,7 @@ public class DataSourceUtils {
     /**
      * 根据包路径检索数据源
      */
-    public static void scanAndInitDataSource(SqlContextProperties sqlContextProperties) {
+    public static void scanAndInitDataSource(SqlContextProperties sqlContextProperties) {//NOSONAR
         String[] packagePath = sqlContextProperties.getScanDatabasePackage();
         if (packagePath == null || packagePath.length == 0) {
             throw new IllegalArgumentException("The package path to search must be provided");
@@ -49,24 +50,36 @@ public class DataSourceUtils {
                 throw new IllegalStateException("Found more than one data source: " + dataSourceName);
             }
         });
+        //校验指定的数据源名称是否存在
+        List<String> dataSourceNames = dataSources.stream().map(DataSourceMapping::getDataSourceName).collect(Collectors.toList());
+        sqlContextProperties.getSchemaProperties().forEach(
+                schemaProperties -> {
+                    if (!dataSourceNames.contains(schemaProperties.getDataSourceName())) {
+                        throw new IllegalArgumentException("Unable to match data source name: "
+                                + schemaProperties.getDataSourceName());
+                    }
+                });
         for (DataSourceMapping dataSourceMapping : dataSources) {
             log.debug("Test the data source connection to get the URL For '{}'. ", dataSourceMapping.getDataSourceName());
             Connection connection = null;
+            SchemaProperties schemaProperties = getSchemaProperties(sqlContextProperties, dataSourceMapping.getDataSourceName());
             try {
                 connection = ConnectionHolder.getConnection(dataSourceMapping.getDataSource());
                 DatabaseMetaData metaData = connection.getMetaData();
                 DbType dbType = matchDbType(metaData.getURL());
                 String schema = matchSchema(sqlContextProperties.getSchemaMatchers(), dbType, metaData.getURL());
-                String version = sqlContextProperties.getDatabaseProductVersion() == null
-                        ? metaData.getDatabaseProductVersion() : sqlContextProperties.getDatabaseProductVersion();
-                sqlContextProperties.setDatabaseProductVersion(version);
-                SqlDialect sqlDialect = sqlContextProperties.getSqlDialect();
+                String version = schemaProperties.getDatabaseProductVersion() == null
+                        ? metaData.getDatabaseProductVersion() : schemaProperties.getDatabaseProductVersion();
+                schemaProperties.setDatabaseProductVersion(version);
+                SqlDialect sqlDialect = schemaProperties.getSqlDialect();
                 if (sqlDialect == null && dbType.equals(DbType.OTHER)) {
                     log.error("Unsupported SQL dialect, If your database supports an existing SQL dialect, manually specify the dialect type.");
                     throw new UnsupportedOperationException("Unsupported SQL dialect");
                 }
                 sqlDialect = sqlDialect == null ? SqlDialect.valueOf(dbType.name()) : sqlDialect;
-                sqlContextProperties.setSqlDialect(sqlDialect);
+                schemaProperties.setSqlDialect(sqlDialect);
+                //设置其他参数
+                schemaProperties.setDataSourceName(dataSourceMapping.getDataSourceName());
                 initDataSource(dataSourceMapping.getDataSourceName(),
                         dbType, sqlDialect, schema,
                         dataSourceMapping.getDataSource(),
@@ -80,7 +93,6 @@ public class DataSourceUtils {
             }
         }
     }
-
 
     /**
      * 初始化已知数据源
@@ -121,7 +133,6 @@ public class DataSourceUtils {
         meta.setBindBasePackages(bindBasePackages);
         meta.setDataSource(dataSource);
         meta.setDbType(dbType);
-        meta.setSqlDialect(sqlDialect);
         meta.setVersion(version);
         DataSourceProvider.getInstance().saveDataSourceMeta(dataSourceName, meta);
         log.info("Initialized DataSource: {}", dataSourceName);
@@ -150,5 +161,16 @@ public class DataSourceUtils {
             }
         }
         throw new IllegalArgumentException("Unsupported jdbc url: " + url);
+    }
+
+    private static SchemaProperties getSchemaProperties(SqlContextProperties sqlContextProperties, String dataSourceName) {
+        for (SchemaProperties schemaProperty : sqlContextProperties.getSchemaProperties()) {
+            if (schemaProperty.getDataSourceName().equals(dataSourceName)) {
+                return schemaProperty;
+            }
+        }
+        SchemaProperties schemaProperties = new SchemaProperties();
+        sqlContextProperties.getSchemaProperties().add(schemaProperties);
+        return schemaProperties;
     }
 }
