@@ -1,7 +1,9 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
-import com.pengwz.dynamic.sql2.SqlContext;
-import com.pengwz.dynamic.sql2.config.SqlContextProperties;
+import com.pengwz.dynamic.sql2.context.SqlContext;
+import com.pengwz.dynamic.sql2.context.SqlContextProxy;
+import com.pengwz.dynamic.sql2.context.config.SqlContextProperties;
+import com.pengwz.dynamic.sql2.core.CrudOperations;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonExtract;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonUnquote;
 import com.pengwz.dynamic.sql2.entites.Student;
@@ -19,7 +21,7 @@ class SelectTest2 {
         sqlContextProperties.setScanTablePackage("com.pengwz.dynamic.sql2");
         sqlContextProperties.setScanDatabasePackage("com.pengwz.dynamic.sql2");
         sqlContextProperties.setSqlDialect(SqlDialect.ORACLE);
-        SqlContext sqlContext = SqlContext.createSqlContext(sqlContextProperties);
+        CrudOperations sqlContext = SqlContextProxy.newInstance(sqlContextProperties);
         sqlContext.select().column(new JsonUnquote(new JsonExtract(Student::getLastName, "$.name"))).from(Student.class);
     }
 }

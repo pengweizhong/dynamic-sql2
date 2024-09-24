@@ -1,39 +1,23 @@
-package com.pengwz.dynamic.sql2;
+package com.pengwz.dynamic.sql2.context;
 
-import com.pengwz.dynamic.sql2.config.SqlContextConfigurer;
-import com.pengwz.dynamic.sql2.config.SqlContextProperties;
+import com.pengwz.dynamic.sql2.core.CrudOperations;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
-import com.pengwz.dynamic.sql2.core.dml.delete.DataDeleter;
 import com.pengwz.dynamic.sql2.core.dml.delete.Delete;
-import com.pengwz.dynamic.sql2.core.dml.insert.DataInserter;
 import com.pengwz.dynamic.sql2.core.dml.insert.Insert;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
-import com.pengwz.dynamic.sql2.core.dml.update.DataUpdater;
 import com.pengwz.dynamic.sql2.core.dml.update.Update;
 
 import java.util.Collection;
 import java.util.function.Consumer;
 
 
-public class SqlContext implements DataInserter, DataUpdater, DataDeleter {
-
-    private SqlContext() {
+public class SqlContext implements CrudOperations {
+    protected SqlContext() {
     }
 
-    public static SqlContext createSqlContext() {
-        SqlContextConfigurer sqlContextConfigurer = new SqlContextConfigurer(new SqlContext());
-        sqlContextConfigurer.initializeContext();
-        return sqlContextConfigurer.getSqlContext();
-    }
-
-    public static SqlContext createSqlContext(SqlContextProperties sqlContextProperties) {
-        SqlContextConfigurer sqlContextConfigurer = new SqlContextConfigurer(sqlContextProperties, new SqlContext());
-        sqlContextConfigurer.initializeContext();
-        return sqlContextConfigurer.getSqlContext();
-    }
-
+    @Override
     public AbstractColumnReference select() {
         return new Select().loadColumReference();
     }
