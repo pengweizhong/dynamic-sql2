@@ -1,8 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
-import com.pengwz.dynamic.sql2.context.SqlContext;
 import com.pengwz.dynamic.sql2.context.SqlContextProxy;
-import com.pengwz.dynamic.sql2.context.config.SqlContextProperties;
+import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.CrudOperations;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonExtract;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonUnquote;

@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.context;
 
-import com.pengwz.dynamic.sql2.context.config.SqlContextProperties;
+import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.CrudOperations;
 
 import java.lang.reflect.InvocationHandler;
@@ -21,7 +21,7 @@ public class SqlContextProxy implements InvocationHandler {
         return (CrudOperations) Proxy.newProxyInstance(
                 CrudOperations.class.getClassLoader(),
                 new Class<?>[]{CrudOperations.class},
-                new SqlContextProxy(sqlContextProperties) // 将参数传递给代理类
+                new SqlContextProxy(sqlContextProperties)
         );
     }
 

@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.context.config;
+package com.pengwz.dynamic.sql2.context.properties;
 
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.plugins.schema.DbSchemaMatcher;

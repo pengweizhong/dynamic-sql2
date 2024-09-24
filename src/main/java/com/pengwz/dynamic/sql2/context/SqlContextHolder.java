@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.context;
 
-import com.pengwz.dynamic.sql2.context.config.SqlContextProperties;
+import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 
 public class SqlContextHolder {
     private static final ThreadLocal<SqlContextConfigurer> contextHolder = new ThreadLocal<>();

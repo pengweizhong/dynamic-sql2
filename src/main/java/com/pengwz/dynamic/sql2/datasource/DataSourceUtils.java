@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.datasource;
 
-import com.pengwz.dynamic.sql2.context.config.SqlContextProperties;
+import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.enums.DbType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.plugins.schema.DbSchemaMatcher;
