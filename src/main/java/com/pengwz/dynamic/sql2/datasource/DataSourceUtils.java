@@ -92,7 +92,7 @@ public class DataSourceUtils {
      * @param isGlobalDefault  是否全局默认数据源
      * @param bindBasePackages 绑定的实体类路径
      */
-    public static synchronized void initDataSource(String dataSourceName,
+    public static synchronized void initDataSource(String dataSourceName,//NOSONAR
                                                    DbType dbType,
                                                    SqlDialect sqlDialect,
                                                    String schema,
@@ -101,7 +101,7 @@ public class DataSourceUtils {
                                                    String version,
                                                    String[] bindBasePackages
     ) {
-        log.debug("Initializing DataSource dataSourceName: {}, schema:{}, isGlobalDefault:{}, bindBasePackages:{}",
+        log.debug("Initializing DataSource: {}, schema:{}, isGlobalDefault:{}, bindBasePackages:{}",
                 dataSourceName, schema, isGlobalDefault, bindBasePackages);
         if (StringUtils.isBlank(dataSourceName)) {
             throw new IllegalArgumentException("The bean name must be provided");
