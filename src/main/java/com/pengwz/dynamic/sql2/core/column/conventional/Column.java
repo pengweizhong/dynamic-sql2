@@ -5,6 +5,7 @@ import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
+import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 public class Column implements ColumFunction {
 
@@ -20,12 +21,6 @@ public class Column implements ColumFunction {
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
-        if (sqlDialect == SqlDialect.ORACLE) {
-            return "\"" + columnName + "\"";
-        }
-        if (sqlDialect == SqlDialect.MYSQL) {
-            return "`" + columnName + "`";
-        }
-        return columnName;
+        return SqlUtils.quoteIdentifier(sqlDialect, columnName);
     }
 }
