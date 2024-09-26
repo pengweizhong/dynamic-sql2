@@ -15,6 +15,7 @@ import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
+import com.pengwz.dynamic.sql2.utils.StringUtils;
 
 import java.util.function.Consumer;
 
@@ -71,27 +72,19 @@ public class ColumnReference extends AbstractColumnReference {
     private void parseColumnFunction(Class<?> tableClass) {
         TableMeta tableMeta = TableProvider.getInstance().getTableMeta(tableClass);
         DataSourceMeta dataSourceMeta = DataSourceProvider.getInstance().getDataSourceMeta(tableMeta.getBindDataSourceName());
-        try {
-            Version.setMajorVersion(dataSourceMeta.getMajorVersionNumber());
-            Version.setMinorVersion(dataSourceMeta.getMinorVersionNumber());
-            Version.setPatchVersion(dataSourceMeta.getPatchVersionNumber());
-            SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
-//            for (ColumFunction columFunction : columFunctions) {
-//                String sqlFunction;
-//                switch (schemaProperties.getSqlDialect()) {
-//                    case ORACLE:
-//                        sqlFunction = columFunction.getOracleFunction();
-//                        break;
-//                    case MYSQL:
-//                        sqlFunction = columFunction.getMySqlFunction();
-//                        break;
-//                    default:
-//                        throw new UnsupportedOperationException("Unsupported SQL dialect: " + schemaProperties.getSqlDialect());
-//                }
-//                System.out.println("测试函数输出结果 ---> " + sqlFunction);
-//            }
-        } finally {
-            Version.clear();
+
+        Version version;
+        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
+        if (StringUtils.isBlank(schemaProperties.getDatabaseProductVersion())) {
+            version = new Version(dataSourceMeta.getMajorVersionNumber(),
+                    dataSourceMeta.getMinorVersionNumber(), dataSourceMeta.getPatchVersionNumber());
+        } else {
+            version = new Version(schemaProperties.getMajorVersionNumber(),
+                    schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
+        }
+        for (ColumnInfo columnInfo : columFunctions) {
+            String functionToString = columnInfo.getColumFunction().getFunctionToString(schemaProperties.getSqlDialect(), version);
+            System.out.println("测试函数输出结果 ---> " + functionToString);
         }
 
     }

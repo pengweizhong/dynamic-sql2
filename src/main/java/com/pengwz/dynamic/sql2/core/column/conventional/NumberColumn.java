@@ -1,6 +1,8 @@
 package com.pengwz.dynamic.sql2.core.column.conventional;
 
+import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
+import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
 public class NumberColumn implements ColumFunction {
 
@@ -11,18 +13,7 @@ public class NumberColumn implements ColumFunction {
     }
 
     @Override
-    public String getMySqlFunction() {
-        return "`" + getColumnName() + "`";
-    }
-
-    @Override
-    public String getOracleFunction() {
-        return "\"" + getColumnName() + "\"";
-    }
-
-    @Override
-    public String getColumnName() {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         return numberColumn + "";
     }
-
 }

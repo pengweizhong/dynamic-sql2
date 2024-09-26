@@ -1,23 +1,10 @@
 package com.pengwz.dynamic.sql2.core.column.function;
 
-import com.pengwz.dynamic.sql2.core.column.Column;
+import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
-public interface ColumFunction extends Column {
-    /**
-     * 获取与 MySQL 数据库版本相关的函数。
-     *
-     * @throws UnsupportedOperationException 如果当前实现不支持获取 MySQL 函数。
-     */
-    String getMySqlFunction();
+public interface ColumFunction {
 
-    default String getOracleFunction() {
-        throw new UnsupportedOperationException("ORACLE 先不做");
-    }
-
-    @Override
-    default String getColumnName() {
-//        return getFunctionToString();
-        throw new UnsupportedOperationException();
-    }
+    String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException;
 
 }

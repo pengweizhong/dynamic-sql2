@@ -14,6 +14,12 @@ public class SchemaProperties {
     private boolean useSchemaInQuery;
     // 强制指定兼容的数据库版本
     private String databaseProductVersion;
+    //主版本号
+    private int majorVersionNumber;
+    //次版本号
+    private int minorVersionNumber;
+    //补丁号
+    private int patchVersionNumber;
 
     public String getDataSourceName() {
         return dataSourceName;
@@ -53,5 +59,28 @@ public class SchemaProperties {
 
     public void setDatabaseProductVersion(String databaseProductVersion) {
         this.databaseProductVersion = databaseProductVersion;
+        String[] split = databaseProductVersion.split("\\.");
+        if (split.length >= 1) {
+            this.majorVersionNumber = Integer.parseInt(split[0]);
+        }
+        if (split.length >= 2) {
+            this.minorVersionNumber = Integer.parseInt(split[1]);
+        }
+        if (split.length >= 3) {
+            this.patchVersionNumber = Integer.parseInt(split[2]);
+        }
+
+    }
+
+    public int getMajorVersionNumber() {
+        return majorVersionNumber;
+    }
+
+    public int getMinorVersionNumber() {
+        return minorVersionNumber;
+    }
+
+    public int getPatchVersionNumber() {
+        return patchVersionNumber;
     }
 }

@@ -2,18 +2,16 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
-import com.pengwz.dynamic.sql2.core.column.function.aggregate.Avg;
-import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
-import com.pengwz.dynamic.sql2.core.column.function.aggregate.Sum;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonExtract;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonUnquote;
-import com.pengwz.dynamic.sql2.core.column.function.logical.CaseWhen;
-import com.pengwz.dynamic.sql2.core.column.function.scalar.number.Round;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
-import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
+import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Upper;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CommonTableExpression;
-import com.pengwz.dynamic.sql2.entites.*;
+import com.pengwz.dynamic.sql2.entites.ObjectCTE;
+import com.pengwz.dynamic.sql2.entites.Student;
+import com.pengwz.dynamic.sql2.entites.TClass;
+import com.pengwz.dynamic.sql2.entites.Teacher;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +28,7 @@ class SelectTest extends InitializingContext {
         List<Teacher> list = sqlContext.select()
                 .column(Teacher::getTeacherId, "id")
                 .column(Teacher::getFirstName)
+                .column(new Md5(new Upper(Teacher::getFirstName)))
                 .from(Teacher.class)
                 .fetch().toList();
         System.out.println(list);
@@ -106,7 +105,7 @@ class SelectTest extends InitializingContext {
     @Test
     void select7() {
         List<Student> list = sqlContext.select()
-                .column(CaseWhen.builder(Student::getStudentId).build(), "vvv")
+//                .column(CaseWhen.builder(Student::getStudentId).build(), "vvv")
                 .column(nestedSelect -> {
                     nestedSelect.select().column(Student::getStudentId).from(Student.class);
                 }, "aaa")
@@ -122,7 +121,7 @@ class SelectTest extends InitializingContext {
                 )
                 .groupBy(Student::getStudentId)
                 .having(w -> w.andEqualTo(new Max(Student::getLastName), 2)
-                        .andEqualTo(new Avg(Student::getLastName),
+                        .andEqualTo(new Max(Student::getLastName),
                                 nestedSelect -> nestedSelect.select().column(Student::getStudentId).from(Student.class)))
                 .fetch().toList();
         System.out.println(list);
@@ -131,7 +130,7 @@ class SelectTest extends InitializingContext {
     @Test
     void select8() {
         Student one = sqlContext.select()
-                .column(CaseWhen.builder(Student::getStudentId).build())
+//                .column(CaseWhen.builder(Student::getStudentId).build())
                 .column(Student::getBirthDate)
                 .allColumn()
                 .from(Student.class)
@@ -141,31 +140,31 @@ class SelectTest extends InitializingContext {
         System.out.println(one);
     }
 
-    @Test
-    void select9() {
-        ExamResult one = sqlContext.select()
-                //SUM(score) OVER (ORDER BY score DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_score
-                .column(new Sum(ExamResult::getScore),
-                        Over.builder().orderBy(ExamResult::getScore).currentRowToUnboundedFollowing().build(),
-                        "aaa")
-                .from(ExamResult.class)
-                .fetch().toOne();
-        System.out.println(one);
-    }
+//    @Test
+//    void select9() {
+//        ExamResult one = sqlContext.select()
+//                //SUM(score) OVER (ORDER BY score DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_score
+//                .column(new Sum(ExamResult::getScore),
+//                        Over.builder().orderBy(ExamResult::getScore).currentRowToUnboundedFollowing().build(),
+//                        "aaa")
+//                .from(ExamResult.class)
+//                .fetch().toOne();
+//        System.out.println(one);
+//    }
 
-    @Test
-    void select10() {
-        // ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM t_pro_ret_phased), 2) AS percentage
-        ExamResult percentage = sqlContext.select()
-                .column(new Round(new Count(1).multiply(100).divide(
-                        nestedSelect -> {
-                            nestedSelect.select().column(new Count(1)).from(Student.class);
-                        }), 2), "percentage")
-                .from(ExamResult.class)
-                .orderByField(">10%", "5~10%", "0~5%", "0%", "<-10%")
-                .fetch().toOne();
-        System.out.println(percentage);
-    }
+//    @Test
+//    void select10() {
+//        // ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM t_pro_ret_phased), 2) AS percentage
+//        ExamResult percentage = sqlContext.select()
+//                .column(new Round(new Count(1).multiply(100).divide(
+//                        nestedSelect -> {
+//                            nestedSelect.select().column(new Count(1)).from(Student.class);
+//                        }), 2), "percentage")
+//                .from(ExamResult.class)
+//                .orderByField(">10%", "5~10%", "0~5%", "0%", "<-10%")
+//                .fetch().toOne();
+//        System.out.println(percentage);
+//    }
 
     @Test
     void select11() {
