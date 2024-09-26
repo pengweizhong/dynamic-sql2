@@ -8,6 +8,8 @@ import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
+import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedSqlDialectException;
+
 public class Max extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
 
     public Max(ColumFunction delegateFunction) {
@@ -31,6 +33,7 @@ public class Max extends ColumnFunctionDecorator implements AggregateFunction, W
         if (sqlDialect == SqlDialect.MYSQL) {
             return "max(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
-        return "";
+        throwNotSupportedSqlDialectException("max", sqlDialect);
+        return null;
     }
 }

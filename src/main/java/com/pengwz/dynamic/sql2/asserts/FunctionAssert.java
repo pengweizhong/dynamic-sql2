@@ -19,14 +19,14 @@ public class FunctionAssert {
      */
     public static void throwNotSupportedFunctionException(String functionName, Version version) {
         throw new UnsupportedOperationException(
-                String.format("Function %s is not supported in version %d.%d.%d", functionName,
+                String.format("Function `%s` is not supported in version %d.%d.%d", functionName,
                         version.getMajorVersion(), version.getMinorVersion(), version.getPatchVersion())
         );
     }
 
     public static void throwNotSupportedSqlDialectException(String functionName, SqlDialect sqlDialect) {
         throw new UnsupportedOperationException(
-                String.format("%s dialect does not support %s function", sqlDialect, functionName)
+                String.format("%s dialect does not support `%s` function", sqlDialect, functionName)
         );
     }
 
