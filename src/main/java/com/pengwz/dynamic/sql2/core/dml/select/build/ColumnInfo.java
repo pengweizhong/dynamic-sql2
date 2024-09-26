@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.core.dml.select;
+package com.pengwz.dynamic.sql2.core.dml.select.build;
 
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;

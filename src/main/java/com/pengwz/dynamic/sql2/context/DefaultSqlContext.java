@@ -19,6 +19,8 @@ public class DefaultSqlContext implements SqlContext {
 
     @Override
     public AbstractColumnReference select() {
+        Select select = new Select();
+
         return new Select().loadColumReference();
     }
 

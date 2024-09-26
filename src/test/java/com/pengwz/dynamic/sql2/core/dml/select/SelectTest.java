@@ -29,8 +29,17 @@ class SelectTest extends InitializingContext {
                 .column(Teacher::getTeacherId, "id")
                 .column(Teacher::getFirstName)
                 .column(new Md5(new Upper(Teacher::getFirstName)))
+                .column(nestedSelect -> {
+                    nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1);
+                }, "aaa")
                 .from(Teacher.class)
-                .fetch().toList();
+                .where(whereCondition -> {
+                    whereCondition.andEqualTo(Teacher::getTeacherId, 123);
+                }).groupBy(Teacher::getTeacherId)
+                //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;
+                .having(havingCondition -> havingCondition.andEqualTo(new Max(Student::getStudentId),5))
+                .limit(1)
+                .fetch(Teacher.class).toList();
         System.out.println(list);
     }
 
@@ -55,7 +64,7 @@ class SelectTest extends InitializingContext {
                 .allColumn()
                 .from(TClass.class)
                 .join(Student.class, on -> on.andEqualTo(TClass::getClassId, Student::getClassId))
-                .selfJoin("a", on -> on.andEqualTo(Student::getClassId, Student::getClassId))
+                .selfJoin(Student.class, "a", on -> on.andEqualTo(Student::getClassId, Student::getClassId))
                 .fetch(Student.class).toList();
         System.out.println(a.size());
     }

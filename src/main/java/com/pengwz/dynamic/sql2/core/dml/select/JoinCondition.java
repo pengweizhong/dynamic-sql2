@@ -172,9 +172,9 @@ public interface JoinCondition extends Fetchable {
      *                    用于设置连接条件，例如字段匹配或其他逻辑条件。
      * @return 当前的 {@link JoinCondition} 实例，以便实现链式调用，继续进行其他连接或查询操作。
      */
-    JoinCondition selfJoin(String alias, Consumer<Condition> onCondition);
+    JoinCondition selfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
 
-    JoinCondition selfJoin(CteTable cte, Consumer<Condition> onCondition);
+    JoinCondition selfJoin(CteTable cte, String alias, Consumer<Condition> onCondition);
 
     /**
      * 追加where条件

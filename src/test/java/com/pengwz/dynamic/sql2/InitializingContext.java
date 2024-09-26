@@ -17,7 +17,7 @@ public class InitializingContext {
         sqlContextProperties.setScanDatabasePackage("com.pengwz.dynamic.sql2");
         SchemaProperties schemaProperties = new SchemaProperties();
         schemaProperties.setDataSourceName("dataSource");
-        schemaProperties.setSqlDialect(SqlDialect.POSTGRESQL);
+        schemaProperties.setSqlDialect(SqlDialect.MYSQL);
         sqlContextProperties.addSchemaProperties(schemaProperties);
         sqlContext = SqlContextProxy.newInstance(sqlContextProperties);
     }
