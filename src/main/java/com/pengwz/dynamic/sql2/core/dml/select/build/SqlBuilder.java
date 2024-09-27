@@ -53,6 +53,7 @@ public class SqlBuilder {
         //解析查询的表
         parseFormTable();
         System.out.println("SQL解析后的结果：\n" + sqlBuilder);
+        System.out.println("SQL解析后的参数：\n" + StringUtils.join(", ", params));
         return sqlBuilder;
     }
 
@@ -82,12 +83,7 @@ public class SqlBuilder {
                 String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? fieldName : columnQuery.getAlias();
                 System.out.println("测试函数列输出结果 ---> " + functionToString);
                 sqlBuilder.append(functionToString).append(syntaxAs()).append(columnAlias).append(columnSeparator);
-                if (columFunction.getParams() != null) {
-                    for (Object param : columFunction.getParams()) {
-                        params.add(param);
-                    }
-                }
-
+                addParams(columFunction.getParams());
             }
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
@@ -127,6 +123,7 @@ public class SqlBuilder {
                 Consumer<Condition> onCondition = innerJoin.getOnCondition();
                 WhereCondition whereCondition = matchDialectCondition();
                 onCondition.accept(whereCondition);
+                addParams(whereCondition.getWhereConditionParams());
                 sqlBuilder.append(" on ").append(whereCondition.getWhereConditionSyntax());
             }
         }
@@ -180,5 +177,13 @@ public class SqlBuilder {
 
     protected List<Object> getParams() {
         return params;
+    }
+
+    private void addParams(Object[] addParams) {
+        if (addParams != null) {
+            for (Object param : addParams) {
+                params.add(param);
+            }
+        }
     }
 }

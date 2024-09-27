@@ -756,8 +756,8 @@ public class MysqlWhereCondition implements WhereCondition {
     }
 
     @Override
-    public List<Object> getWhereConditionParams() {
-        return params;
+    public Object[] getWhereConditionParams() {
+        return params.toArray();
     }
 
     private <T, F> String qualifiedTableName(Fn<T, F> field) {

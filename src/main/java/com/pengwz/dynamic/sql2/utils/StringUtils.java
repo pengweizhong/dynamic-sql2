@@ -82,4 +82,22 @@ public class StringUtils {
         return !isEqualsIgnoreCase(str1, str2);
     }
 
+    public static String join(CharSequence delimiter, Object... params) {
+        if (params == null || params.length == 0) {
+            return "";
+        }
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < params.length; i++) {
+            Object param = params[i];
+            if (param == null) {
+                result.append("null");
+            } else {
+                result.append(param);
+            }
+            if (i < params.length - 1) {
+                result.append(delimiter);
+            }
+        }
+        return result.toString();
+    }
 }

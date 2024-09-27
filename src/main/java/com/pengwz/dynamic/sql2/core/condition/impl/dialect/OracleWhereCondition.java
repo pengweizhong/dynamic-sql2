@@ -734,7 +734,7 @@ public class OracleWhereCondition implements WhereCondition {
     }
 
     @Override
-    public List<Object> getWhereConditionParams() {
-        return params;
+    public Object[] getWhereConditionParams() {
+        return params.toArray();
     }
 }

@@ -6,5 +6,5 @@ public interface WhereCondition extends NestedCondition, FunctionCondition {
 
     String getWhereConditionSyntax();
 
-    List<Object> getWhereConditionParams();
+    Object[] getWhereConditionParams();
 }
