@@ -1,6 +1,7 @@
-package com.pengwz.dynamic.sql2.core.condition.impl;
+package com.pengwz.dynamic.sql2.core.condition.impl.dialect;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.FunctionCondition;
@@ -10,7 +11,16 @@ import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 
 import java.util.function.Consumer;
 
-public class WhereConditionImpl implements WhereCondition {
+public class MysqlWhereCondition implements WhereCondition {
+    private final Version version;
+    private final String dataSourceName;
+    private final StringBuilder condition = new StringBuilder();
+
+    public MysqlWhereCondition(Version version, String dataSourceName) {
+        this.version = version;
+        this.dataSourceName = dataSourceName;
+    }
+
     @Override
     public <T, F> FunctionCondition andEqualTo(Fn<T, F> fn, ColumFunction columFunction) {
         return null;
@@ -368,6 +378,7 @@ public class WhereConditionImpl implements WhereCondition {
 
     @Override
     public <T1, T2, F> Condition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
+
         return null;
     }
 
@@ -714,5 +725,10 @@ public class WhereConditionImpl implements WhereCondition {
     @Override
     public Condition customCondition(String customClause, Object... params) {
         return null;
+    }
+
+    @Override
+    public String getWhereConditionSyntax() {
+        return condition.toString();
     }
 }

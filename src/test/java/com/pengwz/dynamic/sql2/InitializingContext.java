@@ -4,7 +4,6 @@ import com.pengwz.dynamic.sql2.context.SqlContextProxy;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
-import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import org.junit.jupiter.api.BeforeAll;
 
 public class InitializingContext {
@@ -17,6 +16,7 @@ public class InitializingContext {
         sqlContextProperties.setScanDatabasePackage("com.pengwz.dynamic.sql2");
         SchemaProperties schemaProperties = new SchemaProperties();
         schemaProperties.setDataSourceName("dataSource");
+        schemaProperties.setUseSchemaInQuery(true);
 //        schemaProperties.setSqlDialect(SqlDialect.ORACLE);
 //        schemaProperties.setDatabaseProductVersion("11.0.0.1");
         schemaProperties.setUseAsInQuery(true);

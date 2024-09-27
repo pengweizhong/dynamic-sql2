@@ -1,17 +1,13 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
-import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonExtract;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonUnquote;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Upper;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CommonTableExpression;
-import com.pengwz.dynamic.sql2.entites.ObjectCTE;
-import com.pengwz.dynamic.sql2.entites.Student;
-import com.pengwz.dynamic.sql2.entites.TClass;
-import com.pengwz.dynamic.sql2.entites.Teacher;
+import com.pengwz.dynamic.sql2.entites.*;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 import org.junit.jupiter.api.Test;
 
@@ -29,11 +25,12 @@ class SelectTest extends InitializingContext {
                 .column(Teacher::getTeacherId, "id")
                 .column(Teacher::getFirstName)
                 .column(new Upper(new Md5(Teacher::getFirstName)))
-                .column(nestedSelect -> {
-                    nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1);
-                }, "nested1")
+//                .column(nestedSelect -> {
+//                    nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1);
+//                }, "nested1")
 //                .column(new NumberColumn(1))
                 .from(Teacher.class)
+                .join(Subject.class, on -> on.andEqualTo(Teacher::getTeacherId, Subject::getTeacherId))
                 .where(whereCondition -> {
                     whereCondition.andEqualTo(Teacher::getTeacherId, 123);
                     whereCondition.andExists(nestedSelect -> nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1));

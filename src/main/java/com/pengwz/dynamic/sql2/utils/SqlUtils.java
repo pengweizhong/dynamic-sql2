@@ -82,4 +82,14 @@ public class SqlUtils {
                 return "FROM";
         }
     }
+
+    public static String getSyntaxInnerJoin(SqlDialect sqlDialect) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return "inner join";
+            default:
+                return "INNER JOIN";
+        }
+    }
 }

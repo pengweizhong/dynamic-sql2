@@ -15,5 +15,5 @@ public class Subject {
     public int subjectId;
     public String subjectName;
     public String description;
-    public int credits;
+    public int teacherId;
 }

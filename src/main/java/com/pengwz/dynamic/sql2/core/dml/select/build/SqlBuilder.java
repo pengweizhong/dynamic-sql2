@@ -6,11 +6,16 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
+import com.pengwz.dynamic.sql2.core.condition.Condition;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.InnerJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
@@ -99,11 +104,22 @@ public class SqlBuilder {
                 FromJoin fromJoin = (FromJoin) joinTable;
                 Class<?> tableClass = fromJoin.getTableClass();
                 TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
-                String tableName = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableName());
                 String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableAlias());
-                sqlBuilder.append(tableName).append(syntaxAs()).append(tableAlias);
+                sqlBuilder.append(getSchemaName(tableMeta)).append(syntaxAs()).append(tableAlias);
             }
-
+            // INNER, LEFT, RIGHT, FULL, CROSS, SELF;
+            if (joinTable instanceof InnerJoin) {
+                InnerJoin innerJoin = (InnerJoin) joinTable;
+                Class<?> tableClass = innerJoin.getTableClass();
+                TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
+                String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableAlias());
+                sqlBuilder.append(SqlUtils.getSyntaxInnerJoin(sqlDialect)).append(getSchemaName(tableMeta)).append(syntaxAs()).append(tableAlias);
+                //拼接On条件
+                Consumer<Condition> onCondition = innerJoin.getOnCondition();
+                WhereCondition whereCondition = matchDialectCondition();
+                onCondition.accept(whereCondition);
+                sqlBuilder.append(" on ").append(whereCondition.getWhereConditionSyntax());
+            }
         }
     }
 
@@ -126,9 +142,31 @@ public class SqlBuilder {
         return schemaProperties.getSqlDialect();
     }
 
+    private String getSchemaName(TableMeta tableMeta) {
+        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
+        if (schemaProperties.isUseSchemaInQuery()) {
+            DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
+            return SqlUtils.quoteIdentifier(sqlDialect, dataSourceMeta.getSchema()) + "." +
+                    SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableName());
+        }
+        return SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableName());
+    }
+
     private String syntaxAs() {
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
         return schemaProperties.isUseAsInQuery() ? " " + SqlUtils.getSyntaxAs(sqlDialect) + " " : " ";
+    }
+
+    private WhereCondition matchDialectCondition() {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return new MysqlWhereCondition(version, dataSourceName);
+            case ORACLE:
+                return new OracleWhereCondition(version, dataSourceName);
+            default:
+                throw new UnsupportedOperationException(sqlDialect.name() + " dialect does not yet support parsing conditions");
+        }
     }
 
 

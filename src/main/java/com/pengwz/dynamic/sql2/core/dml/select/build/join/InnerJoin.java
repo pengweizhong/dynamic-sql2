@@ -25,4 +25,16 @@ public class InnerJoin implements JoinTable {
     public JoinTableType getJoinTableType() {
         return JoinTableType.INNER;
     }
+
+    public Class<?> getTableClass() {
+        return tableClass;
+    }
+
+    public CteTable getCteTable() {
+        return cteTable;
+    }
+
+    public Consumer<Condition> getOnCondition() {
+        return onCondition;
+    }
 }

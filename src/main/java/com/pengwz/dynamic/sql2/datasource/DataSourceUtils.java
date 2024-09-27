@@ -81,7 +81,7 @@ public class DataSourceUtils {
                 //设置其他参数
                 schemaProperties.setDataSourceName(dataSourceMapping.getDataSourceName());
                 initDataSource(dataSourceMapping.getDataSourceName(),
-                        dbType, sqlDialect, schema,
+                        dbType, schema,
                         dataSourceMapping.getDataSource(),
                         dataSourceMapping.isGlobalDefault(),
                         version,
@@ -106,7 +106,6 @@ public class DataSourceUtils {
      */
     public static synchronized void initDataSource(String dataSourceName,//NOSONAR
                                                    DbType dbType,
-                                                   SqlDialect sqlDialect,
                                                    String schema,
                                                    DataSource dataSource,
                                                    boolean isGlobalDefault,
