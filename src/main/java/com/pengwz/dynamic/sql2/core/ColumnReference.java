@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.core;
 
+import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
@@ -63,7 +64,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public AbstractColumnReference allColumn(Class<?> tableClass) {
-        selectBuilder.getColumFunctions().add(new FunctionColumn(new Column("*"), null, null));
+        selectBuilder.getColumFunctions().add(new FunctionColumn(new AllColumn(tableClass), null, null));
         return this;
     }
 

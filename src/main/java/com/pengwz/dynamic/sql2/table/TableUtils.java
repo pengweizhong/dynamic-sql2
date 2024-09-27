@@ -43,8 +43,7 @@ public class TableUtils {
                 log.trace("Table name '{}' does not need to be cached", te.getTableName());
             }
             return te.isCache();
-        }).map(TableUtils::parseTableClass).forEach(metaMap -> metaMap.forEach((cls, meta) ->
-                TableProvider.getInstance().saveTableMeta(cls, meta)));
+        }).map(TableUtils::parseTableClass).forEach(metaMap -> metaMap.forEach(TableProvider::saveTableMeta));
     }
 
     public static void scanAndInitCTETableInfo(String... packagePath) {
@@ -58,7 +57,7 @@ public class TableUtils {
                     if (!cte.isCache()) {
                         return;
                     }
-                    TableProvider.getInstance().saveCTEMeta(cte.getCteClass(), parseCTEClass(cte));
+                    TableProvider.saveCTEMeta(cte.getCteClass(), parseCTEClass(cte));
                 });
             }
         }
@@ -70,9 +69,7 @@ public class TableUtils {
         }
         for (String path : packagePath) {
             Map<Class<?>, ViewMeta> viewEntities = SchemaStructureScanner.findViewEntities(path);
-            viewEntities.forEach((cls, viewMeta) -> {
-                TableProvider.getInstance().saveViewMeta(cls, viewMeta);
-            });
+            viewEntities.forEach(TableProvider::saveViewMeta);
         }
     }
 

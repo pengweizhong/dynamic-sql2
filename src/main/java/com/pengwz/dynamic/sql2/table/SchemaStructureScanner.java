@@ -100,15 +100,14 @@ public class SchemaStructureScanner {
      * @return 匹配到绑定的数据源
      */
     public static String matchBestDataSourceName(Class<?> annotatedClass, String inLineDataSourceName) {
-        DataSourceProvider dataSourceProvider = DataSourceProvider.getInstance();
         if (StringUtils.isNotBlank(inLineDataSourceName)) {
-            if (!dataSourceProvider.existDataSource(inLineDataSourceName)) {
+            if (!DataSourceProvider.existDataSource(inLineDataSourceName)) {
                 throw new IllegalArgumentException("DataSource '" + inLineDataSourceName + "' does not exist. " +
                         "Please check that the data source has been initialized correctly");
             }
             return inLineDataSourceName;
         }
-        Map<String, String[]> bindPath = dataSourceProvider.getDataSourceBoundPath();
+        Map<String, String[]> bindPath = DataSourceProvider.getDataSourceBoundPath();
         if (bindPath.isEmpty()) {
             throw new NoSuchElementException("No data source has been initialized");
         }
@@ -130,7 +129,7 @@ public class SchemaStructureScanner {
             return bestMatchMap.get(bestMatch);
         }
         //最后匹配全局默认数据源
-        String defaultDataSourceName = dataSourceProvider.getDefaultDataSourceName();
+        String defaultDataSourceName = DataSourceProvider.getDefaultDataSourceName();
         if (StringUtils.isNotBlank(defaultDataSourceName)) {
             return defaultDataSourceName;
         }

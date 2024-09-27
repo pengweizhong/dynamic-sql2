@@ -17,18 +17,15 @@ public class DataSourceProvider {//NOSONAR
     private DataSourceProvider() {
     }
 
-    public static DataSourceProvider getInstance() {
-        return INSTANCE;
-    }
 
-    public DataSourceMeta getDataSourceMeta(String dataSourceName) {
+    public static DataSourceMeta getDataSourceMeta(String dataSourceName) {
         if (DATA_SOURCE_META_MAP.isEmpty()) {
             return null;
         }
         return DATA_SOURCE_META_MAP.get(dataSourceName);
     }
 
-    public String getDataSourceName(DataSourceMeta dataSourceMeta) {
+    public static String getDataSourceName(DataSourceMeta dataSourceMeta) {
         if (DATA_SOURCE_META_MAP.isEmpty()) {
             return null;
         }
@@ -40,7 +37,7 @@ public class DataSourceProvider {//NOSONAR
         return null;
     }
 
-    protected synchronized void saveDataSourceMeta(String dataSourceName, DataSourceMeta dataSourceMeta) {
+    protected static synchronized void saveDataSourceMeta(String dataSourceName, DataSourceMeta dataSourceMeta) {
         if (dataSourceMeta == null) {
             throw new NullPointerException("dataSourceMeta is null");
         }
@@ -59,7 +56,7 @@ public class DataSourceProvider {//NOSONAR
     }
 
 
-    public DataSourceMeta getDefaultDataSourceMeta() {
+    public static DataSourceMeta getDefaultDataSourceMeta() {
         if (DATA_SOURCE_META_MAP.isEmpty()) {
             return null;
         }
@@ -71,17 +68,17 @@ public class DataSourceProvider {//NOSONAR
         return null;
     }
 
-    public DataSourceMeta getDataSourceMeta(Class<?> tableClass) {
-        TableMeta tableMeta = TableProvider.getInstance().getTableMeta(tableClass);
+    public static DataSourceMeta getDataSourceMeta(Class<?> tableClass) {
+        TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
         String bindDataSourceName = tableMeta.getBindDataSourceName();
         return DATA_SOURCE_META_MAP.get(bindDataSourceName);
     }
 
-    public boolean existDataSource(String dataSourceName) {
+    public static boolean existDataSource(String dataSourceName) {
         return DATA_SOURCE_META_MAP.containsKey(dataSourceName);
     }
 
-    public Map<String, String[]> getDataSourceBoundPath() {
+    public static Map<String, String[]> getDataSourceBoundPath() {
         HashMap<String, String[]> hashMap = new HashMap<>();
         DATA_SOURCE_META_MAP.forEach((key, value) -> {
             hashMap.put(key, value.getBindBasePackages());
@@ -89,7 +86,7 @@ public class DataSourceProvider {//NOSONAR
         return hashMap;
     }
 
-    public String getDefaultDataSourceName() {
+    public static String getDefaultDataSourceName() {
         DataSourceMeta defaultDataSourceMeta = getDefaultDataSourceMeta();
         if (defaultDataSourceMeta == null) {
             return null;

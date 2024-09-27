@@ -36,6 +36,15 @@ public class TableMeta {
         this.columnMetas = columnMetas;
     }
 
+    public ColumnMeta getColumnMeta(String fieldName) {
+        for (ColumnMeta columnMeta : columnMetas) {
+            if (columnMeta.getField().getName().equals(fieldName)) {
+                return columnMeta;
+            }
+        }
+        return null;
+    }
+
     public String getTableAlias() {
         return tableAlias;
     }

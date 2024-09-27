@@ -133,7 +133,7 @@ public class DataSourceUtils {
         meta.setDataSource(dataSource);
         meta.setDbType(dbType);
         meta.setVersion(version);
-        DataSourceProvider.getInstance().saveDataSourceMeta(dataSourceName, meta);
+        DataSourceProvider.saveDataSourceMeta(dataSourceName, meta);
         log.info("Initialized DataSource: {}", dataSourceName);
     }
 

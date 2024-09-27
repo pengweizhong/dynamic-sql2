@@ -118,13 +118,13 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     @SuppressWarnings("unchecked")
     public FetchResult<R> fetch() {
-        selectBuilder.build();
+        selectBuilder.build(selectBuilder);
         return null;
     }
 
     @Override
     public <T> FetchResult<T> fetch(Class<T> returnClass) {
-        selectBuilder.build();
+        selectBuilder.build(selectBuilder);
         return null;
     }
 

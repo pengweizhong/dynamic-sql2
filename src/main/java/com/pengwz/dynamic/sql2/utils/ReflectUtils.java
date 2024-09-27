@@ -104,7 +104,7 @@ public class ReflectUtils {
      * @return 原始类的全限定名称
      */
     @SuppressWarnings("all")
-    public static String getOriginalClassName(Fn fn) {
+    public static String getOriginalClassCanonicalName(Fn fn) {
         // 获取 SerializedLambda
         SerializedLambda serializedLambda = serializedLambda(fn);
         // 获取实现类的内部名称
