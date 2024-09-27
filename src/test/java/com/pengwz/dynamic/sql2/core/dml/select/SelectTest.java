@@ -1,7 +1,6 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
-import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonExtract;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonUnquote;
@@ -35,9 +34,10 @@ class SelectTest extends InitializingContext {
                 .from(Teacher.class)
                 .where(whereCondition -> {
                     whereCondition.andEqualTo(Teacher::getTeacherId, 123);
+                    whereCondition.andExists(nestedSelect -> nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1));
                 }).groupBy(Teacher::getTeacherId)
                 //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;
-                .having(havingCondition -> havingCondition.andEqualTo(new Max(Student::getStudentId),5))
+                .having(havingCondition -> havingCondition.andEqualTo(new Max(Student::getStudentId), 5))
                 .limit(1)
                 .fetch(Teacher.class).toList();
         System.out.println(list);
@@ -136,18 +136,18 @@ class SelectTest extends InitializingContext {
         System.out.println(list);
     }
 
-    @Test
-    void select8() {
-        Student one = sqlContext.select()
-//                .column(CaseWhen.builder(Student::getStudentId).build())
-                .column(Student::getBirthDate)
-                .allColumn()
-                .from(Student.class)
-                .where()
-                .exists(nestedSelect -> nestedSelect.select().column(new NumberColumn(1)).from(Student.class))
-                .fetch().toOne();
-        System.out.println(one);
-    }
+//    @Test
+//    void select8() {
+//        Student one = sqlContext.select()
+////                .column(CaseWhen.builder(Student::getStudentId).build())
+//                .column(Student::getBirthDate)
+//                .allColumn()
+//                .from(Student.class)
+//                .where()
+//                .exists(nestedSelect -> nestedSelect.select().column(new NumberColumn(1)).from(Student.class))
+//                .fetch().toOne();
+//        System.out.println(one);
+//    }
 
 //    @Test
 //    void select9() {

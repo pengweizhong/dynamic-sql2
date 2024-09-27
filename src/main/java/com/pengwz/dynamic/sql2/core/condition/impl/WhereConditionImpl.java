@@ -342,6 +342,16 @@ public class WhereConditionImpl implements WhereCondition {
     }
 
     @Override
+    public NestedCondition andExists(Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public NestedCondition andNotExists(Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
     public <T, F> Condition andEqualTo(Fn<T, F> fn, Object value) {
         return null;
     }

@@ -63,4 +63,8 @@ public interface NestedCondition extends Condition {
 
     <T, F> NestedCondition orAllIn(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect);
 
+    NestedCondition andExists(Consumer<NestedSelect> nestedSelect);
+
+    NestedCondition andNotExists(Consumer<NestedSelect> nestedSelect);
+
 }

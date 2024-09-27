@@ -58,9 +58,8 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String alias) {
-        NestedSelect nested = new NestedSelect();
+        NestedSelect nested = new NestedSelect(alias);
         nestedSelect.accept(nested);
-        nested.setAlias(alias);
         selectBuilder.setNestedSelect(nested);
         return this;
     }

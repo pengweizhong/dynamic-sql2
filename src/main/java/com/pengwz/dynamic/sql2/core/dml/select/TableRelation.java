@@ -115,10 +115,6 @@ public class TableRelation<R> implements JoinCondition {
         return this;
     }
 
-    public TableRelation<R> exists(Consumer<NestedSelect> nestedSelect) {
-        return this;
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public FetchResult<R> fetch() {
