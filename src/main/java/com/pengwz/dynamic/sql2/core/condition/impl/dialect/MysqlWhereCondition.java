@@ -8,6 +8,7 @@ import com.pengwz.dynamic.sql2.core.condition.FunctionCondition;
 import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
+import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
@@ -15,16 +16,24 @@ import com.pengwz.dynamic.sql2.table.TableProvider;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+
+import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.AND;
+import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.OR;
 
 public class MysqlWhereCondition implements WhereCondition {
     private final Version version;
     private final String dataSourceName;
     private final StringBuilder condition = new StringBuilder();
+    private final List<Object> params = new ArrayList<>();
+    private boolean isFirstBuild;
 
     public MysqlWhereCondition(Version version, String dataSourceName) {
         this.version = version;
         this.dataSourceName = dataSourceName;
+        this.isFirstBuild = true;
     }
 
     @Override
@@ -384,17 +393,11 @@ public class MysqlWhereCondition implements WhereCondition {
 
     @Override
     public <T1, T2, F> Condition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
-        TableMeta tableMeta1 = TableProvider.getTableMeta(ReflectUtils.getOriginalClassCanonicalName(field1));
-        TableMeta tableMeta2 = TableProvider.getTableMeta(ReflectUtils.getOriginalClassCanonicalName(field2));
-        String table1 = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, tableMeta1.getTableName());
-        String table2 = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, tableMeta2.getTableName());
-        ColumnMeta columnMeta1 = tableMeta1.getColumnMeta(ReflectUtils.fnToFieldName(field1));
-        String column1 = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, columnMeta1.getColumnName());
-        ColumnMeta columnMeta2 = tableMeta1.getColumnMeta(ReflectUtils.fnToFieldName(field2));
-        String column2 = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, columnMeta2.getColumnName());
-        condition.append(table1).append(".").append(column1).append(" = ").append(table2).append(".").append(column2);
+        condition.append(logicalOperatorType(AND));
+        condition.append(qualifiedTableName(field1)).append(" = ").append(qualifiedTableName(field2));
         return this;
     }
+
 
     @Override
     public <T, F> Condition orEqualTo(Fn<T, F> fn, Object value) {
@@ -498,7 +501,10 @@ public class MysqlWhereCondition implements WhereCondition {
 
     @Override
     public <T, F> Condition andGreaterThan(Fn<T, F> fn, Object value) {
-        return null;
+        String name = qualifiedTableName(fn);
+        condition.append(logicalOperatorType(AND)).append(name).append(" > ?");
+        params.add(value);
+        return this;
     }
 
     @Override
@@ -508,7 +514,10 @@ public class MysqlWhereCondition implements WhereCondition {
 
     @Override
     public <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value) {
-        return null;
+        String name = qualifiedTableName(fn);
+        condition.append(logicalOperatorType(OR)).append(name).append(" < ?");
+        params.add(value);
+        return this;
     }
 
     @Override
@@ -745,4 +754,29 @@ public class MysqlWhereCondition implements WhereCondition {
     public String getWhereConditionSyntax() {
         return condition.toString();
     }
+
+    @Override
+    public List<Object> getWhereConditionParams() {
+        return params;
+    }
+
+    private <T, F> String qualifiedTableName(Fn<T, F> field) {
+        TableMeta tableMeta = TableProvider.getTableMeta(ReflectUtils.getOriginalClassCanonicalName(field));
+        String table = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, tableMeta.getTableName());
+        ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(field));
+        String column = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, columnMeta.getColumnName());
+        return table + "." + column;
+    }
+
+    /**
+     * 首次连接时才会去拼接 and  或者 or
+     */
+    private String logicalOperatorType(LogicalOperatorType logicalOperatorType) {
+        if (isFirstBuild) {
+            isFirstBuild = false;
+            return "";
+        }
+        return logicalOperatorType.name().toLowerCase();
+    }
+
 }

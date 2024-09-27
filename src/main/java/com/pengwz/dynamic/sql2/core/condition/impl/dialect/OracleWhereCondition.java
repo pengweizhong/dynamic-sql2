@@ -9,11 +9,14 @@ import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class OracleWhereCondition implements WhereCondition {
     private final Version version;
     private final String dataSourceName;
+    private final List<Object> params = new ArrayList<>();
 
     public OracleWhereCondition(Version version, String dataSourceName) {
         this.version = version;
@@ -728,5 +731,10 @@ public class OracleWhereCondition implements WhereCondition {
     @Override
     public String getWhereConditionSyntax() {
         return "";
+    }
+
+    @Override
+    public List<Object> getWhereConditionParams() {
+        return params;
     }
 }

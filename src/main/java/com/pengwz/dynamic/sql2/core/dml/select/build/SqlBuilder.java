@@ -26,6 +26,7 @@ import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -35,7 +36,7 @@ public class SqlBuilder {
     private final Version version;
     private final SqlDialect sqlDialect;
     private final String dataSourceName;
-
+    private final List<Object> params = new ArrayList<>();
 
     public SqlBuilder(SelectSpecification selectSpecification) {
         FromJoin fromJoin = (FromJoin) selectSpecification.getJoinTables().get(0);
@@ -81,16 +82,24 @@ public class SqlBuilder {
                 String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? fieldName : columnQuery.getAlias();
                 System.out.println("测试函数列输出结果 ---> " + functionToString);
                 sqlBuilder.append(functionToString).append(syntaxAs()).append(columnAlias).append(columnSeparator);
+                if (columFunction.getParams() != null) {
+                    for (Object param : columFunction.getParams()) {
+                        params.add(param);
+                    }
+                }
+
             }
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
                 Consumer<NestedSelect> nestedSelectConsumer = nestedColumn.getNestedSelect();
                 NestedSelect nestedSelect = new NestedSelect();
                 nestedSelectConsumer.accept(nestedSelect);
-                StringBuilder nestedStringBuilder = new SqlBuilder(nestedSelect.getSelectSpecification()).build();
+                SqlBuilder nestedSqlBuilder = new SqlBuilder(nestedSelect.getSelectSpecification());
+                StringBuilder nestedStringBuilder = nestedSqlBuilder.build();
                 System.out.println("测试内嵌列输出结果 ---> " + nestedStringBuilder);
                 String columnAliasString = syntaxAs() + columnQuery.getAlias();
                 sqlBuilder.append("(").append(nestedStringBuilder).append(")").append(columnAliasString).append(columnSeparator);
+                params.add(nestedSqlBuilder.getParams());
             }
         }
     }
@@ -169,5 +178,7 @@ public class SqlBuilder {
         }
     }
 
-
+    protected List<Object> getParams() {
+        return params;
+    }
 }

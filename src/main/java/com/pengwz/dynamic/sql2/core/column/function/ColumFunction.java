@@ -9,4 +9,9 @@ public interface ColumFunction {
     String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException;
 
     Fn<?, ?> getoriginColumnFn();
+
+    default Object[] getParams() {
+        return null;
+    }
+
 }
