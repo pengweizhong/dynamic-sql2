@@ -24,6 +24,14 @@ public final class Column implements ColumFunction {
         String classCanonicalName = ReflectUtils.getOriginalClassCanonicalName(columnFn);
         TableMeta tableMeta = TableProvider.getTableMeta(classCanonicalName);
         ColumnMeta columnMeta = tableMeta.getColumnMeta(filedName);
-        return SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
+        String tableAlias = tableMeta.getTableAlias();
+        return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." +
+                SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
     }
+
+    @Override
+    public Fn<?, ?> getoriginColumnFn() {
+        return columnFn;
+    }
+
 }

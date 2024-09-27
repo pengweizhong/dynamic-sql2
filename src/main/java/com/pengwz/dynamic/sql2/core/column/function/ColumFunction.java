@@ -8,4 +8,5 @@ public interface ColumFunction {
 
     String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException;
 
+    Fn<?, ?> getoriginColumnFn();
 }

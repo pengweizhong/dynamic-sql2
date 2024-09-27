@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.conventional;
 
+import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -18,6 +19,11 @@ public final class AllColumn implements ColumFunction {
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Fn<?, ?> getoriginColumnFn() {
         throw new UnsupportedOperationException();
     }
 }

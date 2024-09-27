@@ -39,4 +39,5 @@ public class JsonExtract extends ColumnFunctionDecorator {
         throwNotSupportedSqlDialectException("json_extract", sqlDialect);
         return null;
     }
+
 }

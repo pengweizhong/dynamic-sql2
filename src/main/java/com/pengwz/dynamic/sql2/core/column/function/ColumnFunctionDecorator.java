@@ -33,7 +33,10 @@ public abstract class ColumnFunctionDecorator
     public ColumnFunctionDecorator(WindowsFunction windowsFunction, Over over) {
         this.delegateFunction = windowsFunction;
     }
-
+    @Override
+    public Fn<?, ?> getoriginColumnFn() {
+        return delegateFunction.getoriginColumnFn();
+    }
     @Override
     public <T, F> ColumnFunctionDecorator add(Fn<T, F> column) {
         return null;

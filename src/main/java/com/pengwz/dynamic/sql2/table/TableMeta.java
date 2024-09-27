@@ -1,5 +1,7 @@
 package com.pengwz.dynamic.sql2.table;
 
+import com.pengwz.dynamic.sql2.utils.StringUtils;
+
 import java.util.List;
 
 public class TableMeta {
@@ -46,7 +48,7 @@ public class TableMeta {
     }
 
     public String getTableAlias() {
-        return tableAlias;
+        return StringUtils.isEmpty(tableAlias) ? tableName : tableAlias;
     }
 
     public void setTableAlias(String tableAlias) {

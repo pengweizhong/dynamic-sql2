@@ -72,4 +72,14 @@ public class SqlUtils {
                 return "AS";
         }
     }
+
+    public static String getSyntaxFrom(SqlDialect sqlDialect) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return "from";
+            default:
+                return "FROM";
+        }
+    }
 }

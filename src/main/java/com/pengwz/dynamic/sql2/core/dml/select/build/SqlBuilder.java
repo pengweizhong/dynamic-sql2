@@ -3,12 +3,14 @@ package com.pengwz.dynamic.sql2.core.dml.select.build;
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -23,7 +25,6 @@ import java.util.function.Consumer;
 public class SqlBuilder {
     private final StringBuilder sqlBuilder = new StringBuilder();
     private final SelectSpecification selectSpecification;
-    private final Class<?> fromTableClass;
     private final Version version;
     private final SqlDialect sqlDialect;
     private final String dataSourceName;
@@ -31,7 +32,6 @@ public class SqlBuilder {
 
     public SqlBuilder(SelectSpecification selectSpecification) {
         FromJoin fromJoin = (FromJoin) selectSpecification.getJoinTables().get(0);
-        this.fromTableClass = fromJoin.getTableClass();
         this.selectSpecification = selectSpecification;
         this.version = getVersion(fromJoin.getTableClass());
         this.sqlDialect = getSqlDialect(fromJoin.getTableClass());
@@ -39,10 +39,15 @@ public class SqlBuilder {
     }
 
     public StringBuilder build() {
+        //解析查询的列
         parseColumnFunction();
+        sqlBuilder.append(" ");
+        //解析查询的表
+        parseFormTable();
         System.out.println("SQL解析后的结果：" + sqlBuilder.toString());
         return sqlBuilder;
     }
+
 
     private void parseColumnFunction() {
         List<ColumnQuery> columFunctions1 = selectSpecification.getColumFunctions();
@@ -50,21 +55,28 @@ public class SqlBuilder {
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
         for (int i = 0; i < columFunctions1.size(); i++) {
             ColumnQuery columnQuery = columFunctions1.get(i);
-            String columnAliasString = "";
+
             String columnSeparator = "";
+
+            //最后一个列后面不追加逗号
+            if (columFunctions1.size() - 1 != i) {
+                columnSeparator = ", ";
+            }
+            String columnAliasString = "";
             //别名为空就拼接空字符串，相当于什么也不做
             if (StringUtils.isNotEmpty(columnQuery.getAlias())) {
                 String as = schemaProperties.isUseAsInQuery() ? " " + SqlUtils.getSyntaxAs(sqlDialect) + " " : " ";
                 columnAliasString = columnAliasString + as + columnQuery.getAlias();
             }
-            //最后一个列后面不追加逗号
-            if (columFunctions1.size() - 1 != i) {
-                columnSeparator = ", ";
-            }
             if (columnQuery instanceof FunctionColumn) {
                 FunctionColumn functionColumn = (FunctionColumn) columnQuery;
                 ColumFunction columFunction = functionColumn.getColumFunction();
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
+                //数字列不需要关心别名问题
+                if (columFunction instanceof NumberColumn) {
+                    sqlBuilder.append(functionToString).append(columnSeparator);
+                    continue;
+                }
                 System.out.println("测试函数列输出结果 ---> " + functionToString);
                 sqlBuilder.append(functionToString).append(columnAliasString).append(columnSeparator);
             }
@@ -78,7 +90,12 @@ public class SqlBuilder {
                 sqlBuilder.append("(").append(nestedStringBuilder).append(")").append(columnAliasString).append(columnSeparator);
             }
         }
+    }
 
+    private void parseFormTable() {
+        List<JoinTable> joinTables = selectSpecification.getJoinTables();
+        //第一个一定是首次查询的表
+        sqlBuilder.append(SqlUtils.getSyntaxFrom(sqlDialect)).append(" ");
 
     }
 
