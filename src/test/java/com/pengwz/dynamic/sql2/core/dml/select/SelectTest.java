@@ -39,7 +39,8 @@ class SelectTest extends InitializingContext {
                 //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;
                 .having(havingCondition -> havingCondition.andEqualTo(new Max(Student::getStudentId), 5))
                 .limit(1)
-                .fetch(Teacher.class).toList();
+                .fetch(Teacher.class)
+                .toList();
         System.out.println(list);
     }
 

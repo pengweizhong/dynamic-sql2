@@ -108,7 +108,7 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     public Fetchable limit(int limit) {
         selectBuilder.setLimitInfo(new LimitInfo(null, limit));
-        return null;
+        return this;
     }
 
     public TableRelation<R> where() {
@@ -124,6 +124,7 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public <T> FetchResult<T> fetch(Class<T> returnClass) {
+        selectBuilder.build();
         return null;
     }
 

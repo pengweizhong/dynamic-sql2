@@ -65,6 +65,10 @@ public interface NestedCondition extends Condition {
 
     NestedCondition andExists(Consumer<NestedSelect> nestedSelect);
 
+    NestedCondition orExists(Consumer<NestedSelect> nestedSelect);
+
     NestedCondition andNotExists(Consumer<NestedSelect> nestedSelect);
+
+    NestedCondition orNotExists(Consumer<NestedSelect> nestedSelect);
 
 }

@@ -19,4 +19,12 @@ public class FromJoin implements JoinTable {
     public JoinTableType getJoinTableType() {
         throw new UnsupportedOperationException();
     }
+
+    public Class<?> getTableClass() {
+        return tableClass;
+    }
+
+    public CteTable getCteTable() {
+        return cteTable;
+    }
 }
