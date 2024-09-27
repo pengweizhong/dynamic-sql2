@@ -4,7 +4,7 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
-import com.pengwz.dynamic.sql2.core.dml.select.build.SelectBuilder;
+import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 
 import java.util.function.Consumer;
@@ -14,10 +14,10 @@ import java.util.function.Consumer;
  * 包括选择特定列、应用函数、使用别名等。
  */
 public abstract class AbstractColumnReference {
-    protected final SelectBuilder selectBuilder;
+    protected final SelectSpecification selectSpecification;
 
-    protected AbstractColumnReference(SelectBuilder selectBuilder) {
-        this.selectBuilder = selectBuilder;
+    protected AbstractColumnReference(SelectSpecification selectSpecification) {
+        this.selectSpecification = selectSpecification;
     }
 
     public abstract <T, F> AbstractColumnReference column(Fn<T, F> fn);

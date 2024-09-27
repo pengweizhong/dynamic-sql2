@@ -11,7 +11,9 @@ public class SchemaProperties {
     // 该方案主要是为了解决因版本降低或迁移数据库的场景，尽可能降低迁移成本
     private boolean enableCompatibilityMode;
     // 否在查询中使用数据库模式（Schema）
-    private boolean useSchemaInQuery;
+    private boolean useSchemaInQuery = false;
+    // 否在查询中使用as关键字连接别名
+    private boolean useAsInQuery = true;
     // 强制指定兼容的数据库版本
     private String databaseProductVersion;
     //主版本号
@@ -70,6 +72,14 @@ public class SchemaProperties {
             this.patchVersionNumber = Integer.parseInt(split[2]);
         }
 
+    }
+
+    public boolean isUseAsInQuery() {
+        return useAsInQuery;
+    }
+
+    public void setUseAsInQuery(boolean useAsInQuery) {
+        this.useAsInQuery = useAsInQuery;
     }
 
     public int getMajorVersionNumber() {

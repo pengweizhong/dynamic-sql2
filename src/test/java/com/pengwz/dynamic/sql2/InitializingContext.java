@@ -18,6 +18,7 @@ public class InitializingContext {
         SchemaProperties schemaProperties = new SchemaProperties();
         schemaProperties.setDataSourceName("dataSource");
         schemaProperties.setSqlDialect(SqlDialect.MYSQL);
+        schemaProperties.setUseAsInQuery(true);
         sqlContextProperties.addSchemaProperties(schemaProperties);
         sqlContext = SqlContextProxy.newInstance(sqlContextProperties);
     }

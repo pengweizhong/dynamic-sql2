@@ -52,4 +52,24 @@ public class SqlUtils {
         }
         return quotes + identifier + quotes;
     }
+
+    public static String getSyntaxSelect(SqlDialect sqlDialect) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return "select";
+            default:
+                return "SELECT";
+        }
+    }
+
+    public static String getSyntaxAs(SqlDialect sqlDialect) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return "as";
+            default:
+                return "AS";
+        }
+    }
 }

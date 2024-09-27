@@ -4,7 +4,8 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.LimitInfo;
-import com.pengwz.dynamic.sql2.core.dml.select.build.SelectBuilder;
+import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
+import com.pengwz.dynamic.sql2.core.dml.select.build.SqlBuilder;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
@@ -15,99 +16,99 @@ import java.util.function.Consumer;
  * 表关联关系
  */
 public class TableRelation<R> implements JoinCondition {
-    private final SelectBuilder selectBuilder;
+    private final SelectSpecification selectSpecification;
 
-    public TableRelation(SelectBuilder selectBuilder) {
-        this.selectBuilder = selectBuilder;
+    public TableRelation(SelectSpecification selectSpecification) {
+        this.selectSpecification = selectSpecification;
     }
 
     @Override
     public JoinCondition innerJoin(Class<?> clazz, Consumer<Condition> onCondition) {
-        selectBuilder.getJoinTables().add(new InnerJoin(clazz, onCondition));
+        selectSpecification.getJoinTables().add(new InnerJoin(clazz, onCondition));
         return this;
     }
 
     @Override
     public JoinCondition innerJoin(CteTable cte, Consumer<Condition> onCondition) {
-        selectBuilder.getJoinTables().add(new InnerJoin(cte, onCondition));
+        selectSpecification.getJoinTables().add(new InnerJoin(cte, onCondition));
         return this;
     }
 
     @Override
     public JoinCondition leftJoin(Class<?> clazz, Consumer<Condition> onCondition) {
-        selectBuilder.getJoinTables().add(new LeftJoin(clazz, onCondition));
+        selectSpecification.getJoinTables().add(new LeftJoin(clazz, onCondition));
         return this;
     }
 
     @Override
     public JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition) {
-        selectBuilder.getJoinTables().add(new LeftJoin(cte, onCondition));
+        selectSpecification.getJoinTables().add(new LeftJoin(cte, onCondition));
         return this;
     }
 
     @Override
     public JoinCondition rightJoin(Class<?> clazz, Consumer<Condition> onCondition) {
-        selectBuilder.getJoinTables().add(new RightJoin(clazz, onCondition));
+        selectSpecification.getJoinTables().add(new RightJoin(clazz, onCondition));
         return this;
     }
 
     @Override
     public JoinCondition rightJoin(CteTable cte, Consumer<Condition> onCondition) {
-        selectBuilder.getJoinTables().add(new RightJoin(cte, onCondition));
+        selectSpecification.getJoinTables().add(new RightJoin(cte, onCondition));
         return this;
     }
 
     @Override
     public JoinCondition fullJoin(Class<?> clazz, Consumer<Condition> onCondition) {
-        selectBuilder.getJoinTables().add(new FullJoin(clazz, onCondition));
+        selectSpecification.getJoinTables().add(new FullJoin(clazz, onCondition));
         return this;
     }
 
     @Override
     public JoinCondition fullJoin(CteTable cte, Consumer<Condition> onCondition) {
-        selectBuilder.getJoinTables().add(new FullJoin(cte, onCondition));
+        selectSpecification.getJoinTables().add(new FullJoin(cte, onCondition));
         return this;
     }
 
     @Override
     public JoinCondition crossJoin(Class<?> clazz) {
-        selectBuilder.getJoinTables().add(new CrossJoin(clazz));
+        selectSpecification.getJoinTables().add(new CrossJoin(clazz));
         return this;
     }
 
     @Override
     public JoinCondition crossJoin(CteTable cte) {
-        selectBuilder.getJoinTables().add(new CrossJoin(cte));
+        selectSpecification.getJoinTables().add(new CrossJoin(cte));
         return this;
     }
 
     @Override
     public JoinCondition selfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
-        selectBuilder.getJoinTables().add(new SelfJoin(clazz, alias, onCondition));
+        selectSpecification.getJoinTables().add(new SelfJoin(clazz, alias, onCondition));
         return this;
     }
 
     @Override
     public JoinCondition selfJoin(CteTable cte, String alias, Consumer<Condition> onCondition) {
-        selectBuilder.getJoinTables().add(new SelfJoin(cte, alias, onCondition));
+        selectSpecification.getJoinTables().add(new SelfJoin(cte, alias, onCondition));
         return this;
     }
 
     @Override
     public TableRelation<R> where(Consumer<WhereCondition> condition) {
-        selectBuilder.setWhereCondition(condition);
+        selectSpecification.setWhereCondition(condition);
         return this;
     }
 
     @Override
     public Fetchable limit(int offset, int limit) {
-        selectBuilder.setLimitInfo(new LimitInfo(offset, limit));
+        selectSpecification.setLimitInfo(new LimitInfo(offset, limit));
         return null;
     }
 
     @Override
     public Fetchable limit(int limit) {
-        selectBuilder.setLimitInfo(new LimitInfo(null, limit));
+        selectSpecification.setLimitInfo(new LimitInfo(null, limit));
         return this;
     }
 
@@ -118,13 +119,13 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     @SuppressWarnings("unchecked")
     public FetchResult<R> fetch() {
-        selectBuilder.build(selectBuilder);
+        new SqlBuilder(selectSpecification).build();
         return null;
     }
 
     @Override
     public <T> FetchResult<T> fetch(Class<T> returnClass) {
-        selectBuilder.build(selectBuilder);
+        new SqlBuilder(selectSpecification).build();
         return null;
     }
 
@@ -134,7 +135,7 @@ public class TableRelation<R> implements JoinCondition {
             return this;
         }
         for (Fn<T, K> tkFn : fnKey) {
-            selectBuilder.getGroupByFields().add(tkFn);
+            selectSpecification.getGroupByFields().add(tkFn);
         }
         return this;
     }
@@ -142,7 +143,7 @@ public class TableRelation<R> implements JoinCondition {
     //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;
     //  public abstract AbstractColumnReference column(IColumFunction iColumFunction);
     public TableRelation<R> having(Consumer<HavingCondition> condition) {
-        selectBuilder.setHavingCondition(condition);
+        selectSpecification.setHavingCondition(condition);
         return this;
     }
 
@@ -154,7 +155,7 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     //order by d is null asc ,d asc;
-    public ThenSortOrder<R> orderBy(String orderingFragment, SortOrder sortOrder) {
+    public ThenSortOrder<R> orderBy(String orderingFragment) {
         ThenSortOrder sortOrderChain = new ThenSortOrder(null);
         return sortOrderChain;
     }
