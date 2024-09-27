@@ -69,7 +69,8 @@ public class DataSourceUtils {
                 DbType dbType = matchDbType(metaData.getURL());
                 String schema = matchSchema(sqlContextProperties.getSchemaMatchers(), dbType, metaData.getURL());
                 String version = metaData.getDatabaseProductVersion();
-                schemaProperties.setDatabaseProductVersion(version);
+                schemaProperties.setDatabaseProductVersion(StringUtils.isEmpty(schemaProperties.getDatabaseProductVersion())
+                        ? version : schemaProperties.getDatabaseProductVersion());
                 SqlDialect sqlDialect = schemaProperties.getSqlDialect();
                 if (sqlDialect == null && dbType.equals(DbType.OTHER)) {
                     log.error("Unsupported SQL dialect, If your database supports an existing SQL dialect, manually specify the dialect type.");

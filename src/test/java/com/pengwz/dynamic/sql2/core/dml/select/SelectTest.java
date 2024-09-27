@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonExtract;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonUnquote;
@@ -27,10 +28,11 @@ class SelectTest extends InitializingContext {
         List<Teacher> list = sqlContext.select()
                 .column(Teacher::getTeacherId, "id")
                 .column(Teacher::getFirstName)
-                .column(new Md5(new Upper(Teacher::getFirstName)))
+                .column(new Upper(new Md5(Teacher::getFirstName)))
                 .column(nestedSelect -> {
                     nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1);
-                }, "aaa")
+                }, "nested1")
+//                .column(new NumberColumn(1))
                 .from(Teacher.class)
                 .where(whereCondition -> {
                     whereCondition.andEqualTo(Teacher::getTeacherId, 123);

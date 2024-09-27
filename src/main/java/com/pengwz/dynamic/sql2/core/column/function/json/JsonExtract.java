@@ -32,7 +32,7 @@ public class JsonExtract extends ColumnFunctionDecorator {
         }
         if (sqlDialect == SqlDialect.MYSQL) {
             if (version.getMajorVersion() < 5 && version.getMinorVersion() < 7) {
-                throwNotSupportedFunctionException("json_extract", version);
+                throwNotSupportedFunctionException("json_extract", version,sqlDialect);
             }
             return "json_extract(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + jsonPath + ")";
         }

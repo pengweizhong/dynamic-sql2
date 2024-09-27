@@ -23,7 +23,10 @@ public class Upper extends ColumnFunctionDecorator {
         if (sqlDialect == SqlDialect.MYSQL) {
             return "upper(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
-        throwNotSupportedSqlDialectException("json_unquote", sqlDialect);
+        if (sqlDialect == SqlDialect.ORACLE) {
+            return "UPPER(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+        }
+        throwNotSupportedSqlDialectException("upper", sqlDialect);
         return null;
     }
 }

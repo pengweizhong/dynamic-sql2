@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.dml.select.build;
 
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
+import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
@@ -16,6 +17,7 @@ import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
+import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 
@@ -44,7 +46,7 @@ public class SqlBuilder {
         sqlBuilder.append(" ");
         //解析查询的表
         parseFormTable();
-        System.out.println("SQL解析后的结果：" + sqlBuilder.toString());
+        System.out.println("SQL解析后的结果：\n" + sqlBuilder);
         return sqlBuilder;
     }
 
@@ -52,21 +54,12 @@ public class SqlBuilder {
     private void parseColumnFunction() {
         List<ColumnQuery> columFunctions1 = selectSpecification.getColumFunctions();
         sqlBuilder.append(SqlUtils.getSyntaxSelect(sqlDialect)).append(" ");
-        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
         for (int i = 0; i < columFunctions1.size(); i++) {
             ColumnQuery columnQuery = columFunctions1.get(i);
-
             String columnSeparator = "";
-
             //最后一个列后面不追加逗号
             if (columFunctions1.size() - 1 != i) {
                 columnSeparator = ", ";
-            }
-            String columnAliasString = "";
-            //别名为空就拼接空字符串，相当于什么也不做
-            if (StringUtils.isNotEmpty(columnQuery.getAlias())) {
-                String as = schemaProperties.isUseAsInQuery() ? " " + SqlUtils.getSyntaxAs(sqlDialect) + " " : " ";
-                columnAliasString = columnAliasString + as + columnQuery.getAlias();
             }
             if (columnQuery instanceof FunctionColumn) {
                 FunctionColumn functionColumn = (FunctionColumn) columnQuery;
@@ -77,8 +70,12 @@ public class SqlBuilder {
                     sqlBuilder.append(functionToString).append(columnSeparator);
                     continue;
                 }
+                Fn<?, ?> fn = columFunction.getoriginColumnFn();
+                String fieldName = ReflectUtils.fnToFieldName(fn);
+                //拼接别名，
+                String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? fieldName : columnQuery.getAlias();
                 System.out.println("测试函数列输出结果 ---> " + functionToString);
-                sqlBuilder.append(functionToString).append(columnAliasString).append(columnSeparator);
+                sqlBuilder.append(functionToString).append(syntaxAs()).append(columnAlias).append(columnSeparator);
             }
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
@@ -87,6 +84,7 @@ public class SqlBuilder {
                 nestedSelectConsumer.accept(nestedSelect);
                 StringBuilder nestedStringBuilder = new SqlBuilder(nestedSelect.getSelectSpecification()).build();
                 System.out.println("测试内嵌列输出结果 ---> " + nestedStringBuilder);
+                String columnAliasString = syntaxAs() + columnQuery.getAlias();
                 sqlBuilder.append("(").append(nestedStringBuilder).append(")").append(columnAliasString).append(columnSeparator);
             }
         }
@@ -94,9 +92,19 @@ public class SqlBuilder {
 
     private void parseFormTable() {
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
-        //第一个一定是首次查询的表
         sqlBuilder.append(SqlUtils.getSyntaxFrom(sqlDialect)).append(" ");
+        //第一个一定是首次查询的表
+        for (JoinTable joinTable : joinTables) {
+            if (joinTable instanceof FromJoin) {
+                FromJoin fromJoin = (FromJoin) joinTable;
+                Class<?> tableClass = fromJoin.getTableClass();
+                TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
+                String tableName = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableName());
+                String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableAlias());
+                sqlBuilder.append(tableName).append(syntaxAs()).append(tableAlias);
+            }
 
+        }
     }
 
     private Version getVersion(Class<?> fromTableClass) {
@@ -116,6 +124,11 @@ public class SqlBuilder {
         TableMeta tableMeta = TableProvider.getTableMeta(fromTableClass);
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
         return schemaProperties.getSqlDialect();
+    }
+
+    private String syntaxAs() {
+        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
+        return schemaProperties.isUseAsInQuery() ? " " + SqlUtils.getSyntaxAs(sqlDialect) + " " : " ";
     }
 
 

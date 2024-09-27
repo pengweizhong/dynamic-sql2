@@ -17,9 +17,9 @@ public class FunctionAssert {
      * @param patchVersion 补丁号
      * @throws UnsupportedOperationException 函数不受支持
      */
-    public static void throwNotSupportedFunctionException(String functionName, Version version) {
+    public static void throwNotSupportedFunctionException(String functionName, Version version, SqlDialect sqlDialect) {
         throw new UnsupportedOperationException(
-                String.format("Function `%s` is not supported in version %d.%d.%d", functionName,
+                String.format("%s Function `%s` is not supported in version %d.%d.%d", sqlDialect, functionName,
                         version.getMajorVersion(), version.getMinorVersion(), version.getPatchVersion())
         );
     }
