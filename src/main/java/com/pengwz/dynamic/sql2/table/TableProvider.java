@@ -41,7 +41,7 @@ public class TableProvider {//NOSONAR
                 return entry.getValue();
             }
         }
-        return null;
+        throw new IllegalArgumentException("Can not find table class '" + classCanonicalName + "'");
     }
 
     protected static void saveCTEMeta(Class<?> cteClass, CTEMeta cteMeta) {
