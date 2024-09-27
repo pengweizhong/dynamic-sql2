@@ -17,6 +17,6 @@ public class CrossJoin implements JoinTable {
 
     @Override
     public JoinTableType getJoinTableType() {
-        return JoinTableType.LEFT;
+        return JoinTableType.CROSS;
     }
 }

@@ -26,6 +26,6 @@ public class SelfJoin implements JoinTable {
 
     @Override
     public JoinTableType getJoinTableType() {
-        return JoinTableType.LEFT;
+        return JoinTableType.SELF;
     }
 }

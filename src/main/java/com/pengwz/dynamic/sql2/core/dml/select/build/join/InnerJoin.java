@@ -7,7 +7,6 @@ import com.pengwz.dynamic.sql2.enums.JoinTableType;
 import java.util.function.Consumer;
 
 public class InnerJoin implements JoinTable {
-    private JoinTableType JoinTableType;
     private Class<?> tableClass;
     private CteTable cteTable;
     private Consumer<Condition> onCondition;
@@ -24,6 +23,6 @@ public class InnerJoin implements JoinTable {
 
     @Override
     public JoinTableType getJoinTableType() {
-        return null;
+        return JoinTableType.INNER;
     }
 }

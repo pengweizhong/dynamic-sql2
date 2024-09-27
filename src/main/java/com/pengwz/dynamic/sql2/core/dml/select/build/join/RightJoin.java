@@ -23,6 +23,6 @@ public class RightJoin implements JoinTable {
 
     @Override
     public JoinTableType getJoinTableType() {
-        return JoinTableType.LEFT;
+        return JoinTableType.RIGHT;
     }
 }
