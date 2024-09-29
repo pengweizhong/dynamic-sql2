@@ -3,7 +3,6 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
-import com.pengwz.dynamic.sql2.core.dml.select.build.GenericSqlBuilder;
 import com.pengwz.dynamic.sql2.core.dml.select.build.LimitInfo;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
@@ -119,22 +118,20 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     @SuppressWarnings("unchecked")
     public FetchResult<R> fetch() {
-        new GenericSqlBuilder(selectSpecification).build();
-        return null;
+        return new FetchResultImpl<>(selectSpecification);
     }
 
     @Override
     public <T> FetchResult<T> fetch(Class<T> returnClass) {
-        new GenericSqlBuilder(selectSpecification).build();
-        return null;
+        return new FetchResultImpl<>(selectSpecification);
     }
 
     @SafeVarargs
-    public final <T, K> TableRelation<R> groupBy(Fn<T, K>... fnKey) {
+    public final <T> TableRelation<R> groupBy(Fn<T, ?>... fnKey) {
         if (fnKey == null) {
             return this;
         }
-        for (Fn<T, K> tkFn : fnKey) {
+        for (Fn<T, ?> tkFn : fnKey) {
             selectSpecification.getGroupByFields().add(tkFn);
         }
         return this;

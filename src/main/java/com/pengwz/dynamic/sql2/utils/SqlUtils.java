@@ -1,10 +1,16 @@
 package com.pengwz.dynamic.sql2.utils;
 
+import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
+import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.build.*;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
+import com.pengwz.dynamic.sql2.table.TableMeta;
+import com.pengwz.dynamic.sql2.table.TableProvider;
 
 public class SqlUtils {
     private SqlUtils() {
@@ -113,4 +119,23 @@ public class SqlUtils {
         }
     }
 
+    public static SqlDialect getSqlDialect(Class<?> fromTableClass) {
+        TableMeta tableMeta = TableProvider.getTableMeta(fromTableClass);
+        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
+        return schemaProperties.getSqlDialect();
+    }
+
+    public static SqlSelectBuilder matchSqlSelectBuilder(SelectSpecification selectSpecification) {
+        FromJoin fromJoin = (FromJoin) selectSpecification.getJoinTables().get(0);
+        SqlDialect sqlDialect = SqlUtils.getSqlDialect(fromJoin.getTableClass());
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return new MysqlSqlSelectBuilder(selectSpecification);
+            case ORACLE:
+                return new OracleSqlSelectBuilder(selectSpecification);
+            default:
+                return new GenericSqlSelectBuilder(selectSpecification);
+        }
+    }
 }

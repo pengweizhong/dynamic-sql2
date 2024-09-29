@@ -10,9 +10,7 @@ public class ParameterBinder {
     private final Map<String, Object> parameters = new HashMap<>();
 
     public String generateBindingKey() {
-        // // UUID 正则表达式
-        //        Pattern uuidPattern = Pattern.compile("^:[0-9a-f]{32}$");
-
+        //Key 的构成："^:[0-9a-f]{32}$"
         return ":" + UUID.randomUUID().toString().replace("-", "");
     }
 
@@ -49,7 +47,6 @@ public class ParameterBinder {
         StringBuilder modifiedSql = new StringBuilder(sql);
         Pattern uuidPattern = Pattern.compile(":[0-9a-f]{32}");
         Matcher matcher = uuidPattern.matcher(sql);
-        // 替换占位符
         while (matcher.find()) {
             String placeholder = matcher.group();
             if (contains(placeholder)) {

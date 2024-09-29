@@ -22,9 +22,9 @@ import com.pengwz.dynamic.sql2.utils.StringUtils;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class GenericSqlBuilder extends SqlBuilder {
+public class GenericSqlSelectBuilder extends SqlSelectBuilder {
 
-    public GenericSqlBuilder(SelectSpecification selectSpecification) {
+    public GenericSqlSelectBuilder(SelectSpecification selectSpecification) {
         super(selectSpecification);
     }
 
@@ -60,12 +60,12 @@ public class GenericSqlBuilder extends SqlBuilder {
                 Consumer<NestedSelect> nestedSelectConsumer = nestedColumn.getNestedSelect();
                 NestedSelect nestedSelect = new NestedSelect();
                 nestedSelectConsumer.accept(nestedSelect);
-                SqlBuilder nestedSqlBuilder = new GenericSqlBuilder(nestedSelect.getSelectSpecification());
-                StringBuilder nestedStringBuilder = nestedSqlBuilder.build();
-                System.out.println("测试内嵌列输出结果 ---> " + nestedStringBuilder);
+                SqlSelectBuilder nestedSqlBuilder = new GenericSqlSelectBuilder(nestedSelect.getSelectSpecification());
+                SqlSelectParam sqlSelectParam = nestedSqlBuilder.build();
+                System.out.println("测试内嵌列输出结果 ---> " + sqlSelectParam.getSql());
                 String columnAliasString = syntaxAs() + columnQuery.getAlias();
-                sqlBuilder.append("(").append(nestedStringBuilder).append(")").append(columnAliasString).append(columnSeparator);
-                parameterBinder.addParameterBinder(nestedSqlBuilder.getParameterBinder());
+                sqlBuilder.append("(").append(sqlSelectParam.getSql()).append(")").append(columnAliasString).append(columnSeparator);
+                parameterBinder.addParameterBinder(sqlSelectParam.getParameterBinder());
             }
         }
     }

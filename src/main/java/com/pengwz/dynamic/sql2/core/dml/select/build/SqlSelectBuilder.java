@@ -16,7 +16,7 @@ import com.pengwz.dynamic.sql2.utils.StringUtils;
 
 import java.util.List;
 
-public abstract class SqlBuilder {
+public abstract class SqlSelectBuilder {
     protected final StringBuilder sqlBuilder = new StringBuilder();
     protected final SelectSpecification selectSpecification;
     protected final Version version;
@@ -24,11 +24,11 @@ public abstract class SqlBuilder {
     protected final String dataSourceName;
     protected final ParameterBinder parameterBinder = new ParameterBinder();
 
-    protected SqlBuilder(SelectSpecification selectSpecification) {
+    protected SqlSelectBuilder(SelectSpecification selectSpecification) {
         FromJoin fromJoin = (FromJoin) selectSpecification.getJoinTables().get(0);
         this.selectSpecification = selectSpecification;
         this.version = getVersion(fromJoin.getTableClass());
-        this.sqlDialect = getSqlDialect(fromJoin.getTableClass());
+        this.sqlDialect = SqlUtils.getSqlDialect(fromJoin.getTableClass());
         this.dataSourceName = TableProvider.getTableMeta(fromJoin.getTableClass()).getBindDataSourceName();
     }
 
@@ -36,7 +36,7 @@ public abstract class SqlBuilder {
 
     protected abstract void parseFormTable(JoinTable joinTable);
 
-    public final StringBuilder build() {
+    public final SqlSelectParam build() {
         //step1 解析查询的列
         parseColumnFunction();
         sqlBuilder.append(" ");
@@ -46,10 +46,7 @@ public abstract class SqlBuilder {
         joinTables.forEach(this::parseFormTable);
         //解析limit
         parseLimit();
-        System.out.println("-- SQL解析后的结果：\n" + sqlBuilder);
-
-        System.out.println("-- SQL解析后的结果+参数：\n" + parameterBinder.replacePlaceholdersWithValues(sqlBuilder.toString()));
-        return sqlBuilder;
+        return new SqlSelectParam(sqlBuilder, parameterBinder);
     }
 
     protected abstract void parseLimit();
@@ -68,12 +65,6 @@ public abstract class SqlBuilder {
         }
     }
 
-    private SqlDialect getSqlDialect(Class<?> fromTableClass) {
-        TableMeta tableMeta = TableProvider.getTableMeta(fromTableClass);
-        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
-        return schemaProperties.getSqlDialect();
-    }
-
     protected String getSchemaName(TableMeta tableMeta) {
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
         if (schemaProperties.isUseSchemaInQuery()) {
@@ -87,11 +78,6 @@ public abstract class SqlBuilder {
     protected String syntaxAs() {
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
         return schemaProperties.isUseAsInQuery() ? " " + SqlUtils.getSyntaxAs(sqlDialect) + " " : " ";
-    }
-
-
-    protected ParameterBinder getParameterBinder() {
-        return parameterBinder;
     }
 
 }
