@@ -6,17 +6,19 @@ import com.pengwz.dynamic.sql2.enums.JoinTableType;
 
 import java.util.function.Consumer;
 
-public class LeftJoin implements JoinTable {
+public class LeftJoin extends JoinTable {
     private Class<?> tableClass;
     private CteTable cteTable;
     private Consumer<Condition> onCondition;
 
-    public LeftJoin(Class<?> tableClass, Consumer<Condition> onCondition) {
+    public LeftJoin(Class<?> tableClass, String alias, Consumer<Condition> onCondition) {
+        super(alias);
         this.tableClass = tableClass;
         this.onCondition = onCondition;
     }
 
     public LeftJoin(CteTable cteTable, Consumer<Condition> onCondition) {
+        super(null);
         this.cteTable = cteTable;
         this.onCondition = onCondition;
     }

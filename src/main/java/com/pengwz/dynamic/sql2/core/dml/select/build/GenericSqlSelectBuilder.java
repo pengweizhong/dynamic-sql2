@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.conventional.ColumFunctionProxy;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
@@ -40,13 +41,16 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             if (columnQuery instanceof FunctionColumn) {
                 FunctionColumn functionColumn = (FunctionColumn) columnQuery;
                 ColumFunction columFunction = functionColumn.getColumFunction();
+                ColumFunction proxy = ColumFunctionProxy.newInstance(columFunction,"qqq");
+                String functionToString1 = proxy.getFunctionToString(sqlDialect, version);
+                System.out.println(functionToString1);
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
                 //数字列不需要关心别名问题
                 if (columFunction instanceof NumberColumn) {
                     sqlBuilder.append(functionToString).append(columnSeparator);
                     continue;
                 }
-                Fn<?, ?> fn = columFunction.getoriginColumnFn();
+                Fn<?, ?> fn = columFunction.getOriginColumnFn();
                 String fieldName = ReflectUtils.fnToFieldName(fn);
                 //拼接别名，
                 String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? fieldName : columnQuery.getAlias();
@@ -70,7 +74,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             FromJoin fromJoin = (FromJoin) joinTable;
             Class<?> tableClass = fromJoin.getTableClass();
             TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
-            String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableAlias());
+            String alias = StringUtils.isEmpty(joinTable.getTableAlias()) ? tableMeta.getTableAlias() : joinTable.getTableAlias();
+            String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, alias);
             sqlBuilder.append(getSchemaName(tableMeta)).append(syntaxAs()).append(tableAlias);
         }
         // INNER, LEFT, RIGHT, FULL, CROSS, SELF;
@@ -78,7 +83,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             InnerJoin innerJoin = (InnerJoin) joinTable;
             Class<?> tableClass = innerJoin.getTableClass();
             TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
-            String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableAlias());
+            String alias = StringUtils.isEmpty(joinTable.getTableAlias()) ? tableMeta.getTableAlias() : joinTable.getTableAlias();
+            String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, alias);
             sqlBuilder.append(" ").append(SqlUtils.getSyntaxInnerJoin(sqlDialect))
                     .append(" ").append(getSchemaName(tableMeta)).append(syntaxAs()).append(tableAlias);
             //拼接On条件

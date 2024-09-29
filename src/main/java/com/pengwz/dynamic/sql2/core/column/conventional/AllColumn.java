@@ -24,7 +24,7 @@ public final class AllColumn implements ColumFunction {
     }
 
     @Override
-    public Fn<?, ?> getoriginColumnFn() {
+    public Fn<?, ?> getOriginColumnFn() {
         throw new UnsupportedOperationException();
     }
 

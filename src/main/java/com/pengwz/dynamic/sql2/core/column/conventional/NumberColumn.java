@@ -20,7 +20,7 @@ public final class NumberColumn implements ColumFunction {
     }
 
     @Override
-    public Fn<?, ?> getoriginColumnFn() {
+    public Fn<?, ?> getOriginColumnFn() {
         throw new UnsupportedOperationException();
     }
 

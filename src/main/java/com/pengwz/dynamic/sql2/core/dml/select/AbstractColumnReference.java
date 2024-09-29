@@ -38,6 +38,8 @@ public abstract class AbstractColumnReference {
 
     public abstract <T> TableRelation<T> from(Class<T> tableClass);
 
+    public abstract <T> TableRelation<T> from(Class<T> tableClass, String alias);
+
     public abstract TableRelation<?> from(CteTable cteTable);
 
 }

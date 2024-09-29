@@ -23,7 +23,12 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition innerJoin(Class<?> clazz, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new InnerJoin(clazz, onCondition));
+        return innerJoin(clazz, null, onCondition);
+    }
+
+    @Override
+    public JoinCondition innerJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new InnerJoin(clazz, alias, onCondition));
         return this;
     }
 
@@ -35,7 +40,12 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition leftJoin(Class<?> clazz, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new LeftJoin(clazz, onCondition));
+        return leftJoin(clazz, null, onCondition);
+    }
+
+    @Override
+    public JoinCondition leftJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new LeftJoin(clazz, alias, onCondition));
         return this;
     }
 
@@ -47,7 +57,12 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition rightJoin(Class<?> clazz, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new RightJoin(clazz, onCondition));
+        return rightJoin(clazz, null, onCondition);
+    }
+
+    @Override
+    public JoinCondition rightJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new RightJoin(clazz, alias, onCondition));
         return this;
     }
 
@@ -59,7 +74,12 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition fullJoin(Class<?> clazz, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new FullJoin(clazz, onCondition));
+        return fullJoin(clazz, null, onCondition);
+    }
+
+    @Override
+    public JoinCondition fullJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new FullJoin(clazz, alias, onCondition));
         return this;
     }
 
@@ -88,10 +108,11 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
-    public JoinCondition selfJoin(CteTable cte, String alias, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new SelfJoin(cte, alias, onCondition));
+    public JoinCondition selfJoin(CteTable cte, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new SelfJoin(cte, onCondition));
         return this;
     }
+
 
     @Override
     public TableRelation<R> where(Consumer<WhereCondition> condition) {

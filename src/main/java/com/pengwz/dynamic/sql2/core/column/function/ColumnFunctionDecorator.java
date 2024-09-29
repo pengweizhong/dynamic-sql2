@@ -38,8 +38,8 @@ public abstract class ColumnFunctionDecorator
     }
 
     @Override
-    public Fn<?, ?> getoriginColumnFn() {
-        return delegateFunction.getoriginColumnFn();
+    public Fn<?, ?> getOriginColumnFn() {
+        return delegateFunction.getOriginColumnFn();
     }
 
     @Override

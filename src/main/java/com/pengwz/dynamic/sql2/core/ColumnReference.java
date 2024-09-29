@@ -74,7 +74,12 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public <T> TableRelation<T> from(Class<T> tableClass) {
-        selectSpecification.getJoinTables().add(new FromJoin(tableClass));
+        return from(tableClass, null);
+    }
+
+    @Override
+    public <T> TableRelation<T> from(Class<T> tableClass, String alias) {
+        selectSpecification.getJoinTables().add(new FromJoin(tableClass, alias));
         return new TableRelation<>(selectSpecification);
     }
 

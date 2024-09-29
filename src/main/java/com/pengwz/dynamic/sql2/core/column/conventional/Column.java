@@ -31,7 +31,7 @@ public final class Column implements ColumFunction {
     }
 
     @Override
-    public Fn<?, ?> getoriginColumnFn() {
+    public Fn<?, ?> getOriginColumnFn() {
         return columnFn;
     }
 

@@ -29,8 +29,8 @@ class SelectTest extends InitializingContext {
                     nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1);
                 }, "nested1")
 //                .column(new NumberColumn(1))
-                .from(Teacher.class)
-                .join(Subject.class, on -> on.andEqualTo(Teacher::getTeacherId, Subject::getTeacherId)
+                .from(Teacher.class, "t_1")
+                .join(Subject.class, "t_2", on -> on.andEqualTo(Teacher::getTeacherId, Subject::getTeacherId)
                         .orGreaterThan(Teacher::getTeacherId, 1))
                 .where(whereCondition -> {
                     whereCondition.andNotEqualTo(Teacher::getTeacherId, -1);

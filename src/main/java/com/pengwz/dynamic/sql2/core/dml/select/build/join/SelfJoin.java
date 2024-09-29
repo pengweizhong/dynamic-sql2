@@ -6,21 +6,20 @@ import com.pengwz.dynamic.sql2.enums.JoinTableType;
 
 import java.util.function.Consumer;
 
-public class SelfJoin implements JoinTable {
+public class SelfJoin extends JoinTable {
     private Class<?> tableClass;
     private CteTable cteTable;
-    private String alias;
     private Consumer<Condition> onCondition;
 
     public SelfJoin(Class<?> tableClass, String alias, Consumer<Condition> onCondition) {
+        super(alias);
         this.tableClass = tableClass;
-        this.alias = alias;
         this.onCondition = onCondition;
     }
 
-    public SelfJoin(CteTable cteTable, String alias, Consumer<Condition> onCondition) {
+    public SelfJoin(CteTable cteTable, Consumer<Condition> onCondition) {
+        super(null);
         this.cteTable = cteTable;
-        this.alias = alias;
         this.onCondition = onCondition;
     }
 

@@ -15,7 +15,11 @@ public interface JoinCondition extends Fetchable {
      * @return 当前的 {@link JoinCondition} 实例
      */
     default JoinCondition join(Class<?> clazz, Consumer<Condition> onCondition) {
-        return innerJoin(clazz, onCondition);
+        return join(clazz, null, onCondition);
+    }
+
+    default JoinCondition join(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+        return innerJoin(clazz, alias, onCondition);
     }
 
     /**
@@ -50,6 +54,8 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition innerJoin(Class<?> clazz, Consumer<Condition> onCondition);
 
+    JoinCondition innerJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
+
     JoinCondition innerJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**
@@ -71,6 +77,8 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition leftJoin(Class<?> clazz, Consumer<Condition> onCondition);
 
+    JoinCondition leftJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
+
     JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**
@@ -91,6 +99,8 @@ public interface JoinCondition extends Fetchable {
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
     JoinCondition rightJoin(Class<?> clazz, Consumer<Condition> onCondition);
+
+    JoinCondition rightJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
 
     JoinCondition rightJoin(CteTable cte, Consumer<Condition> onCondition);
 
@@ -121,6 +131,8 @@ public interface JoinCondition extends Fetchable {
      * @return 当前的 {@link JoinCondition} 实例，以便实现链式调用，继续进行其他连接或查询操作。
      */
     JoinCondition fullJoin(Class<?> clazz, Consumer<Condition> onCondition);
+
+    JoinCondition fullJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
 
     JoinCondition fullJoin(CteTable cte, Consumer<Condition> onCondition);
 
@@ -174,7 +186,7 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition selfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
 
-    JoinCondition selfJoin(CteTable cte, String alias, Consumer<Condition> onCondition);
+    JoinCondition selfJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**
      * 追加where条件
