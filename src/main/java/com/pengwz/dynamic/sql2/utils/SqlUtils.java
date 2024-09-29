@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.utils;
 
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
+import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
@@ -9,7 +10,11 @@ import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.build.*;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
+import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
+import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
+import com.pengwz.dynamic.sql2.enums.DbType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
+import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 
@@ -130,6 +135,34 @@ public class SqlUtils {
         }
     }
 
+    public static String getSyntaxGroupBy(SqlDialect sqlDialect) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return "group by";
+            default:
+                return "GROUP BY";
+        }
+    }
+
+    public static <T, F> String qualifiedAliasName(Fn<T, F> field) {
+        return qualifiedAliasName(field, null);
+    }
+
+    public static <T, F> String qualifiedAliasName(Fn<T, F> field, String alias) {
+        TableMeta tableMeta = TableProvider.getTableMeta(ReflectUtils.getOriginalClassCanonicalName(field));
+        DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
+        DbType dbType = dataSourceMeta.getDbType();
+        SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
+        String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableAlias());
+        ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(field));
+        String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
+        if (StringUtils.isEmpty(alias)) {
+            return tableAlias + "." + column;
+        }
+        return SqlUtils.quoteIdentifier(sqlDialect, alias) + "." + column;
+    }
+
     public static WhereCondition matchDialectCondition(SqlDialect sqlDialect, Version version, String dataSourceName) {
         switch (sqlDialect) {
             case MYSQL:
@@ -170,5 +203,6 @@ public class SqlUtils {
         System.out.println("测试内嵌列输出结果 ---> " + sqlSelectParam.getSql());
         return sqlSelectParam;
     }
+
 
 }

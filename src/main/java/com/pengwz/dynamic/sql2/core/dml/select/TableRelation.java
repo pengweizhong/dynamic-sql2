@@ -102,7 +102,7 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     public Fetchable limit(int offset, int limit) {
         selectSpecification.setLimitInfo(new LimitInfo(offset, limit));
-        return null;
+        return this;
     }
 
     @Override

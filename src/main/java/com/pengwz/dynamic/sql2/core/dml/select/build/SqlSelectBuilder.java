@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.dml.select.build;
 
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
+import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
@@ -38,6 +39,8 @@ public abstract class SqlSelectBuilder {
 
     protected abstract void parseFormTable(JoinTable joinTable);
 
+    protected abstract void parseLimit();
+
     public final SqlSelectParam build() {
         //step1 解析查询的列
         parseColumnFunction();
@@ -50,12 +53,23 @@ public abstract class SqlSelectBuilder {
         if (selectSpecification.getWhereCondition() != null) {
             parseWhereCondition(selectSpecification.getWhereCondition());
         }
+        //step4 解析group by
+        if (selectSpecification.getGroupByFields() != null) {
+            parseGroupBy(selectSpecification.getGroupByFields());
+        }
         //解析limit
         if (selectSpecification.getLimitInfo() != null) {
             parseLimit();
         }
 
         return new SqlSelectParam(sqlBuilder, parameterBinder);
+    }
+
+    private void parseGroupBy(List<Fn<?, ?>> groupByFields) {
+        sqlBuilder.append(" ").append(SqlUtils.getSyntaxGroupBy(sqlDialect));
+        for (Fn<?, ?> groupByField : groupByFields) {
+            sqlBuilder.append(" ").append(SqlUtils.qualifiedAliasName(groupByField));
+        }
     }
 
     private void parseWhereCondition(Consumer<WhereCondition> whereConditionConsumer) {
@@ -66,8 +80,6 @@ public abstract class SqlSelectBuilder {
         ParameterBinder whereParameterBinder = whereCondition.getParameterBinder();
         parameterBinder.addParameterBinder(whereParameterBinder);
     }
-
-    protected abstract void parseLimit();
 
 
     private Version getVersion(Class<?> fromTableClass) {

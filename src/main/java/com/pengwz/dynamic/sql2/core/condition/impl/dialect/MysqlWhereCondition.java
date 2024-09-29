@@ -12,10 +12,6 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.SqlSelectParam;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
-import com.pengwz.dynamic.sql2.table.ColumnMeta;
-import com.pengwz.dynamic.sql2.table.TableMeta;
-import com.pengwz.dynamic.sql2.table.TableProvider;
-import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.util.function.Consumer;
@@ -393,14 +389,14 @@ public class MysqlWhereCondition implements WhereCondition {
     @Override
     public <T, F> Condition andEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(AND));
-        condition.append(qualifiedTableName(fn)).append(" = ").append(parameterBinder.registerValueWithKey(value));
+        condition.append(SqlUtils.qualifiedAliasName(fn)).append(" = ").append(parameterBinder.registerValueWithKey(value));
         return this;
     }
 
     @Override
     public <T1, T2, F> Condition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
         condition.append(" ").append(logicalOperatorType(AND));
-        condition.append(qualifiedTableName(field1)).append(" = ").append(qualifiedTableName(field2));
+        condition.append(SqlUtils.qualifiedAliasName(field1)).append(" = ").append(SqlUtils.qualifiedAliasName(field2));
         return this;
     }
 
@@ -417,7 +413,9 @@ public class MysqlWhereCondition implements WhereCondition {
 
     @Override
     public <T, F> Condition andNotEqualTo(Fn<T, F> fn, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(SqlUtils.qualifiedAliasName(fn)).append(" != ").append(parameterBinder.registerValueWithKey(value));
+        return this;
     }
 
     @Override
@@ -507,7 +505,7 @@ public class MysqlWhereCondition implements WhereCondition {
 
     @Override
     public <T, F> Condition andGreaterThan(Fn<T, F> fn, Object value) {
-        String name = qualifiedTableName(fn);
+        String name = SqlUtils.qualifiedAliasName(fn);
         condition.append(" ").append(logicalOperatorType(AND))
                 .append(name).append(" > ").append(parameterBinder.registerValueWithKey(value));
         return this;
@@ -520,7 +518,7 @@ public class MysqlWhereCondition implements WhereCondition {
 
     @Override
     public <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value) {
-        String name = qualifiedTableName(fn);
+        String name = SqlUtils.qualifiedAliasName(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
                 .append(" < ").append(parameterBinder.registerValueWithKey(value));
         return this;
@@ -764,14 +762,6 @@ public class MysqlWhereCondition implements WhereCondition {
     @Override
     public ParameterBinder getParameterBinder() {
         return parameterBinder;
-    }
-
-    private <T, F> String qualifiedTableName(Fn<T, F> field) {
-        TableMeta tableMeta = TableProvider.getTableMeta(ReflectUtils.getOriginalClassCanonicalName(field));
-        String tableAlias = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, tableMeta.getTableAlias());
-        ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(field));
-        String column = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, columnMeta.getColumnName());
-        return tableAlias + "." + column;
     }
 
     /**
