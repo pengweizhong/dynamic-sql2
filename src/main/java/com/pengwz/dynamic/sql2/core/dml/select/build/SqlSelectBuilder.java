@@ -53,7 +53,7 @@ public abstract class SqlSelectBuilder {
         joinTables.forEach(this::parseFormTable);
         //step3 解析where条件
         if (selectSpecification.getWhereCondition() != null) {
-            parseWhereCondition(selectSpecification.getWhereCondition());
+            parseWhere(selectSpecification.getWhereCondition());
         }
         //step4 解析group by
         if (CollectionUtils.isNotEmpty(selectSpecification.getGroupByFields())) {
@@ -86,7 +86,7 @@ public abstract class SqlSelectBuilder {
         }
     }
 
-    private void parseWhereCondition(Consumer<WhereCondition> whereConditionConsumer) {
+    private void parseWhere(Consumer<WhereCondition> whereConditionConsumer) {
         WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, dataSourceName);
         whereConditionConsumer.accept(whereCondition);
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxWhere(sqlDialect))
