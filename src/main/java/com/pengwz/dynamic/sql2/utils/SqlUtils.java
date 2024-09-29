@@ -5,6 +5,7 @@ import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
@@ -69,6 +70,24 @@ public class SqlUtils {
             return split[0] + identifier + split[1];
         }
         return quotes + identifier + quotes;
+    }
+
+    public static <T, F> String qualifiedAliasName(Fn<T, F> field) {
+        return qualifiedAliasName(field, null);
+    }
+
+    public static <T, F> String qualifiedAliasName(Fn<T, F> field, String alias) {
+        TableMeta tableMeta = TableProvider.getTableMeta(ReflectUtils.getOriginalClassCanonicalName(field));
+        DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
+        DbType dbType = dataSourceMeta.getDbType();
+        SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
+        String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableAlias());
+        ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(field));
+        String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
+        if (StringUtils.isEmpty(alias)) {
+            return tableAlias + "." + column;
+        }
+        return SqlUtils.quoteIdentifier(sqlDialect, alias) + "." + column;
     }
 
     public static String getSyntaxSelect(SqlDialect sqlDialect) {
@@ -165,23 +184,6 @@ public class SqlUtils {
         }
     }
 
-    public static <T, F> String qualifiedAliasName(Fn<T, F> field) {
-        return qualifiedAliasName(field, null);
-    }
-
-    public static <T, F> String qualifiedAliasName(Fn<T, F> field, String alias) {
-        TableMeta tableMeta = TableProvider.getTableMeta(ReflectUtils.getOriginalClassCanonicalName(field));
-        DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
-        DbType dbType = dataSourceMeta.getDbType();
-        SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
-        String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableAlias());
-        ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(field));
-        String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
-        if (StringUtils.isEmpty(alias)) {
-            return tableAlias + "." + column;
-        }
-        return SqlUtils.quoteIdentifier(sqlDialect, alias) + "." + column;
-    }
 
     public static WhereCondition matchDialectCondition(SqlDialect sqlDialect, Version version, String dataSourceName) {
         switch (sqlDialect) {
@@ -191,7 +193,7 @@ public class SqlUtils {
             case ORACLE:
                 return new OracleWhereCondition(version, dataSourceName);
             default:
-                throw new UnsupportedOperationException(sqlDialect.name() + " dialect does not yet support parsing conditions");
+                return new GenericWhereCondition(version, dataSourceName);
         }
     }
 
