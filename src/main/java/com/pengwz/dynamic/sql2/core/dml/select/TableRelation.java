@@ -118,12 +118,14 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     @SuppressWarnings("unchecked")
     public FetchResult<R> fetch() {
-        return new FetchResultImpl<>(selectSpecification);
+        FetchableImpl fetchable = new FetchableImpl(selectSpecification);
+        return fetchable.fetch();
     }
 
     @Override
     public <T> FetchResult<T> fetch(Class<T> returnClass) {
-        return new FetchResultImpl<>(selectSpecification);
+        FetchableImpl fetchable = new FetchableImpl(selectSpecification);
+        return fetchable.fetch(returnClass);
     }
 
     @SafeVarargs
@@ -146,21 +148,21 @@ public class TableRelation<R> implements JoinCondition {
 
     //ORDER BY column1 [ASC|DESC], column2 [ASC|DESC];
     //TODO 需要构建更为复杂的order By
-    public <T, F> ThenSortOrder<R> orderBy(Fn<T, F> orderByValue, SortOrder sortOrder) {
-        ThenSortOrder sortOrderChain = new ThenSortOrder(null);
-        return sortOrderChain;
+    public <T, F> ThenSortOrder<R> orderBy(Fn<T, F> field) {
+        return orderBy(field, SortOrder.ASC);
+    }
+
+    public <T, F> ThenSortOrder<R> orderBy(Fn<T, F> field, SortOrder sortOrder) {
+        return new ThenSortOrder<>(this, field, sortOrder);
     }
 
     //order by d is null asc ,d asc;
-    public ThenSortOrder<R> orderBy(String orderingFragment) {
-        ThenSortOrder sortOrderChain = new ThenSortOrder(null);
-        return sortOrderChain;
-    }
-
     //ORDER BY FIELD(profit_range, '>10%', '5~10%', '0~5%', '0%', '0~-5%', '-5~-10%', '<-10%')
-    public ThenSortOrder<R> orderByField(String... name) {
-        ThenSortOrder sortOrderChain = new ThenSortOrder(null);
-        return sortOrderChain;
+    public ThenSortOrder<R> orderBy(String orderingFragment) {
+        return new ThenSortOrder<>(this, orderingFragment);
     }
 
+    protected SelectSpecification getSelectSpecification() {
+        return selectSpecification;
+    }
 }

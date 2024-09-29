@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core.dml.select.build;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 
@@ -16,6 +17,7 @@ public class SelectSpecification {
     private Consumer<WhereCondition> whereCondition;
     private List<Fn<?, ?>> groupByFields;
     private Consumer<HavingCondition> havingCondition;
+    private List<OrderBy> orderBys;
     private LimitInfo limitInfo;
 
     public List<ColumnQuery> getColumFunctions() {
@@ -56,4 +58,12 @@ public class SelectSpecification {
     public void setLimitInfo(LimitInfo limitInfo) {
         this.limitInfo = limitInfo;
     }
+
+    public List<OrderBy> getOrderBys() {
+        if (orderBys == null) {
+            orderBys = new ArrayList<>();
+        }
+        return orderBys;
+    }
+
 }

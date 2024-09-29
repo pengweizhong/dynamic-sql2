@@ -155,6 +155,16 @@ public class SqlUtils {
         }
     }
 
+    public static String getSyntaxOrderBy(SqlDialect sqlDialect) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return "order by";
+            default:
+                return "ORDER BY";
+        }
+    }
+
     public static <T, F> String qualifiedAliasName(Fn<T, F> field) {
         return qualifiedAliasName(field, null);
     }

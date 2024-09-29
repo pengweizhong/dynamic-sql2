@@ -8,6 +8,9 @@ import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
+import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
+import com.pengwz.dynamic.sql2.core.dml.select.order.DefaultOrderBy;
+import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
@@ -63,11 +66,39 @@ public abstract class SqlSelectBuilder {
         if (selectSpecification.getHavingCondition() != null) {
             parseHaving(selectSpecification.getHavingCondition());
         }
-        //解析limit
+        //step6 解析order by
+        if (CollectionUtils.isNotEmpty(selectSpecification.getOrderBys())) {
+            parseOrderBy(selectSpecification.getOrderBys());
+        }
+        //step7 解析limit
         if (selectSpecification.getLimitInfo() != null) {
             parseLimit();
         }
         return new SqlSelectParam(sqlBuilder, parameterBinder);
+    }
+
+    private void parseOrderBy(List<OrderBy> orderBys) {
+        sqlBuilder.append(" ").append(SqlUtils.getSyntaxOrderBy(sqlDialect));
+        for (int i = 0; i < orderBys.size(); i++) {
+            OrderBy orderBy = orderBys.get(i);
+            String columnSeparator = "";
+            //最后一个列后面不追加逗号
+            if (orderBys.size() - 1 != i) {
+                columnSeparator = ",";
+            }
+            if (orderBy instanceof CustomOrderBy) {
+                CustomOrderBy customOrderBy = (CustomOrderBy) orderBy;
+                //自定义排序直接append
+                sqlBuilder.append(" ").append(customOrderBy.getOrderingFragment());
+                sqlBuilder.append(columnSeparator);
+            }
+            if (orderBy instanceof DefaultOrderBy) {
+                DefaultOrderBy defaultOrderBy = (DefaultOrderBy) orderBy;
+                String order = SqlUtils.qualifiedAliasName(defaultOrderBy.getFn());
+                sqlBuilder.append(" ").append(order).append(" ").append(defaultOrderBy.getSortOrder().toSqlString(sqlDialect));
+                sqlBuilder.append(columnSeparator);
+            }
+        }
     }
 
     private void parseHaving(Consumer<HavingCondition> havingCondition) {
