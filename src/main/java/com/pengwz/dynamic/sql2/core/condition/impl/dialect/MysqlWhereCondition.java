@@ -8,6 +8,7 @@ import com.pengwz.dynamic.sql2.core.condition.FunctionCondition;
 import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
+import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
@@ -16,8 +17,6 @@ import com.pengwz.dynamic.sql2.table.TableProvider;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.AND;
@@ -27,7 +26,7 @@ public class MysqlWhereCondition implements WhereCondition {
     private final Version version;
     private final String dataSourceName;
     private final StringBuilder condition = new StringBuilder();
-    private final List<Object> params = new ArrayList<>();
+    private final ParameterBinder parameterBinder = new ParameterBinder();
     private boolean isFirstBuild;
 
     public MysqlWhereCondition(Version version, String dataSourceName) {
@@ -393,7 +392,7 @@ public class MysqlWhereCondition implements WhereCondition {
 
     @Override
     public <T1, T2, F> Condition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
-        condition.append(logicalOperatorType(AND));
+        condition.append(" ").append(logicalOperatorType(AND));
         condition.append(qualifiedTableName(field1)).append(" = ").append(qualifiedTableName(field2));
         return this;
     }
@@ -502,8 +501,8 @@ public class MysqlWhereCondition implements WhereCondition {
     @Override
     public <T, F> Condition andGreaterThan(Fn<T, F> fn, Object value) {
         String name = qualifiedTableName(fn);
-        condition.append(logicalOperatorType(AND)).append(name).append(" > ?");
-        params.add(value);
+        condition.append(" ").append(logicalOperatorType(AND)).append(" ")
+                .append(name).append(" > ").append(parameterBinder.registerValueWithKey(value));
         return this;
     }
 
@@ -515,8 +514,8 @@ public class MysqlWhereCondition implements WhereCondition {
     @Override
     public <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value) {
         String name = qualifiedTableName(fn);
-        condition.append(logicalOperatorType(OR)).append(name).append(" < ?");
-        params.add(value);
+        condition.append(" ").append(logicalOperatorType(OR)).append(" ").append(name)
+                .append(" < ").append(parameterBinder.registerValueWithKey(value));
         return this;
     }
 
@@ -756,16 +755,16 @@ public class MysqlWhereCondition implements WhereCondition {
     }
 
     @Override
-    public Object[] getWhereConditionParams() {
-        return params.toArray();
+    public ParameterBinder getParameterBinder() {
+        return parameterBinder;
     }
 
     private <T, F> String qualifiedTableName(Fn<T, F> field) {
         TableMeta tableMeta = TableProvider.getTableMeta(ReflectUtils.getOriginalClassCanonicalName(field));
-        String table = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, tableMeta.getTableName());
+        String tableAlias = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, tableMeta.getTableAlias());
         ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(field));
         String column = SqlUtils.quoteIdentifier(SqlDialect.MYSQL, columnMeta.getColumnName());
-        return table + "." + column;
+        return tableAlias + "." + column;
     }
 
     /**

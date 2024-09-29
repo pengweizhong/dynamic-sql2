@@ -16,7 +16,7 @@ public class InitializingContext {
         sqlContextProperties.setScanDatabasePackage("com.pengwz.dynamic.sql2");
         SchemaProperties schemaProperties = new SchemaProperties();
         schemaProperties.setDataSourceName("dataSource");
-        schemaProperties.setUseSchemaInQuery(true);
+        schemaProperties.setUseSchemaInQuery(false);
 //        schemaProperties.setSqlDialect(SqlDialect.ORACLE);
 //        schemaProperties.setDatabaseProductVersion("11.0.0.1");
         schemaProperties.setUseAsInQuery(true);

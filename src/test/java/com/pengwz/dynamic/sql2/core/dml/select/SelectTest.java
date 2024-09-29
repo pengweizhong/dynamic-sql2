@@ -25,9 +25,9 @@ class SelectTest extends InitializingContext {
                 .column(Teacher::getTeacherId, "id")
                 .column(Teacher::getFirstName)
                 .column(new Upper(new Md5(Teacher::getFirstName)))
-//                .column(nestedSelect -> {
-//                    nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1);
-//                }, "nested1")
+                .column(nestedSelect -> {
+                    nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1);
+                }, "nested1")
 //                .column(new NumberColumn(1))
                 .from(Teacher.class)
                 .join(Subject.class, on -> on.andEqualTo(Teacher::getTeacherId, Subject::getTeacherId)

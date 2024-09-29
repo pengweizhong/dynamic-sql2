@@ -26,10 +26,6 @@ public class SelectSpecification {
         return joinTables;
     }
 
-    public void setWhereCondition(Consumer<WhereCondition> whereCondition) {
-        this.whereCondition = whereCondition;
-    }
-
     public List<Fn<?, ?>> getGroupByFields() {
         if (groupByFields == null) {
             groupByFields = new ArrayList<>();
@@ -37,12 +33,27 @@ public class SelectSpecification {
         return groupByFields;
     }
 
+    public Consumer<WhereCondition> getWhereCondition() {
+        return whereCondition;
+    }
+
+    public void setWhereCondition(Consumer<WhereCondition> whereCondition) {
+        this.whereCondition = whereCondition;
+    }
+
+    public Consumer<HavingCondition> getHavingCondition() {
+        return havingCondition;
+    }
+
     public void setHavingCondition(Consumer<HavingCondition> havingCondition) {
         this.havingCondition = havingCondition;
+    }
+
+    public LimitInfo getLimitInfo() {
+        return limitInfo;
     }
 
     public void setLimitInfo(LimitInfo limitInfo) {
         this.limitInfo = limitInfo;
     }
-
 }

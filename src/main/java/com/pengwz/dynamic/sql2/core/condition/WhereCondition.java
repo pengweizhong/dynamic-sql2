@@ -1,10 +1,10 @@
 package com.pengwz.dynamic.sql2.core.condition;
 
-import java.util.List;
+import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 
 public interface WhereCondition extends NestedCondition, FunctionCondition {
 
     String getWhereConditionSyntax();
 
-    Object[] getWhereConditionParams();
+    ParameterBinder getParameterBinder();
 }

@@ -8,6 +8,7 @@ import com.pengwz.dynamic.sql2.core.condition.FunctionCondition;
 import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
+import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -734,7 +735,7 @@ public class OracleWhereCondition implements WhereCondition {
     }
 
     @Override
-    public Object[] getWhereConditionParams() {
-        return params.toArray();
+    public ParameterBinder getParameterBinder() {
+        return null;
     }
 }

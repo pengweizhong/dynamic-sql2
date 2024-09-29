@@ -17,6 +17,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.InnerJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
+import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -26,7 +27,6 @@ import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -36,7 +36,7 @@ public class SqlBuilder {
     private final Version version;
     private final SqlDialect sqlDialect;
     private final String dataSourceName;
-    private final List<Object> params = new ArrayList<>();
+    private final ParameterBinder parameterBinder = new ParameterBinder();
 
     public SqlBuilder(SelectSpecification selectSpecification) {
         FromJoin fromJoin = (FromJoin) selectSpecification.getJoinTables().get(0);
@@ -52,9 +52,24 @@ public class SqlBuilder {
         sqlBuilder.append(" ");
         //解析查询的表
         parseFormTable();
+        //解析limit
+        parseLimit();
         System.out.println("SQL解析后的结果：\n" + sqlBuilder);
-        System.out.println("SQL解析后的参数：\n" + StringUtils.join(", ", params));
+//        System.out.println("SQL解析后的参数：\n" + StringUtils.join(", ", parameterBinder.generateBindingKey()));
         return sqlBuilder;
+    }
+
+    private void parseLimit() {
+        LimitInfo limitInfo = selectSpecification.getLimitInfo();
+        if (limitInfo == null) {
+            return;
+        }
+        sqlBuilder.append(" limit ");
+        if (limitInfo.getOffset() != null) {
+            sqlBuilder.append(parameterBinder.registerValueWithKey(limitInfo.getOffset())).append(", ");
+
+        }
+        sqlBuilder.append(parameterBinder.registerValueWithKey(limitInfo.getLimit()));
     }
 
 
@@ -83,7 +98,7 @@ public class SqlBuilder {
                 String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? fieldName : columnQuery.getAlias();
                 System.out.println("测试函数列输出结果 ---> " + functionToString);
                 sqlBuilder.append(functionToString).append(syntaxAs()).append(columnAlias).append(columnSeparator);
-                addParams(columFunction.getParams());
+                parameterBinder.addParameterBinder(columFunction.getParameterBinder());
             }
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
@@ -95,7 +110,7 @@ public class SqlBuilder {
                 System.out.println("测试内嵌列输出结果 ---> " + nestedStringBuilder);
                 String columnAliasString = syntaxAs() + columnQuery.getAlias();
                 sqlBuilder.append("(").append(nestedStringBuilder).append(")").append(columnAliasString).append(columnSeparator);
-                params.add(nestedSqlBuilder.getParams());
+                parameterBinder.addParameterBinder(nestedSqlBuilder.getParameterBinder());
             }
         }
     }
@@ -118,13 +133,14 @@ public class SqlBuilder {
                 Class<?> tableClass = innerJoin.getTableClass();
                 TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
                 String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableAlias());
-                sqlBuilder.append(SqlUtils.getSyntaxInnerJoin(sqlDialect)).append(getSchemaName(tableMeta)).append(syntaxAs()).append(tableAlias);
+                sqlBuilder.append(" ").append(SqlUtils.getSyntaxInnerJoin(sqlDialect))
+                        .append(" ").append(getSchemaName(tableMeta)).append(syntaxAs()).append(tableAlias);
                 //拼接On条件
                 Consumer<Condition> onCondition = innerJoin.getOnCondition();
                 WhereCondition whereCondition = matchDialectCondition();
                 onCondition.accept(whereCondition);
-                addParams(whereCondition.getWhereConditionParams());
-                sqlBuilder.append(" on ").append(whereCondition.getWhereConditionSyntax());
+                parameterBinder.addParameterBinder(whereCondition.getParameterBinder());
+                sqlBuilder.append(" on").append(whereCondition.getWhereConditionSyntax());
             }
         }
     }
@@ -175,15 +191,8 @@ public class SqlBuilder {
         }
     }
 
-    protected List<Object> getParams() {
-        return params;
+    protected ParameterBinder getParameterBinder() {
+        return parameterBinder;
     }
 
-    private void addParams(Object[] addParams) {
-        if (addParams != null) {
-            for (Object param : addParams) {
-                params.add(param);
-            }
-        }
-    }
 }

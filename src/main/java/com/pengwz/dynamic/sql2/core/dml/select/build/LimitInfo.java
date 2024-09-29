@@ -8,4 +8,12 @@ public class LimitInfo {
         this.offset = offset;
         this.limit = limit;
     }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
 }

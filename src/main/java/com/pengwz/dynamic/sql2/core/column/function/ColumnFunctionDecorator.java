@@ -6,6 +6,7 @@ import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
+import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 
 import java.io.Serializable;
 import java.util.function.Consumer;
@@ -16,6 +17,8 @@ public abstract class ColumnFunctionDecorator
     protected ColumFunction delegateFunction;
     //count 1
     protected int value;
+
+    protected ParameterBinder parameterBinder = new ParameterBinder();
 
     public ColumnFunctionDecorator(ColumFunction delegateFunction) {
         this.delegateFunction = delegateFunction;
@@ -33,10 +36,17 @@ public abstract class ColumnFunctionDecorator
     public ColumnFunctionDecorator(WindowsFunction windowsFunction, Over over) {
         this.delegateFunction = windowsFunction;
     }
+
     @Override
     public Fn<?, ?> getoriginColumnFn() {
         return delegateFunction.getoriginColumnFn();
     }
+
+    @Override
+    public ParameterBinder getParameterBinder() {
+        return parameterBinder;
+    }
+
     @Override
     public <T, F> ColumnFunctionDecorator add(Fn<T, F> column) {
         return null;

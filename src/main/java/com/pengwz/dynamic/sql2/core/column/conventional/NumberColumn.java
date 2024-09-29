@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core.column.conventional;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
+import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
 public final class NumberColumn implements ColumFunction {
@@ -21,5 +22,10 @@ public final class NumberColumn implements ColumFunction {
     @Override
     public Fn<?, ?> getoriginColumnFn() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ParameterBinder getParameterBinder() {
+        return null;
     }
 }
