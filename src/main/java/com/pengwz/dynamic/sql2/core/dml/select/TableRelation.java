@@ -3,9 +3,9 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.build.GenericSqlBuilder;
 import com.pengwz.dynamic.sql2.core.dml.select.build.LimitInfo;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
-import com.pengwz.dynamic.sql2.core.dml.select.build.SqlBuilder;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
@@ -119,13 +119,13 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     @SuppressWarnings("unchecked")
     public FetchResult<R> fetch() {
-        new SqlBuilder(selectSpecification).build();
+        new GenericSqlBuilder(selectSpecification).build();
         return null;
     }
 
     @Override
     public <T> FetchResult<T> fetch(Class<T> returnClass) {
-        new SqlBuilder(selectSpecification).build();
+        new GenericSqlBuilder(selectSpecification).build();
         return null;
     }
 

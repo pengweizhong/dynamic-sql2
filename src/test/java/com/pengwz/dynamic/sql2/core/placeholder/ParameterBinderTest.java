@@ -35,7 +35,6 @@ class ParameterBinderTest {
                 int start = matcher.start();
                 int end = matcher.end();
                 modifiedSql.replace(start, end, value.toString());
-                // 重新设置 matcher，因为我们修改了 sql 字符串
                 matcher = uuidPattern.matcher(modifiedSql);
             }
         }

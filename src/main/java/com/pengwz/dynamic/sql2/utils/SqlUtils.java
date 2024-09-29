@@ -1,5 +1,9 @@
 package com.pengwz.dynamic.sql2.utils;
 
+import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
 public class SqlUtils {
@@ -92,4 +96,21 @@ public class SqlUtils {
                 return "INNER JOIN";
         }
     }
+
+    public static String getSyntaxLimit(SqlDialect sqlDialect) {
+        return "limit";
+    }
+
+    public static WhereCondition matchDialectCondition(SqlDialect sqlDialect, Version version, String dataSourceName) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return new MysqlWhereCondition(version, dataSourceName);
+            case ORACLE:
+                return new OracleWhereCondition(version, dataSourceName);
+            default:
+                throw new UnsupportedOperationException(sqlDialect.name() + " dialect does not yet support parsing conditions");
+        }
+    }
+
 }
