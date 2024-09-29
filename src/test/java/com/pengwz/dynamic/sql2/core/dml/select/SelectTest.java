@@ -39,7 +39,7 @@ class SelectTest extends InitializingContext {
                 .groupBy(Teacher::getTeacherId)
                 //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;
                 .having(havingCondition -> havingCondition.andEqualTo(new Max(Student::getStudentId), 5))
-                .limit(0,10)
+                .limit(0, 10)
                 .fetch(Teacher.class)
                 .toList();
         System.out.println(list);

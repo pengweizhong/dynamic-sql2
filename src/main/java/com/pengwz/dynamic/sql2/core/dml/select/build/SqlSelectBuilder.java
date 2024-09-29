@@ -5,6 +5,7 @@ import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
@@ -13,6 +14,7 @@ import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
+import com.pengwz.dynamic.sql2.utils.CollectionUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 
@@ -54,15 +56,27 @@ public abstract class SqlSelectBuilder {
             parseWhereCondition(selectSpecification.getWhereCondition());
         }
         //step4 解析group by
-        if (selectSpecification.getGroupByFields() != null) {
+        if (CollectionUtils.isNotEmpty(selectSpecification.getGroupByFields())) {
             parseGroupBy(selectSpecification.getGroupByFields());
+        }
+        //step5 解析聚合函数
+        if (selectSpecification.getHavingCondition() != null) {
+            parseHaving(selectSpecification.getHavingCondition());
         }
         //解析limit
         if (selectSpecification.getLimitInfo() != null) {
             parseLimit();
         }
-
         return new SqlSelectParam(sqlBuilder, parameterBinder);
+    }
+
+    private void parseHaving(Consumer<HavingCondition> havingCondition) {
+        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, dataSourceName);
+        havingCondition.accept(whereCondition);
+        sqlBuilder.append(" ").append(SqlUtils.getSyntaxHaving(sqlDialect))
+                .append(" ").append(whereCondition.getWhereConditionSyntax());
+        ParameterBinder whereParameterBinder = whereCondition.getParameterBinder();
+        parameterBinder.addParameterBinder(whereParameterBinder);
     }
 
     private void parseGroupBy(List<Fn<?, ?>> groupByFields) {

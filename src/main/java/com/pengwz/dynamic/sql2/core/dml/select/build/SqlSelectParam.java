@@ -3,16 +3,16 @@ package com.pengwz.dynamic.sql2.core.dml.select.build;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 
 public class SqlSelectParam {
-    private StringBuilder sql;
+    private StringBuilder rawSql;
     private ParameterBinder parameterBinder;
 
-    public SqlSelectParam(StringBuilder sql, ParameterBinder parameterBinder) {
-        this.sql = sql;
+    public SqlSelectParam(StringBuilder rawSql, ParameterBinder parameterBinder) {
+        this.rawSql = rawSql;
         this.parameterBinder = parameterBinder;
     }
 
-    public StringBuilder getSql() {
-        return sql;
+    public StringBuilder getRawSql() {
+        return rawSql;
     }
 
     public ParameterBinder getParameterBinder() {

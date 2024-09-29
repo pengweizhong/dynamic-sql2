@@ -58,7 +58,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
                 SqlSelectParam sqlSelectParam = SqlUtils.executeNestedSelect(nestedColumn.getNestedSelect());
                 String columnAliasString = syntaxAs() + columnQuery.getAlias();
-                sqlBuilder.append("(").append(sqlSelectParam.getSql()).append(")").append(columnAliasString).append(columnSeparator);
+                sqlBuilder.append("(").append(sqlSelectParam.getRawSql()).append(")").append(columnAliasString).append(columnSeparator);
                 parameterBinder.addParameterBinder(sqlSelectParam.getParameterBinder());
             }
         }

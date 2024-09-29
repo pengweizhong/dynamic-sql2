@@ -3,10 +3,12 @@ package com.pengwz.dynamic.sql2.core.condition.impl.dialect;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.aggregate.AggregateFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.FunctionCondition;
 import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 
@@ -736,6 +738,206 @@ public class OracleWhereCondition implements WhereCondition {
 
     @Override
     public ParameterBinder getParameterBinder() {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andEqualTo(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orEqualTo(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andNotEqualTo(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andNotEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orNotEqualTo(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orNotEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andGreaterThan(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andGreaterThan(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orGreaterThan(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orGreaterThan(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andGreaterThanOrEqualTo(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andGreaterThanOrEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orGreaterThanOrEqualTo(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orGreaterThanOrEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andLessThan(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andLessThan(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orLessThan(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orLessThan(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andLessThanOrEqualTo(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andLessThanOrEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orLessThanOrEqualTo(AggregateFunction function, Object value) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orLessThanOrEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andIn(AggregateFunction function, Iterable<?> values) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andIn(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orIn(AggregateFunction function, Iterable<?> values) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orIn(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andNotIn(AggregateFunction function, Iterable<?> values) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andNotIn(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orNotIn(AggregateFunction function, Iterable<?> values) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orNotIn(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andBetween(AggregateFunction function, Object start, Object end) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orBetween(AggregateFunction function, Object start, Object end) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andNotBetween(AggregateFunction function, Object start, Object end) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orNotBetween(AggregateFunction function, Object start, Object end) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andIsPositive(AggregateFunction function) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orIsPositive(AggregateFunction function) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition andIsNegative(AggregateFunction function) {
+        return null;
+    }
+
+    @Override
+    public HavingCondition orIsNegative(AggregateFunction function) {
         return null;
     }
 }

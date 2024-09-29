@@ -145,6 +145,16 @@ public class SqlUtils {
         }
     }
 
+    public static String getSyntaxHaving(SqlDialect sqlDialect) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return "having";
+            default:
+                return "HAVING";
+        }
+    }
+
     public static <T, F> String qualifiedAliasName(Fn<T, F> field) {
         return qualifiedAliasName(field, null);
     }
@@ -200,7 +210,7 @@ public class SqlUtils {
         nestedSelectConsumer.accept(nestedSelect);
         SqlSelectBuilder nestedSqlBuilder = matchSqlSelectBuilder(nestedSelect.getSelectSpecification());
         SqlSelectParam sqlSelectParam = nestedSqlBuilder.build();
-        System.out.println("测试内嵌列输出结果 ---> " + sqlSelectParam.getSql());
+        System.out.println("测试内嵌列输出结果 ---> " + sqlSelectParam.getRawSql());
         return sqlSelectParam;
     }
 

@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
+import com.github.vertical_blank.sqlformatter.SqlFormatter;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SqlSelectBuilder;
@@ -16,10 +17,14 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
     public FetchResultImpl(SelectSpecification selectSpecification) {
         SqlSelectBuilder sqlSelectBuilder = SqlUtils.matchSqlSelectBuilder(selectSpecification);
         SqlSelectParam sqlSelectParam = sqlSelectBuilder.build();
-        System.out.println("-- SQL解析后的结果：\n" + sqlSelectParam.getSql());
-
+        System.out.println("-- SQL解析后的结果：\n" + sqlSelectParam.getRawSql());
+        System.out.println("-- ---------------------------------------------");
+        StringBuilder stringBuilder =
+                sqlSelectParam.getParameterBinder().replacePlaceholdersWithValues(sqlSelectParam.getRawSql().toString());
+        System.out.println(stringBuilder.toString());
         System.out.println("-- SQL解析后的结果+参数：\n" +
-                sqlSelectParam.getParameterBinder().replacePlaceholdersWithValues(sqlSelectParam.getSql().toString()));
+                SqlFormatter.format(stringBuilder.toString()) );
+        System.out.println("-- ---------------------------------------------");
     }
 
 
