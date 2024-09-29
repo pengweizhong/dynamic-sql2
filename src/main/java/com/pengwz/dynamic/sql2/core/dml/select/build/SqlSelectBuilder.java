@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core.dml.select.build;
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
@@ -15,6 +16,7 @@ import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class SqlSelectBuilder {
     protected final StringBuilder sqlBuilder = new StringBuilder();
@@ -44,9 +46,25 @@ public abstract class SqlSelectBuilder {
         sqlBuilder.append(SqlUtils.getSyntaxFrom(sqlDialect)).append(" ");
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(this::parseFormTable);
+        //step3 解析where条件
+        if (selectSpecification.getWhereCondition() != null) {
+            parseWhereCondition(selectSpecification.getWhereCondition());
+        }
         //解析limit
-        parseLimit();
+        if (selectSpecification.getLimitInfo() != null) {
+            parseLimit();
+        }
+
         return new SqlSelectParam(sqlBuilder, parameterBinder);
+    }
+
+    private void parseWhereCondition(Consumer<WhereCondition> whereConditionConsumer) {
+        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, dataSourceName);
+        whereConditionConsumer.accept(whereCondition);
+        sqlBuilder.append(" ").append(SqlUtils.getSyntaxWhere(sqlDialect))
+                .append(" ").append(whereCondition.getWhereConditionSyntax());
+        ParameterBinder whereParameterBinder = whereCondition.getParameterBinder();
+        parameterBinder.addParameterBinder(whereParameterBinder);
     }
 
     protected abstract void parseLimit();

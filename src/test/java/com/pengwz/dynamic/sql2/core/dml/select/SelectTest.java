@@ -33,7 +33,7 @@ class SelectTest extends InitializingContext {
                 .join(Subject.class, on -> on.andEqualTo(Teacher::getTeacherId, Subject::getTeacherId)
                         .orGreaterThan(Teacher::getTeacherId, 1))
                 .where(whereCondition -> {
-                    whereCondition.andEqualTo(Teacher::getTeacherId, 123);
+                    whereCondition.andEqualTo(Teacher::getTeacherId, 2);
                     whereCondition.andExists(nestedSelect -> nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1));
                 }).groupBy(Teacher::getTeacherId)
                 //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;

@@ -5,7 +5,6 @@ import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
-import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
@@ -57,12 +56,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             }
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
-                Consumer<NestedSelect> nestedSelectConsumer = nestedColumn.getNestedSelect();
-                NestedSelect nestedSelect = new NestedSelect();
-                nestedSelectConsumer.accept(nestedSelect);
-                SqlSelectBuilder nestedSqlBuilder = new GenericSqlSelectBuilder(nestedSelect.getSelectSpecification());
-                SqlSelectParam sqlSelectParam = nestedSqlBuilder.build();
-                System.out.println("测试内嵌列输出结果 ---> " + sqlSelectParam.getSql());
+                SqlSelectParam sqlSelectParam = SqlUtils.executeNestedSelect(nestedColumn.getNestedSelect());
                 String columnAliasString = syntaxAs() + columnQuery.getAlias();
                 sqlBuilder.append("(").append(sqlSelectParam.getSql()).append(")").append(columnAliasString).append(columnSeparator);
                 parameterBinder.addParameterBinder(sqlSelectParam.getParameterBinder());

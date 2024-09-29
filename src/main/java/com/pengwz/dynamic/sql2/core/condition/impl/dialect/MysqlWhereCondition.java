@@ -8,6 +8,7 @@ import com.pengwz.dynamic.sql2.core.condition.FunctionCondition;
 import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
+import com.pengwz.dynamic.sql2.core.dml.select.build.SqlSelectParam;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -367,7 +368,11 @@ public class MysqlWhereCondition implements WhereCondition {
 
     @Override
     public NestedCondition andExists(Consumer<NestedSelect> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND)).append(SqlUtils.getSyntaxExists(SqlDialect.MYSQL));
+        SqlSelectParam sqlSelectParam = SqlUtils.executeNestedSelect(nestedSelect);
+        condition.append(" (").append(sqlSelectParam.getSql()).append(")");
+        parameterBinder.addParameterBinder(sqlSelectParam.getParameterBinder());
+        return this;
     }
 
     @Override
@@ -387,7 +392,9 @@ public class MysqlWhereCondition implements WhereCondition {
 
     @Override
     public <T, F> Condition andEqualTo(Fn<T, F> fn, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(qualifiedTableName(fn)).append(" = ").append(parameterBinder.registerValueWithKey(value));
+        return this;
     }
 
     @Override
@@ -501,7 +508,7 @@ public class MysqlWhereCondition implements WhereCondition {
     @Override
     public <T, F> Condition andGreaterThan(Fn<T, F> fn, Object value) {
         String name = qualifiedTableName(fn);
-        condition.append(" ").append(logicalOperatorType(AND)).append(" ")
+        condition.append(" ").append(logicalOperatorType(AND))
                 .append(name).append(" > ").append(parameterBinder.registerValueWithKey(value));
         return this;
     }
@@ -514,7 +521,7 @@ public class MysqlWhereCondition implements WhereCondition {
     @Override
     public <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value) {
         String name = qualifiedTableName(fn);
-        condition.append(" ").append(logicalOperatorType(OR)).append(" ").append(name)
+        condition.append(" ").append(logicalOperatorType(OR)).append(name)
                 .append(" < ").append(parameterBinder.registerValueWithKey(value));
         return this;
     }
@@ -775,7 +782,7 @@ public class MysqlWhereCondition implements WhereCondition {
             isFirstBuild = false;
             return "";
         }
-        return logicalOperatorType.name().toLowerCase();
+        return logicalOperatorType.name().toLowerCase() + " ";
     }
 
 }

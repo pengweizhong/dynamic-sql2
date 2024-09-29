@@ -6,11 +6,14 @@ import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.build.*;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
+
+import java.util.function.Consumer;
 
 public class SqlUtils {
     private SqlUtils() {
@@ -103,8 +106,28 @@ public class SqlUtils {
         }
     }
 
+    public static String getSyntaxWhere(SqlDialect sqlDialect) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return "where";
+            default:
+                return "WHERE";
+        }
+    }
+
     public static String getSyntaxLimit(SqlDialect sqlDialect) {
         return "limit";
+    }
+
+    public static String getSyntaxExists(SqlDialect sqlDialect) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return "exists";
+            default:
+                return "EXISTS";
+        }
     }
 
     public static WhereCondition matchDialectCondition(SqlDialect sqlDialect, Version version, String dataSourceName) {
@@ -138,4 +161,14 @@ public class SqlUtils {
                 return new GenericSqlSelectBuilder(selectSpecification);
         }
     }
+
+    public static SqlSelectParam executeNestedSelect(Consumer<NestedSelect> nestedSelectConsumer) {
+        NestedSelect nestedSelect = new NestedSelect();
+        nestedSelectConsumer.accept(nestedSelect);
+        SqlSelectBuilder nestedSqlBuilder = matchSqlSelectBuilder(nestedSelect.getSelectSpecification());
+        SqlSelectParam sqlSelectParam = nestedSqlBuilder.build();
+        System.out.println("测试内嵌列输出结果 ---> " + sqlSelectParam.getSql());
+        return sqlSelectParam;
+    }
+
 }
