@@ -11,6 +11,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.InnerJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.LeftJoin;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
@@ -66,31 +67,39 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         }
     }
 
+    /**
+     * 返回库名+表名+别名的结果
+     */
+    protected String automaticallySelectAliases(JoinTable joinTable) {
+        Class<?> tableClass = joinTable.getTableClass();
+        TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
+        String alias = StringUtils.isEmpty(joinTable.getTableAlias()) ? tableMeta.getTableAlias() : joinTable.getTableAlias();
+        String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, alias);
+        return getSchemaName(tableMeta).concat(syntaxAs()).concat(tableAlias);
+    }
 
     protected void parseFormTable(JoinTable joinTable) {
         if (joinTable instanceof FromJoin) {
-            FromJoin fromJoin = (FromJoin) joinTable;
-            Class<?> tableClass = fromJoin.getTableClass();
-            TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
-            String alias = StringUtils.isEmpty(joinTable.getTableAlias()) ? tableMeta.getTableAlias() : joinTable.getTableAlias();
-            String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, alias);
-            sqlBuilder.append(getSchemaName(tableMeta)).append(syntaxAs()).append(tableAlias);
+            sqlBuilder.append(automaticallySelectAliases(joinTable));
+            return;
         }
+        String syntaxJoin = " " + SqlUtils.getSyntaxJoin(sqlDialect, joinTable) + " ";
+        String syntaxOn = " " + SqlUtils.getSyntaxOn(sqlDialect) + " ";
         // INNER, LEFT, RIGHT, FULL, CROSS, SELF;
         if (joinTable instanceof InnerJoin) {
-            InnerJoin innerJoin = (InnerJoin) joinTable;
-            Class<?> tableClass = innerJoin.getTableClass();
-            TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
-            String alias = StringUtils.isEmpty(joinTable.getTableAlias()) ? tableMeta.getTableAlias() : joinTable.getTableAlias();
-            String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, alias);
-            sqlBuilder.append(" ").append(SqlUtils.getSyntaxInnerJoin(sqlDialect))
-                    .append(" ").append(getSchemaName(tableMeta)).append(syntaxAs()).append(tableAlias);
+            sqlBuilder.append(syntaxJoin).append(automaticallySelectAliases(joinTable));
             //拼接On条件
+            InnerJoin innerJoin = (InnerJoin) joinTable;
             Consumer<Condition> onCondition = innerJoin.getOnCondition();
             WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap);
             onCondition.accept(whereCondition);
             parameterBinder.addParameterBinder(whereCondition.getParameterBinder());
-            sqlBuilder.append(" on").append(whereCondition.getWhereConditionSyntax());
+            sqlBuilder.append(syntaxOn).append(whereCondition.getWhereConditionSyntax());
+            return;
+        }
+        if (joinTable instanceof LeftJoin) {
+            LeftJoin leftJoin = (LeftJoin) joinTable;
+
         }
     }
 

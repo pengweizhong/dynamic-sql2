@@ -11,6 +11,9 @@ import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.build.*;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.InnerJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.LeftJoin;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DbType;
@@ -127,13 +130,35 @@ public class SqlUtils {
         }
     }
 
-    public static String getSyntaxInnerJoin(SqlDialect sqlDialect) {
+    public static String getSyntaxJoin(SqlDialect sqlDialect, JoinTable joinTable) {
+        if (joinTable instanceof InnerJoin) {
+            switch (sqlDialect) {
+                case MYSQL:
+                case MARIADB:
+                    return "inner join";
+                default:
+                    return "INNER JOIN";
+            }
+        }
+        if (joinTable instanceof LeftJoin) {
+            switch (sqlDialect) {
+                case MYSQL:
+                case MARIADB:
+                    return "left join";
+                default:
+                    return "LEFT JOIN";
+            }
+        }
+        throw new UnsupportedOperationException("Unsupported associated table query type.");
+    }
+
+    public static String getSyntaxOn(SqlDialect sqlDialect) {
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:
-                return "inner join";
+                return "on";
             default:
-                return "INNER JOIN";
+                return "ON";
         }
     }
 
