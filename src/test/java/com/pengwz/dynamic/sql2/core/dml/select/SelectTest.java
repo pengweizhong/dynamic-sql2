@@ -32,10 +32,17 @@ class SelectTest extends InitializingContext {
                 .from(Teacher.class, "t_1")
                 .join(Subject.class, "t_2", on -> on.andEqualTo(Teacher::getTeacherId, Subject::getTeacherId)
                         .orGreaterThan(Teacher::getTeacherId, 1))
-                .leftJoin(TClass.class,condition -> {condition.andEqualTo(TClass::getClassTeacherId,Teacher::getTeacherId);})
+                .leftJoin(TClass.class, condition -> condition.andEqualTo(TClass::getClassTeacherId, Teacher::getTeacherId))
+                .rightJoin(Subject.class, "t_u", on -> on.andEqualTo(Subject::getTeacherId, Teacher::getTeacherId))
                 .where(whereCondition -> {
                     whereCondition.andNotEqualTo(Teacher::getTeacherId, -1);
-                    whereCondition.andExists(nestedSelect -> nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1));
+                    whereCondition.andExists(nested -> nested.select().column(Teacher::getGender).from(Teacher.class).limit(1));
+                    whereCondition.andCondition(condition ->
+                            condition.andEqualTo(Teacher::getGender, Student.GenderEnum.Male)
+                                    .orEqualTo(Teacher::getGender, Student.GenderEnum.Female));
+                    whereCondition.orCondition(condition ->
+                            condition.andEqualTo(Teacher::getGender, Student.GenderEnum.Male)
+                                    .orEqualTo(Teacher::getGender, Student.GenderEnum.Female));
                 })
                 .groupBy(Teacher::getTeacherId)
                 //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;

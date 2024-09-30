@@ -1,7 +1,10 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build.join;
 
+import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.enums.JoinTableType;
+
+import java.util.function.Consumer;
 
 public class CrossJoin extends JoinTable {
     private Class<?> tableClass;
@@ -30,6 +33,11 @@ public class CrossJoin extends JoinTable {
     @Override
     public CteTable getCteTable() {
         return cteTable;
+    }
+
+    @Override
+    public Consumer<Condition> getOnCondition() {
+        return null;
     }
 
 }

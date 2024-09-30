@@ -9,9 +9,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.InnerJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.LeftJoin;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
@@ -86,20 +84,14 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         String syntaxJoin = " " + SqlUtils.getSyntaxJoin(sqlDialect, joinTable) + " ";
         String syntaxOn = " " + SqlUtils.getSyntaxOn(sqlDialect) + " ";
         // INNER, LEFT, RIGHT, FULL, CROSS, SELF;
-        if (joinTable instanceof InnerJoin) {
-            sqlBuilder.append(syntaxJoin).append(automaticallySelectAliases(joinTable));
-            //拼接On条件
-            InnerJoin innerJoin = (InnerJoin) joinTable;
-            Consumer<Condition> onCondition = innerJoin.getOnCondition();
+        sqlBuilder.append(syntaxJoin).append(automaticallySelectAliases(joinTable));
+        //拼接On条件
+        Consumer<Condition> onCondition = joinTable.getOnCondition();
+        if (onCondition != null) {
             WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap);
             onCondition.accept(whereCondition);
             parameterBinder.addParameterBinder(whereCondition.getParameterBinder());
             sqlBuilder.append(syntaxOn).append(whereCondition.getWhereConditionSyntax());
-            return;
-        }
-        if (joinTable instanceof LeftJoin) {
-            LeftJoin leftJoin = (LeftJoin) joinTable;
-
         }
     }
 

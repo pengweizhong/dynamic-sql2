@@ -10,13 +10,11 @@ import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.build.*;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.InnerJoin;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.LeftJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DbType;
+import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
@@ -149,6 +147,15 @@ public class SqlUtils {
                     return "LEFT JOIN";
             }
         }
+        if (joinTable instanceof RightJoin) {
+            switch (sqlDialect) {
+                case MYSQL:
+                case MARIADB:
+                    return "right join";
+                default:
+                    return "RIGHT JOIN";
+            }
+        }
         throw new UnsupportedOperationException("Unsupported associated table query type.");
     }
 
@@ -216,6 +223,15 @@ public class SqlUtils {
         }
     }
 
+    public static String getSyntaxLogicalOperator(LogicalOperatorType logicalOperatorType, SqlDialect sqlDialect) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return logicalOperatorType.name().toLowerCase();
+            default:
+                return logicalOperatorType.name();
+        }
+    }
 
     public static WhereCondition matchDialectCondition(SqlDialect sqlDialect, Version version, Map<String, String> aliasTableMap) {
         switch (sqlDialect) {

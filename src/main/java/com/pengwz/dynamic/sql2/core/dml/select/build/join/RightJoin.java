@@ -37,4 +37,9 @@ public class RightJoin extends JoinTable {
     public CteTable getCteTable() {
         return cteTable;
     }
+
+    @Override
+    public Consumer<Condition> getOnCondition() {
+        return onCondition;
+    }
 }

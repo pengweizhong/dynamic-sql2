@@ -368,7 +368,7 @@ public class GenericWhereCondition implements WhereCondition {
 
     @Override
     public NestedCondition andExists(Consumer<NestedSelect> nestedSelect) {
-        condition.append(" ").append(logicalOperatorType(AND)).append(SqlUtils.getSyntaxExists(SqlDialect.MYSQL));
+        condition.append(" ").append(logicalOperatorType(AND)).append(SqlUtils.getSyntaxExists(matchSqlDialect()));
         SqlSelectParam sqlSelectParam = SqlUtils.executeNestedSelect(nestedSelect);
         condition.append(" (").append(sqlSelectParam.getRawSql()).append(")");
         parameterBinder.addParameterBinder(sqlSelectParam.getParameterBinder());
@@ -391,6 +391,25 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
+    public Condition andCondition(Consumer<Condition> nestedCondition) {
+        return nestedCondition(nestedCondition, AND);
+    }
+
+    @Override
+    public Condition orCondition(Consumer<Condition> nestedCondition) {
+        return nestedCondition(nestedCondition, OR);
+    }
+
+    private Condition nestedCondition(Consumer<Condition> nestedCondition, LogicalOperatorType logicalOperatorType) {
+        WhereCondition whereCondition = SqlUtils.matchDialectCondition(matchSqlDialect(), version, aliasTableMap);
+        nestedCondition.accept(whereCondition);
+        condition.append(" ").append(logicalOperatorType(logicalOperatorType))
+                .append(" (").append(whereCondition.getWhereConditionSyntax()).append(") ");
+        parameterBinder.addParameterBinder(whereCondition.getParameterBinder());
+        return this;
+    }
+
+    @Override
     public <T, F> Condition andEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(SqlUtils.qualifiedAliasName(fn, aliasTableMap))
@@ -409,7 +428,10 @@ public class GenericWhereCondition implements WhereCondition {
 
     @Override
     public <T, F> Condition orEqualTo(Fn<T, F> fn, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(SqlUtils.qualifiedAliasName(fn, aliasTableMap))
+                .append(" = ").append(parameterBinder.registerValueWithKey(value));
+        return this;
     }
 
     @Override
@@ -771,20 +793,24 @@ public class GenericWhereCondition implements WhereCondition {
         return parameterBinder;
     }
 
+    private String logicalOperatorType(LogicalOperatorType logicalOperatorType) {
+        return logicalOperatorType(logicalOperatorType, matchSqlDialect());
+    }
+
     /**
      * 首次连接时才会去拼接 and  或者 or
      */
-    private String logicalOperatorType(LogicalOperatorType logicalOperatorType) {
+    protected String logicalOperatorType(LogicalOperatorType logicalOperatorType, SqlDialect sqlDialect) {
         if (isFirstBuild) {
             isFirstBuild = false;
             return "";
         }
-        return logicalOperatorType.name().toLowerCase() + " ";
+        return SqlUtils.getSyntaxLogicalOperator(logicalOperatorType, sqlDialect) + " ";
     }
 
     @Override
     public HavingCondition andEqualTo(AggregateFunction function, Object value) {
-        String functionToString = executeFunctionToString(function, SqlDialect.MYSQL);
+        String functionToString = executeFunctionToString(function);
         condition.append(" ").append(functionToString).append(" = ").append(parameterBinder.registerValueWithKey(value));
         return this;
     }
@@ -985,10 +1011,20 @@ public class GenericWhereCondition implements WhereCondition {
         return null;
     }
 
-    protected String executeFunctionToString(AggregateFunction function, SqlDialect sqlDialect) {
+    protected String executeFunctionToString(AggregateFunction function) {
         Fn<?, ?> originColumnFn = function.getOriginColumnFn();
         String alias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(originColumnFn));
         function.setTableAlias(alias);
-        return function.getFunctionToString(sqlDialect, version);
+        return function.getFunctionToString(matchSqlDialect(), version);
+    }
+
+    private SqlDialect matchSqlDialect() {
+        if (this instanceof MysqlWhereCondition) {
+            return SqlDialect.MYSQL;
+        }
+        if (this instanceof OracleWhereCondition) {
+            return SqlDialect.ORACLE;
+        }
+        return SqlDialect.MYSQL;
     }
 }

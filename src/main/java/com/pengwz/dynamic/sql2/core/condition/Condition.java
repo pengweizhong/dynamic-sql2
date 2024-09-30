@@ -1,8 +1,13 @@
 package com.pengwz.dynamic.sql2.core.condition;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.dml.select.build.SqlSelectParam;
+import com.pengwz.dynamic.sql2.enums.SqlDialect;
+import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.util.function.Consumer;
+
+import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.AND;
 
 /**
  * SQL 查询条件接口，用于构建动态 SQL 查询条件。
