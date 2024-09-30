@@ -56,6 +56,19 @@ class SelectTest extends InitializingContext {
     }
 
     @Test
+    void select1_1() {
+        sqlContext.select()
+                .column(Teacher::getTeacherId)
+                .column(Teacher::getFirstName)
+                .column(Subject::getSubjectName)
+                .from(Teacher.class,"t1")
+                .fullJoin(TClass.class, "t2", on -> on.andEqualTo(Teacher::getTeacherId, TClass::getClassTeacherId))
+                .innerJoin(Subject.class, "t3", on -> on.andEqualTo(Teacher::getTeacherId, Subject::getSubjectId))
+                .fetch(Teacher.class)
+                .toList();
+    }
+
+    @Test
     void select2() {
         Set<Teacher> set = sqlContext.select()
                 .column(Teacher::getTeacherId)

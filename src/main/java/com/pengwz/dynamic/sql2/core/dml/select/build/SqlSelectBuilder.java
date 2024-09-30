@@ -46,20 +46,26 @@ public abstract class SqlSelectBuilder {
 
     protected abstract void parseColumnFunction();
 
-    protected abstract void parseFormTable(JoinTable joinTable);
+    protected abstract void parseFormTables();
 
     protected abstract void parseLimit();
 
     public final SqlSelectParam build() {
         //step0 解析表别名
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
-        joinTables.forEach(joinTable -> aliasTableMap.put(joinTable.getTableClass().getCanonicalName(), joinTable.getTableAlias()));
+        joinTables.forEach(joinTable -> {
+            String canonicalName = joinTable.getTableClass().getCanonicalName();
+            if (aliasTableMap.get(canonicalName) != null) {
+                throw new IllegalStateException("Repeatedly associated with the same table: " + canonicalName);
+            }
+            aliasTableMap.put(canonicalName, joinTable.getTableAlias());
+        });
         //step1 解析查询的列
         parseColumnFunction();
         sqlBuilder.append(" ");
         //step2 解析查询的表
         sqlBuilder.append(SqlUtils.getSyntaxFrom(sqlDialect)).append(" ");
-        joinTables.forEach(this::parseFormTable);
+        parseFormTables();
         //step3 解析where条件
         if (selectSpecification.getWhereCondition() != null) {
             parseWhere(selectSpecification.getWhereCondition());

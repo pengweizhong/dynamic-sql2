@@ -156,6 +156,15 @@ public class SqlUtils {
                     return "RIGHT JOIN";
             }
         }
+        if (joinTable instanceof FullJoin) {
+            switch (sqlDialect) {
+                case MYSQL:
+                case MARIADB:
+                    throw new UnsupportedOperationException("Unsupported associated table query full join type.");
+                default:
+                    return "FULL OUTER JOIN";
+            }
+        }
         throw new UnsupportedOperationException("Unsupported associated table query type.");
     }
 

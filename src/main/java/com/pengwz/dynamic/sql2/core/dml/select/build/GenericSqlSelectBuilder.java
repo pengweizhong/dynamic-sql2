@@ -76,7 +76,19 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         return getSchemaName(tableMeta).concat(syntaxAs()).concat(tableAlias);
     }
 
+    @Override
+    protected void parseFormTables() {
+        List<JoinTable> joinTables = selectSpecification.getJoinTables();
+        for (JoinTable joinTable : joinTables) {
+            parseFormTable(joinTable);
+        }
+    }
+
     protected void parseFormTable(JoinTable joinTable) {
+        parseFormTable(joinTable, this.sqlBuilder);
+    }
+
+    protected void parseFormTable(JoinTable joinTable, StringBuilder sqlBuilder) {
         if (joinTable instanceof FromJoin) {
             sqlBuilder.append(automaticallySelectAliases(joinTable));
             return;
