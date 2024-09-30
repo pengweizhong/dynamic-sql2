@@ -17,4 +17,8 @@ public interface ColumFunction {
         return null;
     }
 
+    default void setTableAlias(String tableAlias) {
+
+    }
+
 }

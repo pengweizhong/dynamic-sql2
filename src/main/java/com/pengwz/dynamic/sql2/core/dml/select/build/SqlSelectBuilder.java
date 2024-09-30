@@ -21,7 +21,9 @@ import com.pengwz.dynamic.sql2.utils.CollectionUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class SqlSelectBuilder {
@@ -31,6 +33,8 @@ public abstract class SqlSelectBuilder {
     protected final SqlDialect sqlDialect;
     protected final String dataSourceName;
     protected final ParameterBinder parameterBinder = new ParameterBinder();
+    //key是class路径 value是别名
+    protected final Map<String, String> aliasTableMap = new HashMap<>();
 
     protected SqlSelectBuilder(SelectSpecification selectSpecification) {
         FromJoin fromJoin = (FromJoin) selectSpecification.getJoinTables().get(0);
@@ -47,12 +51,14 @@ public abstract class SqlSelectBuilder {
     protected abstract void parseLimit();
 
     public final SqlSelectParam build() {
+        //step0 解析表别名
+        List<JoinTable> joinTables = selectSpecification.getJoinTables();
+        joinTables.forEach(joinTable -> aliasTableMap.put(joinTable.getTableClass().getCanonicalName(), joinTable.getTableAlias()));
         //step1 解析查询的列
         parseColumnFunction();
         sqlBuilder.append(" ");
         //step2 解析查询的表
         sqlBuilder.append(SqlUtils.getSyntaxFrom(sqlDialect)).append(" ");
-        List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(this::parseFormTable);
         //step3 解析where条件
         if (selectSpecification.getWhereCondition() != null) {
@@ -77,6 +83,22 @@ public abstract class SqlSelectBuilder {
         return new SqlSelectParam(sqlBuilder, parameterBinder);
     }
 
+    private void parseGroupBy(List<Fn<?, ?>> groupByFields) {
+        sqlBuilder.append(" ").append(SqlUtils.getSyntaxGroupBy(sqlDialect));
+        for (Fn<?, ?> groupByField : groupByFields) {
+            sqlBuilder.append(" ").append(SqlUtils.qualifiedAliasName(groupByField, aliasTableMap));
+        }
+    }
+
+    private void parseHaving(Consumer<HavingCondition> havingCondition) {
+        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap);
+        havingCondition.accept(whereCondition);
+        sqlBuilder.append(" ").append(SqlUtils.getSyntaxHaving(sqlDialect))
+                .append(" ").append(whereCondition.getWhereConditionSyntax());
+        ParameterBinder whereParameterBinder = whereCondition.getParameterBinder();
+        parameterBinder.addParameterBinder(whereParameterBinder);
+    }
+
     private void parseOrderBy(List<OrderBy> orderBys) {
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxOrderBy(sqlDialect));
         for (int i = 0; i < orderBys.size(); i++) {
@@ -94,31 +116,15 @@ public abstract class SqlSelectBuilder {
             }
             if (orderBy instanceof DefaultOrderBy) {
                 DefaultOrderBy defaultOrderBy = (DefaultOrderBy) orderBy;
-                String order = SqlUtils.qualifiedAliasName(defaultOrderBy.getFn());
+                String order = SqlUtils.qualifiedAliasName(defaultOrderBy.getFn(), aliasTableMap);
                 sqlBuilder.append(" ").append(order).append(" ").append(defaultOrderBy.getSortOrder().toSqlString(sqlDialect));
                 sqlBuilder.append(columnSeparator);
             }
         }
     }
 
-    private void parseHaving(Consumer<HavingCondition> havingCondition) {
-        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, dataSourceName);
-        havingCondition.accept(whereCondition);
-        sqlBuilder.append(" ").append(SqlUtils.getSyntaxHaving(sqlDialect))
-                .append(" ").append(whereCondition.getWhereConditionSyntax());
-        ParameterBinder whereParameterBinder = whereCondition.getParameterBinder();
-        parameterBinder.addParameterBinder(whereParameterBinder);
-    }
-
-    private void parseGroupBy(List<Fn<?, ?>> groupByFields) {
-        sqlBuilder.append(" ").append(SqlUtils.getSyntaxGroupBy(sqlDialect));
-        for (Fn<?, ?> groupByField : groupByFields) {
-            sqlBuilder.append(" ").append(SqlUtils.qualifiedAliasName(groupByField));
-        }
-    }
-
     private void parseWhere(Consumer<WhereCondition> whereConditionConsumer) {
-        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, dataSourceName);
+        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap);
         whereConditionConsumer.accept(whereCondition);
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxWhere(sqlDialect))
                 .append(" ").append(whereCondition.getWhereConditionSyntax());

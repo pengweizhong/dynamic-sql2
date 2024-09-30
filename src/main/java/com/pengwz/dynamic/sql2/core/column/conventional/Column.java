@@ -10,10 +10,13 @@ import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
+import com.pengwz.dynamic.sql2.utils.StringUtils;
 
 public final class Column implements ColumFunction {
 
     private final Fn<?, ?> columnFn;
+
+    private String tableAlias;
 
     public <T, F> Column(Fn<T, F> fn) {
         this.columnFn = fn;
@@ -25,8 +28,8 @@ public final class Column implements ColumFunction {
         String classCanonicalName = ReflectUtils.getOriginalClassCanonicalName(columnFn);
         TableMeta tableMeta = TableProvider.getTableMeta(classCanonicalName);
         ColumnMeta columnMeta = tableMeta.getColumnMeta(filedName);
-        String tableAlias = tableMeta.getTableAlias();
-        return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." +
+        String tableAliasName = StringUtils.isEmpty(tableAlias) ? tableMeta.getTableAlias() : tableAlias;
+        return SqlUtils.quoteIdentifier(sqlDialect, tableAliasName) + "." +
                 SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
     }
 
@@ -40,4 +43,8 @@ public final class Column implements ColumFunction {
         return null;
     }
 
+    @Override
+    public void setTableAlias(String tableAlias) {
+        this.tableAlias = tableAlias;
+    }
 }

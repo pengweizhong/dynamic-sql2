@@ -27,4 +27,14 @@ public class RightJoin extends JoinTable {
     public JoinTableType getJoinTableType() {
         return JoinTableType.RIGHT;
     }
+
+    @Override
+    public Class<?> getTableClass() {
+        return tableClass;
+    }
+
+    @Override
+    public CteTable getCteTable() {
+        return cteTable;
+    }
 }

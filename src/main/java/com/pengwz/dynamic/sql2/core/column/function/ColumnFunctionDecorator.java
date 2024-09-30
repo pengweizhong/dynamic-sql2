@@ -17,7 +17,6 @@ public abstract class ColumnFunctionDecorator
     protected ColumFunction delegateFunction;
     //count 1
     protected int value;
-
     protected ParameterBinder parameterBinder = new ParameterBinder();
 
     public ColumnFunctionDecorator(ColumFunction delegateFunction) {
@@ -35,6 +34,11 @@ public abstract class ColumnFunctionDecorator
     //窗口函数
     public ColumnFunctionDecorator(WindowsFunction windowsFunction, Over over) {
         this.delegateFunction = windowsFunction;
+    }
+
+    @Override
+    public void setTableAlias(String tableAlias) {
+        delegateFunction.setTableAlias(tableAlias);
     }
 
     @Override

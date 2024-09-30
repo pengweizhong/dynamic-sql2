@@ -22,4 +22,14 @@ public class CrossJoin extends JoinTable {
         return JoinTableType.CROSS;
     }
 
+    @Override
+    public Class<?> getTableClass() {
+        return tableClass;
+    }
+
+    @Override
+    public CteTable getCteTable() {
+        return cteTable;
+    }
+
 }

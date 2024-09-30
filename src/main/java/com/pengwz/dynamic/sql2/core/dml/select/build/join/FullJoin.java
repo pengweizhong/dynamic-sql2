@@ -27,4 +27,14 @@ public class FullJoin extends JoinTable {
     public JoinTableType getJoinTableType() {
         return JoinTableType.FULL;
     }
+
+    @Override
+    public Class<?> getTableClass() {
+        return tableClass;
+    }
+
+    @Override
+    public CteTable getCteTable() {
+        return cteTable;
+    }
 }

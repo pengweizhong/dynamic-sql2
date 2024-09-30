@@ -38,7 +38,7 @@ class SelectTest extends InitializingContext {
                 })
                 .groupBy(Teacher::getTeacherId)
                 //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;
-                .having(havingCondition -> havingCondition.andEqualTo(new Max(Student::getStudentId), 5))
+                .having(havingCondition -> havingCondition.andEqualTo(new Max(Teacher::getBirthDate), 5))
                 .orderBy(Teacher::getTeacherId)
                 .thenOrderBy(Teacher::getBirthDate, SortOrder.DESC)
                 .limit(0, 10)

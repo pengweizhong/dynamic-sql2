@@ -27,4 +27,14 @@ public class SelfJoin extends JoinTable {
     public JoinTableType getJoinTableType() {
         return JoinTableType.SELF;
     }
+
+    @Override
+    public Class<?> getTableClass() {
+        return tableClass;
+    }
+
+    @Override
+    public CteTable getCteTable() {
+        return cteTable;
+    }
 }

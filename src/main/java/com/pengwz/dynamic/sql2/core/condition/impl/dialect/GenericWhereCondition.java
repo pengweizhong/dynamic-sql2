@@ -14,8 +14,10 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.SqlSelectParam;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
+import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.AND;
@@ -23,14 +25,14 @@ import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.OR;
 
 public class GenericWhereCondition implements WhereCondition {
     private final Version version;
-    private final String dataSourceName;
+    private final Map<String, String> aliasTableMap;
     private final StringBuilder condition = new StringBuilder();
     private final ParameterBinder parameterBinder = new ParameterBinder();
     private boolean isFirstBuild;
 
-    public GenericWhereCondition(Version version, String dataSourceName) {
+    public GenericWhereCondition(Version version, Map<String, String> aliasTableMap) {
         this.version = version;
-        this.dataSourceName = dataSourceName;
+        this.aliasTableMap = aliasTableMap;
         this.isFirstBuild = true;
     }
 
@@ -391,14 +393,16 @@ public class GenericWhereCondition implements WhereCondition {
     @Override
     public <T, F> Condition andEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(AND));
-        condition.append(SqlUtils.qualifiedAliasName(fn)).append(" = ").append(parameterBinder.registerValueWithKey(value));
+        condition.append(SqlUtils.qualifiedAliasName(fn, aliasTableMap))
+                .append(" = ").append(parameterBinder.registerValueWithKey(value));
         return this;
     }
 
     @Override
     public <T1, T2, F> Condition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
         condition.append(" ").append(logicalOperatorType(AND));
-        condition.append(SqlUtils.qualifiedAliasName(field1)).append(" = ").append(SqlUtils.qualifiedAliasName(field2));
+        condition.append(SqlUtils.qualifiedAliasName(field1, aliasTableMap))
+                .append(" = ").append(SqlUtils.qualifiedAliasName(field2, aliasTableMap));
         return this;
     }
 
@@ -416,7 +420,8 @@ public class GenericWhereCondition implements WhereCondition {
     @Override
     public <T, F> Condition andNotEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(AND));
-        condition.append(SqlUtils.qualifiedAliasName(fn)).append(" != ").append(parameterBinder.registerValueWithKey(value));
+        condition.append(SqlUtils.qualifiedAliasName(fn, aliasTableMap))
+                .append(" != ").append(parameterBinder.registerValueWithKey(value));
         return this;
     }
 
@@ -507,7 +512,7 @@ public class GenericWhereCondition implements WhereCondition {
 
     @Override
     public <T, F> Condition andGreaterThan(Fn<T, F> fn, Object value) {
-        String name = SqlUtils.qualifiedAliasName(fn);
+        String name = SqlUtils.qualifiedAliasName(fn, aliasTableMap);
         condition.append(" ").append(logicalOperatorType(AND))
                 .append(name).append(" > ").append(parameterBinder.registerValueWithKey(value));
         return this;
@@ -520,7 +525,7 @@ public class GenericWhereCondition implements WhereCondition {
 
     @Override
     public <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value) {
-        String name = SqlUtils.qualifiedAliasName(fn);
+        String name = SqlUtils.qualifiedAliasName(fn, aliasTableMap);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
                 .append(" < ").append(parameterBinder.registerValueWithKey(value));
         return this;
@@ -779,10 +784,11 @@ public class GenericWhereCondition implements WhereCondition {
 
     @Override
     public HavingCondition andEqualTo(AggregateFunction function, Object value) {
-        String functionToString = function.getFunctionToString(SqlDialect.MYSQL, version);
+        String functionToString = executeFunctionToString(function, SqlDialect.MYSQL);
         condition.append(" ").append(functionToString).append(" = ").append(parameterBinder.registerValueWithKey(value));
         return this;
     }
+
 
     @Override
     public HavingCondition andEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
@@ -977,5 +983,12 @@ public class GenericWhereCondition implements WhereCondition {
     @Override
     public HavingCondition orIsNegative(AggregateFunction function) {
         return null;
+    }
+
+    protected String executeFunctionToString(AggregateFunction function, SqlDialect sqlDialect) {
+        Fn<?, ?> originColumnFn = function.getOriginColumnFn();
+        String alias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(originColumnFn));
+        function.setTableAlias(alias);
+        return function.getFunctionToString(sqlDialect, version);
     }
 }

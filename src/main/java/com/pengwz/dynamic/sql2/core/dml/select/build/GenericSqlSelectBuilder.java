@@ -1,7 +1,6 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.column.conventional.ColumFunctionProxy;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
@@ -41,16 +40,15 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             if (columnQuery instanceof FunctionColumn) {
                 FunctionColumn functionColumn = (FunctionColumn) columnQuery;
                 ColumFunction columFunction = functionColumn.getColumFunction();
-                ColumFunction proxy = ColumFunctionProxy.newInstance(columFunction,"qqq");
-                String functionToString1 = proxy.getFunctionToString(sqlDialect, version);
-                System.out.println(functionToString1);
-                String functionToString = columFunction.getFunctionToString(sqlDialect, version);
                 //数字列不需要关心别名问题
                 if (columFunction instanceof NumberColumn) {
-                    sqlBuilder.append(functionToString).append(columnSeparator);
+                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version)).append(columnSeparator);
                     continue;
                 }
                 Fn<?, ?> fn = columFunction.getOriginColumnFn();
+                String alias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(fn));
+                columFunction.setTableAlias(alias);
+                String functionToString = columFunction.getFunctionToString(sqlDialect, version);
                 String fieldName = ReflectUtils.fnToFieldName(fn);
                 //拼接别名，
                 String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? fieldName : columnQuery.getAlias();
@@ -89,7 +87,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     .append(" ").append(getSchemaName(tableMeta)).append(syntaxAs()).append(tableAlias);
             //拼接On条件
             Consumer<Condition> onCondition = innerJoin.getOnCondition();
-            WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, dataSourceName);
+            WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap);
             onCondition.accept(whereCondition);
             parameterBinder.addParameterBinder(whereCondition.getParameterBinder());
             sqlBuilder.append(" on").append(whereCondition.getWhereConditionSyntax());

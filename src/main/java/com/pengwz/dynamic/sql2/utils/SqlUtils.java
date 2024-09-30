@@ -19,6 +19,7 @@ import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class SqlUtils {
@@ -73,11 +74,17 @@ public class SqlUtils {
     }
 
     public static <T, F> String qualifiedAliasName(Fn<T, F> field) {
-        return qualifiedAliasName(field, null);
+        String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(field);
+        return qualifiedAliasName(originalClassCanonicalName, field, null);
     }
 
-    public static <T, F> String qualifiedAliasName(Fn<T, F> field, String alias) {
-        TableMeta tableMeta = TableProvider.getTableMeta(ReflectUtils.getOriginalClassCanonicalName(field));
+    public static <T, F> String qualifiedAliasName(Fn<T, F> field, Map<String, String> aliasTableMap) {
+        String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(field);
+        return qualifiedAliasName(originalClassCanonicalName, field, aliasTableMap.get(originalClassCanonicalName));
+    }
+
+    public static <T, F> String qualifiedAliasName(String originalClassCanonicalName, Fn<T, F> field, String alias) {
+        TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
         DbType dbType = dataSourceMeta.getDbType();
         SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
@@ -185,15 +192,15 @@ public class SqlUtils {
     }
 
 
-    public static WhereCondition matchDialectCondition(SqlDialect sqlDialect, Version version, String dataSourceName) {
+    public static WhereCondition matchDialectCondition(SqlDialect sqlDialect, Version version, Map<String, String> aliasTableMap) {
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:
-                return new MysqlWhereCondition(version, dataSourceName);
+                return new MysqlWhereCondition(version, aliasTableMap);
             case ORACLE:
-                return new OracleWhereCondition(version, dataSourceName);
+                return new OracleWhereCondition(version, aliasTableMap);
             default:
-                return new GenericWhereCondition(version, dataSourceName);
+                return new GenericWhereCondition(version, aliasTableMap);
         }
     }
 
