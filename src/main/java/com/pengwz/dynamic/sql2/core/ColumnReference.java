@@ -29,8 +29,18 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
+    public <T, F> ColumnReference column(String tableAlias, Fn<T, F> fn) {
+        return this.column(tableAlias, fn, null);
+    }
+
+    @Override
     public <T, F> ColumnReference column(Fn<T, F> fn, String alias) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(fn), null, alias));
+        return this.column(null, fn, alias);
+    }
+
+    @Override
+    public <T, F> ColumnReference column(String tableAlias, Fn<T, F> fn, String alias) {
+        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(fn), null, tableAlias, alias));
         return this;
     }
 

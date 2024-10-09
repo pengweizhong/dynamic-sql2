@@ -55,10 +55,15 @@ public abstract class SqlSelectBuilder {
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(joinTable -> {
             String canonicalName = joinTable.getTableClass().getCanonicalName();
-            if (aliasTableMap.get(canonicalName) != null) {
-                throw new IllegalStateException("Repeatedly associated with the same table: " + canonicalName);
+            String alias = aliasTableMap.get(canonicalName);
+            if (alias != null && joinTable.getTableAlias() == null) {
+                throw new IllegalStateException("Repeatedly associated with the same table: " + canonicalName + ", When querying " +
+                        "the same table continuously at the current level, aliases should be used to distinguish them");
             }
-            aliasTableMap.put(canonicalName, joinTable.getTableAlias());
+            //只添加第一次设置的 别名，作为当前回话的全局别名
+            if (alias == null) {
+                aliasTableMap.put(canonicalName, joinTable.getTableAlias());
+            }
         });
         //step1 解析查询的列
         parseColumnFunction();

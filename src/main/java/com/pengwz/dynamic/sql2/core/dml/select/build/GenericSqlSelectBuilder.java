@@ -45,8 +45,11 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     continue;
                 }
                 Fn<?, ?> fn = columFunction.getOriginColumnFn();
-                String alias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(fn));
-                columFunction.setTableAlias(alias);
+                String tableAlias = functionColumn.getTableAlias();
+                if(tableAlias == null){
+                    tableAlias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(fn));
+                }
+                columFunction.setTableAlias(tableAlias);
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
                 String fieldName = ReflectUtils.fnToFieldName(fn);
                 //拼接别名，

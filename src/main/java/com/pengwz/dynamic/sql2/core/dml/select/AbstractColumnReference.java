@@ -22,7 +22,11 @@ public abstract class AbstractColumnReference {
 
     public abstract <T, F> AbstractColumnReference column(Fn<T, F> fn);
 
+    public abstract <T, F> AbstractColumnReference column(String tableAlias, Fn<T, F> fn);
+
     public abstract <T, F> AbstractColumnReference column(Fn<T, F> fn, String alias);
+
+    public abstract <T, F> AbstractColumnReference column(String tableAlias, Fn<T, F> fn, String alias);
 
     public abstract AbstractColumnReference column(ColumFunction iColumFunction);
 

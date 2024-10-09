@@ -4,6 +4,7 @@ import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.column.conventional.AbstractAlias;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
@@ -68,34 +69,38 @@ public class SqlUtils {
         }
         String quotes = getSqlTypeQuotes(sqlDialect);
         if (sqlDialect == SqlDialect.SQLSERVER) {
-            String[] split = quotes.split("");
-            return split[0] + identifier + split[1];
+//            String[] split = quotes.split("");
+//            return split[0] + identifier + split[1];
+            return "[" + identifier + "]";
         }
         return quotes + identifier + quotes;
     }
 
-    public static <T, F> String qualifiedAliasName(Fn<T, F> field) {
-        String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(field);
-        return qualifiedAliasName(originalClassCanonicalName, field, null);
-    }
-
     public static <T, F> String qualifiedAliasName(Fn<T, F> field, Map<String, String> aliasTableMap) {
-        String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(field);
-        return qualifiedAliasName(originalClassCanonicalName, field, aliasTableMap.get(originalClassCanonicalName));
-    }
-
-    public static <T, F> String qualifiedAliasName(String originalClassCanonicalName, Fn<T, F> field, String alias) {
+        String tableAlias = null;
+        Fn fn = field;
+        //如果内嵌了表别名，则此处的表别名优先级最高
+        if (field instanceof AbstractAlias) {
+            AbstractAlias abstractAlias = (AbstractAlias) field;
+            tableAlias = abstractAlias.getAlias();
+            fn = abstractAlias.getFnColumn();
+        }
+        //如果使用了当前回话的表别名
+        String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
+        if (tableAlias == null && aliasTableMap != null) {
+            tableAlias = aliasTableMap.get(originalClassCanonicalName);
+        }
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
         DbType dbType = dataSourceMeta.getDbType();
         SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
-        String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableAlias());
-        ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(field));
-        String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
-        if (StringUtils.isEmpty(alias)) {
-            return tableAlias + "." + column;
+        //最后匹配全局的表别名，通常默认别名就是表名
+        if (tableAlias == null) {
+            tableAlias = tableMeta.getTableAlias();
         }
-        return SqlUtils.quoteIdentifier(sqlDialect, alias) + "." + column;
+        ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(fn));
+        String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
+        return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." + column;
     }
 
     public static String getSyntaxSelect(SqlDialect sqlDialect) {

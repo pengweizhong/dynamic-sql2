@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.pengwz.dynamic.sql2.core.column.conventional.AbstractAlias.withTableAlias;
+
 
 class SelectTest extends InitializingContext {
 
@@ -24,28 +26,29 @@ class SelectTest extends InitializingContext {
         List<Teacher> list = sqlContext.select()
                 .column(Teacher::getTeacherId, "id")
                 .column(Teacher::getFirstName)
+                .column("t3", Subject::getSubjectName)
                 .column(new Upper(new Md5(Teacher::getFirstName)))
                 .column(nestedSelect -> {
                     nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1);
                 }, "nested1")
 //                .column(new NumberColumn(1))
-                .from(Teacher.class, "t_1")
-                .join(Subject.class, "t_2", on -> on.andEqualTo(Teacher::getTeacherId, Subject::getTeacherId)
+                .from(Teacher.class, "t1")
+                .join(Subject.class, "t2", on -> on.andEqualTo(Teacher::getTeacherId, Subject::getTeacherId)
                         .orGreaterThan(Teacher::getTeacherId, 1))
                 .leftJoin(TClass.class, condition -> condition.andEqualTo(TClass::getClassTeacherId, Teacher::getTeacherId))
-                .rightJoin(Subject.class, "t_u", on -> on.andEqualTo(Subject::getTeacherId, Teacher::getTeacherId))
+                .rightJoin(Subject.class, "t3", on ->
+                        on.andEqualTo(withTableAlias("t3", Subject::getTeacherId), withTableAlias("t1", Subject::getTeacherId)))
                 .where(whereCondition -> {
                     whereCondition.andNotEqualTo(Teacher::getTeacherId, -1);
                     whereCondition.andExists(nested -> nested.select().column(Teacher::getGender).from(Teacher.class).limit(1));
                     whereCondition.andCondition(condition ->
-                            condition.andEqualTo(Teacher::getGender, Student.GenderEnum.Male)
+                            condition.andEqualTo(withTableAlias("t3", Teacher::getGender), Student.GenderEnum.Male)
                                     .orEqualTo(Teacher::getGender, Student.GenderEnum.Female));
                     whereCondition.orCondition(condition ->
                             condition.andEqualTo(Teacher::getGender, Student.GenderEnum.Male)
                                     .orEqualTo(Teacher::getGender, Student.GenderEnum.Female));
                 })
                 .groupBy(Teacher::getTeacherId)
-                //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;
                 .having(havingCondition -> havingCondition.andEqualTo(new Max(Teacher::getBirthDate), 5))
                 .orderBy(Teacher::getTeacherId)
                 .thenOrderBy(Teacher::getBirthDate, SortOrder.DESC)
@@ -61,7 +64,7 @@ class SelectTest extends InitializingContext {
                 .column(Teacher::getTeacherId)
                 .column(Teacher::getFirstName)
                 .column(Subject::getSubjectName)
-                .from(Teacher.class,"t1")
+                .from(Teacher.class, "t1")
                 .fullJoin(TClass.class, "t2", on -> on.andEqualTo(Teacher::getTeacherId, TClass::getClassTeacherId))
                 .innerJoin(Subject.class, "t3", on -> on.andEqualTo(Teacher::getTeacherId, Subject::getSubjectId))
                 .fetch(Teacher.class)
