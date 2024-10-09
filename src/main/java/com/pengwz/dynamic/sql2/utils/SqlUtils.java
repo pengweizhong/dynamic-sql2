@@ -76,7 +76,7 @@ public class SqlUtils {
         return quotes + identifier + quotes;
     }
 
-    public static <T, F> String qualifiedAliasName(Fn<T, F> field, Map<String, String> aliasTableMap) {
+    public static <T, F> String extractQualifiedAlias(Fn<T, F> field, Map<String, String> aliasTableMap) {
         String tableAlias = null;
         Fn fn = field;
         //如果内嵌了表别名，则此处的表别名优先级最高

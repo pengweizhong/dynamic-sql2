@@ -97,7 +97,7 @@ public abstract class SqlSelectBuilder {
     private void parseGroupBy(List<Fn<?, ?>> groupByFields) {
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxGroupBy(sqlDialect));
         for (Fn<?, ?> groupByField : groupByFields) {
-            sqlBuilder.append(" ").append(SqlUtils.qualifiedAliasName(groupByField, aliasTableMap));
+            sqlBuilder.append(" ").append(SqlUtils.extractQualifiedAlias(groupByField, aliasTableMap));
         }
     }
 
@@ -127,7 +127,7 @@ public abstract class SqlSelectBuilder {
             }
             if (orderBy instanceof DefaultOrderBy) {
                 DefaultOrderBy defaultOrderBy = (DefaultOrderBy) orderBy;
-                String order = SqlUtils.qualifiedAliasName(defaultOrderBy.getFn(), aliasTableMap);
+                String order = SqlUtils.extractQualifiedAlias(defaultOrderBy.getFn(), aliasTableMap);
                 sqlBuilder.append(" ").append(order).append(" ").append(defaultOrderBy.getSortOrder().toSqlString(sqlDialect));
                 sqlBuilder.append(columnSeparator);
             }
