@@ -1,7 +1,7 @@
 package com.pengwz.dynamic.sql2.anno;
 
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
-import com.pengwz.dynamic.sql2.plugins.conversion.impl.DefaultAttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.DefaultAttributeConverter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

@@ -1,5 +1,13 @@
 package com.pengwz.dynamic.sql2.core.placeholder;
 
+import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
+import com.pengwz.dynamic.sql2.table.ColumnMeta;
+import com.pengwz.dynamic.sql2.table.TableMeta;
+import com.pengwz.dynamic.sql2.table.TableProvider;
+import com.pengwz.dynamic.sql2.utils.ConverterUtils;
+import com.pengwz.dynamic.sql2.utils.ReflectUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,6 +25,30 @@ public class ParameterBinder {
     public String registerValueWithKey(Object value) {
         String key = generateBindingKey();
         parameters.put(key, value);
+        return key;
+    }
+
+    public String registerValueWithKey(Fn<?, ?> fn, Object value) {
+        String key = generateBindingKey();
+        Object fixValue;
+        //如果是枚举类直接实现了它？
+        if (value instanceof AttributeConverter) {
+            AttributeConverter attributeConverter = (AttributeConverter) value;
+            fixValue = attributeConverter.convertToDatabaseColumn(value);
+            parameters.put(key, fixValue);
+            return key;
+        }
+        Fn originalFn = ReflectUtils.getOriginalFn(fn);
+        String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(originalFn);
+        String fieldName = ReflectUtils.fnToFieldName(originalFn);
+        TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
+        ColumnMeta columnMeta = tableMeta.getColumnMeta(fieldName);
+        if (columnMeta.getConverter() != null) {
+            fixValue = ConverterUtils.loadConverter(columnMeta.getConverter()).convertToDatabaseColumn(value);
+        } else {
+            fixValue = ConverterUtils.convertValueToDatabase(value);
+        }
+        parameters.put(key, fixValue);
         return key;
     }
 

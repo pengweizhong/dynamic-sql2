@@ -412,7 +412,7 @@ public class GenericWhereCondition implements WhereCondition {
     public <T, F> Condition andEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap))
-                .append(" = ").append(parameterBinder.registerValueWithKey(value));
+                .append(" = ").append(parameterBinder.registerValueWithKey(fn,value));
         return this;
     }
 
@@ -429,7 +429,7 @@ public class GenericWhereCondition implements WhereCondition {
     public <T, F> Condition orEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap))
-                .append(" = ").append(parameterBinder.registerValueWithKey(value));
+                .append(" = ").append(parameterBinder.registerValueWithKey(fn, value));
         return this;
     }
 
@@ -442,7 +442,7 @@ public class GenericWhereCondition implements WhereCondition {
     public <T, F> Condition andNotEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap))
-                .append(" != ").append(parameterBinder.registerValueWithKey(value));
+                .append(" != ").append(parameterBinder.registerValueWithKey(fn, value));
         return this;
     }
 
@@ -535,7 +535,7 @@ public class GenericWhereCondition implements WhereCondition {
     public <T, F> Condition andGreaterThan(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap);
         condition.append(" ").append(logicalOperatorType(AND))
-                .append(name).append(" > ").append(parameterBinder.registerValueWithKey(value));
+                .append(name).append(" > ").append(parameterBinder.registerValueWithKey(fn, value));
         return this;
     }
 
@@ -548,7 +548,7 @@ public class GenericWhereCondition implements WhereCondition {
     public <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
-                .append(" < ").append(parameterBinder.registerValueWithKey(value));
+                .append(" < ").append(parameterBinder.registerValueWithKey(fn, value));
         return this;
     }
 

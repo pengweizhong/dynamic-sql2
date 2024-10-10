@@ -1,11 +1,13 @@
 package com.pengwz.dynamic.sql2.utils;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.conventional.AbstractAlias;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.beans.Introspector;
 import java.lang.invoke.SerializedLambda;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -174,6 +176,29 @@ public class ReflectUtils {
         } catch (ReflectiveOperationException e) {
             log.warn(e.getMessage());
             throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static <T, F> Fn<T, F> getOriginalFn(Fn<T, F> field) {
+        if (field instanceof AbstractAlias) {
+            AbstractAlias abstractAlias = (AbstractAlias) field;
+            return abstractAlias.getFnColumn();
+        }
+        return field;
+    }
+
+    public static <T> T instance(Class<T> clazz, Object... args) {
+        try {
+            // 获取构造函数参数的类型
+            Class<?>[] argTypes = new Class[args.length];
+            for (int i = 0; i < args.length; i++) {
+                argTypes[i] = args[i].getClass();
+            }
+            Constructor<T> constructor = clazz.getDeclaredConstructor(argTypes);
+            constructor.setAccessible(true);
+            return constructor.newInstance(args);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to create instance of class: " + clazz.getName(), e);
         }
     }
 }

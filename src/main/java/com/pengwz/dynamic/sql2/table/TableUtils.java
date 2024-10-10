@@ -4,6 +4,8 @@ import com.pengwz.dynamic.sql2.anno.Column;
 import com.pengwz.dynamic.sql2.anno.GeneratedValue;
 import com.pengwz.dynamic.sql2.anno.Id;
 import com.pengwz.dynamic.sql2.enums.GenerationType;
+import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.DefaultAttributeConverter;
 import com.pengwz.dynamic.sql2.table.cte.CTEColumnMeta;
 import com.pengwz.dynamic.sql2.table.cte.CTEEntityMapping;
 import com.pengwz.dynamic.sql2.table.cte.CTEMeta;
@@ -183,6 +185,11 @@ public class TableUtils {
                 }
                 columnMeta.setGeneratedStrategy(generatedStrategy);
             }
+        }
+        //是否使用了自定义转换
+        Class<? extends AttributeConverter> converter = column == null ? null : column.converter();
+        if (converter != null && !DefaultAttributeConverter.class.equals(converter)) {
+            columnMeta.setConverter(converter);
         }
         //检测字段是否为基本类型
         if (log.isDebugEnabled() && field.getType().isPrimitive()) {

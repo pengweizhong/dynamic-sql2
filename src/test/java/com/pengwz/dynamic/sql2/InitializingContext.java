@@ -6,6 +6,7 @@ import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
 import com.pengwz.dynamic.sql2.plugins.logger.impl.DefaultSqlLoggerTest;
+import com.pengwz.dynamic.sql2.utils.ConverterUtils;
 import org.junit.jupiter.api.BeforeAll;
 
 public class InitializingContext {

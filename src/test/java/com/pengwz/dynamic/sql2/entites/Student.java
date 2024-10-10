@@ -2,7 +2,8 @@ package com.pengwz.dynamic.sql2.entites;
 
 import com.pengwz.dynamic.sql2.anno.Column;
 import com.pengwz.dynamic.sql2.anno.Table;
-import com.pengwz.dynamic.sql2.plugins.conversion.EnumConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.DefaultAttributeConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +29,7 @@ public class Student {
     public Date enrollmentDate;
     public int classId;
 
-    public enum GenderEnum implements EnumConverter<GenderEnum, String> {
+    public enum GenderEnum implements AttributeConverter<GenderEnum, String> {
         Female("女"), Male("男");
         private final String gender;
 
@@ -49,26 +50,38 @@ public class Student {
         }
 
         @Override
-        public String toDatabaseValue(GenderEnum attribute) {
-            return attribute.gender;
+        public String convertToDatabaseColumn(GenderEnum attribute) {
+            return attribute.getGender();
         }
 
         @Override
-        public GenderEnum fromDatabaseValue(String dbData) {
-            return GenderEnum.valueOf(gender);
+        public GenderEnum convertToEntityAttribute(String dbData) {
+            GenderEnum[] values = GenderEnum.values();
+            for (GenderEnum value : values) {
+                if (value.getGender().equals(dbData)) {
+                    return value;
+                }
+            }
+            return null;
         }
     }
 
-    public static class GenderEnumConverter implements EnumConverter<GenderEnum, String> {
+    public static class GenderEnumConverter extends DefaultAttributeConverter<GenderEnum, String> {
 
         @Override
-        public String toDatabaseValue(GenderEnum attribute) {
-            return attribute.gender;
+        protected String doConvertToDatabaseColumn(GenderEnum attribute) {
+            return attribute.getGender();
         }
 
         @Override
-        public GenderEnum fromDatabaseValue(String gender) {
-            return GenderEnum.valueOf(gender);
+        protected GenderEnum doConvertToEntityAttribute(String dbData) {
+            GenderEnum[] values = GenderEnum.values();
+            for (GenderEnum value : values) {
+                if (value.getGender().equals(dbData)) {
+                    return value;
+                }
+            }
+            return null;
         }
     }
 }
