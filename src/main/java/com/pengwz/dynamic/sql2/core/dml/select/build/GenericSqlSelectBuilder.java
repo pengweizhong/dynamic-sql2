@@ -60,10 +60,10 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             }
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
-                SqlSelectParam sqlSelectParam = SqlUtils.executeNestedSelect(nestedColumn.getNestedSelect());
+                SqlStatementWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedColumn.getNestedSelect());
                 String columnAliasString = syntaxAs() + columnQuery.getAlias();
-                sqlBuilder.append("(").append(sqlSelectParam.getRawSql()).append(")").append(columnAliasString).append(columnSeparator);
-                parameterBinder.addParameterBinder(sqlSelectParam.getParameterBinder());
+                sqlBuilder.append("(").append(sqlStatementWrapper.getRawSql()).append(")").append(columnAliasString).append(columnSeparator);
+                parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
             }
         }
     }

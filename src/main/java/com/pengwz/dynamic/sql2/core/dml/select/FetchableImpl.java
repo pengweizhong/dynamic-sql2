@@ -1,33 +1,34 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
-import com.github.vertical_blank.sqlformatter.SqlFormatter;
+import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
+import com.pengwz.dynamic.sql2.context.properties.LogProperties;
+import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SqlSelectBuilder;
-import com.pengwz.dynamic.sql2.core.dml.select.build.SqlSelectParam;
+import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementWrapper;
+import com.pengwz.dynamic.sql2.plugins.logger.SqlLogger;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 public class FetchableImpl implements Fetchable {
+    private SqlStatementWrapper sqlStatementWrapper;
 
     public FetchableImpl(SelectSpecification selectSpecification) {
         SqlSelectBuilder sqlSelectBuilder = SqlUtils.matchSqlSelectBuilder(selectSpecification);
-        SqlSelectParam sqlSelectParam = sqlSelectBuilder.build();
-        System.out.println("-- SQL解析后的结果：\n" + sqlSelectParam.getRawSql());
-        System.out.println("-- ---------------------------------------------");
-        StringBuilder stringBuilder =
-                sqlSelectParam.getParameterBinder().replacePlaceholdersWithValues(sqlSelectParam.getRawSql().toString());
-        System.out.println(stringBuilder.toString());
-        System.out.println("-- SQL解析后的结果+参数：\n" +
-                SqlFormatter.format(stringBuilder.toString()));
-        System.out.println("-- ---------------------------------------------");
+        this.sqlStatementWrapper = sqlSelectBuilder.build();
+        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(sqlSelectBuilder.getDataSourceName());
+        if (schemaProperties.isPrintSql()) {
+            SqlLogger sqlLogger = LogProperties.getInstance().getSqlLogger();
+            sqlLogger.logSql(sqlSelectBuilder.getDataSourceName(), sqlStatementWrapper);
+        }
     }
 
     @Override
     public <R> FetchResult<R> fetch() {
-        return new FetchResultImpl<>();
+        return new FetchResultImpl<>(null);
     }
 
     @Override
     public <T> FetchResult<T> fetch(Class<T> returnClass) {
-        return new FetchResultImpl<>();
+        return new FetchResultImpl<>(returnClass);
     }
 }

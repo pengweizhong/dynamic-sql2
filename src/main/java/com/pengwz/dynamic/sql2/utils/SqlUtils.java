@@ -279,13 +279,11 @@ public class SqlUtils {
         }
     }
 
-    public static SqlSelectParam executeNestedSelect(Consumer<NestedSelect> nestedSelectConsumer) {
+    public static SqlStatementWrapper executeNestedSelect(Consumer<NestedSelect> nestedSelectConsumer) {
         NestedSelect nestedSelect = new NestedSelect();
         nestedSelectConsumer.accept(nestedSelect);
         SqlSelectBuilder nestedSqlBuilder = matchSqlSelectBuilder(nestedSelect.getSelectSpecification());
-        SqlSelectParam sqlSelectParam = nestedSqlBuilder.build();
-        System.out.println("测试内嵌列输出结果 ---> " + sqlSelectParam.getRawSql());
-        return sqlSelectParam;
+        return nestedSqlBuilder.build();
     }
 
 

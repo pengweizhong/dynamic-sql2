@@ -8,7 +8,11 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class FetchResultImpl<R> extends AbstractFetchResult<R> {
+    private Class<R> resultClass;
 
+    public FetchResultImpl(Class<R> returnClass) {
+        this.resultClass = returnClass;
+    }
 
     @Override
     public R toOne() {

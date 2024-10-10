@@ -16,6 +16,8 @@ public class SchemaProperties {
     private boolean useAsInQuery = true;
     // 强制指定兼容的数据库版本
     private String databaseProductVersion;
+    // 打印SQL语句
+    private boolean printSql = true;
     //主版本号
     private int majorVersionNumber;
     //次版本号
@@ -78,8 +80,16 @@ public class SchemaProperties {
         return useAsInQuery;
     }
 
+    public boolean isPrintSql() {
+        return printSql;
+    }
+
     public void setUseAsInQuery(boolean useAsInQuery) {
         this.useAsInQuery = useAsInQuery;
+    }
+
+    public void setPrintSql(boolean printSql) {
+        this.printSql = printSql;
     }
 
     public int getMajorVersionNumber() {

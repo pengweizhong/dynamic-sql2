@@ -1,9 +1,11 @@
 package com.pengwz.dynamic.sql2;
 
 import com.pengwz.dynamic.sql2.context.SqlContextProxy;
+import com.pengwz.dynamic.sql2.context.properties.LogProperties;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
+import com.pengwz.dynamic.sql2.plugins.logger.impl.DefaultSqlLoggerTest;
 import org.junit.jupiter.api.BeforeAll;
 
 public class InitializingContext {
@@ -20,7 +22,9 @@ public class InitializingContext {
 //        schemaProperties.setSqlDialect(SqlDialect.ORACLE);
 //        schemaProperties.setDatabaseProductVersion("11.0.0.1");
         schemaProperties.setUseAsInQuery(true);
+        schemaProperties.setPrintSql(true);
         sqlContextProperties.addSchemaProperties(schemaProperties);
+        LogProperties.setInstance(new DefaultSqlLoggerTest());
         sqlContext = SqlContextProxy.newInstance(sqlContextProperties);
     }
 

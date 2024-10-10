@@ -50,7 +50,7 @@ public abstract class SqlSelectBuilder {
 
     protected abstract void parseLimit();
 
-    public final SqlSelectParam build() {
+    public final SqlStatementWrapper build() {
         //step0 解析表别名
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(joinTable -> {
@@ -91,7 +91,7 @@ public abstract class SqlSelectBuilder {
         if (selectSpecification.getLimitInfo() != null) {
             parseLimit();
         }
-        return new SqlSelectParam(sqlBuilder, parameterBinder);
+        return new SqlStatementWrapper(sqlBuilder, parameterBinder);
     }
 
     private void parseGroupBy(List<Fn<?, ?>> groupByFields) {
@@ -172,4 +172,7 @@ public abstract class SqlSelectBuilder {
         return schemaProperties.isUseAsInQuery() ? " " + SqlUtils.getSyntaxAs(sqlDialect) + " " : " ";
     }
 
+    public String getDataSourceName() {
+        return dataSourceName;
+    }
 }
