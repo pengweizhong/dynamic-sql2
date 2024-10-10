@@ -82,7 +82,7 @@ public class SqlUtils {
         //如果内嵌了表别名，则此处的表别名优先级最高
         if (field instanceof AbstractAlias) {
             AbstractAlias abstractAlias = (AbstractAlias) field;
-            tableAlias = abstractAlias.getAlias();
+            tableAlias = abstractAlias.getTableAlias();
             fn = abstractAlias.getFnColumn();
         }
         //如果使用了当前回话的表别名

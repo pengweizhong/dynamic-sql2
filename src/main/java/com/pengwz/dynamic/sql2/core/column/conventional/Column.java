@@ -18,14 +18,20 @@ public final class Column implements ColumFunction {
 
     private String tableAlias;
 
-    public <T, F> Column(Fn<T, F> fn) {
+    public <T, F> Column(String tableAlias, Fn<T, F> fn) {
         this.columnFn = fn;
+        this.tableAlias = tableAlias;
     }
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
-        String filedName = ReflectUtils.fnToFieldName(columnFn);
-        String classCanonicalName = ReflectUtils.getOriginalClassCanonicalName(columnFn);
+        Fn<?, ?> fn = this.columnFn;
+        if (columnFn instanceof AbstractAlias) {
+            AbstractAlias alias = (AbstractAlias) columnFn;
+            fn = alias.getFnColumn();
+        }
+        String filedName = ReflectUtils.fnToFieldName(fn);
+        String classCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
         TableMeta tableMeta = TableProvider.getTableMeta(classCanonicalName);
         ColumnMeta columnMeta = tableMeta.getColumnMeta(filedName);
         String tableAliasName = StringUtils.isEmpty(tableAlias) ? tableMeta.getTableAlias() : tableAlias;
@@ -41,6 +47,11 @@ public final class Column implements ColumFunction {
     @Override
     public ParameterBinder getParameterBinder() {
         return null;
+    }
+
+    @Override
+    public String getTableAlias() {
+        return tableAlias;
     }
 
     @Override

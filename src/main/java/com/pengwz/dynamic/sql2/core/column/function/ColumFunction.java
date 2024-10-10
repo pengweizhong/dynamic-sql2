@@ -13,12 +13,9 @@ public interface ColumFunction {
 
     ParameterBinder getParameterBinder();
 
-    default Object[] getParams() {
-        return null;
-    }
+    String getTableAlias();
 
     default void setTableAlias(String tableAlias) {
-
+//        throw new UnsupportedOperationException();
     }
-
 }

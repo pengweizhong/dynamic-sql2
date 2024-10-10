@@ -24,7 +24,11 @@ public abstract class ColumnFunctionDecorator
     }
 
     public <T, F> ColumnFunctionDecorator(Fn<T, F> fn) {
-        this.delegateFunction = new Column(fn);
+        this.delegateFunction = new Column(null, fn);
+    }
+
+    public <T, F> ColumnFunctionDecorator(String tableAlias, Fn<T, F> fn) {
+        this.delegateFunction = new Column(tableAlias, fn);
     }
 
     public ColumnFunctionDecorator(int value) {
@@ -37,11 +41,6 @@ public abstract class ColumnFunctionDecorator
     }
 
     @Override
-    public void setTableAlias(String tableAlias) {
-        delegateFunction.setTableAlias(tableAlias);
-    }
-
-    @Override
     public Fn<?, ?> getOriginColumnFn() {
         return delegateFunction.getOriginColumnFn();
     }
@@ -49,6 +48,11 @@ public abstract class ColumnFunctionDecorator
     @Override
     public ParameterBinder getParameterBinder() {
         return parameterBinder;
+    }
+
+    @Override
+    public String getTableAlias() {
+        return delegateFunction.getTableAlias();
     }
 
     @Override

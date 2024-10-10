@@ -26,6 +26,13 @@ public final class NumberColumn implements ColumFunction {
 
     @Override
     public ParameterBinder getParameterBinder() {
-        return null;
+        ParameterBinder parameterBinder = new ParameterBinder();
+        parameterBinder.registerValueWithKey(numberColumn);
+        return parameterBinder;
+    }
+
+    @Override
+    public String getTableAlias() {
+        throw new UnsupportedOperationException();
     }
 }

@@ -6,6 +6,7 @@ import com.pengwz.dynamic.sql2.core.column.function.json.JsonExtract;
 import com.pengwz.dynamic.sql2.core.column.function.json.JsonUnquote;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Upper;
+import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CommonTableExpression;
 import com.pengwz.dynamic.sql2.entites.*;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
@@ -27,12 +28,13 @@ class SelectTest extends InitializingContext {
                 .column(Teacher::getTeacherId, "id")
                 .column(Teacher::getFirstName)
                 .column("t3", Subject::getSubjectName)
-                .column(new Upper(new Md5(Teacher::getFirstName)))
+                .column(new Upper(new Md5("t1", Teacher::getFirstName)), "")
+                .column(new Max(Student::getBirthDate), Over.builder().build(), "aa")
                 .column(nestedSelect -> {
                     nestedSelect.select().column(Teacher::getGender).from(Teacher.class).limit(1);
                 }, "nested1")
 //                .column(new NumberColumn(1))
-                .from(Teacher.class, "t1")
+                .from(Teacher.class, "t0")
                 .join(Subject.class, "t2", on -> on.andEqualTo(Teacher::getTeacherId, Subject::getTeacherId)
                         .orGreaterThan(Teacher::getTeacherId, 1))
                 .leftJoin(TClass.class, condition -> condition.andEqualTo(TClass::getClassTeacherId, Teacher::getTeacherId))
@@ -49,8 +51,10 @@ class SelectTest extends InitializingContext {
                                     .orEqualTo(Teacher::getGender, Student.GenderEnum.Female));
                 })
                 .groupBy(Teacher::getTeacherId)
-                .having(havingCondition -> havingCondition.andEqualTo(new Max(Teacher::getBirthDate), 5))
-                .orderBy(Teacher::getTeacherId)
+//                .groupBy(withTableAlias("123",Teacher::getTeacherId))
+                .having(havingCondition -> havingCondition.andEqualTo(new Max(withTableAlias("t1", Teacher::getBirthDate)), 5))
+//                .orderBy(Teacher::getTeacherId)
+                .orderBy(withTableAlias("123",Teacher::getTeacherId))
                 .thenOrderBy(Teacher::getBirthDate, SortOrder.DESC)
                 .limit(0, 10)
                 .fetch(Teacher.class)

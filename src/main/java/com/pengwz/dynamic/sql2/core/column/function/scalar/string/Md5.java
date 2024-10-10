@@ -19,6 +19,10 @@ public class Md5 extends ColumnFunctionDecorator {
         super(fn);
     }
 
+    public <T, F> Md5(String tableAlias, Fn<T, F> fn) {
+        super(tableAlias, fn);
+    }
+
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
@@ -35,4 +39,5 @@ public class Md5 extends ColumnFunctionDecorator {
         throwNotSupportedSqlDialectException("md5", sqlDialect);
         return null;
     }
+
 }

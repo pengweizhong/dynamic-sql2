@@ -14,7 +14,6 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.SqlSelectParam;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
-import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.util.Map;
@@ -1012,9 +1011,6 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     protected String executeFunctionToString(AggregateFunction function) {
-        Fn<?, ?> originColumnFn = function.getOriginColumnFn();
-        String alias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(originColumnFn));
-        function.setTableAlias(alias);
         return function.getFunctionToString(matchSqlDialect(), version);
     }
 

@@ -34,45 +34,46 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
-    public <T, F> ColumnReference column(Fn<T, F> fn, String alias) {
-        return this.column(null, fn, alias);
+    public <T, F> ColumnReference column(Fn<T, F> fn, String columnAlias) {
+        return this.column(null, fn, columnAlias);
     }
 
     @Override
-    public <T, F> ColumnReference column(String tableAlias, Fn<T, F> fn, String alias) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(fn), null, tableAlias, alias));
+    public <T, F> ColumnReference column(String tableAlias, Fn<T, F> fn, String columnAlias) {
+        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(tableAlias, fn), null, columnAlias));
         return this;
     }
 
     @Override
     public ColumnReference column(ColumFunction iColumFunction) {
-        return this.column(iColumFunction, null);
+        column(iColumFunction, null);
+        return this;
     }
 
+
     @Override
-    public ColumnReference column(ColumFunction iColumFunction, String alias) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(iColumFunction, null, alias));
+    public AbstractColumnReference column(ColumFunction iColumFunction, String columnAlias) {
+        selectSpecification.getColumFunctions().add(new FunctionColumn(iColumFunction, null, columnAlias));
         return this;
     }
 
     @Override
-    public AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String alias) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(windowsFunction, over, alias));
+    public AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String columnAlias) {
+        selectSpecification.getColumFunctions().add(new FunctionColumn(windowsFunction, over, columnAlias));
         return this;
     }
 
     @Override
-    public AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String alias) {
-        if (StringUtils.isBlank(alias)) {
+    public AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String columnAlias) {
+        if (StringUtils.isBlank(columnAlias)) {
             throw new IllegalArgumentException("Subquery must provide an alias");
         }
-        selectSpecification.getColumFunctions().add(new NestedColumn(nestedSelect, alias));
+        selectSpecification.getColumFunctions().add(new NestedColumn(nestedSelect, columnAlias));
         return this;
     }
 
     @Override
     public AbstractColumnReference allColumn() {
-        allColumn(null);
         return this;
     }
 
@@ -80,6 +81,11 @@ public class ColumnReference extends AbstractColumnReference {
     public AbstractColumnReference allColumn(Class<?> tableClass) {
         selectSpecification.getColumFunctions().add(new FunctionColumn(new AllColumn(tableClass), null, null));
         return this;
+    }
+
+    @Override
+    public AbstractColumnReference allColumn(String tableAlias) {
+        return null;
     }
 
     @Override

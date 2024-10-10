@@ -20,6 +20,10 @@ public class Max extends ColumnFunctionDecorator implements AggregateFunction, W
         super(fn);
     }
 
+    public <T, F> Max(String tableAlias, Fn<T, F> fn) {
+        super(tableAlias, fn);
+    }
+
     @Override
     public String apply(Over over) {
         return "";

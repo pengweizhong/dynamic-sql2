@@ -24,21 +24,23 @@ public abstract class AbstractColumnReference {
 
     public abstract <T, F> AbstractColumnReference column(String tableAlias, Fn<T, F> fn);
 
-    public abstract <T, F> AbstractColumnReference column(Fn<T, F> fn, String alias);
+    public abstract <T, F> AbstractColumnReference column(Fn<T, F> fn, String columnAlias);
 
-    public abstract <T, F> AbstractColumnReference column(String tableAlias, Fn<T, F> fn, String alias);
+    public abstract <T, F> AbstractColumnReference column(String tableAlias, Fn<T, F> fn, String columnAlias);
 
     public abstract AbstractColumnReference column(ColumFunction iColumFunction);
 
-    public abstract AbstractColumnReference column(ColumFunction iColumFunction, String alias);
+    public abstract AbstractColumnReference column(ColumFunction iColumFunction, String columnAlias);
 
-    public abstract AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String alias);
+    public abstract AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String columnAlias);
 
-    public abstract AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String alias);
+    public abstract AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String columnAlias);
 
     public abstract AbstractColumnReference allColumn();
 
     public abstract AbstractColumnReference allColumn(Class<?> tableClass);
+
+    public abstract AbstractColumnReference allColumn(String tableAlias);
 
     public abstract <T> TableRelation<T> from(Class<T> tableClass);
 

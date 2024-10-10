@@ -9,9 +9,15 @@ import com.pengwz.dynamic.sql2.enums.SqlDialect;
 public final class AllColumn implements ColumFunction {
 
     private final Class<?> tableClass;
+    private String tableAlias;
 
     public AllColumn(Class<?> tableClass) {
         this.tableClass = tableClass;
+    }
+
+    public AllColumn(String tableAlias, Class<?> tableClass) {
+        this.tableClass = tableClass;
+        this.tableAlias = tableAlias;
     }
 
     public Class<?> getTableClass() {
@@ -31,5 +37,10 @@ public final class AllColumn implements ColumFunction {
     @Override
     public ParameterBinder getParameterBinder() {
         return null;
+    }
+
+    @Override
+    public String getTableAlias() {
+        return tableAlias;
     }
 }
