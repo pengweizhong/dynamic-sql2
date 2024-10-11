@@ -34,7 +34,7 @@ public abstract class AbstractColumnReference {
 
     public abstract AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String columnAlias);
 
-    public abstract AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String columnAlias);
+    public abstract AbstractColumnReference column(Consumer<AbstractColumnReference> nestedSelect, String columnAlias);
 
     public abstract AbstractColumnReference allColumn();
 
@@ -47,5 +47,7 @@ public abstract class AbstractColumnReference {
     public abstract <T> TableRelation<T> from(Class<T> tableClass, String alias);
 
     public abstract TableRelation<?> from(CteTable cteTable);
+
+    public abstract TableRelation<?> from(Consumer<AbstractColumnReference> nestedSelect, String selectAlias);
 
 }

@@ -9,7 +9,8 @@ import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
-import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
+import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
+import com.pengwz.dynamic.sql2.core.dml.select.Select;
 import com.pengwz.dynamic.sql2.core.dml.select.build.*;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
@@ -286,10 +287,11 @@ public class SqlUtils {
         }
     }
 
-    public static SqlStatementWrapper executeNestedSelect(Consumer<NestedSelect> nestedSelectConsumer) {
-        NestedSelect nestedSelect = new NestedSelect();
-        nestedSelectConsumer.accept(nestedSelect);
-        SqlSelectBuilder nestedSqlBuilder = matchSqlSelectBuilder(nestedSelect.getSelectSpecification());
+    public static SqlStatementWrapper executeNestedSelect(Consumer<AbstractColumnReference> nestedSelectConsumer) {
+        Select select = new Select();
+        AbstractColumnReference columnReference = select.loadColumReference();
+        nestedSelectConsumer.accept(columnReference);
+        SqlSelectBuilder nestedSqlBuilder = matchSqlSelectBuilder(select.getSelectSpecification());
         return nestedSqlBuilder.build();
     }
 

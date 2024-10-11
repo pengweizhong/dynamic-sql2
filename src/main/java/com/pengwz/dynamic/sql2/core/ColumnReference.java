@@ -64,11 +64,12 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
-    public AbstractColumnReference column(Consumer<NestedSelect> nestedSelect, String columnAlias) {
+    public AbstractColumnReference column(Consumer<AbstractColumnReference> nestedSelect, String columnAlias) {
         if (StringUtils.isBlank(columnAlias)) {
             throw new IllegalArgumentException("Subquery must provide an alias");
         }
-        selectSpecification.getColumFunctions().add(new NestedColumn(nestedSelect, columnAlias));
+        NestedColumn nestedColumn = new NestedColumn(nestedSelect, columnAlias);
+        selectSpecification.getColumFunctions().add(nestedColumn);
         return this;
     }
 
@@ -106,4 +107,8 @@ public class ColumnReference extends AbstractColumnReference {
         return new TableRelation<>(selectSpecification);
     }
 
+    @Override
+    public TableRelation<?> from(Consumer<AbstractColumnReference> nestedSelect, String selectAlias) {
+        return new TableRelation<>(selectSpecification);
+    }
 }

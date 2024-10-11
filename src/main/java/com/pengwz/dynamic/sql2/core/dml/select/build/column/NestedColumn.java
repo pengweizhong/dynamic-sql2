@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build.column;
 
-import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
+import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 
 import java.util.function.Consumer;
 
@@ -8,10 +8,14 @@ public class NestedColumn implements ColumnQuery {
     //别名
     private String alias;
     //嵌套列
-    private Consumer<NestedSelect> nestedSelect;
+    private Consumer<AbstractColumnReference> nestedColumnReference;
 
-    public NestedColumn(Consumer<NestedSelect> nestedSelect, String alias) {
-        this.nestedSelect = nestedSelect;
+    //    public NestedColumn(Consumer<NestedSelect> nestedSelect, String alias) {
+//        this.nestedSelect = nestedSelect;
+//        this.alias = alias;
+//    }
+    public NestedColumn(Consumer<AbstractColumnReference> columnReferenceConsumer, String alias) {
+        this.nestedColumnReference = columnReferenceConsumer;
         this.alias = alias;
     }
 
@@ -20,8 +24,8 @@ public class NestedColumn implements ColumnQuery {
         return alias;
     }
 
-    public Consumer<NestedSelect> getNestedSelect() {
-        return nestedSelect;
+    public Consumer<AbstractColumnReference> getNestedColumnReference() {
+        return nestedColumnReference;
     }
 
 }

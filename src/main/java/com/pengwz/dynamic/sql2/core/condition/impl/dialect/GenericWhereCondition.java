@@ -8,8 +8,8 @@ import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.FunctionCondition;
 import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
-import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
@@ -226,147 +226,147 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public <T, F> NestedCondition andEqualTo(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orEqualTo(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andNotEqualTo(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andNotEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orNotEqualTo(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orNotEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andLengthEquals(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andLengthEquals(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orLengthEquals(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orLengthEquals(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andLengthGreaterThan(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andLengthGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orLengthGreaterThan(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orLengthGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andLengthLessThan(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andLengthLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orLengthLessThan(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orLengthLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andGreaterThan(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orGreaterThan(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andGreaterThanOrEqualTo(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andGreaterThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orGreaterThanOrEqualTo(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orGreaterThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andLessThan(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orLessThan(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andLessThanOrEqualTo(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andLessThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orLessThanOrEqualTo(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orLessThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andIn(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orIn(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andNotIn(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andNotIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orNotIn(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orNotIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andContains(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andContains(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orContains(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orContains(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andAnyIn(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andAnyIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orAnyIn(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orAnyIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition andAllIn(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition andAllIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public <T, F> NestedCondition orAllIn(Fn<T, F> fn, Consumer<NestedSelect> nestedSelect) {
+    public <T, F> NestedCondition orAllIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public NestedCondition andExists(Consumer<NestedSelect> nestedSelect) {
+    public NestedCondition andExists(Consumer<AbstractColumnReference> nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND)).append(SqlUtils.getSyntaxExists(matchSqlDialect()));
         SqlStatementWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
         condition.append(" (").append(sqlStatementWrapper.getRawSql()).append(")");
@@ -375,17 +375,17 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public NestedCondition orExists(Consumer<NestedSelect> nestedSelect) {
+    public NestedCondition orExists(Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public NestedCondition andNotExists(Consumer<NestedSelect> nestedSelect) {
+    public NestedCondition andNotExists(Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
     @Override
-    public NestedCondition orNotExists(Consumer<NestedSelect> nestedSelect) {
+    public NestedCondition orNotExists(Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -816,7 +816,7 @@ public class GenericWhereCondition implements WhereCondition {
 
 
     @Override
-    public HavingCondition andEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition andEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -826,7 +826,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition orEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition orEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -836,7 +836,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition andNotEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition andNotEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -846,7 +846,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition orNotEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition orNotEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -856,7 +856,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition andGreaterThan(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition andGreaterThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -866,7 +866,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition orGreaterThan(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition orGreaterThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -876,7 +876,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition andGreaterThanOrEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition andGreaterThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -886,7 +886,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition orGreaterThanOrEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition orGreaterThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -896,7 +896,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition andLessThan(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition andLessThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -906,7 +906,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition orLessThan(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition orLessThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -916,7 +916,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition andLessThanOrEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition andLessThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -926,7 +926,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition orLessThanOrEqualTo(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition orLessThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -936,7 +936,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition andIn(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition andIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -946,7 +946,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition orIn(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition orIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -956,7 +956,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition andNotIn(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition andNotIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 
@@ -966,7 +966,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     @Override
-    public HavingCondition orNotIn(AggregateFunction function, Consumer<NestedSelect> nestedSelect) {
+    public HavingCondition orNotIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 

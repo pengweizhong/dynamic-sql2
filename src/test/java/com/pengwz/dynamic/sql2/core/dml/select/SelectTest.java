@@ -1,7 +1,6 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
-import com.pengwz.dynamic.sql2.entites.Product;
 import com.pengwz.dynamic.sql2.entites.User;
 import org.junit.jupiter.api.Test;
 
@@ -58,11 +57,15 @@ public class SelectTest extends InitializingContext {
      */
     @Test
     void select1() {
-        sqlContext.select().allColumn("user").from(User.class,"user").fetch().toList();
+//        sqlContext.select().allColumn("user").from(User.class,"user").fetch().toList();
+//
+//        sqlContext.select().allColumn(User.class).from(User.class).fetch().toList();
+//
+//        sqlContext.select().allColumn().from(User.class).join(Product.class,"p",condition -> condition.andEqualTo(User::getName,Product::getProductId)).fetch().toList();
 
-        sqlContext.select().allColumn(User.class).from(User.class).fetch().toList();
-
-        sqlContext.select().allColumn().from(User.class).join(Product.class,"p",condition -> condition.andEqualTo(User::getName,Product::getProductId)).fetch().toList();
+        sqlContext.select().column(select -> {
+            select.column(User::getName).from(User.class).limit(1);
+        }, "p").from(User.class).fetch().toList();
 
     }
 }

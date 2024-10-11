@@ -6,6 +6,7 @@ import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
@@ -68,7 +69,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             }
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
-                SqlStatementWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedColumn.getNestedSelect());
+                Consumer<AbstractColumnReference> nestedColumnReference = nestedColumn.getNestedColumnReference();
+                SqlStatementWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedColumnReference);
                 String columnAliasString = syntaxAs() + columnQuery.getAlias();
                 sqlBuilder.append("(").append(sqlStatementWrapper.getRawSql()).append(")").append(columnAliasString).append(columnSeparator);
                 parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
