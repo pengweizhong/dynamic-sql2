@@ -1,10 +1,9 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.entites.Product;
 import com.pengwz.dynamic.sql2.entites.User;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 public class SelectTest extends InitializingContext {
     /**
@@ -59,8 +58,12 @@ public class SelectTest extends InitializingContext {
      */
     @Test
     void select1() {
-        List<User> list = sqlContext.select().allColumn("t1").from(User.class,"t1").fetch().toList();
-        System.out.println(list);
+        sqlContext.select().allColumn("user").from(User.class,"user").fetch().toList();
+
+        sqlContext.select().allColumn(User.class).from(User.class).fetch().toList();
+
+        sqlContext.select().allColumn().from(User.class).join(Product.class,"p",condition -> condition.andEqualTo(User::getName,Product::getProductId)).fetch().toList();
+
     }
 }
 

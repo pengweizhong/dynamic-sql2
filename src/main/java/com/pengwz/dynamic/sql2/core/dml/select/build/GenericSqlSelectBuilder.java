@@ -20,6 +20,7 @@ import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class GenericSqlSelectBuilder extends SqlSelectBuilder {
@@ -73,41 +74,6 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
             }
         }
-    }
-
-    private void parseAllColumn(AllColumn allColumn) {
-        //判断列查询的引用模式
-        //别名引用
-        String tableAlias = allColumn.getTableAlias();
-        if (StringUtils.isNotEmpty(tableAlias)) {
-            final String[] clazz = new String[1];
-            aliasTableMap.forEach((cls, alias) -> {
-                if (alias == null) {
-                    return;
-                }
-                if (alias.equals(tableAlias)) {
-                    clazz[0] = cls;
-                }
-            });
-            if (clazz[0] == null) {
-                throw new IllegalArgumentException("Table alias does not exist: " + tableAlias);
-            }
-            List<ColumnMeta> columnMetas = TableProvider.getTableMeta(clazz[0]).getColumnMetas();
-            for (int i = 0; i < columnMetas.size(); i++) {
-                ColumnMeta columnMeta = columnMetas.get(i);
-                //拼接别名，
-                sqlBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, tableAlias))
-                        .append(".").append(SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName()))
-                        .append(" ").append(SqlUtils.getSyntaxAs(sqlDialect)).append(" ").append(columnMeta.getField().getName());
-                if (columnMetas.size() - 1 > i) {
-                    sqlBuilder.append(", ");
-                }
-            }
-        }
-        //类引用
-        Class<?> tableClass = allColumn.getTableClass();
-        //都为空则表示匿名引用
-
     }
 
     /**
@@ -165,4 +131,70 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         sqlBuilder.append(parameterBinder.registerValueWithKey(limitInfo.getLimit()));
     }
 
+    private void parseAllColumn(AllColumn allColumn) {
+        //判断列查询的引用模式
+        //别名引用
+        String tableAlias = allColumn.getTableAlias();
+        if (StringUtils.isNotEmpty(tableAlias)) {
+            final String[] clazz = new String[1];
+            String finalTableAlias = tableAlias;
+            aliasTableMap.forEach((cls, alias) -> {
+                if (alias == null) {
+                    return;
+                }
+                if (alias.equals(finalTableAlias)) {
+                    clazz[0] = cls;
+                }
+            });
+            if (clazz[0] == null) {
+                throw new IllegalArgumentException("Table alias does not exist: " + tableAlias);
+            }
+            List<ColumnMeta> columnMetas = TableProvider.getTableMeta(clazz[0]).getColumnMetas();
+            appendQueryColumn(columnMetas, tableAlias);
+            return;
+        }
+        //类引用
+        Class<?> tableClass = allColumn.getTableClass();
+        if (tableClass != null) {
+            appendQueryAllColumnForClass(tableClass);
+            return;
+        }
+        //都为空则表示匿名引用
+        AtomicInteger cursor = new AtomicInteger();
+        aliasTableMap.forEach((cls, alias) -> {
+            if (cursor.getAndIncrement() != 0) {
+                sqlBuilder.append(", ");
+            }
+            appendQueryAllColumnForClass(cls);
+        });
+    }
+
+    private void appendQueryAllColumnForClass(Class<?> tableClass) {
+        appendQueryAllColumnForClass(tableClass.getCanonicalName());
+    }
+
+    private void appendQueryAllColumnForClass(String canonicalName) {
+        TableMeta tableMeta = TableProvider.getTableMeta(canonicalName);
+        String tableAlias = aliasTableMap.get(canonicalName);
+        //确定别名
+        tableAlias = tableAlias == null ? tableMeta.getTableAlias() : tableAlias;
+        if (tableMeta == null) {
+            throw new IllegalArgumentException("Table class does not exist: " + canonicalName);
+        }
+        List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
+        appendQueryColumn(columnMetas, tableAlias);
+    }
+
+    private void appendQueryColumn(List<ColumnMeta> columnMetas, String tableAlias) {
+        for (int i = 0; i < columnMetas.size(); i++) {
+            ColumnMeta columnMeta = columnMetas.get(i);
+            //拼接别名，
+            sqlBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, tableAlias))
+                    .append(".").append(SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName()))
+                    .append(" ").append(SqlUtils.getSyntaxAs(sqlDialect)).append(" ").append(columnMeta.getField().getName());
+            if (columnMetas.size() - 1 > i) {
+                sqlBuilder.append(", ");
+            }
+        }
+    }
 }
