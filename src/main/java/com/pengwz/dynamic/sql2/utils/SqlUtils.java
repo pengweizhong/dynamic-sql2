@@ -103,6 +103,13 @@ public class SqlUtils {
         return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." + column;
     }
 
+    public static Object formattedParameter(/*SqlDialect sqlDialect,*/ Object value) {
+        if (value instanceof String) {
+            return "'" + value + "'";
+        }
+        return value;
+    }
+
     public static String getSyntaxSelect(SqlDialect sqlDialect) {
         switch (sqlDialect) {
             case MYSQL:

@@ -412,7 +412,7 @@ public class GenericWhereCondition implements WhereCondition {
     public <T, F> Condition andEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap))
-                .append(" = ").append(parameterBinder.registerValueWithKey(fn,value));
+                .append(" = ").append(parameterBinder.registerValueWithKey(fn, value));
         return this;
     }
 

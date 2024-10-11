@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
@@ -11,6 +12,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
+import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
@@ -39,6 +41,11 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             if (columnQuery instanceof FunctionColumn) {
                 FunctionColumn functionColumn = (FunctionColumn) columnQuery;
                 ColumFunction columFunction = functionColumn.getColumFunction();
+                //是否查询的全部列
+                if (columFunction instanceof AllColumn) {
+                    parseAllColumn((AllColumn) columFunction);
+                    continue;
+                }
                 //数字列不需要关心别名问题
                 if (columFunction instanceof NumberColumn) {
                     sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version)).append(columnSeparator);
@@ -66,6 +73,41 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
             }
         }
+    }
+
+    private void parseAllColumn(AllColumn allColumn) {
+        //判断列查询的引用模式
+        //别名引用
+        String tableAlias = allColumn.getTableAlias();
+        if (StringUtils.isNotEmpty(tableAlias)) {
+            final String[] clazz = new String[1];
+            aliasTableMap.forEach((cls, alias) -> {
+                if (alias == null) {
+                    return;
+                }
+                if (alias.equals(tableAlias)) {
+                    clazz[0] = cls;
+                }
+            });
+            if (clazz[0] == null) {
+                throw new IllegalArgumentException("Table alias does not exist: " + tableAlias);
+            }
+            List<ColumnMeta> columnMetas = TableProvider.getTableMeta(clazz[0]).getColumnMetas();
+            for (int i = 0; i < columnMetas.size(); i++) {
+                ColumnMeta columnMeta = columnMetas.get(i);
+                //拼接别名，
+                sqlBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, tableAlias))
+                        .append(".").append(SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName()))
+                        .append(" ").append(SqlUtils.getSyntaxAs(sqlDialect)).append(" ").append(columnMeta.getField().getName());
+                if (columnMetas.size() - 1 > i) {
+                    sqlBuilder.append(", ");
+                }
+            }
+        }
+        //类引用
+        Class<?> tableClass = allColumn.getTableClass();
+        //都为空则表示匿名引用
+
     }
 
     /**

@@ -12,16 +12,11 @@ import java.sql.SQLException;
 public class MysqlCustomDataSource {
     private static final Logger log = LoggerFactory.getLogger(MysqlDataSource.class);
 
-    public Void testVoid() {
-        log.info("testVoid-------------");
-        return null;
-    }
-
     @DBSource(defaultDB = true)
     public DataSource getDataSource() {
         log.info("----------------- getDataSource -----------------");
         DruidDataSource ds = new DruidDataSource();
-        ds.setUrl("jdbc:mysql://127.0.0.1:3306/dynamic_sql2?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
+        ds.setUrl("jdbc:mysql://127.0.0.1:3306/dynamic_sql?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
         ds.setUsername("root");
         ds.setPassword("root");
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");

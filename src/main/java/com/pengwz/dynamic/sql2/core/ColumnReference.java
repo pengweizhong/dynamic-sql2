@@ -74,7 +74,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public AbstractColumnReference allColumn() {
-        return this;
+        return allColumn((Class<?>) null);
     }
 
     @Override
@@ -85,7 +85,8 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public AbstractColumnReference allColumn(String tableAlias) {
-        return null;
+        selectSpecification.getColumFunctions().add(new FunctionColumn(new AllColumn(tableAlias, null), null, null));
+        return this;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.utils;
 
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.DefaultAttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.impl.EnumAttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.impl.LocalDateAttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.impl.NumberAttributeConverter;
 
@@ -35,6 +36,10 @@ public class ConverterUtils {
 
     @SuppressWarnings("unchecked")
     private static <X, Y, T extends DefaultAttributeConverter<X, Y>> T matchConverter(Class<?> valueType) {
+        if (Enum.class.isAssignableFrom(valueType)) {
+            EnumAttributeConverter enumAttributeConverter = new EnumAttributeConverter(valueType);
+            return (T) enumAttributeConverter;
+        }
         //先判断是否被精准命中
         AttributeConverter attributeConverter = GENERAL_ATTRIBUTE_CONVERTERS.get(valueType);
         if (attributeConverter != null) {
@@ -49,7 +54,7 @@ public class ConverterUtils {
                 "the error type occurred: " + valueType.getCanonicalName());
     }
 
-    public static <Y> AttributeConverter<Object, Y> loadConverter(Class<? extends AttributeConverter> converterClass) {
+    public static <Y> AttributeConverter<Object, Y> loadCustomConverter(Class<? extends AttributeConverter> converterClass) {
         AttributeConverter attributeConverter = CUSTOM_ATTRIBUTE_CONVERTERS.get(converterClass);
         if (attributeConverter != null) {
             return attributeConverter;

@@ -7,6 +7,7 @@ import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 import com.pengwz.dynamic.sql2.utils.ConverterUtils;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
+import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class ParameterBinder {
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
         ColumnMeta columnMeta = tableMeta.getColumnMeta(fieldName);
         if (columnMeta.getConverter() != null) {
-            fixValue = ConverterUtils.loadConverter(columnMeta.getConverter()).convertToDatabaseColumn(value);
+            fixValue = ConverterUtils.loadCustomConverter(columnMeta.getConverter()).convertToDatabaseColumn(value);
         } else {
             fixValue = ConverterUtils.convertValueToDatabase(value);
         }
@@ -82,7 +83,7 @@ public class ParameterBinder {
         while (matcher.find()) {
             String placeholder = matcher.group();
             if (contains(placeholder)) {
-                Object value = getValue(placeholder);
+                Object value = SqlUtils.formattedParameter(getValue(placeholder));
                 // 替换占位符为对应的值
                 int start = matcher.start();
                 int end = matcher.end();
