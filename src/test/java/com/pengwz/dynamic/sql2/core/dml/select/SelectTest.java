@@ -69,7 +69,11 @@ public class SelectTest extends InitializingContext {
                 .allColumn("s")
                 .allColumn("x")
                 .from(select -> select.column(User::getName).column(User::getEmail).from(User.class), "s")
-                .join(select -> select.column(User::getName).column(User::getPhoneNumber).from(User.class), "x",
+//                .join(select -> select.column(User::getName).column(User::getPhoneNumber).from(User.class), "x",
+//                        on -> on.andEqualTo(withTableAlias("s", User::getName), withTableAlias("x", User::getName)))
+//                .leftJoin(select -> select.column(User::getName).column(User::getPhoneNumber).from(User.class), "x",
+//                        on -> on.andEqualTo(withTableAlias("s", User::getName), withTableAlias("x", User::getName)))
+                .rightJoin(select -> select.column(User::getName).column(User::getPhoneNumber).from(User.class), "x",
                         on -> on.andEqualTo(withTableAlias("s", User::getName), withTableAlias("x", User::getName)))
                 .fetch().toList();
 

@@ -85,6 +85,8 @@ public interface JoinCondition extends Fetchable {
 
     JoinCondition leftJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
 
+    JoinCondition leftJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition);
+
     JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**
@@ -107,6 +109,8 @@ public interface JoinCondition extends Fetchable {
     JoinCondition rightJoin(Class<?> clazz, Consumer<Condition> onCondition);
 
     JoinCondition rightJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
+
+    JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition);
 
     JoinCondition rightJoin(CteTable cte, Consumer<Condition> onCondition);
 

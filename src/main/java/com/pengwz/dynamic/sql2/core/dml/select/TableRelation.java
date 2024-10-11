@@ -57,6 +57,12 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
+    public JoinCondition leftJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.LEFT, nestedSelect, alias, onCondition));
+        return this;
+    }
+
+    @Override
     public JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition) {
         selectSpecification.getJoinTables().add(new LeftJoin(cte, onCondition));
         return this;
@@ -70,6 +76,12 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     public JoinCondition rightJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
         selectSpecification.getJoinTables().add(new RightJoin(clazz, alias, onCondition));
+        return this;
+    }
+
+    @Override
+    public JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.RIGHT, nestedSelect, alias, onCondition));
         return this;
     }
 
