@@ -12,6 +12,8 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
+import com.pengwz.dynamic.sql2.enums.JoinTableType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
@@ -45,7 +47,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 ColumFunction columFunction = functionColumn.getColumFunction();
                 //是否查询的全部列
                 if (columFunction instanceof AllColumn) {
-                    parseAllColumn((AllColumn) columFunction);
+                    parseAllColumn((AllColumn) columFunction, columFunctions1.size() - 1 > i);
                     continue;
                 }
                 //数字列不需要关心别名问题
@@ -93,17 +95,24 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
     protected void parseFormTables() {
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         for (JoinTable joinTable : joinTables) {
-            parseFormTable(joinTable);
+            parseJoinTable(joinTable, this.sqlBuilder);
         }
     }
 
-    protected void parseFormTable(JoinTable joinTable) {
-        parseFormTable(joinTable, this.sqlBuilder);
-    }
-
-    protected void parseFormTable(JoinTable joinTable, StringBuilder sqlBuilder) {
+    protected void parseJoinTable(JoinTable joinTable, StringBuilder sqlBuilder) {
         if (joinTable instanceof FromJoin) {
             sqlBuilder.append(automaticallySelectAliases(joinTable));
+            return;
+        }
+        if (joinTable.getJoinTableType() == JoinTableType.NESTED) {
+            NestedJoin nestedJoin = (NestedJoin) joinTable;
+            SqlStatementWrapper sqlStatementWrapper = nestedJoin.getSqlStatementWrapper();
+            if (sqlStatementWrapper == null) {
+                sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedJoin.getNestedSelect());
+            }
+            sqlBuilder.append(" (").append(sqlStatementWrapper.getRawSql()).append(") ")
+                    .append(syntaxAs()).append(nestedJoin.getTableAlias());
+            parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
             return;
         }
         String syntaxJoin = " " + SqlUtils.getSyntaxJoin(sqlDialect, joinTable) + " ";
@@ -128,12 +137,11 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxLimit(SqlDialect.MYSQL)).append(" ");
         if (limitInfo.getOffset() != null) {
             sqlBuilder.append(parameterBinder.registerValueWithKey(limitInfo.getOffset())).append(", ");
-
         }
         sqlBuilder.append(parameterBinder.registerValueWithKey(limitInfo.getLimit()));
     }
 
-    private void parseAllColumn(AllColumn allColumn) {
+    private void parseAllColumn(AllColumn allColumn, boolean isAppendComma) {
         //判断列查询的引用模式
         //别名引用
         String tableAlias = allColumn.getTableAlias();
@@ -150,6 +158,14 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             });
             if (clazz[0] == null) {
                 throw new IllegalArgumentException("Table alias does not exist: " + tableAlias);
+            }
+            //兼容内嵌
+            if (clazz[0].equals(tableAlias)) {
+                sqlBuilder.append(tableAlias).append(".*");
+                if (isAppendComma) {
+                    sqlBuilder.append(", ");
+                }
+                return;
             }
             List<ColumnMeta> columnMetas = TableProvider.getTableMeta(clazz[0]).getColumnMetas();
             appendQueryColumn(columnMetas, tableAlias);

@@ -6,8 +6,8 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.DefaultOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
@@ -34,14 +34,26 @@ public abstract class SqlSelectBuilder {
     protected final String dataSourceName;
     protected final ParameterBinder parameterBinder = new ParameterBinder();
     //key是class路径 value是别名
+    //如果是嵌套表，则key和value都是别名
     protected final Map<String, String> aliasTableMap = new HashMap<>();
 
     protected SqlSelectBuilder(SelectSpecification selectSpecification) {
-        FromJoin fromJoin = (FromJoin) selectSpecification.getJoinTables().get(0);
         this.selectSpecification = selectSpecification;
-        this.version = getVersion(fromJoin.getTableClass());
-        this.sqlDialect = SqlUtils.getSqlDialect(fromJoin.getTableClass());
-        this.dataSourceName = TableProvider.getTableMeta(fromJoin.getTableClass()).getBindDataSourceName();
+        SchemaProperties schemaProperties;
+        JoinTable joinTable = selectSpecification.getJoinTables().get(0);
+        if (joinTable instanceof NestedJoin) {
+            NestedJoin nestedJoin = (NestedJoin) joinTable;
+            SqlStatementWrapper sqlStatementWrapper = nestedJoin.getSqlStatementWrapper();
+            String dataSourceName1 = sqlStatementWrapper.getDataSourceName();
+            schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName1);
+        } else {
+            Class<?> tableClass = joinTable.getTableClass();
+            TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
+            schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
+        }
+        this.version = matchVersion(schemaProperties);
+        this.sqlDialect = schemaProperties.getSqlDialect();
+        this.dataSourceName = schemaProperties.getDataSourceName();
     }
 
     protected abstract void parseColumnFunction();
@@ -54,15 +66,21 @@ public abstract class SqlSelectBuilder {
         //step0 解析表别名
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(joinTable -> {
-            String canonicalName = joinTable.getTableClass().getCanonicalName();
-            String alias = aliasTableMap.get(canonicalName);
+
+            String key;
+            if (joinTable instanceof NestedJoin) {
+                key = joinTable.getTableAlias();
+            } else {
+                key = joinTable.getTableClass().getCanonicalName();
+            }
+            String alias = aliasTableMap.get(key);
             if (alias != null && joinTable.getTableAlias() == null) {
-                throw new IllegalStateException("Repeatedly associated with the same table: " + canonicalName + ", When querying " +
+                throw new IllegalStateException("Repeatedly associated with the same table: " + key + ", When querying " +
                         "the same table continuously at the current level, aliases should be used to distinguish them");
             }
             //只添加第一次设置的 别名，作为当前回话的全局别名
             if (alias == null) {
-                aliasTableMap.put(canonicalName, joinTable.getTableAlias());
+                aliasTableMap.put(key, joinTable.getTableAlias());
             }
         });
         //step1 解析查询的列
@@ -91,7 +109,7 @@ public abstract class SqlSelectBuilder {
         if (selectSpecification.getLimitInfo() != null) {
             parseLimit();
         }
-        return new SqlStatementWrapper(sqlBuilder, parameterBinder);
+        return new SqlStatementWrapper(dataSourceName, sqlBuilder, parameterBinder);
     }
 
     private void parseGroupBy(List<Fn<?, ?>> groupByFields) {
@@ -144,11 +162,22 @@ public abstract class SqlSelectBuilder {
     }
 
 
-    private Version getVersion(Class<?> fromTableClass) {
-        TableMeta tableMeta = TableProvider.getTableMeta(fromTableClass);
-        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
+//    private Version getVersion(Class<?> fromTableClass) {
+//        TableMeta tableMeta = TableProvider.getTableMeta(fromTableClass);
+//        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
+//        if (StringUtils.isBlank(schemaProperties.getDatabaseProductVersion())) {
+//            DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
+//            return new Version(dataSourceMeta.getMajorVersionNumber(),
+//                    dataSourceMeta.getMinorVersionNumber(), dataSourceMeta.getPatchVersionNumber());
+//        } else {
+//            return new Version(schemaProperties.getMajorVersionNumber(),
+//                    schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
+//        }
+//    }
+
+    private Version matchVersion(SchemaProperties schemaProperties) {
         if (StringUtils.isBlank(schemaProperties.getDatabaseProductVersion())) {
-            DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
+            DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(schemaProperties.getDataSourceName());
             return new Version(dataSourceMeta.getMajorVersionNumber(),
                     dataSourceMeta.getMinorVersionNumber(), dataSourceMeta.getPatchVersionNumber());
         } else {
@@ -156,6 +185,7 @@ public abstract class SqlSelectBuilder {
                     schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
         }
     }
+
 
     protected String getSchemaName(TableMeta tableMeta) {
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());

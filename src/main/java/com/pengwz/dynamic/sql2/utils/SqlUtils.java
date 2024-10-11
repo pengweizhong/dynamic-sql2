@@ -274,8 +274,17 @@ public class SqlUtils {
     }
 
     public static SqlSelectBuilder matchSqlSelectBuilder(SelectSpecification selectSpecification) {
-        FromJoin fromJoin = (FromJoin) selectSpecification.getJoinTables().get(0);
-        SqlDialect sqlDialect = SqlUtils.getSqlDialect(fromJoin.getTableClass());
+        JoinTable joinTable = selectSpecification.getJoinTables().get(0);
+        SqlDialect sqlDialect = null;
+        if (joinTable instanceof NestedJoin) {
+            NestedJoin nestedJoin = (NestedJoin) joinTable;
+            SqlStatementWrapper sqlStatementWrapper = executeNestedSelect(nestedJoin.getNestedSelect());
+            nestedJoin.setSqlStatementWrapper(sqlStatementWrapper);
+            sqlDialect = SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName()).getSqlDialect();
+        }
+        if (sqlDialect == null) {
+            sqlDialect = SqlUtils.getSqlDialect(joinTable.getTableClass());
+        }
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:

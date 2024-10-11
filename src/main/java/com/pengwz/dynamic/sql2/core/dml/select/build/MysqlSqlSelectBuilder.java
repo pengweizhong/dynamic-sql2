@@ -1,6 +1,9 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build;
 
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.FullJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.LeftJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.RightJoin;
 
 import java.util.List;
 
@@ -14,7 +17,9 @@ public class MysqlSqlSelectBuilder extends GenericSqlSelectBuilder {
     @Override
     protected void parseFormTables() {
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
-        joinTables.forEach(joinTable -> {super.parseFormTable(joinTable);});
+        joinTables.forEach(joinTable -> {
+            super.parseJoinTable(joinTable, this.sqlBuilder);
+        });
 //        StringBuilder leftBuilder = new StringBuilder();
 //        StringBuilder rightBuilder = new StringBuilder();
 //        StringBuilder stringBuilder = new StringBuilder();
@@ -43,7 +48,7 @@ public class MysqlSqlSelectBuilder extends GenericSqlSelectBuilder {
         LeftJoin leftJoin = new LeftJoin(fullJoin.getTableClass(), fullJoin.getTableAlias(), fullJoin.getOnCondition());
 //        bakBuilder = String.valueOf(sqlBuilder);
         leftBuilder.append(sqlBuilder);
-        super.parseFormTable(leftJoin, leftBuilder);
+        super.parseJoinTable(leftJoin, leftBuilder);
     }
 
     protected void parseRightFullJoin(FullJoin fullJoin, StringBuilder rightBuilder) {
@@ -51,6 +56,6 @@ public class MysqlSqlSelectBuilder extends GenericSqlSelectBuilder {
         RightJoin rightJoin = new RightJoin(fullJoin.getTableClass(), fullJoin.getTableAlias(), fullJoin.getOnCondition());
 //        //左连接
         rightBuilder.append(sqlBuilder);
-        super.parseFormTable(rightJoin, rightBuilder);
+        super.parseJoinTable(rightJoin, rightBuilder);
     }
 }

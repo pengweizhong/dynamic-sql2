@@ -5,8 +5,10 @@ import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 public class SqlStatementWrapper {
     private StringBuilder rawSql;
     private ParameterBinder parameterBinder;
+    private String dataSourceName;
 
-    public SqlStatementWrapper(StringBuilder rawSql, ParameterBinder parameterBinder) {
+    public SqlStatementWrapper(String dataSourceName, StringBuilder rawSql, ParameterBinder parameterBinder) {
+        this.dataSourceName = dataSourceName;
         this.rawSql = rawSql;
         this.parameterBinder = parameterBinder;
     }
@@ -17,5 +19,9 @@ public class SqlStatementWrapper {
 
     public ParameterBinder getParameterBinder() {
         return parameterBinder;
+    }
+
+    public String getDataSourceName() {
+        return dataSourceName;
     }
 }

@@ -4,6 +4,8 @@ import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.entites.User;
 import org.junit.jupiter.api.Test;
 
+import static com.pengwz.dynamic.sql2.core.column.conventional.AbstractAlias.withTableAlias;
+
 public class SelectTest extends InitializingContext {
     /**
      * 从多个表中提取用户及其订单相关的信息，包括用户的总花费、订单数量、所购买的产品及其分类等
@@ -63,10 +65,15 @@ public class SelectTest extends InitializingContext {
 //
 //        sqlContext.select().allColumn().from(User.class).join(Product.class,"p",condition -> condition.andEqualTo(User::getName,Product::getProductId)).fetch().toList();
 
-        sqlContext.select().column(select -> {
-            select.column(User::getName).from(User.class).limit(1);
-        }, "p").from(User.class).fetch().toList();
+        sqlContext.select()
+                .allColumn("s")
+                .allColumn(User.class)
+                .from(select -> select.column(User::getName).column(User::getEmail).from(User.class), "s")
+                .join(User.class, on -> on.andEqualTo(withTableAlias("s", User::getName), User::getName))
+                .fetch().toList();
 
+//        sqlContext.select().column("s", User::getName).column("s", User::getEmail)
+//                .from(select -> select.column(User::getName).column(User::getEmail).from(User.class), "s").fetch().toList();
     }
 }
 
