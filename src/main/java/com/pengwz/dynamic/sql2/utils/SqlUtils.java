@@ -12,10 +12,13 @@ import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 import com.pengwz.dynamic.sql2.core.dml.select.build.*;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DbType;
+import com.pengwz.dynamic.sql2.enums.JoinTableType;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
@@ -141,8 +144,8 @@ public class SqlUtils {
         }
     }
 
-    public static String getSyntaxJoin(SqlDialect sqlDialect, JoinTable joinTable) {
-        if (joinTable instanceof InnerJoin) {
+    public static String getSyntaxJoin(SqlDialect sqlDialect, JoinTableType joinTableType) {
+        if (joinTableType == JoinTableType.INNER) {
             switch (sqlDialect) {
                 case MYSQL:
                 case MARIADB:
@@ -151,7 +154,7 @@ public class SqlUtils {
                     return "INNER JOIN";
             }
         }
-        if (joinTable instanceof LeftJoin) {
+        if (joinTableType == JoinTableType.LEFT) {
             switch (sqlDialect) {
                 case MYSQL:
                 case MARIADB:
@@ -160,7 +163,7 @@ public class SqlUtils {
                     return "LEFT JOIN";
             }
         }
-        if (joinTable instanceof RightJoin) {
+        if (joinTableType == JoinTableType.RIGHT) {
             switch (sqlDialect) {
                 case MYSQL:
                 case MARIADB:
@@ -169,7 +172,7 @@ public class SqlUtils {
                     return "RIGHT JOIN";
             }
         }
-        if (joinTable instanceof FullJoin) {
+        if (joinTableType == JoinTableType.FULL) {
             switch (sqlDialect) {
                 case MYSQL:
                 case MARIADB:
@@ -276,11 +279,14 @@ public class SqlUtils {
     public static SqlSelectBuilder matchSqlSelectBuilder(SelectSpecification selectSpecification) {
         JoinTable joinTable = selectSpecification.getJoinTables().get(0);
         SqlDialect sqlDialect = null;
+        if (joinTable instanceof FromNestedJoin) {
+            FromNestedJoin fromNestedJoin = (FromNestedJoin) joinTable;
+            NestedJoin nestedJoin = fromNestedJoin.getNestedJoin();
+            sqlDialect = nestedJoinSqlDialect(nestedJoin);
+        }
         if (joinTable instanceof NestedJoin) {
             NestedJoin nestedJoin = (NestedJoin) joinTable;
-            SqlStatementWrapper sqlStatementWrapper = executeNestedSelect(nestedJoin.getNestedSelect());
-            nestedJoin.setSqlStatementWrapper(sqlStatementWrapper);
-            sqlDialect = SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName()).getSqlDialect();
+            sqlDialect = nestedJoinSqlDialect(nestedJoin);
         }
         if (sqlDialect == null) {
             sqlDialect = SqlUtils.getSqlDialect(joinTable.getTableClass());
@@ -304,5 +310,10 @@ public class SqlUtils {
         return nestedSqlBuilder.build();
     }
 
+    private static SqlDialect nestedJoinSqlDialect(NestedJoin nestedJoin) {
+        SqlStatementWrapper sqlStatementWrapper = executeNestedSelect(nestedJoin.getNestedSelect());
+        nestedJoin.setSqlStatementWrapper(sqlStatementWrapper);
+        return SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName()).getSqlDialect();
+    }
 
 }

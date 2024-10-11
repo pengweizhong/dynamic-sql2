@@ -11,15 +11,25 @@ import java.util.function.Consumer;
 public class NestedJoin extends JoinTable {
     private final Consumer<AbstractColumnReference> nestedSelect;
     private SqlStatementWrapper sqlStatementWrapper;
+    private Consumer<Condition> onCondition;
+    private JoinTableType joinTableType;
 
     public NestedJoin(Consumer<AbstractColumnReference> nestedSelect, String tableAlias) {
         super(tableAlias);
         this.nestedSelect = nestedSelect;
     }
 
+    public NestedJoin(JoinTableType joinTableType, Consumer<AbstractColumnReference> nestedSelect,
+                      String tableAlias, Consumer<Condition> onCondition) {
+        super(tableAlias);
+        this.joinTableType = joinTableType;
+        this.nestedSelect = nestedSelect;
+        this.onCondition = onCondition;
+    }
+
     @Override
     public JoinTableType getJoinTableType() {
-        return JoinTableType.NESTED;
+        return joinTableType;
     }
 
     @Override
@@ -34,7 +44,7 @@ public class NestedJoin extends JoinTable {
 
     @Override
     public Consumer<Condition> getOnCondition() {
-        throw new UnsupportedOperationException();
+        return onCondition;
     }
 
     public Consumer<AbstractColumnReference> getNestedSelect() {

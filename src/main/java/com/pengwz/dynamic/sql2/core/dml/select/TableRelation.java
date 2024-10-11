@@ -7,6 +7,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.LimitInfo;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
+import com.pengwz.dynamic.sql2.enums.JoinTableType;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 
 import java.util.function.Consumer;
@@ -29,6 +30,12 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     public JoinCondition innerJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
         selectSpecification.getJoinTables().add(new InnerJoin(clazz, alias, onCondition));
+        return this;
+    }
+
+    @Override
+    public JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.INNER, nestedSelect, alias, onCondition));
         return this;
     }
 

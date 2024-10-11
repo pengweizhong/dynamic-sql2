@@ -6,6 +6,7 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
@@ -41,9 +42,9 @@ public abstract class SqlSelectBuilder {
         this.selectSpecification = selectSpecification;
         SchemaProperties schemaProperties;
         JoinTable joinTable = selectSpecification.getJoinTables().get(0);
-        if (joinTable instanceof NestedJoin) {
-            NestedJoin nestedJoin = (NestedJoin) joinTable;
-            SqlStatementWrapper sqlStatementWrapper = nestedJoin.getSqlStatementWrapper();
+        if (joinTable instanceof FromNestedJoin) {
+            FromNestedJoin fromNestedJoin = (FromNestedJoin) joinTable;
+            SqlStatementWrapper sqlStatementWrapper = fromNestedJoin.getNestedJoin().getSqlStatementWrapper();
             String dataSourceName1 = sqlStatementWrapper.getDataSourceName();
             schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName1);
         } else {
@@ -66,9 +67,8 @@ public abstract class SqlSelectBuilder {
         //step0 解析表别名
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(joinTable -> {
-
             String key;
-            if (joinTable instanceof NestedJoin) {
+            if (joinTable instanceof FromNestedJoin || joinTable instanceof NestedJoin) {
                 key = joinTable.getTableAlias();
             } else {
                 key = joinTable.getTableClass().getCanonicalName();

@@ -11,6 +11,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
@@ -109,7 +110,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public TableRelation<?> from(Consumer<AbstractColumnReference> nestedSelect, String selectAlias) {
-        selectSpecification.getJoinTables().add(new NestedJoin(nestedSelect, selectAlias));
+        selectSpecification.getJoinTables().add(new FromNestedJoin(new NestedJoin(nestedSelect, selectAlias)));
         return new TableRelation<>(selectSpecification);
     }
 }

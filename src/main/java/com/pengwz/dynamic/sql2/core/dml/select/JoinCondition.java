@@ -22,6 +22,10 @@ public interface JoinCondition extends Fetchable {
         return innerJoin(clazz, alias, onCondition);
     }
 
+    default JoinCondition join(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
+        return innerJoin(nestedSelect, alias, onCondition);
+    }
+
     /**
      * 表示 INNER JOIN 连接，支持与 CTE 进行连接。
      * <p>
@@ -55,6 +59,8 @@ public interface JoinCondition extends Fetchable {
     JoinCondition innerJoin(Class<?> clazz, Consumer<Condition> onCondition);
 
     JoinCondition innerJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
+
+    JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition);
 
     JoinCondition innerJoin(CteTable cte, Consumer<Condition> onCondition);
 

@@ -11,9 +11,9 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
-import com.pengwz.dynamic.sql2.enums.JoinTableType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
@@ -100,33 +100,54 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
     }
 
     protected void parseJoinTable(JoinTable joinTable, StringBuilder sqlBuilder) {
-        if (joinTable instanceof FromJoin) {
-            sqlBuilder.append(automaticallySelectAliases(joinTable));
-            return;
-        }
-        if (joinTable.getJoinTableType() == JoinTableType.NESTED) {
-            NestedJoin nestedJoin = (NestedJoin) joinTable;
-            SqlStatementWrapper sqlStatementWrapper = nestedJoin.getSqlStatementWrapper();
-            if (sqlStatementWrapper == null) {
-                sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedJoin.getNestedSelect());
-            }
+        if (joinTable instanceof FromNestedJoin) {
+            FromNestedJoin fromNestedJoin = (FromNestedJoin) joinTable;
+            NestedJoin nestedJoin = fromNestedJoin.getNestedJoin();
+            SqlStatementWrapper sqlStatementWrapper = parseNestedJoinSqlStatementWrapper(nestedJoin);
             sqlBuilder.append(" (").append(sqlStatementWrapper.getRawSql()).append(") ")
                     .append(syntaxAs()).append(nestedJoin.getTableAlias());
             parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
             return;
         }
-        String syntaxJoin = " " + SqlUtils.getSyntaxJoin(sqlDialect, joinTable) + " ";
-        String syntaxOn = " " + SqlUtils.getSyntaxOn(sqlDialect) + " ";
+        if (joinTable instanceof FromJoin) {
+            sqlBuilder.append(automaticallySelectAliases(joinTable));
+            return;
+        }
+        if (joinTable instanceof NestedJoin) {
+            NestedJoin nestedJoin = (NestedJoin) joinTable;
+            SqlStatementWrapper sqlStatementWrapper = parseNestedJoinSqlStatementWrapper(nestedJoin);
+            String syntaxJoin = SqlUtils.getSyntaxJoin(sqlDialect, nestedJoin.getJoinTableType());
+            sqlBuilder.append(" ").append(syntaxJoin).append(" (").append(sqlStatementWrapper.getRawSql()).append(") ")
+                    .append(syntaxAs()).append(nestedJoin.getTableAlias());
+            parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
+            //拼接On条件
+            appendOnCondition(joinTable);
+            return;
+        }
+        String syntaxJoin = " " + SqlUtils.getSyntaxJoin(sqlDialect, joinTable.getJoinTableType()) + " ";
         // INNER, LEFT, RIGHT, FULL, CROSS, SELF;
         sqlBuilder.append(syntaxJoin).append(automaticallySelectAliases(joinTable));
         //拼接On条件
+        appendOnCondition(joinTable);
+    }
+
+    private void appendOnCondition(JoinTable joinTable) {
         Consumer<Condition> onCondition = joinTable.getOnCondition();
         if (onCondition != null) {
+            String syntaxOn = " " + SqlUtils.getSyntaxOn(sqlDialect) + " ";
             WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap);
             onCondition.accept(whereCondition);
             parameterBinder.addParameterBinder(whereCondition.getParameterBinder());
             sqlBuilder.append(syntaxOn).append(whereCondition.getWhereConditionSyntax());
         }
+    }
+
+    private SqlStatementWrapper parseNestedJoinSqlStatementWrapper(NestedJoin nestedJoin) {
+        SqlStatementWrapper sqlStatementWrapper = nestedJoin.getSqlStatementWrapper();
+        if (sqlStatementWrapper == null) {
+            sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedJoin.getNestedSelect());
+        }
+        return sqlStatementWrapper;
     }
 
     public void parseLimit() {
