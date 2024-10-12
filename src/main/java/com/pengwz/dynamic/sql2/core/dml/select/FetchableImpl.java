@@ -18,7 +18,7 @@ public class FetchableImpl implements Fetchable {
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(sqlSelectBuilder.getDataSourceName());
         if (schemaProperties.isPrintSql()) {
             SqlLogger sqlLogger = LogProperties.getInstance().getSqlLogger();
-            sqlLogger.logSql(sqlSelectBuilder.getDataSourceName(), sqlStatementWrapper);
+            sqlLogger.logSql(sqlStatementWrapper);
         }
     }
 

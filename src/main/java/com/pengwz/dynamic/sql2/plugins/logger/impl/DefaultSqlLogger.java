@@ -10,7 +10,7 @@ public class DefaultSqlLogger implements SqlLogger {
     private static final Logger log = LoggerFactory.getLogger(DefaultSqlLogger.class);
 
     @Override
-    public void logSql(String datasource, SqlStatementWrapper sqlStatementWrapper) {
+    public void logSql(SqlStatementWrapper sqlStatementWrapper) {
         StringBuilder rawSql = sqlStatementWrapper.getRawSql();
         ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
         if (parameterBinder == null) {

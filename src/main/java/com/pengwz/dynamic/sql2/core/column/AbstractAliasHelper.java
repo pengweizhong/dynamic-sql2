@@ -1,7 +1,9 @@
-package com.pengwz.dynamic.sql2.utils;
+package com.pengwz.dynamic.sql2.core.column;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
+import com.pengwz.dynamic.sql2.utils.SqlUtils;
+import com.pengwz.dynamic.sql2.utils.StringUtils;
 
 public abstract class AbstractAliasHelper<T, F> implements Fn<T, F> {
     private String tableAlias;
@@ -55,10 +57,10 @@ public abstract class AbstractAliasHelper<T, F> implements Fn<T, F> {
         this.columnAlias = columnAlias;
     }
 
-    protected static class TableAliasImpl<T, F> extends AbstractAliasHelper<T, F> {
+    public static class TableAliasImpl<T, F> extends AbstractAliasHelper<T, F> {
         private Fn<T, F> fnColumn;
 
-        public TableAliasImpl(Fn<T, F> fnColumn) {
+        protected TableAliasImpl(Fn<T, F> fnColumn) {
             this.fnColumn = fnColumn;
         }
 
@@ -74,7 +76,9 @@ public abstract class AbstractAliasHelper<T, F> implements Fn<T, F> {
 
     }
 
-    protected static class OriginColumnAliasImpl extends AbstractAliasHelper<String, String> {
+    public static class OriginColumnAliasImpl extends AbstractAliasHelper<String, String> {
+        protected OriginColumnAliasImpl() {
+        }
 
         @Override
         public Fn<String, String> getFnColumn() {

@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.OriginColumnAliasImpl;
 import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
@@ -54,17 +55,25 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     continue;
                 }
                 Fn<?, ?> fn = columFunction.getOriginColumnFn();
+                if (fn instanceof OriginColumnAliasImpl) {
+                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version));
+                    if (StringUtils.isNotBlank(columnQuery.getAlias())) {
+                        sqlBuilder.append(syntaxAs()).append(columnQuery.getAlias());
+                    }
+                    sqlBuilder.append(columnSeparator);
+                    continue;
+                }
                 String tableAlias = columFunction.getTableAlias();
                 if (tableAlias == null) {
                     tableAlias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(fn));
                 }
                 columFunction.setTableAlias(tableAlias);
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
-                String fieldName = ReflectUtils.fnToFieldName(fn);
-                //拼接别名，
-                String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? fieldName : columnQuery.getAlias();
                 System.out.println("测试函数列输出结果 ---> " + functionToString);
-                sqlBuilder.append(functionToString).append(syntaxAs()).append(columnAlias).append(columnSeparator);
+                //拼接别名，
+//                String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? ReflectUtils.fnToFieldName(fn) : columnQuery.getAlias();
+                String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
+                sqlBuilder.append(functionToString).append(columnAlias).append(columnSeparator);
                 parameterBinder.addParameterBinder(columFunction.getParameterBinder());
             }
             if (columnQuery instanceof NestedColumn) {

@@ -2,6 +2,9 @@ package com.pengwz.dynamic.sql2.core.column.conventional;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
+import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.OriginColumnAliasImpl;
+import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.TableAliasImpl;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
@@ -9,7 +12,6 @@ import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
-import com.pengwz.dynamic.sql2.utils.AbstractAliasHelper;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
@@ -27,8 +29,11 @@ public final class Column implements ColumFunction, TableFunction {
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+        if (columnFn instanceof OriginColumnAliasImpl) {
+            return ((OriginColumnAliasImpl) (columnFn)).getAbsoluteColumn(sqlDialect);
+        }
         Fn<?, ?> fn = this.columnFn;
-        if (columnFn instanceof AbstractAliasHelper) {
+        if (columnFn instanceof TableAliasImpl) {
             AbstractAliasHelper alias = (AbstractAliasHelper) columnFn;
             fn = alias.getFnColumn();
         }

@@ -4,6 +4,7 @@ import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
@@ -23,8 +24,8 @@ import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
-import com.pengwz.dynamic.sql2.utils.AbstractAliasHelper.OriginColumnAliasImpl;
-import com.pengwz.dynamic.sql2.utils.AbstractAliasHelper.TableAliasImpl;
+import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.OriginColumnAliasImpl;
+import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.TableAliasImpl;
 
 import java.util.Map;
 import java.util.function.Consumer;
