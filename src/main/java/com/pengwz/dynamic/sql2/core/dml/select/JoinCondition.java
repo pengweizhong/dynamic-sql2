@@ -30,7 +30,7 @@ public interface JoinCondition extends Fetchable {
     }
 
     default JoinCondition join(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
-        return innerJoinFunction(tableFunction, alias, onCondition);
+        return innerJoin(tableFunction, alias, onCondition);
     }
 
     /**
@@ -69,7 +69,7 @@ public interface JoinCondition extends Fetchable {
 
     JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition);
 
-    JoinCondition innerJoinFunction(Supplier<TableFunction> nestedSelect, String alias, Consumer<Condition> onCondition);
+    JoinCondition innerJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition);
 
     JoinCondition innerJoin(CteTable cte, Consumer<Condition> onCondition);
 
@@ -96,6 +96,8 @@ public interface JoinCondition extends Fetchable {
 
     JoinCondition leftJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition);
 
+    JoinCondition leftJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition);
+
     JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**
@@ -120,6 +122,8 @@ public interface JoinCondition extends Fetchable {
     JoinCondition rightJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
 
     JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition);
+
+    JoinCondition rightJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition);
 
     JoinCondition rightJoin(CteTable cte, Consumer<Condition> onCondition);
 

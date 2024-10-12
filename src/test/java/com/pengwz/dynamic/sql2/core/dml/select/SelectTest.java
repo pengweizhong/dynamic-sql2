@@ -82,10 +82,10 @@ public class SelectTest extends InitializingContext {
 //                        on -> on.andEqualTo(withTableAlias("s", User::getName), withTableAlias("x", User::getName)))
 //                .rightJoin(select -> select.column(User::getName).column(User::getPhoneNumber).from(User.class), "x",
 //                        on -> on.andEqualTo(withTableAlias("s", User::getName), withTableAlias("x", User::getName)))
-                .join(() -> new JsonTable(new JsonUnquote(User::getName), "$.",
+                .rightJoin(() -> new JsonTable(new JsonUnquote(User::getName), "$.",
                                 JsonColumn.builder().column("product_name").dataType("Varchar(32)").jsonPath("$.product").defaultValue("Unknown").on().error().defaultValue("None").on().empty().build(),
                                 JsonColumn.builder().column("price").dataType("DECIMAL(10, 2)").jsonPath("$.price").defaultValue(0.00).on().error().defaultValue(0.99).on().empty().build()
-                        ), "jt", condition -> condition.andEqualTo(withOriginColumn("jt.product_name"), User::getName)
+                        ), "jt", condition -> condition.andEqualTo(withOriginColumn("jt.product_name"), withTableAlias("s", User::getName))
                 )
                 .fetch().toList();
 

@@ -42,7 +42,7 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
-    public JoinCondition innerJoinFunction(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition innerJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
         selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.INNER, tableFunction, alias, onCondition));
         return this;
     }
@@ -71,6 +71,12 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
+    public JoinCondition leftJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.LEFT, tableFunction, alias, onCondition));
+        return this;
+    }
+
+    @Override
     public JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition) {
         selectSpecification.getJoinTables().add(new LeftJoin(cte, onCondition));
         return this;
@@ -90,6 +96,12 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     public JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
         selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.RIGHT, nestedSelect, alias, onCondition));
+        return this;
+    }
+
+    @Override
+    public JoinCondition rightJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.RIGHT, tableFunction, alias, onCondition));
         return this;
     }
 
