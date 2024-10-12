@@ -51,144 +51,115 @@
 • 支持新的数据库：通过方言机制可以灵活地引入对新数据库的支持。  
 • 框架插件化：轻松为其添加新功能或适配新的数据库。    
 
-# 目前能看到的一些API的调用效果
-
-> 这个仅仅体现API的流式调用，不关心业务的合理问题（比如 `join` 了毫不相干的表）  
+# 部分查询API（开发中）
 
 ```java
-class SelectTest extends InitializingContext {
 
-    SqlContext sqlContext = SqlContext.createSqlContext();
+   /**
+    * 从多个表中提取用户及其订单相关的信息，包括用户的总花费、订单数量、所购买的产品及其分类等；
+    * <p/>
+    * SQL生成的如下：
+    * <pre>
+    * {@code
+    * SELECT
+    *     u.user_id,
+    *     u.name AS user_name,
+    *     user_total.total_spent,
+    *     user_total.total_orders,
+    *     p.product_name,
+    *     p.price,
+    *     cat.category_name,
+    *     p.stock
+    * FROM users u
+    * -- 子查询：计算每个用户的总花费和订单数量
+    * JOIN (
+    *     SELECT
+    *         o.user_id,
+    *         SUM(o.total_amount) AS total_spent,
+    *         COUNT(o.order_id) AS total_orders
+    *     FROM orders o
+    *     GROUP BY o.user_id
+    * ) AS user_total ON u.user_id = user_total.user_id  -- 关联用户和子查询结果
+    * LEFT JOIN orders o ON u.user_id = o.user_id  -- 左连接订单
+    * LEFT JOIN (
+    *     SELECT
+    *         p.product_id,
+    *         p.product_name,
+    *         p.price,
+    *         p.category_id,
+    *         p.stock,  -- 包含 stock 字段
+    *         jt.order_id
+    *     FROM products p
+    *     JOIN (
+    *         SELECT
+    *             o.order_id,
+    *             jt.product_name
+    *         FROM orders o
+    *         JOIN JSON_TABLE(o.order_details, '$.items[*]'
+    *             COLUMNS (product_name VARCHAR(150) PATH '$.product')) AS jt
+    *     ) AS jt ON jt.product_name = p.product_name
+    * ) AS p ON o.order_id = p.order_id  -- 连接产品
+    * LEFT JOIN categories cat ON p.category_id = cat.category_id  -- 关联产品和分类
+    * WHERE user_total.total_spent > 100  -- 只选择花费超过 100 的用户
+    * ORDER BY user_total.total_spent DESC  -- 按照总花费降序排列
+    * LIMIT 0, 500;  -- 限制返回结果的行数
+    * }
+    * </pre>
+    */
+   @Test
+   void select0() {
+      sqlContext.select()
+              .column("u", User::getUserId)
+              .column("u", User::getName, "user_name")
+              .column(withOriginColumn("user_total.total_spent"))
+              .column(withOriginColumn("user_total.total_orders"))
+              .column("p", Product::getProductName)
+              .column("p", Product::getPrice)
+              .column("cat", Category::getCategoryName)
+              .column("p", Product::getStock)
+              .from(User.class, "u")
+              .join(select -> select
+                              .column("o", Order::getUserId)
+                              .column(new Sum(withOriginColumn("o.total_amount")), "total_spent")
+                              .column(new Count(withOriginColumn("o.order_id")), "total_orders")
+                              .from(Order.class, "o")
+                              .groupBy(withTableAlias("o", Order::getUserId))
+                      , "user_total",
+                      condition -> condition.andEqualTo(withTableAlias("u", User::getUserId)
+                              , withTableAlias("user_total", Order::getUserId))
+              )
+              .leftJoin(Order.class, "o", condition -> condition.andEqualTo(withTableAlias("u", User::getUserId),
+                      withTableAlias("o", Order::getUserId)))
+              .leftJoin(select -> select
+                      .column("p", Product::getProductId)
+                      .column("p", Product::getProductName)
+                      .column("p", Product::getPrice)
+                      .column("p", Product::getCategoryId)
+                      .column("p", Product::getStock)
+                      .column("jt", Order::getOrderId)
+                      .from(Product.class, "p")
+                      .join(select1 -> select1
+                                      .column("o", Order::getOrderId)
+                                      .column("jt", Product::getProductName)
+                                      .from(Order.class, "o")
+                                      .join(() -> new JsonTable(withOriginColumn("o.order_details"), "$.items[*]",
+                                              JsonColumn.builder().column("product_name").dataType("VARCHAR(150)").jsonPath("$.product").build()
+                                      ), "jt", null), "jt",
+                              condition -> condition.andEqualTo(withTableAlias("jt", Product::getProductName),
+                                      withTableAlias("p", Product::getProductName))), "p", condition -> condition.andEqualTo(withTableAlias("o", Order::getOrderId), withTableAlias("p", Order::getOrderId)))
+              .leftJoin(Category.class, "cat", condition -> condition.andEqualTo(withTableAlias("p", Category::getCategoryId),
+                      withTableAlias("cat", Category::getCategoryId)))
+              .where(condition -> condition.andGreaterThan(withOriginColumn("user_total.total_spent"), 100))
+              .orderBy(withOriginColumn("user_total.total_spent"), SortOrder.DESC)
+              .limit(0, 500)
+              .fetch().toList();
+   }
 
-    @Test
+   /**
+    * 简单的函数计算
+    */
+   @Test
     void select1() {
-        List<Teacher> list = sqlContext.select()
-                .column(Teacher::getTeacherId, "id")
-                .column(Teacher::getFirstName)
-                .from(Teacher.class)
-                .fetch().toList();
-        System.out.println(list);
-    }
-
-    @Test
-    void select2() {
-        Set<Teacher> set = sqlContext.select()
-                .column(Teacher::getTeacherId)
-                .column(Teacher::getFirstName)
-                .from(Teacher.class)
-                .where(
-                        condition -> condition.andIsEmpty(Teacher::getTeacherId)
-                                .andCondition(c -> c.andIsNull(Teacher::getTeacherId)
-                                        .orCondition(d -> d.andLengthEquals(Teacher::getTeacherId, 2)))
-                )
-                .fetch().toSet();
-        System.out.println(set.size());
-    }
-
-    @Test
-    void select3() {
-        List<Student> a = sqlContext.select()
-                .allColumn()
-                .from(TClass.class)
-                .join(Student.class, on -> on.andEqualTo(TClass::getClassId, Student::getClassId))
-                .selfJoin("a", on -> on.andEqualTo(Student::getClassId, Student::getClassId))
-                .fetch(Student.class).toList();
-        System.out.println(a.size());
-    }
-
-    @Test
-    void select4() {
-        HashSet<Student> a = sqlContext.select()
-                .allColumn()
-                .from(TClass.class)
-                .join(Student.class, on -> on.andEqualTo(TClass::getClassId, Student::getClassId))
-                .leftJoin(TClass.class, on -> on.andEqualTo(Student::getClassId, TClass::getClassId))
-                .where(condition -> condition.andIsNull(Student::getClassId))
-                .fetch()
-                .toSet(HashSet::new);
-        System.out.println(a.size());
-    }
-
-    @Test
-    void select5() {
-        Map<Integer, Integer> map = sqlContext.select()
-                .column(Student::getStudentId)
-                .column(Teacher::getTeacherId)
-                .from(Student.class)
-                .where(condition -> condition.andIsNull(Teacher::getTeacherId))
-                .groupBy(Teacher::getTeacherId)
-                .orderBy(Student::getEnrollmentDate, SortOrder.DESC)
-                .thenOrderBy(Student::getBirthDate, SortOrder.ASC)
-                .thenOrderBy("id is null desc")
-                .fetch().toMap(Student::getStudentId, Teacher::getTeacherId);
-        System.out.println(map);
-    }
-
-    @Test
-    void select6() {
-        List<Student> list = sqlContext.select()
-                .column(Student::getStudentId)
-                .column(new Md5(new Max(Student::getFirstName)))
-                .from(Student.class)
-                .where(w -> w.andEqualTo(Student::getLastName, 1))
-                .groupBy(Student::getStudentId)
-                .having(w -> w.andEqualTo(new Max(Student::getLastName), 2)
-                        .andIsNotNull(Student::getStudentId))
-                .fetch().toList();
-        System.out.println(list);
-    }
-
-    @Test
-    void select7() {
-        List<Student> list = sqlContext.select()
-                .column(CaseWhen.builder(Student::getStudentId).build(), "vvv")
-                .column(nestedSelect -> {
-                    nestedSelect.select().column(Student::getStudentId).from(Student.class);
-                }, "aaa")
-                .column(Student::getBirthDate)
-                .from(Student.class)
-                .where(condition ->
-                        condition.andEqualTo(Student::getLastName, nestedSelect -> {
-                                    nestedSelect.select().column(Student::getStudentId).from(Student.class);
-                                })
-                                .orEqualTo(Student::getLastName, "123")
-                                .orEqualTo(Student::getLastName, Student::getClassId)
-                )
-                .groupBy(Student::getStudentId)
-                .having(w -> w.andEqualTo(new Max(Student::getLastName), 2)
-                        .andEqualTo(new Avg(Student::getLastName),
-                                nestedSelect -> nestedSelect.select().column(Student::getStudentId).from(Student.class)))
-                .fetch().toList();
-        System.out.println(list);
-    }
-
-    @Test
-    void select8() {
-        Student one = sqlContext.select()
-                .column(CaseWhen.builder(Student::getStudentId).build())
-                .column(Student::getBirthDate)
-                .allColumn()
-                .from(Student.class)
-                .where()
-                .exists(nestedSelect -> nestedSelect.select().one().from(Student.class))
-                .fetch().toOne();
-        System.out.println(one);
-    }
-
-    @Test
-    void select9() {
-        ExamResult one = sqlContext.select()
-                //SUM(score) OVER (ORDER BY score DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_score
-                .column(new Sum(ExamResult::getScore),
-                        Over.builder().orderBy(ExamResult::getScore).currentRowToUnboundedFollowing().build(),
-                        "aaa")
-                .from(ExamResult.class)
-                .fetch().toOne();
-        System.out.println(one);
-    }
-
-    @Test
-    void select10() {
         // ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM t_pro_ret_phased), 2) AS percentage
         ExamResult percentage = sqlContext.select()
                 .column(new Round(new Count(1).multiply(100).divide(
@@ -200,21 +171,11 @@ class SelectTest extends InitializingContext {
                 .fetch().toOne();
         System.out.println(percentage);
     }
-
-    @Test
-    void select11() {
-        List<Student> list = sqlContext.select()
-                .allColumn()
-                .from(Student.class)
-                .join(TClass.class, on -> on.andEqualTo(Student::getClassId, TClass::getClassId))
-                .fetch(Student.class)
-                .toList();
-        System.out.println(list);
-    }
+    
 }
 ```
 # 开源支持
 
-感谢 [JetBrains](https://www.jetbrains.com/) 提供的开源许可证支持，使我能够更好地开发和维护本项目。
+感谢 [JetBrains](https://www.jetbrains.com/) 提供的开源许可证支持。
   
 ![jetbrains.png](jetbrains.png)
