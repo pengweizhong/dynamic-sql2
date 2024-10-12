@@ -1,4 +1,6 @@
-# Dynamic-SQL
+# Dynamic-SQL2
+
+> 旧版`Dynamic-SQL`地址：https://github.com/pengweizhong/dynamic-sql
 
 （正在逐步实现）Dynamic-SQL是一个高扩展性的 ORM 框架，支持自动化数据库差异处理和动态数据源切换。  
 框架具备智能查询构建器，可以自动生成适配 MySQL、Oracle、PostgreSQL、SQL Server 等数据库的 SQL。  
