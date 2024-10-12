@@ -9,6 +9,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.TableFunctionJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.DefaultOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
@@ -68,7 +69,7 @@ public abstract class SqlSelectBuilder {
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(joinTable -> {
             String key;
-            if (joinTable instanceof FromNestedJoin || joinTable instanceof NestedJoin) {
+            if (joinTable instanceof FromNestedJoin || joinTable instanceof NestedJoin || joinTable instanceof TableFunctionJoin) {
                 key = joinTable.getTableAlias();
             } else {
                 key = joinTable.getTableClass().getCanonicalName();
@@ -115,12 +116,12 @@ public abstract class SqlSelectBuilder {
     private void parseGroupBy(List<Fn<?, ?>> groupByFields) {
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxGroupBy(sqlDialect));
         for (Fn<?, ?> groupByField : groupByFields) {
-            sqlBuilder.append(" ").append(SqlUtils.extractQualifiedAlias(groupByField, aliasTableMap));
+            sqlBuilder.append(" ").append(SqlUtils.extractQualifiedAlias(groupByField, aliasTableMap, dataSourceName));
         }
     }
 
     private void parseHaving(Consumer<HavingCondition> havingCondition) {
-        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap);
+        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
         havingCondition.accept(whereCondition);
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxHaving(sqlDialect))
                 .append(" ").append(whereCondition.getWhereConditionSyntax());
@@ -145,7 +146,7 @@ public abstract class SqlSelectBuilder {
             }
             if (orderBy instanceof DefaultOrderBy) {
                 DefaultOrderBy defaultOrderBy = (DefaultOrderBy) orderBy;
-                String order = SqlUtils.extractQualifiedAlias(defaultOrderBy.getFn(), aliasTableMap);
+                String order = SqlUtils.extractQualifiedAlias(defaultOrderBy.getFn(), aliasTableMap, dataSourceName);
                 sqlBuilder.append(" ").append(order).append(" ").append(defaultOrderBy.getSortOrder().toSqlString(sqlDialect));
                 sqlBuilder.append(columnSeparator);
             }
@@ -153,7 +154,7 @@ public abstract class SqlSelectBuilder {
     }
 
     private void parseWhere(Consumer<WhereCondition> whereConditionConsumer) {
-        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap);
+        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
         whereConditionConsumer.accept(whereCondition);
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxWhere(sqlDialect))
                 .append(" ").append(whereCondition.getWhereConditionSyntax());

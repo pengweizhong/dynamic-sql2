@@ -1,12 +1,16 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
-import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
-import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
+import com.pengwz.dynamic.sql2.core.column.function.json.JsonUnquote;
+import com.pengwz.dynamic.sql2.core.column.function.table.JsonTable;
+import com.pengwz.dynamic.sql2.core.column.function.table.JsonTable.JsonColumn;
+import com.pengwz.dynamic.sql2.entites.Order;
+import com.pengwz.dynamic.sql2.entites.Product;
 import com.pengwz.dynamic.sql2.entites.User;
 import org.junit.jupiter.api.Test;
 
-import static com.pengwz.dynamic.sql2.core.column.conventional.AbstractAlias.withTableAlias;
+import static com.pengwz.dynamic.sql2.utils.AbstractAliasHelper.withOriginColumn;
+import static com.pengwz.dynamic.sql2.utils.AbstractAliasHelper.withTableAlias;
 
 public class SelectTest extends InitializingContext {
     /**
@@ -68,20 +72,50 @@ public class SelectTest extends InitializingContext {
 //        sqlContext.select().allColumn().from(User.class).join(Product.class,"p",condition -> condition.andEqualTo(User::getName,Product::getProductId)).fetch().toList();
 
         sqlContext.select()
-                .column(new Max(new NumberColumn(1)))
+//                .column(new Max(new NumberColumn(1)))
                 .allColumn("s")
-                .allColumn("x")
+//                .allColumn("x")
                 .from(select -> select.column(User::getName).column(User::getEmail).from(User.class), "s")
 //                .join(select -> select.column(User::getName).column(User::getPhoneNumber).from(User.class), "x",
 //                        on -> on.andEqualTo(withTableAlias("s", User::getName), withTableAlias("x", User::getName)))
 //                .leftJoin(select -> select.column(User::getName).column(User::getPhoneNumber).from(User.class), "x",
 //                        on -> on.andEqualTo(withTableAlias("s", User::getName), withTableAlias("x", User::getName)))
-                .rightJoin(select -> select.column(User::getName).column(User::getPhoneNumber).from(User.class), "x",
-                        on -> on.andEqualTo(withTableAlias("s", User::getName), withTableAlias("x", User::getName)))
+//                .rightJoin(select -> select.column(User::getName).column(User::getPhoneNumber).from(User.class), "x",
+//                        on -> on.andEqualTo(withTableAlias("s", User::getName), withTableAlias("x", User::getName)))
+                .join(() -> new JsonTable(new JsonUnquote(User::getName), "$.",
+                                JsonColumn.builder().column("product_name").dataType("Varchar(32)").jsonPath("$.product").defaultValue("Unknown").on().error().defaultValue("None").on().empty().build(),
+                                JsonColumn.builder().column("price").dataType("DECIMAL(10, 2)").jsonPath("$.price").defaultValue(0.00).on().error().defaultValue(0.99).on().empty().build()
+                        ), "jt", condition -> condition.andEqualTo(withOriginColumn("jt.product_name"), User::getName)
+                )
                 .fetch().toList();
 
 //        sqlContext.select().column("s", User::getName).column("s", User::getEmail)
 //                .from(select -> select.column(User::getName).column(User::getEmail).from(User.class), "s").fetch().toList();
+    }
+
+    /**
+     * <pre>
+     * {@code
+     * SELECT
+     * 	o. order_id,
+     * 	jt. product_name
+     * FROM
+     * 	orders o
+     * JOIN JSON_TABLE(o. order_details,
+     * 	'$.items[*]' COLUMNS (product_name VARCHAR(150) PATH '$.product')) AS jt
+     * }
+     * </>
+     */
+    @Test
+    public void test1() {
+        sqlContext.select()
+                .column("o", Order::getOrderId)
+                .column("jt", Product::getProductName)
+                .from(Order.class, "o")
+                .join(() -> new JsonTable(withTableAlias("o", Order::getOrderDetails), "$.items[*]",
+                        JsonColumn.builder().column("product_name").dataType("VARCHAR(150)").jsonPath("$.product").build()
+                ), "jt", null)
+                .fetch().toList();
     }
 }
 

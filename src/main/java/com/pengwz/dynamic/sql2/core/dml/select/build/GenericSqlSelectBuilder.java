@@ -4,16 +4,14 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
@@ -113,10 +111,10 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             sqlBuilder.append(automaticallySelectAliases(joinTable));
             return;
         }
+        String syntaxJoin = " " + SqlUtils.getSyntaxJoin(sqlDialect, joinTable.getJoinTableType()) + " ";
         if (joinTable instanceof NestedJoin) {
             NestedJoin nestedJoin = (NestedJoin) joinTable;
             SqlStatementWrapper sqlStatementWrapper = parseNestedJoinSqlStatementWrapper(nestedJoin);
-            String syntaxJoin = SqlUtils.getSyntaxJoin(sqlDialect, nestedJoin.getJoinTableType());
             sqlBuilder.append(" ").append(syntaxJoin).append(" (").append(sqlStatementWrapper.getRawSql()).append(") ")
                     .append(syntaxAs()).append(nestedJoin.getTableAlias());
             parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
@@ -124,7 +122,16 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             appendOnCondition(joinTable);
             return;
         }
-        String syntaxJoin = " " + SqlUtils.getSyntaxJoin(sqlDialect, joinTable.getJoinTableType()) + " ";
+        if (joinTable instanceof TableFunctionJoin) {
+            TableFunctionJoin tableFunctionJoin = (TableFunctionJoin) joinTable;
+            TableFunction tableFunction = tableFunctionJoin.getTableFunction().get();
+            String functionToString = tableFunction.getFunctionToString(sqlDialect, version);
+            sqlBuilder.append(" ").append(syntaxJoin).append(functionToString).append(syntaxAs()).append(tableFunctionJoin.getTableAlias());
+            parameterBinder.addParameterBinder(tableFunction.getParameterBinder());
+            //拼接On条件
+            appendOnCondition(joinTable);
+            return;
+        }
         // INNER, LEFT, RIGHT, FULL, CROSS, SELF;
         sqlBuilder.append(syntaxJoin).append(automaticallySelectAliases(joinTable));
         //拼接On条件
@@ -135,7 +142,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         Consumer<Condition> onCondition = joinTable.getOnCondition();
         if (onCondition != null) {
             String syntaxOn = " " + SqlUtils.getSyntaxOn(sqlDialect) + " ";
-            WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap);
+            WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
             onCondition.accept(whereCondition);
             parameterBinder.addParameterBinder(whereCondition.getParameterBinder());
             sqlBuilder.append(syntaxOn).append(whereCondition.getWhereConditionSyntax());

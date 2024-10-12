@@ -6,7 +6,8 @@ import java.util.Map;
 
 public class MysqlWhereCondition extends GenericWhereCondition {
 
-    public MysqlWhereCondition(Version version, Map<String, String> aliasTableMap) {
-        super(version, aliasTableMap);
+
+    public MysqlWhereCondition(Version version, Map<String, String> aliasTableMap, String dataSourceName) {
+        super(version, aliasTableMap, dataSourceName);
     }
 }

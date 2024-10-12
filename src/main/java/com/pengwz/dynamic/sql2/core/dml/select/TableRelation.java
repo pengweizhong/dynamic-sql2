@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.LimitInfo;
@@ -11,6 +12,7 @@ import com.pengwz.dynamic.sql2.enums.JoinTableType;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * 表关联关系
@@ -36,6 +38,12 @@ public class TableRelation<R> implements JoinCondition {
     @Override
     public JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
         selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.INNER, nestedSelect, alias, onCondition));
+        return this;
+    }
+
+    @Override
+    public JoinCondition innerJoinFunction(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
+        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.INNER, tableFunction, alias, onCondition));
         return this;
     }
 

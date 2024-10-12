@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class OracleWhereCondition extends GenericWhereCondition {
 
-    public OracleWhereCondition(Version version, Map<String, String> aliasTableMap) {
-        super(version, aliasTableMap);
+    public OracleWhereCondition(Version version, Map<String, String> aliasTableMap, String dataSourceName) {
+        super(version, aliasTableMap, dataSourceName);
     }
 }

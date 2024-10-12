@@ -52,15 +52,11 @@ public class JsonTable extends AbstractTableFunction {
         columns.addAll(Arrays.asList(jsonColumn));
     }
 
-    public static JsonColumnBuilder builder() {
-        return new JsonColumnBuilder(new JsonColumn());
-    }
-
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         StringBuilder sb = new StringBuilder();
         sb.append("json_table(").append(tableFunction.getFunctionToString(sqlDialect, version))
-                .append(", '").append(path).append("', columns(");
+                .append(", '").append(path).append("' columns(");
 
         for (int i = 0; i < columns.size(); i++) {
             sb.append(columns.get(i).toString());
@@ -99,6 +95,10 @@ public class JsonTable extends AbstractTableFunction {
         protected List<OnEvent> on = new ArrayList<>();
 
         protected JsonColumn() {
+        }
+
+        public static JsonColumnBuilder builder() {
+            return new JsonColumnBuilder(new JsonColumn());
         }
 
         @Override

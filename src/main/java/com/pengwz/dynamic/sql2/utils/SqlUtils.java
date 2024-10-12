@@ -4,7 +4,6 @@ import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
-import com.pengwz.dynamic.sql2.core.column.conventional.AbstractAlias;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
@@ -24,6 +23,8 @@ import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
+import com.pengwz.dynamic.sql2.utils.AbstractAliasHelper.OriginColumnAliasImpl;
+import com.pengwz.dynamic.sql2.utils.AbstractAliasHelper.TableAliasImpl;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -80,14 +81,24 @@ public class SqlUtils {
         return quotes + identifier + quotes;
     }
 
-    public static <T, F> String extractQualifiedAlias(Fn<T, F> field, Map<String, String> aliasTableMap) {
+    public static <T, F> String extractQualifiedAlias(Fn<T, F> field, Map<String, String> aliasTableMap, String dataSourceName) {
         String tableAlias = null;
         Fn fn = field;
         //如果内嵌了表别名，则此处的表别名优先级最高
-        if (field instanceof AbstractAlias) {
-            AbstractAlias abstractAlias = (AbstractAlias) field;
-            tableAlias = abstractAlias.getTableAlias();
-            fn = abstractAlias.getFnColumn();
+        if (field instanceof AbstractAliasHelper) {
+            AbstractAliasHelper abstractAlias = (AbstractAliasHelper) field;
+            if (abstractAlias instanceof TableAliasImpl) {
+                tableAlias = abstractAlias.getTableAlias();
+                fn = abstractAlias.getFnColumn();
+            }
+            //像这种直接写了原始列的，是没有办法判断想请求哪个数据源，因此只能依靠外部传入
+            //所有只有当对象是OriginColumnAliasImpl 的时候，dataSourceName才能保证不为空，其他状态下获取dataSourceName没有意义
+            if (abstractAlias instanceof OriginColumnAliasImpl) {
+                DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
+                DbType dbType = dataSourceMeta.getDbType();
+                SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
+                return abstractAlias.getAbsoluteColumn(sqlDialect);
+            }
         }
         //如果使用了当前回话的表别名
         String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
@@ -258,15 +269,16 @@ public class SqlUtils {
         }
     }
 
-    public static WhereCondition matchDialectCondition(SqlDialect sqlDialect, Version version, Map<String, String> aliasTableMap) {
+    public static WhereCondition matchDialectCondition(SqlDialect sqlDialect, Version version,
+                                                       Map<String, String> aliasTableMap, String dataSourceName) {
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:
-                return new MysqlWhereCondition(version, aliasTableMap);
+                return new MysqlWhereCondition(version, aliasTableMap, dataSourceName);
             case ORACLE:
-                return new OracleWhereCondition(version, aliasTableMap);
+                return new OracleWhereCondition(version, aliasTableMap, dataSourceName);
             default:
-                return new GenericWhereCondition(version, aliasTableMap);
+                return new GenericWhereCondition(version, aliasTableMap, dataSourceName);
         }
     }
 

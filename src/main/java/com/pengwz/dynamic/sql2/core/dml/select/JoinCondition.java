@@ -1,10 +1,13 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
+import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 //TODO 1、LATERAL  2、直接join函数
 public interface JoinCondition extends Fetchable {
     /**
@@ -24,6 +27,10 @@ public interface JoinCondition extends Fetchable {
 
     default JoinCondition join(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
         return innerJoin(nestedSelect, alias, onCondition);
+    }
+
+    default JoinCondition join(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
+        return innerJoinFunction(tableFunction, alias, onCondition);
     }
 
     /**
@@ -61,6 +68,8 @@ public interface JoinCondition extends Fetchable {
     JoinCondition innerJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
 
     JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition);
+
+    JoinCondition innerJoinFunction(Supplier<TableFunction> nestedSelect, String alias, Consumer<Condition> onCondition);
 
     JoinCondition innerJoin(CteTable cte, Consumer<Condition> onCondition);
 

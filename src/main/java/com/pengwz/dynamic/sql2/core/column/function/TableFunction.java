@@ -14,9 +14,4 @@ public interface TableFunction {
     Fn<?, ?> getOriginColumnFn();
 
     ParameterBinder getParameterBinder();
-//
-//    String getTableAlias();
-//
-//    default void setTableAlias(String tableAlias) {
-//    }
 }

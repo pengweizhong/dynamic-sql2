@@ -1,7 +1,6 @@
 package com.pengwz.dynamic.sql2.utils;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.column.conventional.AbstractAlias;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,8 +179,8 @@ public class ReflectUtils {
     }
 
     public static <T, F> Fn<T, F> getOriginalFn(Fn<T, F> field) {
-        if (field instanceof AbstractAlias) {
-            AbstractAlias abstractAlias = (AbstractAlias) field;
+        if (field instanceof AbstractAliasHelper) {
+            AbstractAliasHelper abstractAlias = (AbstractAliasHelper) field;
             return abstractAlias.getFnColumn();
         }
         return field;

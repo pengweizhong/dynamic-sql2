@@ -9,6 +9,7 @@ import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
+import com.pengwz.dynamic.sql2.utils.AbstractAliasHelper;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
@@ -27,8 +28,8 @@ public final class Column implements ColumFunction, TableFunction {
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         Fn<?, ?> fn = this.columnFn;
-        if (columnFn instanceof AbstractAlias) {
-            AbstractAlias alias = (AbstractAlias) columnFn;
+        if (columnFn instanceof AbstractAliasHelper) {
+            AbstractAliasHelper alias = (AbstractAliasHelper) columnFn;
             fn = alias.getFnColumn();
         }
         String filedName = ReflectUtils.fnToFieldName(fn);
