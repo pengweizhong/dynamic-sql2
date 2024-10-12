@@ -4,6 +4,7 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
+import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
 import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedFunctionException;
@@ -12,7 +13,7 @@ import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedSq
 /**
  * 提取 JSON 数据中的值
  */
-public class JsonExtract extends ColumnFunctionDecorator {
+public class JsonExtract extends ColumnFunctionDecorator implements TableFunction {
     private String jsonPath;
 
     public JsonExtract(ColumFunction delegateFunction, String jsonPath) {
@@ -32,7 +33,7 @@ public class JsonExtract extends ColumnFunctionDecorator {
         }
         if (sqlDialect == SqlDialect.MYSQL) {
             if (version.getMajorVersion() < 5 && version.getMinorVersion() < 7) {
-                throwNotSupportedFunctionException("json_extract", version,sqlDialect);
+                throwNotSupportedFunctionException("json_extract", version, sqlDialect);
             }
             return "json_extract(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + jsonPath + ")";
         }

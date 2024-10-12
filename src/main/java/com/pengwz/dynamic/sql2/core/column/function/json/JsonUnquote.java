@@ -4,6 +4,7 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
+import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
 import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedSqlDialectException;
@@ -11,7 +12,7 @@ import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedSq
 /**
  * 去掉 JSON 值的引号
  */
-public class JsonUnquote extends ColumnFunctionDecorator {
+public class JsonUnquote extends ColumnFunctionDecorator implements TableFunction {
 
     public JsonUnquote(ColumFunction delegateFunction) {
         super(delegateFunction);

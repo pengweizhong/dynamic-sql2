@@ -1,6 +1,8 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
+import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
 import com.pengwz.dynamic.sql2.entites.User;
 import org.junit.jupiter.api.Test;
 
@@ -66,6 +68,7 @@ public class SelectTest extends InitializingContext {
 //        sqlContext.select().allColumn().from(User.class).join(Product.class,"p",condition -> condition.andEqualTo(User::getName,Product::getProductId)).fetch().toList();
 
         sqlContext.select()
+                .column(new Max(new NumberColumn(1)))
                 .allColumn("s")
                 .allColumn("x")
                 .from(select -> select.column(User::getName).column(User::getEmail).from(User.class), "s")

@@ -5,6 +5,7 @@ import com.pengwz.dynamic.sql2.plugins.conversion.DefaultAttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.impl.EnumAttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.impl.LocalDateAttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.impl.NumberAttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.impl.StringAttributeConverter;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -20,6 +21,7 @@ public class ConverterUtils {
         GENERAL_ATTRIBUTE_CONVERTERS.put(Number.class, new NumberAttributeConverter());
 //        GENERAL_ATTRIBUTE_CONVERTERS.put(Enum.class, new EnumAttributeConverter());
         GENERAL_ATTRIBUTE_CONVERTERS.put(LocalDate.class, new LocalDateAttributeConverter());
+        GENERAL_ATTRIBUTE_CONVERTERS.put(String.class, new StringAttributeConverter());
     }
 
     private ConverterUtils() {
