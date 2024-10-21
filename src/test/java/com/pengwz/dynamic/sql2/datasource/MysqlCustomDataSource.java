@@ -16,7 +16,7 @@ public class MysqlCustomDataSource {
     public DataSource getDataSource() {
         log.info("----------------- getDataSource -----------------");
         DruidDataSource ds = new DruidDataSource();
-        ds.setUrl("jdbc:mysql://127.0.0.1:3306/dynamic_sql?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
+        ds.setUrl("jdbc:mysql://127.0.0.1:3306/dynamic_sql2?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
         ds.setUsername("root");
         ds.setPassword("root");
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");

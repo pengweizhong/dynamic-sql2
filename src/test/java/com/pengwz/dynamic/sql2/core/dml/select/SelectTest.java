@@ -12,8 +12,7 @@ import com.pengwz.dynamic.sql2.entites.User;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 import org.junit.jupiter.api.Test;
 
-import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.withOriginColumn;
-import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.withTableAlias;
+import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.bindAlias;
 
 public class SelectTest extends InitializingContext {
     /**
@@ -71,8 +70,8 @@ public class SelectTest extends InitializingContext {
         sqlContext.select()
                 .column("u", User::getUserId)
                 .column("u", User::getName, "user_name")
-                .column(withOriginColumn("user_total.total_spent"))
-                .column(withOriginColumn("user_total.total_orders"))
+                .column("user_total", "total_spent")
+                .column("user_total", "total_orders")
                 .column("p", Product::getProductName)
                 .column("p", Product::getPrice)
                 .column("cat", Category::getCategoryName)
@@ -80,16 +79,15 @@ public class SelectTest extends InitializingContext {
                 .from(User.class, "u")
                 .join(select -> select
                                 .column("o", Order::getUserId)
-                                .column(new Sum(withOriginColumn("o.total_amount")), "total_spent")
-                                .column(new Count(withOriginColumn("o.order_id")), "total_orders")
+                                .column(new Sum("o", "total_amount"), "total_spent")
+                                .column(new Count("o", "order_id"), "total_orders")
                                 .from(Order.class, "o")
-                                .groupBy(withTableAlias("o", Order::getUserId))
+                                .groupBy("o", Order::getUserId)
                         , "user_total",
-                        condition -> condition.andEqualTo(withTableAlias("u", User::getUserId)
-                                , withTableAlias("user_total", Order::getUserId))
+                        condition -> condition.andEqualTo(bindAlias("u", User::getUserId), bindAlias("user_total", Order::getUserId))
                 )
-                .leftJoin(Order.class, "o", condition -> condition.andEqualTo(withTableAlias("u", User::getUserId),
-                        withTableAlias("o", Order::getUserId)))
+                .leftJoin(Order.class, "o", condition -> condition.andEqualTo(bindAlias("u", User::getUserId),
+                        bindAlias("o", Order::getUserId)))
                 .leftJoin(select -> select
                         .column("p", Product::getProductId)
                         .column("p", Product::getProductName)
@@ -102,18 +100,19 @@ public class SelectTest extends InitializingContext {
                                         .column("o", Order::getOrderId)
                                         .column("jt", Product::getProductName)
                                         .from(Order.class, "o")
-                                        .join(() -> new JsonTable(withOriginColumn("o.order_details"), "$.items[*]",
+                                        .join(() -> new JsonTable("o", "order_details", "$.items[*]",
                                                 JsonColumn.builder().column("product_name").dataType("VARCHAR(150)").jsonPath("$.product").build()
-                                        ), "jt", null), "jt",
-                                condition -> condition.andEqualTo(withTableAlias("jt", Product::getProductName),
-                                        withTableAlias("p", Product::getProductName))), "p", condition -> condition.andEqualTo(withTableAlias("o", Order::getOrderId), withTableAlias("p", Order::getOrderId)))
-                .leftJoin(Category.class, "cat", condition -> condition.andEqualTo(withTableAlias("p", Category::getCategoryId),
-                        withTableAlias("cat", Category::getCategoryId)))
-                .where(condition -> condition.andGreaterThan(withOriginColumn("user_total.total_spent"), 100))
-                .orderBy(withOriginColumn("user_total.total_spent"), SortOrder.DESC)
+                                        ), "jt"),
+                                "jt", condition -> condition.andEqualTo(bindAlias("jt", Product::getProductName), bindAlias("p", Product::getProductName))
+                        ), "p", condition -> condition.andEqualTo(bindAlias("o", Order::getOrderId), bindAlias("p", Order::getOrderId)))
+                .leftJoin(Category.class, "cat", condition -> condition.andEqualTo(bindAlias("p", Category::getCategoryId),
+                        bindAlias("cat", Category::getCategoryId)))
+                .where(condition -> condition.andGreaterThan(bindAlias("user_total", "total_spent"), 100))
+                .orderBy(bindAlias("user_total", "total_spent"), SortOrder.DESC)
                 .limit(0, 500)
                 .fetch().toList();
     }
+
 
     /**
      * <pre>
@@ -134,7 +133,7 @@ public class SelectTest extends InitializingContext {
                 .column("o", Order::getOrderId)
                 .column("jt", Product::getProductName)
                 .from(Order.class, "o")
-                .join(() -> new JsonTable(withTableAlias("o", Order::getOrderDetails), "$.items[*]",
+                .join(() -> new JsonTable("o", Order::getOrderDetails, "$.items[*]",
                         JsonColumn.builder().column("product_name").dataType("VARCHAR(150)").jsonPath("$.product").build()
                 ), "jt", null)
                 .fetch().toList();

@@ -29,6 +29,10 @@ public interface JoinCondition extends Fetchable {
         return innerJoin(nestedSelect, alias, onCondition);
     }
 
+    default JoinCondition join(Supplier<TableFunction> tableFunction, String alias) {
+        return innerJoin(tableFunction, alias, null);
+    }
+
     default JoinCondition join(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
         return innerJoin(tableFunction, alias, onCondition);
     }

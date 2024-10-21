@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.json;
 
+import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
@@ -18,7 +19,7 @@ public class JsonUnquote extends ColumnFunctionDecorator implements TableFunctio
         super(delegateFunction);
     }
 
-    public <T, F> JsonUnquote(Fn<T, F> fn) {
+    public <T, F> JsonUnquote(FieldFn<T, F> fn) {
         super(fn);
     }
 

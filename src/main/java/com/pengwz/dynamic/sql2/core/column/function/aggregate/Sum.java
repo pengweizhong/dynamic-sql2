@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.aggregate;
 
+import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
@@ -16,10 +17,13 @@ public class Sum extends ColumnFunctionDecorator implements AggregateFunction, W
         super(delegateFunction);
     }
 
-    public <T, F> Sum(Fn<T, F> fn) {
+    public <T, F> Sum(FieldFn<T, F> fn) {
         super(fn);
     }
 
+    public Sum(String tableAlias, String columnName) {
+        super(tableAlias, columnName);
+    }
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {

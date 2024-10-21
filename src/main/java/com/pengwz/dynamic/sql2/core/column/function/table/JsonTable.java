@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.table;
 
-import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
@@ -11,6 +11,8 @@ import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.bindAlias;
 
 /**
  * <pre>
@@ -43,8 +45,35 @@ public class JsonTable extends AbstractTableFunction {
         columns.addAll(Arrays.asList(jsonColumn));
     }
 
-    public <T, F> JsonTable(Fn<T, F> fn, String path, JsonColumn... jsonColumn) {
+    public <T, F> JsonTable(FieldFn<T, F> fn, String path, JsonColumn... jsonColumn) {
         super(fn);
+        this.path = path;
+        if (jsonColumn == null || jsonColumn.length <= 0) {
+            throw new IllegalArgumentException("The extracted Json column must be declared");
+        }
+        columns.addAll(Arrays.asList(jsonColumn));
+    }
+
+    public <T, F> JsonTable(String tableAlias, FieldFn<T, F> fn, String path, JsonColumn... jsonColumn) {
+        super(bindAlias(tableAlias, fn));
+        this.path = path;
+        if (jsonColumn == null || jsonColumn.length <= 0) {
+            throw new IllegalArgumentException("The extracted Json column must be declared");
+        }
+        columns.addAll(Arrays.asList(jsonColumn));
+    }
+
+    public JsonTable(String columnName, String path, JsonColumn... jsonColumn) {
+        super(bindAlias(null, columnName));
+        this.path = path;
+        if (jsonColumn == null || jsonColumn.length <= 0) {
+            throw new IllegalArgumentException("The extracted Json column must be declared");
+        }
+        columns.addAll(Arrays.asList(jsonColumn));
+    }
+
+    public JsonTable(String tableAlias, String columnName, String path, JsonColumn... jsonColumn) {
+        super(bindAlias(tableAlias, columnName));
         this.path = path;
         if (jsonColumn == null || jsonColumn.length <= 0) {
             throw new IllegalArgumentException("The extracted Json column must be declared");

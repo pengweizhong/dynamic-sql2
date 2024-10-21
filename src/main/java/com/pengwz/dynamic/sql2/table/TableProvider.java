@@ -41,8 +41,9 @@ public class TableProvider {//NOSONAR
                 return entry.getValue();
             }
         }
-        log.error("This is for real tables. If you are doing nested queries or other operations, you should specify a table alias.");
-        throw new IllegalArgumentException("Can not find table class or alias: '" + classCanonicalName + "'");
+//        log.error("This is for real tables. If you are doing nested queries or other operations, you should specify a table alias.");
+//        throw new IllegalArgumentException("Can not find table class or alias: '" + classCanonicalName + "'");
+        return null;
     }
 
     protected static void saveCTEMeta(Class<?> cteClass, CTEMeta cteMeta) {

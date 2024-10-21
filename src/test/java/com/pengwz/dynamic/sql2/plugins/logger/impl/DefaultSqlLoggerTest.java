@@ -18,6 +18,7 @@ public class DefaultSqlLoggerTest implements SqlLogger {
         if (parameterBinder != null) {
             sql = parameterBinder.replacePlaceholdersWithValues(sql).toString();
         }
+        log.warn(sql);
         log.debug("\n" + SQLUtils.formatMySql(sql));
     }
 }

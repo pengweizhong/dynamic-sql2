@@ -2,9 +2,6 @@ package com.pengwz.dynamic.sql2.core.column.conventional;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
-import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
-import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.OriginColumnAliasImpl;
-import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.TableAliasImpl;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
@@ -19,26 +16,37 @@ import com.pengwz.dynamic.sql2.utils.StringUtils;
 public final class Column implements ColumFunction, TableFunction {
 
     private final Fn<?, ?> columnFn;
-
+    private final String columnName;
     private String tableAlias;
 
     public <T, F> Column(String tableAlias, Fn<T, F> fn) {
         this.columnFn = fn;
         this.tableAlias = tableAlias;
+        this.columnName = null;
+    }
+
+    public Column(String tableAlias, String columnName) {
+        this.columnFn = null;
+        this.tableAlias = tableAlias;
+        this.columnName = columnName;
     }
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
-        if (columnFn instanceof OriginColumnAliasImpl) {
-            return ((OriginColumnAliasImpl) (columnFn)).getAbsoluteColumn(sqlDialect);
+//        if (columnFn instanceof OriginColumnAliasImpl) {
+//            return ((OriginColumnAliasImpl) (columnFn)).getAbsoluteColumn(sqlDialect);
+//        }
+//        Fn<?, ?> fn = this.columnFn;
+//        if (columnFn instanceof TableAliasImpl) {
+//            AbstractAliasHelper alias = (AbstractAliasHelper) columnFn;
+//            fn = alias.getFnColumn();
+//        }
+        if (columnName != null) {
+            return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." +
+                    SqlUtils.quoteIdentifier(sqlDialect, columnName);
         }
-        Fn<?, ?> fn = this.columnFn;
-        if (columnFn instanceof TableAliasImpl) {
-            AbstractAliasHelper alias = (AbstractAliasHelper) columnFn;
-            fn = alias.getFnColumn();
-        }
-        String filedName = ReflectUtils.fnToFieldName(fn);
-        String classCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
+        String filedName = ReflectUtils.fnToFieldName(columnFn);
+        String classCanonicalName = ReflectUtils.getOriginalClassCanonicalName(columnFn);
         TableMeta tableMeta = TableProvider.getTableMeta(classCanonicalName);
         ColumnMeta columnMeta = tableMeta.getColumnMeta(filedName);
         String tableAliasName = StringUtils.isEmpty(tableAlias) ? tableMeta.getTableAlias() : tableAlias;

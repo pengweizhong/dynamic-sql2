@@ -3,8 +3,10 @@ package com.pengwz.dynamic.sql2.utils;
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.GroupFn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
+import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.TableAliasImpl;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
@@ -24,8 +26,6 @@ import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
-import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.OriginColumnAliasImpl;
-import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.TableAliasImpl;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -90,15 +90,36 @@ public class SqlUtils {
             AbstractAliasHelper abstractAlias = (AbstractAliasHelper) field;
             if (abstractAlias instanceof TableAliasImpl) {
                 tableAlias = abstractAlias.getTableAlias();
-                fn = abstractAlias.getFnColumn();
+                if (abstractAlias.getFnColumn() != null) {
+                    fn = abstractAlias.getFnColumn();
+                } else {
+                    DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
+                    DbType dbType = dataSourceMeta.getDbType();
+                    SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
+                    tableAlias = StringUtils.isBlank(tableAlias) ? "" : SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
+                    return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, abstractAlias.getColumnName());
+                }
             }
-            //像这种直接写了原始列的，是没有办法判断想请求哪个数据源，因此只能依靠外部传入
-            //所有只有当对象是OriginColumnAliasImpl 的时候，dataSourceName才能保证不为空，其他状态下获取dataSourceName没有意义
-            if (abstractAlias instanceof OriginColumnAliasImpl) {
+//            //像这种直接写了原始列的，是没有办法判断想请求哪个数据源，因此只能依靠外部传入
+//            //所有只有当对象是OriginColumnAliasImpl 的时候，dataSourceName才能保证不为空，其他状态下获取dataSourceName没有意义
+//            if (abstractAlias instanceof OriginColumnAliasImpl) {
+//                DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
+//                DbType dbType = dataSourceMeta.getDbType();
+//                SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
+//                return abstractAlias.getAbsoluteColumn(sqlDialect);
+//            }
+        }
+        if (field instanceof GroupFn) {
+            GroupFn groupFn = (GroupFn) field;
+            tableAlias = groupFn.getTableAlias();
+            if (groupFn.getFn() != null) {
+                fn = groupFn.getFn();
+            } else {
                 DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
                 DbType dbType = dataSourceMeta.getDbType();
                 SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
-                return abstractAlias.getAbsoluteColumn(sqlDialect);
+                tableAlias = StringUtils.isBlank(tableAlias) ? "" : SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
+                return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, groupFn.getColumnName());
             }
         }
         //如果使用了当前回话的表别名

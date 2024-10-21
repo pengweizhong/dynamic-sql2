@@ -26,22 +26,34 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public <T, F> ColumnReference column(Fn<T, F> fn) {
-        return this.column(fn, null);
+        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(null, fn), null, null));
+        return this;
     }
 
     @Override
-    public <T, F> ColumnReference column(String tableAlias, Fn<T, F> fn) {
+    public <T, F> ColumnReference column(String tableAlias, FieldFn<T, F> fn) {
         return this.column(tableAlias, fn, null);
     }
 
     @Override
-    public <T, F> ColumnReference column(Fn<T, F> fn, String columnAlias) {
+    public <T, F> ColumnReference column(FieldFn<T, F> fn, String columnAlias) {
         return this.column(null, fn, columnAlias);
     }
 
     @Override
-    public <T, F> ColumnReference column(String tableAlias, Fn<T, F> fn, String columnAlias) {
+    public <T, F> ColumnReference column(String tableAlias, FieldFn<T, F> fn, String columnAlias) {
         selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(tableAlias, fn), null, columnAlias));
+        return this;
+    }
+
+    @Override
+    public AbstractColumnReference column(String tableAlias, String columnName) {
+        return column(tableAlias, columnName, null);
+    }
+
+    @Override
+    public AbstractColumnReference column(String tableAlias, String columnName, String columnAlias) {
+        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(tableAlias, columnName), null, columnAlias));
         return this;
     }
 

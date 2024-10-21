@@ -1,11 +1,12 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.OriginColumnAliasImpl;
+import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
 import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
+import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
@@ -50,12 +51,14 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     continue;
                 }
                 //数字列不需要关心别名问题
-                if (columFunction instanceof NumberColumn) {
-                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version)).append(columnSeparator);
+                if (columFunction instanceof NumberColumn /*|| columFunction instanceof Count*/) {
+                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version));
+                    String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
+                    sqlBuilder.append(columnAlias).append(columnSeparator);
                     continue;
                 }
                 Fn<?, ?> fn = columFunction.getOriginColumnFn();
-                if (fn instanceof OriginColumnAliasImpl) {
+                if (columFunction instanceof AbstractAliasHelper) {
                     sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version));
                     if (StringUtils.isNotBlank(columnQuery.getAlias())) {
                         sqlBuilder.append(syntaxAs()).append(columnQuery.getAlias());
@@ -71,7 +74,6 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
                 System.out.println("测试函数列输出结果 ---> " + functionToString);
                 //拼接别名，
-//                String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? ReflectUtils.fnToFieldName(fn) : columnQuery.getAlias();
                 String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
                 sqlBuilder.append(functionToString).append(columnAlias).append(columnSeparator);
                 parameterBinder.addParameterBinder(columFunction.getParameterBinder());
@@ -230,12 +232,13 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
 
     private void appendQueryAllColumnForClass(String canonicalName) {
         TableMeta tableMeta = TableProvider.getTableMeta(canonicalName);
+        if (tableMeta == null) {
+            sqlBuilder.append(canonicalName).append(".*");
+            return;
+        }
         String tableAlias = aliasTableMap.get(canonicalName);
         //确定别名
         tableAlias = tableAlias == null ? tableMeta.getTableAlias() : tableAlias;
-        if (tableMeta == null) {
-            throw new IllegalArgumentException("Table class does not exist: " + canonicalName);
-        }
         List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
         appendQueryColumn(columnMetas, tableAlias);
     }

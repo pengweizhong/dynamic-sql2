@@ -1,6 +1,8 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
+import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.GroupFn;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
@@ -11,6 +13,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.enums.JoinTableType;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -189,13 +192,28 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @SafeVarargs
-    public final <T> TableRelation<R> groupBy(Fn<T, ?>... fnKey) {
+    public final <T> TableRelation<R> groupBy(FieldFn<T, ?>... fnKey) {
         if (fnKey == null) {
             return this;
         }
         for (Fn<T, ?> tkFn : fnKey) {
             selectSpecification.getGroupByFields().add(tkFn);
         }
+        return this;
+    }
+
+    public final TableRelation<R> groupBy(String tableAlias, String columnName) {
+        selectSpecification.getGroupByFields().add(new GroupFn(tableAlias, columnName));
+        return this;
+    }
+
+    public final <T> TableRelation<R> groupBy(String tableAlias, FieldFn<T, ?> fn) {
+        selectSpecification.getGroupByFields().add(new GroupFn(tableAlias, fn));
+        return this;
+    }
+
+    public final TableRelation<R> groupBy(GroupFn... groupByFn) {
+        selectSpecification.getGroupByFields().addAll(Arrays.asList(groupByFn));
         return this;
     }
 

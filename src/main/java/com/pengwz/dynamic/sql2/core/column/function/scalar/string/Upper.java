@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.scalar.string;
 
-import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
@@ -14,7 +14,7 @@ public class Upper extends ColumnFunctionDecorator {
         super(delegateFunction);
     }
 
-    public <T, F> Upper(Fn<T, F> fn) {
+    public <T, F> Upper(FieldFn<T, F> fn) {
         super(fn);
     }
 

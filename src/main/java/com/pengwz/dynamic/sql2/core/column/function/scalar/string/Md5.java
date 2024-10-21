@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function.scalar.string;
 
-import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
@@ -15,11 +15,11 @@ public class Md5 extends ColumnFunctionDecorator {
         super(delegateFunction);
     }
 
-    public <T, F> Md5(Fn<T, F> fn) {
+    public <T, F> Md5(FieldFn<T, F> fn) {
         super(fn);
     }
 
-    public <T, F> Md5(String tableAlias, Fn<T, F> fn) {
+    public <T, F> Md5(String tableAlias, FieldFn<T, F> fn) {
         super(tableAlias, fn);
     }
 

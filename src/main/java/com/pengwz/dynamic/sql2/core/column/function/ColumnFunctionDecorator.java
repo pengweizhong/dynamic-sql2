@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.core.column.function;
 
+import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.ColumnArithmetic;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
@@ -16,19 +17,23 @@ public abstract class ColumnFunctionDecorator
 
     protected ColumFunction delegateFunction;
     //count 1
-    protected int value;
+    protected Integer value;
     protected ParameterBinder parameterBinder = new ParameterBinder();
 
     public ColumnFunctionDecorator(ColumFunction delegateFunction) {
         this.delegateFunction = delegateFunction;
     }
 
-    public <T, F> ColumnFunctionDecorator(Fn<T, F> fn) {
+    public <T, F> ColumnFunctionDecorator(FieldFn<T, F> fn) {
         this.delegateFunction = new Column(null, fn);
     }
 
-    public <T, F> ColumnFunctionDecorator(String tableAlias, Fn<T, F> fn) {
+    public <T, F> ColumnFunctionDecorator(String tableAlias, FieldFn<T, F> fn) {
         this.delegateFunction = new Column(tableAlias, fn);
+    }
+
+    public ColumnFunctionDecorator(String tableAlias, String columnName) {
+        this.delegateFunction = new Column(tableAlias, columnName);
     }
 
     public ColumnFunctionDecorator(int value) {

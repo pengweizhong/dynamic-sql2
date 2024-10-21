@@ -1,67 +1,45 @@
 package com.pengwz.dynamic.sql2.core.column;
 
+import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.enums.SqlDialect;
-import com.pengwz.dynamic.sql2.utils.SqlUtils;
-import com.pengwz.dynamic.sql2.utils.StringUtils;
 
 public abstract class AbstractAliasHelper<T, F> implements Fn<T, F> {
     private String tableAlias;
-    private String columnAlias;
 
-    public static <T, F> AbstractAliasHelper<T, F> withTableAlias(String tableAlias, Fn<T, F> fnColumn) {
+    public static <T, F> AbstractAliasHelper<T, F> bindAlias(String tableAlias, FieldFn<T, F> fnColumn) {
         AbstractAliasHelper<T, F> tfAlias = new TableAliasImpl<>(fnColumn);
         tfAlias.setTableAlias(tableAlias);
-        tfAlias.setColumnAlias(tableAlias);
         return tfAlias;
     }
 
-    public static AbstractAliasHelper<String, String> withOriginColumn(String column) {
-        AbstractAliasHelper<String, String> abstractAlias = new OriginColumnAliasImpl();
-        if (column.contains(".")) {
-            String[] split = column.split("\\.");
-            abstractAlias.setTableAlias(split[0]);
-            abstractAlias.setColumnAlias(split[1]);
-            return abstractAlias;
-        }
-        abstractAlias.setColumnAlias(column);
-        return abstractAlias;
+    public static <T, F> AbstractAliasHelper<T, F> bindAlias(String tableAlias, String columnName) {
+        AbstractAliasHelper<T, F> tfAlias = new TableAliasImpl<>(columnName);
+        tfAlias.setTableAlias(tableAlias);
+        return tfAlias;
     }
 
-    public abstract Fn<T, F> getFnColumn();
+    public abstract FieldFn<T, F> getFnColumn();
 
-    public String getAbsoluteColumn(SqlDialect sqlDialect) {
-        StringBuilder stringBuilder = new StringBuilder();
-        if (StringUtils.isNotBlank(tableAlias)) {
-            stringBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, tableAlias)).append(".");
-        }
-        if (StringUtils.isNotBlank(columnAlias)) {
-            stringBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, columnAlias));
-        }
-        return stringBuilder.toString();
+    public abstract String getColumnName();
+
+    private void setTableAlias(String tableAlias) {
+        this.tableAlias = tableAlias;
     }
 
     public String getTableAlias() {
         return tableAlias;
     }
 
-    private void setTableAlias(String tableAlias) {
-        this.tableAlias = tableAlias;
-    }
-
-    public String getColumnAlias() {
-        return columnAlias;
-    }
-
-    private void setColumnAlias(String columnAlias) {
-        this.columnAlias = columnAlias;
-    }
-
     public static class TableAliasImpl<T, F> extends AbstractAliasHelper<T, F> {
-        private Fn<T, F> fnColumn;
+        private FieldFn<T, F> fnColumn;
+        private String column;
 
-        protected TableAliasImpl(Fn<T, F> fnColumn) {
+        protected TableAliasImpl(FieldFn<T, F> fnColumn) {
             this.fnColumn = fnColumn;
+        }
+
+        protected TableAliasImpl(String column) {
+            this.column = column;
         }
 
         @Override
@@ -70,24 +48,15 @@ public abstract class AbstractAliasHelper<T, F> implements Fn<T, F> {
         }
 
         @Override
-        public Fn<T, F> getFnColumn() {
+        public FieldFn<T, F> getFnColumn() {
             return fnColumn;
         }
 
+        @Override
+        public String getColumnName() {
+            return column;
+        }
+
     }
 
-    public static class OriginColumnAliasImpl extends AbstractAliasHelper<String, String> {
-        protected OriginColumnAliasImpl() {
-        }
-
-        @Override
-        public Fn<String, String> getFnColumn() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String resolve(String t) {
-            throw new UnsupportedOperationException();
-        }
-    }
 }
