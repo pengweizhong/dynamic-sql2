@@ -10,8 +10,6 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.TableFunctionJoin;
-import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
-import com.pengwz.dynamic.sql2.core.dml.select.order.DefaultOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
@@ -138,18 +136,7 @@ public abstract class SqlSelectBuilder {
             if (orderBys.size() - 1 != i) {
                 columnSeparator = ",";
             }
-            if (orderBy instanceof CustomOrderBy) {
-                CustomOrderBy customOrderBy = (CustomOrderBy) orderBy;
-                //自定义排序直接append
-                sqlBuilder.append(" ").append(customOrderBy.getOrderingFragment());
-                sqlBuilder.append(columnSeparator);
-            }
-            if (orderBy instanceof DefaultOrderBy) {
-                DefaultOrderBy defaultOrderBy = (DefaultOrderBy) orderBy;
-                String order = SqlUtils.extractQualifiedAlias(defaultOrderBy.getFn(), aliasTableMap, dataSourceName);
-                sqlBuilder.append(" ").append(order).append(" ").append(defaultOrderBy.getSortOrder().toSqlString(sqlDialect));
-                sqlBuilder.append(columnSeparator);
-            }
+            sqlBuilder.append(SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName)).append(columnSeparator);
         }
     }
 

@@ -10,6 +10,8 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.LimitInfo;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
+import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
+import com.pengwz.dynamic.sql2.core.dml.select.order.DefaultOrderBy;
 import com.pengwz.dynamic.sql2.enums.JoinTableType;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 
@@ -226,18 +228,34 @@ public class TableRelation<R> implements JoinCondition {
 
     //ORDER BY column1 [ASC|DESC], column2 [ASC|DESC];
     //TODO 需要构建更为复杂的order By
-    public <T, F> ThenSortOrder<R> orderBy(Fn<T, F> field) {
+    public <T, F> ThenSortOrder<R> orderBy(FieldFn<T, F> field) {
         return orderBy(field, SortOrder.ASC);
     }
 
-    public <T, F> ThenSortOrder<R> orderBy(Fn<T, F> field, SortOrder sortOrder) {
-        return new ThenSortOrder<>(this, field, sortOrder);
+    public <T, F> ThenSortOrder<R> orderBy(FieldFn<T, F> field, SortOrder sortOrder) {
+        return new ThenSortOrder<>(this, new DefaultOrderBy(field, sortOrder));
+    }
+
+    public <T, F> ThenSortOrder<R> orderBy(String tableAlias, FieldFn<T, F> field) {
+        return new ThenSortOrder<>(this, new DefaultOrderBy(tableAlias, field, SortOrder.ASC));
+    }
+
+    public <T, F> ThenSortOrder<R> orderBy(String tableAlias, FieldFn<T, F> field, SortOrder sortOrder) {
+        return new ThenSortOrder<>(this, new DefaultOrderBy(tableAlias, field, sortOrder));
+    }
+
+    public ThenSortOrder<R> orderBy(String tableAlias, String columnName) {
+        return orderBy(tableAlias, columnName, SortOrder.ASC);
+    }
+
+    public ThenSortOrder<R> orderBy(String tableAlias, String columnName, SortOrder sortOrder) {
+        return new ThenSortOrder<>(this, new DefaultOrderBy(tableAlias, columnName, sortOrder));
     }
 
     //order by d is null asc ,d asc;
     //ORDER BY FIELD(profit_range, '>10%', '5~10%', '0~5%', '0%', '0~-5%', '-5~-10%', '<-10%')
     public ThenSortOrder<R> orderBy(String orderingFragment) {
-        return new ThenSortOrder<>(this, orderingFragment);
+        return new ThenSortOrder<>(this, new CustomOrderBy(orderingFragment));
     }
 
     protected SelectSpecification getSelectSpecification() {

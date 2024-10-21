@@ -17,6 +17,9 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.*;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
+import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
+import com.pengwz.dynamic.sql2.core.dml.select.order.DefaultOrderBy;
+import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DbType;
@@ -100,14 +103,6 @@ public class SqlUtils {
                     return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, abstractAlias.getColumnName());
                 }
             }
-//            //像这种直接写了原始列的，是没有办法判断想请求哪个数据源，因此只能依靠外部传入
-//            //所有只有当对象是OriginColumnAliasImpl 的时候，dataSourceName才能保证不为空，其他状态下获取dataSourceName没有意义
-//            if (abstractAlias instanceof OriginColumnAliasImpl) {
-//                DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
-//                DbType dbType = dataSourceMeta.getDbType();
-//                SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
-//                return abstractAlias.getAbsoluteColumn(sqlDialect);
-//            }
         }
         if (field instanceof GroupFn) {
             GroupFn groupFn = (GroupFn) field;
@@ -138,6 +133,37 @@ public class SqlUtils {
         ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(fn));
         String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
         return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." + column;
+    }
+
+    public static String extractQualifiedAliasOrderBy(OrderBy orderBy, Map<String, String> aliasTableMap, String dataSourceName) {
+        DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
+        DbType dbType = dataSourceMeta.getDbType();
+        SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
+        StringBuilder sqlBuilder = new StringBuilder(" ");
+        if (orderBy instanceof CustomOrderBy) {
+            CustomOrderBy customOrderBy = (CustomOrderBy) orderBy;
+            //自定义排序直接append
+            sqlBuilder.append(customOrderBy.getOrderingFragment());
+        }
+        if (orderBy instanceof DefaultOrderBy) {
+            DefaultOrderBy defaultOrderBy = (DefaultOrderBy) orderBy;
+            if (defaultOrderBy.getTableAlias() != null) {
+                sqlBuilder.append(quoteIdentifier(sqlDialect, defaultOrderBy.getTableAlias())).append(".");
+            }
+            if (defaultOrderBy.getFieldFn() != null) {
+                String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(defaultOrderBy.getFieldFn());
+                TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
+                ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(defaultOrderBy.getFieldFn()));
+                if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null) {
+                    sqlBuilder.append(quoteIdentifier(sqlDialect, tableMeta.getTableAlias())).append(".");
+                }
+                String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
+                sqlBuilder.append(quoteIdentifier(sqlDialect, column));
+            } else {
+                sqlBuilder.append(quoteIdentifier(sqlDialect, defaultOrderBy.getColumnName()));
+            }
+        }
+        return sqlBuilder.toString();
     }
 
     public static Object formattedParameter(/*SqlDialect sqlDialect,*/ Object value) {
