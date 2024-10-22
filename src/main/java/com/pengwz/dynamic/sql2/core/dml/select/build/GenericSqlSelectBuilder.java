@@ -71,7 +71,6 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 }
                 columFunction.setTableAlias(tableAlias);
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
-                System.out.println("测试函数列输出结果 ---> " + functionToString);
                 //拼接别名，
                 String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
                 sqlBuilder.append(functionToString).append(columnAlias).append(columnSeparator);
