@@ -109,50 +109,47 @@
     * </pre>
     */
    @Test
-   void select0() {
+   void select1() {
       sqlContext.select()
-              .column("u", User::getUserId)
-              .column("u", User::getName, "user_name")
-              .column(withOriginColumn("user_total.total_spent"))
-              .column(withOriginColumn("user_total.total_orders"))
+              .column(User::getUserId)
+              .column(User::getName, "user_name")
+              .column("user_total", "total_spent")
+              .column("user_total", "total_orders")
               .column("p", Product::getProductName)
               .column("p", Product::getPrice)
-              .column("cat", Category::getCategoryName)
               .column("p", Product::getStock)
-              .from(User.class, "u")
+              .column(Category::getCategoryName)
+              .from(User.class)
               .join(select -> select
-                              .column("o", Order::getUserId)
-                              .column(new Sum(withOriginColumn("o.total_amount")), "total_spent")
-                              .column(new Count(withOriginColumn("o.order_id")), "total_orders")
-                              .from(Order.class, "o")
-                              .groupBy(withTableAlias("o", Order::getUserId))
+                              .column(Order::getUserId)
+                              .column(new Sum(Order::getTotalAmount), "total_spent")
+                              .column(new Count(Order::getOrderId), "total_orders")
+                              .from(Order.class)
+                              .groupBy(Order::getUserId)
                       , "user_total",
-                      condition -> condition.andEqualTo(withTableAlias("u", User::getUserId)
-                              , withTableAlias("user_total", Order::getUserId))
+                      condition -> condition.andEqualTo(User::getUserId, bindAlias("user_total", Order::getUserId))
               )
-              .leftJoin(Order.class, "o", condition -> condition.andEqualTo(withTableAlias("u", User::getUserId),
-                      withTableAlias("o", Order::getUserId)))
+              .leftJoin(Order.class, condition -> condition.andEqualTo(User::getUserId, Order::getUserId))
               .leftJoin(select -> select
-                      .column("p", Product::getProductId)
-                      .column("p", Product::getProductName)
-                      .column("p", Product::getPrice)
-                      .column("p", Product::getCategoryId)
-                      .column("p", Product::getStock)
+                      .column(Product::getProductId)
+                      .column(Product::getProductName)
+                      .column(Product::getPrice)
+                      .column(Product::getCategoryId)
+                      .column(Product::getStock)
                       .column("jt", Order::getOrderId)
-                      .from(Product.class, "p")
+                      .from(Product.class)
                       .join(select1 -> select1
                                       .column("o", Order::getOrderId)
                                       .column("jt", Product::getProductName)
                                       .from(Order.class, "o")
-                                      .join(() -> new JsonTable(withOriginColumn("o.order_details"), "$.items[*]",
+                                      .join(() -> new JsonTable("o", "order_details", "$.items[*]",
                                               JsonColumn.builder().column("product_name").dataType("VARCHAR(150)").jsonPath("$.product").build()
-                                      ), "jt", null), "jt",
-                              condition -> condition.andEqualTo(withTableAlias("jt", Product::getProductName),
-                                      withTableAlias("p", Product::getProductName))), "p", condition -> condition.andEqualTo(withTableAlias("o", Order::getOrderId), withTableAlias("p", Order::getOrderId)))
-              .leftJoin(Category.class, "cat", condition -> condition.andEqualTo(withTableAlias("p", Category::getCategoryId),
-                      withTableAlias("cat", Category::getCategoryId)))
-              .where(condition -> condition.andGreaterThan(withOriginColumn("user_total.total_spent"), 100))
-              .orderBy(withOriginColumn("user_total.total_spent"), SortOrder.DESC)
+                                      ), "jt"),
+                              "jt", condition -> condition.andEqualTo(bindAlias("jt", Product::getProductName), Product::getProductName)
+                      ), "p", condition -> condition.andEqualTo(Order::getOrderId, bindAlias("p", Order::getOrderId)))
+              .leftJoin(Category.class, condition -> condition.andEqualTo(bindAlias("p", Category::getCategoryId), Category::getCategoryId))
+              .where(condition -> condition.andGreaterThan(bindAlias("user_total", "total_spent"), 100))
+              .orderBy("user_total", "total_spent", SortOrder.DESC)
               .limit(0, 500)
               .fetch().toList();
    }
