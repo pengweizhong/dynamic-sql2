@@ -1,68 +1,23 @@
 package com.pengwz.dynamic.sql2.utils;
 
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
-import com.pengwz.dynamic.sql2.plugins.conversion.DefaultAttributeConverter;
-import com.pengwz.dynamic.sql2.plugins.conversion.impl.EnumAttributeConverter;
-import com.pengwz.dynamic.sql2.plugins.conversion.impl.LocalDateAttributeConverter;
-import com.pengwz.dynamic.sql2.plugins.conversion.impl.NumberAttributeConverter;
-import com.pengwz.dynamic.sql2.plugins.conversion.impl.StringAttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverterModel;
+import com.pengwz.dynamic.sql2.plugins.conversion.impl.BigDecimalAttributeConverter;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ConverterUtils {
     //自定义转换器 搭配@Column注解使用
     private static final Map<Class<? extends AttributeConverter>, AttributeConverter> CUSTOM_ATTRIBUTE_CONVERTERS = new LinkedHashMap<>();
-    //通用转换器,根据值本身的类型进行转换
-    private static final Map<Class<?>, AttributeConverter> GENERAL_ATTRIBUTE_CONVERTERS = new LinkedHashMap<>();
-
-    static {
-        GENERAL_ATTRIBUTE_CONVERTERS.put(Number.class, new NumberAttributeConverter());
-//        GENERAL_ATTRIBUTE_CONVERTERS.put(Enum.class, new EnumAttributeConverter());
-        GENERAL_ATTRIBUTE_CONVERTERS.put(LocalDate.class, new LocalDateAttributeConverter());
-        GENERAL_ATTRIBUTE_CONVERTERS.put(String.class, new StringAttributeConverter());
-    }
+    private static final Map<Class<?>, AttributeConverterModel> GENERAL_ATTRIBUTE_CONVERTER_MODEL = new LinkedHashMap<>();
 
     private ConverterUtils() {
     }
 
-    public static Object convertToEntityAttribute(Object columnValue) {
-        if (columnValue == null) {
-            return null;
-        }
-        // 根据 value 的类型获取对应的转换器
-//        DefaultAttributeConverter<Object, Object> converter = matchConverter(value.getClass());
-        return null;
-    }
-
-    public static Object convertValueToDatabase(Object value) {
-        if (value == null) {
-            return null;
-        }
-        // 根据 value 的类型获取对应的转换器
-        DefaultAttributeConverter<Object, Object> converter = matchConverter(value.getClass());
-        return converter.convertToDatabaseColumn(value);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <X, Y, T extends DefaultAttributeConverter<X, Y>> T matchConverter(Class<?> valueType) {
-        if (Enum.class.isAssignableFrom(valueType)) {
-            EnumAttributeConverter enumAttributeConverter = new EnumAttributeConverter(valueType);
-            return (T) enumAttributeConverter;
-        }
-        //先判断是否被精准命中
-        AttributeConverter attributeConverter = GENERAL_ATTRIBUTE_CONVERTERS.get(valueType);
-        if (attributeConverter != null) {
-            return (T) attributeConverter;
-        }
-        for (Map.Entry<Class<?>, AttributeConverter> converterEntry : GENERAL_ATTRIBUTE_CONVERTERS.entrySet()) {
-            if (converterEntry.getKey().isAssignableFrom(valueType)) {
-                return (T) converterEntry.getValue();
-            }
-        }
-        throw new UnsupportedOperationException("Unable to match the appropriate type converter, " +
-                "the error type occurred: " + valueType.getCanonicalName());
+    static {
+        putAttributeConverterModel(BigDecimal.class, new BigDecimalAttributeConverter());
     }
 
     public static <Y> AttributeConverter<Object, Y> loadCustomConverter(Class<? extends AttributeConverter> converterClass) {
@@ -75,21 +30,63 @@ public class ConverterUtils {
         return instance;
     }
 
-    public static void putCustomAttributeConverter(Class<? extends AttributeConverter> converterClass,
-                                                   AttributeConverter attributeConverter) {
-        CUSTOM_ATTRIBUTE_CONVERTERS.put(converterClass, attributeConverter);
+    @SuppressWarnings("unchecked")
+    public static <T, V> T convertToEntityAttribute(Class<T> fieldType, V value) {
+        if (value == null) {
+            return null;
+        }
+        //如果是字段本身实现了AttributeConverter
+        if (value instanceof AttributeConverter) {
+            AttributeConverter attributeConverter = (AttributeConverter) value;
+            return (T) attributeConverter.convertToEntityAttribute(value);
+        }
+        Class<?> valueType = value.getClass();
+        if (fieldType.isAssignableFrom(valueType)) {
+            return (T) value;
+        }
+        // 检查是否有通用的转换器
+        AttributeConverter<Object, V> attributeConverter = GENERAL_ATTRIBUTE_CONVERTER_MODEL.get(fieldType);
+        if (attributeConverter != null) {
+            return (T) attributeConverter.convertToEntityAttribute(value);
+        }
+        //处理一下特别常见的类型
+        if (fieldType == String.class) {
+            return (T) value.toString();
+        }
+        if (fieldType == Integer.class || fieldType == int.class) {
+            return (T) Integer.valueOf(value.toString());
+        }
+        if (fieldType == Long.class || fieldType == long.class) {
+            return (T) Long.valueOf(value.toString());
+        }
+        if (fieldType == Boolean.class || fieldType == boolean.class) {
+            if (value instanceof Number) {
+                Number number = (Number) value;
+                Boolean b = number.intValue() == 1;
+                return (T) (b);
+            }
+            return (T) Boolean.valueOf(value.toString());
+        }
+        if (fieldType == Double.class || fieldType == double.class) {
+            return (T) Double.valueOf(value.toString());
+        }
+        if (fieldType == Float.class || fieldType == float.class) {
+            return (T) Float.valueOf(value.toString());
+        }
+        if (fieldType.isEnum()) {
+            //枚举对象
+            Object[] enumConstants = fieldType.getEnumConstants();
+            for (Object enumObj : enumConstants) {
+                if (enumObj.toString().equalsIgnoreCase(valueType.toString().trim())) {
+                    return (T) enumObj;
+                }
+            }
+        }
+        // 如果没有找到适合的转换器，抛出异常或者返回默认值
+        throw new IllegalArgumentException("Cannot convert value of type " + valueType + " to field type " + fieldType);
     }
 
-    public static void putGeneralAttributeConverter(Class<?> valueType, AttributeConverter attributeConverter) {
-        GENERAL_ATTRIBUTE_CONVERTERS.put(valueType, attributeConverter);
+    public static void putAttributeConverterModel(Class<?> fieldType, AttributeConverterModel attributeConverter) {
+        GENERAL_ATTRIBUTE_CONVERTER_MODEL.put(fieldType, attributeConverter);
     }
-
-    public static void removeCustomAttributeConverter(Class<? extends AttributeConverter> converterClass) {
-        CUSTOM_ATTRIBUTE_CONVERTERS.remove(converterClass);
-    }
-
-    public static void removeGeneralAttributeConverter(Class<?> valueType) {
-        GENERAL_ATTRIBUTE_CONVERTERS.remove(valueType);
-    }
-
 }

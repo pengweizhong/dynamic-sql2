@@ -12,7 +12,7 @@ import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
 
     @Override
     public <L extends List<R>> L toList(Supplier<L> listSupplier) {
-        return null;
+        return (L) convertToCollection(listSupplier);
     }
 
     @Override
@@ -48,40 +48,42 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         return null;
     }
 
-    private List<R> convertObject() {
-        List<R> resultList = new ArrayList<>();
+    private Collection<R> convertToCollection(Supplier<? extends Collection<R>> listSupplier) {
+        Collection<R> collection = listSupplier.get();
         if (CollectionUtils.isEmpty(wrapperList)) {
-            return resultList;
+            return collection;
         }
+        List<ColumnMeta> columnMetas = null;
         TableMeta tableMeta = TableProvider.getTableMeta(resultClass);
         if (tableMeta == null) {
-            tableMeta = TableUtils.parseTableClass(resultClass);
+            columnMetas = TableUtils.parseViewClass(resultClass);
+        } else {
+            columnMetas = tableMeta.getColumnMetas();
         }
-        List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
         Map<String, ColumnMeta> columnNameMap = columnMetas.stream().collect(Collectors.toMap(ColumnMeta::getColumnName, v -> v));
         Map<String, ColumnMeta> fieldNameMap = columnMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
         for (Map<String, Object> columnObjectMap : wrapperList) {
             R instance = ReflectUtils.instance(resultClass);
-            resultList.add(instance);
+            collection.add(instance);
             columnObjectMap.forEach((columnName, columnValue) -> {
                 ColumnMeta columnMeta = getColumnMeta(columnName, columnNameMap, fieldNameMap);
                 if (columnMeta == null) {
                     return;
                 }
-                Object value = null;
+                Object value;
                 if (null != columnMeta.getConverter()) {
                     AttributeConverter<Object, Object> objectObjectAttributeConverter =
                             ConverterUtils.loadCustomConverter(columnMeta.getConverter());
-                    objectObjectAttributeConverter.convertToEntityAttribute(columnValue);
+                    value = objectObjectAttributeConverter.convertToEntityAttribute(columnValue);
                 } else {
-                    value = ConverterUtils.convertToEntityAttribute(columnValue);
+                    value = ConverterUtils.convertToEntityAttribute(columnMeta.getField().getType(), columnValue);
                 }
                 if (value != null) {
                     ReflectUtils.setFieldValue(instance, columnMeta.getField(), value);
                 }
             });
         }
-        return resultList;
+        return collection;
     }
 
     private ColumnMeta getColumnMeta(String columnName,

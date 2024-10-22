@@ -35,22 +35,19 @@ public class ParameterBinder {
             parameters.put(key, attributeConverter.convertToDatabaseColumn(value));
             return key;
         }
-//        Fn originalFn = ReflectUtils.getOriginalFn(fn);
         if (fn instanceof AbstractAliasHelper) {
-            parameters.put(key, ConverterUtils.convertValueToDatabase(value));
+            parameters.put(key, value);
             return key;
         }
         String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
         String fieldName = ReflectUtils.fnToFieldName(fn);
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
         ColumnMeta columnMeta = tableMeta.getColumnMeta(fieldName);
-        Object fixValue;
         if (columnMeta.getConverter() != null) {
-            fixValue = ConverterUtils.loadCustomConverter(columnMeta.getConverter()).convertToDatabaseColumn(value);
+            parameters.put(key, ConverterUtils.loadCustomConverter(columnMeta.getConverter()).convertToDatabaseColumn(value));
         } else {
-            fixValue = ConverterUtils.convertValueToDatabase(value);
+            parameters.put(key, value);
         }
-        parameters.put(key, fixValue);
         return key;
     }
 

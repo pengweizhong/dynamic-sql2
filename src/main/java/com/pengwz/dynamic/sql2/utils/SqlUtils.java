@@ -416,8 +416,7 @@ public class SqlUtils {
         while (matcher.find()) {
             String placeholder = matcher.group();
             if (parameterBinder.contains(placeholder)) {
-                Object value = ConverterUtils.convertValueToDatabase(parameterBinder.getValue(placeholder));
-                Object formattedParameter = SqlUtils.formattedParameter(value);
+                Object formattedParameter = SqlUtils.formattedParameter(parameterBinder.getValue(placeholder));
                 // 替换占位符为对应的值
                 int start = matcher.start();
                 int end = matcher.end();

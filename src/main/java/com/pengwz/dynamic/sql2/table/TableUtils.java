@@ -80,6 +80,14 @@ public class TableUtils {
         return parseTableClass(tableEntityMapping).get(tableClazz);
     }
 
+    public static List<ColumnMeta> parseViewClass(Class<?> clazz) {
+        List<Field> fields = ReflectUtils.getAllFields(clazz, excludeFieldTypes());
+        List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(clazz, f))
+                .filter(Objects::nonNull).collect(Collectors.toList());
+        //检查列声明标识是否合规
+        return assertAndFilterColumn(columnMetaSymbols, clazz.getSimpleName());
+    }
+
     private static Map<Class<?>, TableMeta> parseTableClass(TableEntityMapping tableEntity) {
         log.trace("Parsing table class: {}", tableEntity);
         Class<?> entityClass = tableEntity.getEntityClass();

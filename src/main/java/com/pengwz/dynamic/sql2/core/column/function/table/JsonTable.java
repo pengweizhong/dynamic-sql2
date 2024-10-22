@@ -136,13 +136,13 @@ public class JsonTable extends AbstractTableFunction {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(columnName).append(" ").append(dataType).append(" path '").append(jsonPath).append("' ");
             if (defaultValue != null) {
-                Object v = SqlUtils.formattedParameter(ConverterUtils.convertValueToDatabase(defaultValue));
+                Object v = SqlUtils.formattedParameter(defaultValue);
                 stringBuilder.append("default ").append(v).append(" ");
             }
             for (OnEvent onEvent : on) {
                 stringBuilder.append(" on ").append(onEvent.getEvent()).append(" ");
                 if (onEvent.getDefaultValue() != null) {
-                    Object v = SqlUtils.formattedParameter(ConverterUtils.convertValueToDatabase(defaultValue));
+                    Object v = SqlUtils.formattedParameter(defaultValue);
                     stringBuilder.append("default ").append(v).append(" ");
                 }
             }

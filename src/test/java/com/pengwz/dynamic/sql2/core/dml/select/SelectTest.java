@@ -5,10 +5,7 @@ import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Sum;
 import com.pengwz.dynamic.sql2.core.column.function.table.JsonTable;
 import com.pengwz.dynamic.sql2.core.column.function.table.JsonTable.JsonColumn;
-import com.pengwz.dynamic.sql2.entites.Category;
-import com.pengwz.dynamic.sql2.entites.Order;
-import com.pengwz.dynamic.sql2.entites.Product;
-import com.pengwz.dynamic.sql2.entites.User;
+import com.pengwz.dynamic.sql2.entites.*;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 import org.junit.jupiter.api.Test;
 
@@ -69,9 +66,8 @@ public class SelectTest extends InitializingContext {
      */
     @Test
     void select1() {
-        List<User> list = sqlContext.select()
+        List<UserAndOrderView> list = sqlContext.select()
                 .column(User::getUserId)
-                .column(User::getUserId,"xxx")
                 .column(User::getName, "user_name")
                 .column("user_total", "total_spent")
                 .column("user_total", "total_orders")
@@ -111,7 +107,7 @@ public class SelectTest extends InitializingContext {
                 .where(condition -> condition.andGreaterThan(bindAlias("user_total", "total_spent"), 100))
                 .orderBy("user_total", "total_spent", SortOrder.DESC)
                 .limit(0, 500)
-                .fetch(User.class).toList();
+                .fetch(UserAndOrderView.class).toList();
         System.out.println(list);
     }
 
