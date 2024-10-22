@@ -12,6 +12,8 @@ import com.pengwz.dynamic.sql2.entites.User;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.bindAlias;
 
 public class SelectTest extends InitializingContext {
@@ -67,8 +69,9 @@ public class SelectTest extends InitializingContext {
      */
     @Test
     void select1() {
-        sqlContext.select()
+        List<User> list = sqlContext.select()
                 .column(User::getUserId)
+                .column(User::getUserId,"xxx")
                 .column(User::getName, "user_name")
                 .column("user_total", "total_spent")
                 .column("user_total", "total_orders")
@@ -108,7 +111,8 @@ public class SelectTest extends InitializingContext {
                 .where(condition -> condition.andGreaterThan(bindAlias("user_total", "total_spent"), 100))
                 .orderBy("user_total", "total_spent", SortOrder.DESC)
                 .limit(0, 500)
-                .fetch().toList();
+                .fetch(User.class).toList();
+        System.out.println(list);
     }
 
 
@@ -127,7 +131,7 @@ public class SelectTest extends InitializingContext {
      */
     @Test
     public void test1() {
-        sqlContext.select()
+        List<Object> list = sqlContext.select()
                 .column("o", Order::getOrderId)
                 .column("jt", Product::getProductName)
                 .from(Order.class, "o")
@@ -135,6 +139,7 @@ public class SelectTest extends InitializingContext {
                         JsonColumn.builder().column("product_name").dataType("VARCHAR(150)").jsonPath("$.product").build()
                 ), "jt", null)
                 .fetch().toList();
+        System.out.println(list);
     }
 }
 

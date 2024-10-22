@@ -43,7 +43,7 @@ public abstract class SqlSelectBuilder {
         JoinTable joinTable = selectSpecification.getJoinTables().get(0);
         if (joinTable instanceof FromNestedJoin) {
             FromNestedJoin fromNestedJoin = (FromNestedJoin) joinTable;
-            SqlStatementWrapper sqlStatementWrapper = fromNestedJoin.getNestedJoin().getSqlStatementWrapper();
+            SqlStatementSelectWrapper sqlStatementWrapper = fromNestedJoin.getNestedJoin().getSqlStatementWrapper();
             String dataSourceName1 = sqlStatementWrapper.getDataSourceName();
             schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName1);
         } else {
@@ -62,7 +62,7 @@ public abstract class SqlSelectBuilder {
 
     protected abstract void parseLimit();
 
-    public final SqlStatementWrapper build() {
+    public final SqlStatementSelectWrapper build() {
         //step0 解析表别名
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(joinTable -> {
@@ -108,7 +108,14 @@ public abstract class SqlSelectBuilder {
         if (selectSpecification.getLimitInfo() != null) {
             parseLimit();
         }
-        return new SqlStatementWrapper(dataSourceName, sqlBuilder, parameterBinder);
+        //猜测可能需要fetch的对象，如果用户没有生命具体的对象，就把这个类作为返回对象
+        JoinTable guessTheTarget = joinTables.stream().filter(joinTable -> joinTable.getTableClass() != null)
+                .findFirst().orElse(null);
+        Class<?> guessTheTargetClass = null;
+        if (guessTheTarget != null) {
+            guessTheTargetClass = guessTheTarget.getTableClass();
+        }
+        return new SqlStatementSelectWrapper(dataSourceName, sqlBuilder, parameterBinder, guessTheTargetClass);
     }
 
     private void parseGroupBy(List<Fn<?, ?>> groupByFields) {

@@ -11,6 +11,8 @@ import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
+import com.pengwz.dynamic.sql2.core.database.PreparedObject;
+import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 import com.pengwz.dynamic.sql2.core.dml.select.build.*;
@@ -20,6 +22,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.DefaultOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
+import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DbType;
@@ -29,13 +32,23 @@ import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SqlUtils {
     private SqlUtils() {
     }
+
+    private static final Logger log = LoggerFactory.getLogger(SqlUtils.class);
 
     /**
      * 根据 SQL 方言返回用于表名和列名的合适包裹符号。
@@ -362,7 +375,7 @@ public class SqlUtils {
         }
     }
 
-    public static SqlStatementWrapper executeNestedSelect(Consumer<AbstractColumnReference> nestedSelectConsumer) {
+    public static SqlStatementSelectWrapper executeNestedSelect(Consumer<AbstractColumnReference> nestedSelectConsumer) {
         Select select = new Select();
         AbstractColumnReference columnReference = select.loadColumReference();
         nestedSelectConsumer.accept(columnReference);
@@ -371,9 +384,65 @@ public class SqlUtils {
     }
 
     private static SqlDialect nestedJoinSqlDialect(NestedJoin nestedJoin) {
-        SqlStatementWrapper sqlStatementWrapper = executeNestedSelect(nestedJoin.getNestedSelect());
+        SqlStatementSelectWrapper sqlStatementWrapper = executeNestedSelect(nestedJoin.getNestedSelect());
         nestedJoin.setSqlStatementWrapper(sqlStatementWrapper);
         return SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName()).getSqlDialect();
+    }
+
+    public static PreparedObject parsePreparedObject(StringBuilder rawSql, ParameterBinder parameterBinder) {
+        StringBuilder modifiedSql = new StringBuilder(rawSql);
+        Pattern uuidPattern = Pattern.compile(":[0-9a-f]{32}");
+        Matcher matcher = uuidPattern.matcher(rawSql);
+        ArrayList<Object> params = new ArrayList<>();
+        while (matcher.find()) {
+            String placeholder = matcher.group();
+            if (parameterBinder.contains(placeholder)) {
+                params.add(parameterBinder.getValue(placeholder));
+                // 替换占位符为对应的值
+                int start = matcher.start();
+                int end = matcher.end();
+                modifiedSql.replace(start, end, "?");
+                matcher = uuidPattern.matcher(modifiedSql);
+            }
+        }
+        return new PreparedObject(modifiedSql.toString(), params);
+    }
+
+    public static String replacePlaceholdersWithValues(SqlStatementWrapper sqlStatementWrapper) {
+        StringBuilder modifiedSql = new StringBuilder(sqlStatementWrapper.getRawSql());
+        ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
+        Pattern uuidPattern = Pattern.compile(":[0-9a-f]{32}");
+        Matcher matcher = uuidPattern.matcher(sqlStatementWrapper.getRawSql());
+        while (matcher.find()) {
+            String placeholder = matcher.group();
+            if (parameterBinder.contains(placeholder)) {
+                Object value = ConverterUtils.convertValueToDatabase(parameterBinder.getValue(placeholder));
+                Object formattedParameter = SqlUtils.formattedParameter(value);
+                // 替换占位符为对应的值
+                int start = matcher.start();
+                int end = matcher.end();
+                modifiedSql.replace(start, end, formattedParameter.toString());
+                matcher = uuidPattern.matcher(modifiedSql);
+            }
+        }
+        return modifiedSql.toString();
+    }
+
+    public static void close(ResultSet resultSet, Statement statement) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                log.error("ResultSet closed abnormally.", e);
+            }
+        }
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                log.error("Statement closed abnormally.", e);
+            }
+        }
     }
 
 }

@@ -14,7 +14,6 @@ public class ConnectionHolder {
     private int savepointCounter = 0;
 
     public static Connection getConnection(DataSource dataSource) {
-//        log.debug("Fetching JDBC Connection from DataSource: {}", DataSourceProvider.getInstance().matchDataSourceName(dataSource));
         try {
             return dataSource.getConnection();
         } catch (SQLException e) {
@@ -33,7 +32,7 @@ public class ConnectionHolder {
     }
 
 
-    public static void doCloseConnection(Connection con) throws SQLException {
+    protected static void doCloseConnection(Connection con) throws SQLException {
         if (con != null) {
             con.close();
         }

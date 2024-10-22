@@ -1,8 +1,6 @@
 package com.pengwz.dynamic.sql2.utils;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
-import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.TableAliasImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,14 +178,6 @@ public class ReflectUtils {
         }
     }
 
-    public static <T, F> Fn<T, F> getOriginalFn(Fn<T, F> field) {
-        if (field instanceof TableAliasImpl) {
-            AbstractAliasHelper abstractAlias = (AbstractAliasHelper) field;
-            return abstractAlias.getFnColumn();
-        }
-        return field;
-    }
-
     public static <T> T instance(Class<T> clazz, Object... args) {
         try {
             // 获取构造函数参数的类型
@@ -196,10 +186,30 @@ public class ReflectUtils {
                 argTypes[i] = args[i].getClass();
             }
             Constructor<T> constructor = clazz.getDeclaredConstructor(argTypes);
-            constructor.setAccessible(true);
+            constructor.setAccessible(true);//NOSONAR
             return constructor.newInstance(args);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to create instance of class: " + clazz.getName(), e);
+            throw new RuntimeException("Unable to create instance of class: " + clazz.getName(), e);//NOSONAR
+        }
+    }
+
+    public static void makeAccessible(Field field) {
+        if ((!Modifier.isPublic(field.getModifiers()) ||
+                !Modifier.isPublic(field.getDeclaringClass().getModifiers())
+                || Modifier.isFinal(field.getModifiers()))
+                && !field.isAccessible()) {
+            field.setAccessible(true);//NOSONAR
+        }
+    }
+
+    public static void setFieldValue(Object target, Field field, Object value) {
+        try {
+            if (!Modifier.isPublic(field.getModifiers())) {
+                makeAccessible(field);
+            }
+            field.set(target, value);//NOSONAR
+        } catch (IllegalAccessException ex) {
+            throw new RuntimeException(ex);//NOSONAR
         }
     }
 }

@@ -27,6 +27,15 @@ public class ConverterUtils {
     private ConverterUtils() {
     }
 
+    public static Object convertToEntityAttribute(Object columnValue) {
+        if (columnValue == null) {
+            return null;
+        }
+        // 根据 value 的类型获取对应的转换器
+//        DefaultAttributeConverter<Object, Object> converter = matchConverter(value.getClass());
+        return null;
+    }
+
     public static Object convertValueToDatabase(Object value) {
         if (value == null) {
             return null;
@@ -82,4 +91,5 @@ public class ConverterUtils {
     public static void removeGeneralAttributeConverter(Class<?> valueType) {
         GENERAL_ATTRIBUTE_CONVERTERS.remove(valueType);
     }
+
 }

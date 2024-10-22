@@ -8,13 +8,10 @@ import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 import com.pengwz.dynamic.sql2.utils.ConverterUtils;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
-import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ParameterBinder {
     private final Map<String, Object> parameters = new HashMap<>();
@@ -80,21 +77,4 @@ public class ParameterBinder {
         return parameters.get(key);
     }
 
-    public StringBuilder replacePlaceholdersWithValues(String sql) {
-        StringBuilder modifiedSql = new StringBuilder(sql);
-        Pattern uuidPattern = Pattern.compile(":[0-9a-f]{32}");
-        Matcher matcher = uuidPattern.matcher(sql);
-        while (matcher.find()) {
-            String placeholder = matcher.group();
-            if (contains(placeholder)) {
-                Object value = SqlUtils.formattedParameter(getValue(placeholder));
-                // 替换占位符为对应的值
-                int start = matcher.start();
-                int end = matcher.end();
-                modifiedSql.replace(start, end, value.toString());
-                matcher = uuidPattern.matcher(modifiedSql);
-            }
-        }
-        return modifiedSql;
-    }
 }

@@ -10,7 +10,7 @@ import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
-import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementWrapper;
+import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementSelectWrapper;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -370,7 +370,7 @@ public class GenericWhereCondition implements WhereCondition {
     @Override
     public NestedCondition andExists(Consumer<AbstractColumnReference> nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND)).append(SqlUtils.getSyntaxExists(matchSqlDialect()));
-        SqlStatementWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
+        SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
         condition.append(" (").append(sqlStatementWrapper.getRawSql()).append(")");
         parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
         return this;

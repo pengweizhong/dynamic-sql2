@@ -6,7 +6,6 @@ import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
-import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
@@ -81,7 +80,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
                 Consumer<AbstractColumnReference> nestedColumnReference = nestedColumn.getNestedColumnReference();
-                SqlStatementWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedColumnReference);
+                SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedColumnReference);
                 String columnAliasString = syntaxAs() + columnQuery.getAlias();
                 sqlBuilder.append("(").append(sqlStatementWrapper.getRawSql()).append(")").append(columnAliasString).append(columnSeparator);
                 parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
@@ -112,7 +111,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         if (joinTable instanceof FromNestedJoin) {
             FromNestedJoin fromNestedJoin = (FromNestedJoin) joinTable;
             NestedJoin nestedJoin = fromNestedJoin.getNestedJoin();
-            SqlStatementWrapper sqlStatementWrapper = parseNestedJoinSqlStatementWrapper(nestedJoin);
+            SqlStatementSelectWrapper sqlStatementWrapper = parseNestedJoinSqlStatementWrapper(nestedJoin);
             sqlBuilder.append(" (").append(sqlStatementWrapper.getRawSql()).append(") ")
                     .append(syntaxAs()).append(nestedJoin.getTableAlias());
             parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
@@ -125,7 +124,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         String syntaxJoin = " " + SqlUtils.getSyntaxJoin(sqlDialect, joinTable.getJoinTableType()) + " ";
         if (joinTable instanceof NestedJoin) {
             NestedJoin nestedJoin = (NestedJoin) joinTable;
-            SqlStatementWrapper sqlStatementWrapper = parseNestedJoinSqlStatementWrapper(nestedJoin);
+            SqlStatementSelectWrapper sqlStatementWrapper = parseNestedJoinSqlStatementWrapper(nestedJoin);
             sqlBuilder.append(" ").append(syntaxJoin).append(" (").append(sqlStatementWrapper.getRawSql()).append(") ")
                     .append(syntaxAs()).append(nestedJoin.getTableAlias());
             parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
@@ -160,8 +159,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         }
     }
 
-    private SqlStatementWrapper parseNestedJoinSqlStatementWrapper(NestedJoin nestedJoin) {
-        SqlStatementWrapper sqlStatementWrapper = nestedJoin.getSqlStatementWrapper();
+    private SqlStatementSelectWrapper parseNestedJoinSqlStatementWrapper(NestedJoin nestedJoin) {
+        SqlStatementSelectWrapper sqlStatementWrapper = nestedJoin.getSqlStatementWrapper();
         if (sqlStatementWrapper == null) {
             sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedJoin.getNestedSelect());
         }

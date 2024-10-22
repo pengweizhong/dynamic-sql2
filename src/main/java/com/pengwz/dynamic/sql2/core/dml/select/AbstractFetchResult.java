@@ -5,6 +5,11 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import java.util.*;
 
 public abstract class AbstractFetchResult<R> implements FetchResult<R> {
+    protected List<Map<String, Object>> wrapperList;
+
+    protected AbstractFetchResult(List<Map<String, Object>> wrapperList) {
+        this.wrapperList = wrapperList;
+    }
 
     @Override
     public List<R> toList() {

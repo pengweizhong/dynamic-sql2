@@ -2,7 +2,7 @@ package com.pengwz.dynamic.sql2.core.dml.select.build.join;
 
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
-import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementWrapper;
+import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementSelectWrapper;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.enums.JoinTableType;
 
@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 public class NestedJoin extends JoinTable {
     private final Consumer<AbstractColumnReference> nestedSelect;
-    private SqlStatementWrapper sqlStatementWrapper;
+    private SqlStatementSelectWrapper sqlStatementWrapper;
     private Consumer<Condition> onCondition;
     private JoinTableType joinTableType;
 
@@ -51,11 +51,11 @@ public class NestedJoin extends JoinTable {
         return nestedSelect;
     }
 
-    public SqlStatementWrapper getSqlStatementWrapper() {
+    public SqlStatementSelectWrapper getSqlStatementWrapper() {
         return sqlStatementWrapper;
     }
 
-    public void setSqlStatementWrapper(SqlStatementWrapper sqlStatementWrapper) {
+    public void setSqlStatementWrapper(SqlStatementSelectWrapper sqlStatementWrapper) {
         this.sqlStatementWrapper = sqlStatementWrapper;
     }
 }

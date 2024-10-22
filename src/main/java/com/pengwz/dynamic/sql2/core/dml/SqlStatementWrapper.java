@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.core.dml.select.build;
+package com.pengwz.dynamic.sql2.core.dml;
 
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 

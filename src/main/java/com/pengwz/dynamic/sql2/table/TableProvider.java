@@ -15,7 +15,6 @@ public class TableProvider {//NOSONAR
     private static final Map<Class<?>, TableMeta> TABLE_META_MAP = new ConcurrentHashMap<>();
     private static final Map<Class<?>, CTEMeta> CTE_META_MAP = new ConcurrentHashMap<>();
     private static final Map<Class<?>, ViewMeta> VIEW_META_MAP = new ConcurrentHashMap<>();
-    private static final TableProvider INSTANCE = new TableProvider();
 
     private TableProvider() {
     }
