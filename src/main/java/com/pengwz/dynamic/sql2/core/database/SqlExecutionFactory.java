@@ -33,17 +33,18 @@ public class SqlExecutionFactory {
         String dataSourceName = sqlStatementWrapper.getDataSourceName();
         //添加拦截器
         SqlInterceptorChain sqlInterceptorChain = SqlInterceptorChain.getInstance();
-        StringBuilder rawSql = sqlStatementWrapper.getRawSql();
-        ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
-        PreparedSql preparedSql = SqlUtils.parsePreparedObject(rawSql, parameterBinder);
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        boolean beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper);
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
-        SqlDialect sqlDialect = schemaProperties.getSqlDialect();
         Connection connection = null;
         Exception exception = null;
         R apply = null;
+        StringBuilder rawSql = sqlStatementWrapper.getRawSql();
+        ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
+        boolean beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper);
+        PreparedSql preparedSql = null;
         try {
+            preparedSql = SqlUtils.parsePreparedObject(rawSql, parameterBinder);
+            SqlDialect sqlDialect = schemaProperties.getSqlDialect();
             if (beforeExecution) {
                 connection = ConnectionHolder.getConnection(dataSourceMeta.getDataSource());
                 SqlExecutor sqlExecutor;
@@ -102,6 +103,9 @@ public class SqlExecutionFactory {
     private static void printPreparingSql(DMLType dmlType, String dataSourceName,
                                           PreparedSql preparedSql,
                                           Object applyResult, boolean beforeExecution) {
+        if (preparedSql == null) {
+            return;
+        }
         //输出编译后的SQL
         StringBuilder stringBuilder = new StringBuilder();
         List<Object> params = preparedSql.getParams();

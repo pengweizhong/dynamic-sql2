@@ -60,4 +60,16 @@ public class SqlInterceptorChain implements SqlInterceptor {
             interceptor.afterExecution(preparedSql, exception);
         }
     }
+
+    public SqlInterceptor getInterceptor(Class<? extends SqlInterceptor> sqlInterceptorClass) {
+        if (sqlInterceptorClass == null) {
+            return null;
+        }
+        for (SqlInterceptor interceptor : interceptors) {
+            if (interceptor.getClass().equals(sqlInterceptorClass)) {
+                return interceptor;
+            }
+        }
+        return null;
+    }
 }

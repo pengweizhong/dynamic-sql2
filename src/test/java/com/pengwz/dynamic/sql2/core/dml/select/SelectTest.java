@@ -7,10 +7,11 @@ import com.pengwz.dynamic.sql2.core.column.function.table.JsonTable;
 import com.pengwz.dynamic.sql2.core.column.function.table.JsonTable.JsonColumn;
 import com.pengwz.dynamic.sql2.entites.*;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
+import com.pengwz.dynamic.sql2.plugins.pagination.PageHelper;
+import com.pengwz.dynamic.sql2.plugins.pagination.PageInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Set;
 
 import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.bindAlias;
 
@@ -122,11 +123,12 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void select3() {
-        Set<String> set = sqlContext.select()
-                .column(Product::getProductName)
-                .from(Product.class)
-                .fetch(String.class).toSet();
-        System.out.println(set);
+        PageInfo<String> objectPageInfo = PageHelper.of(1, 3).doSelectPageInfo(
+                () -> sqlContext.select()
+                        .column(Product::getProductName)
+                        .from(Product.class)
+                        .fetch(String.class).toSet());
+        System.out.println(objectPageInfo);
     }
 
     /**

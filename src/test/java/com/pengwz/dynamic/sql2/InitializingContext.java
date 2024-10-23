@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2;
 
-import com.pengwz.dynamic.sql2.context.SqlContextProxy;
+import com.pengwz.dynamic.sql2.context.SqlContextHelper;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
@@ -25,7 +25,7 @@ public class InitializingContext {
         sqlContextProperties.addSchemaProperties(schemaProperties);
         sqlContextProperties.addInterceptor(new PageSqlInterceptor());
 //        LogProperties.setInstance(new DefaultSqlLoggerTest());
-        sqlContext = SqlContextProxy.newInstance(sqlContextProperties);
+        sqlContext = SqlContextHelper.createSqlContext(sqlContextProperties);
     }
 
 }
