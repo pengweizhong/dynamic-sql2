@@ -30,9 +30,6 @@ public class SqlExecutionFactory {
     public static <R> R executorSql(DMLType dmlType,
                                     SqlStatementWrapper sqlStatementWrapper,
                                     Function<SqlExecutor, R> doSqlExecutor) {
-        Connection connection = null;
-        Exception exception = null;
-        R apply = null;
         String dataSourceName = sqlStatementWrapper.getDataSourceName();
         //添加拦截器
         SqlInterceptorChain sqlInterceptorChain = SqlInterceptorChain.getInstance();
@@ -43,6 +40,9 @@ public class SqlExecutionFactory {
         boolean beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper);
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
         SqlDialect sqlDialect = schemaProperties.getSqlDialect();
+        Connection connection = null;
+        Exception exception = null;
+        R apply = null;
         try {
             if (beforeExecution) {
                 connection = ConnectionHolder.getConnection(dataSourceMeta.getDataSource());
@@ -75,6 +75,7 @@ public class SqlExecutionFactory {
         return apply;
     }
 
+    @SuppressWarnings("all")
     private static void printPreparingSql(DMLType dmlType, String dataSourceName,
                                           PreparedSql preparedSql,
                                           Object applyResult, boolean beforeExecution) {
