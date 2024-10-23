@@ -38,27 +38,17 @@ public class SqlExecutionFactory {
         Connection connection = null;
         Exception exception = null;
         R apply = null;
+        PreparedSql preparedSql = null;
         StringBuilder rawSql = sqlStatementWrapper.getRawSql();
         ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
-        boolean beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper);
-        PreparedSql preparedSql = null;
+        boolean beforeExecution = true;
         try {
+            connection = ConnectionHolder.getConnection(dataSourceMeta.getDataSource());
+            beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper, connection);
             preparedSql = SqlUtils.parsePreparedObject(rawSql, parameterBinder);
             SqlDialect sqlDialect = schemaProperties.getSqlDialect();
             if (beforeExecution) {
-                connection = ConnectionHolder.getConnection(dataSourceMeta.getDataSource());
-                SqlExecutor sqlExecutor;
-                switch (sqlDialect) {
-                    case MYSQL:
-                        sqlExecutor = new MysqlSqlExecutor(connection, preparedSql);
-                        break;
-                    case ORACLE:
-                        sqlExecutor = new OracleSqlExecutor(connection, preparedSql);
-                        break;
-                    default:
-                        throw new UnsupportedOperationException("Unsupported sql dialect: " + sqlDialect);
-                }
-                apply = doSqlExecutor.apply(sqlExecutor);
+                apply = applySql(connection, sqlDialect, preparedSql, doSqlExecutor);
             }
         } catch (Exception e) {
             exception = e;
@@ -74,6 +64,24 @@ public class SqlExecutionFactory {
             }
         }
         return apply;
+    }
+
+    public static <R> R applySql(Connection connection,
+                                 SqlDialect sqlDialect,
+                                 PreparedSql preparedSql,
+                                 Function<SqlExecutor, R> doSqlExecutor) {
+        SqlExecutor sqlExecutor;
+        switch (sqlDialect) {
+            case MYSQL:
+                sqlExecutor = new MysqlSqlExecutor(connection, preparedSql);
+                break;
+            case ORACLE:
+                sqlExecutor = new OracleSqlExecutor(connection, preparedSql);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unsupported sql dialect: " + sqlDialect);
+        }
+        return doSqlExecutor.apply(sqlExecutor);
     }
 
     /*

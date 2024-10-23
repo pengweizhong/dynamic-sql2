@@ -27,24 +27,26 @@ public class PageHelper {
         return pageSize;
     }
 
-    public <T, Y> PageInfo<Y> doSelectPageInfo(Supplier<T> supplier) {
-        PageInfo<Y> pageInfo = new PageInfo(pageIndex, pageSize);
+    public <C extends Collection<T>, T> PageInfo<C, T> selectPageInfo(Supplier<C> selectSupplier) {
+        PageInfo<C, T> pageInfo = new PageInfo<>(pageIndex, pageSize);
+        PageSqlInterceptor interceptor = getPageSqlInterceptor();
+        try {
+            interceptor.setCurrentPage(pageInfo);
+            C apply = selectSupplier.get();
+            pageInfo.setRecords(apply);
+        } finally {
+            interceptor.removeCurrentPage();
+        }
+        return pageInfo;
+    }
+
+
+    private PageSqlInterceptor getPageSqlInterceptor() {
         PageSqlInterceptor interceptor = (PageSqlInterceptor) SqlInterceptorChain.getInstance()
                 .getInterceptor(PageSqlInterceptor.class);
         if (interceptor == null) {
             throw new IllegalStateException("SQL paging plugin not found.");
         }
-        try {
-            interceptor.setCurrentPage(pageInfo);
-            T t = supplier.get();
-            if (t instanceof Collection) {
-                Collection collection = (Collection) t;
-                pageInfo.setRecords(collection);
-            }
-        } finally {
-            interceptor.removeCurrentPage();
-        }
-
-        return pageInfo;
+        return interceptor;
     }
 }

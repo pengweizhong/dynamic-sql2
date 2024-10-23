@@ -12,6 +12,8 @@ import com.pengwz.dynamic.sql2.plugins.pagination.PageInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.bindAlias;
 
@@ -123,12 +125,16 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void select3() {
-        PageInfo<String> objectPageInfo = PageHelper.of(1, 3).doSelectPageInfo(
-                () -> sqlContext.select()
-                        .column(Product::getProductName)
-                        .from(Product.class)
-                        .fetch(String.class).toSet());
-        System.out.println(objectPageInfo);
+        Supplier<Set<String>> selectSupplier = () -> sqlContext.select()
+                .column(Product::getProductName)
+                .from(Product.class)
+                .fetch(String.class).toSet();
+        PageInfo<Set<String>, String> pageInfo = PageHelper.of(1, 3).selectPageInfo(selectSupplier);
+        System.out.println(pageInfo);
+        while (pageInfo.hasNextPage()) {
+            PageInfo<Set<String>, String> pageInfo2 = pageInfo.selectNextPage(selectSupplier);
+            System.out.println(pageInfo2);
+        }
     }
 
     /**

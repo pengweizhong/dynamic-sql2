@@ -5,6 +5,7 @@ import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,11 +40,11 @@ public class SqlInterceptorChain implements SqlInterceptor {
     }
 
     @Override
-    public boolean beforeExecution(SqlStatementWrapper sqlStatementWrapper) {
+    public boolean beforeExecution(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
         // 依次执行拦截器
         for (SqlInterceptor interceptor : interceptors) {
             // 如果某个拦截器返回false，直接中断链条
-            boolean proceed = interceptor.beforeExecution(sqlStatementWrapper);
+            boolean proceed = interceptor.beforeExecution(sqlStatementWrapper,connection);
             if (!proceed) {
                 log.debug("The SQL interceptor link interrupts execution, located at: {}", interceptor.getClass().getCanonicalName());
                 return false;

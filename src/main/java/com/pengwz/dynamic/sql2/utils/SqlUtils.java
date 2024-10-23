@@ -23,6 +23,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.DefaultOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
+import com.pengwz.dynamic.sql2.datasource.ConnectionHolder;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DbType;
@@ -35,6 +36,7 @@ import com.pengwz.dynamic.sql2.table.TableProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -425,6 +427,11 @@ public class SqlUtils {
             }
         }
         return modifiedSql.toString();
+    }
+
+    public static void close(Connection connection, ResultSet resultSet, Statement statement) {
+        ConnectionHolder.releaseConnection(connection);
+        close(resultSet, statement);
     }
 
     public static void close(ResultSet resultSet, Statement statement) {
