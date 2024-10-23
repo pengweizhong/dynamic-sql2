@@ -106,7 +106,7 @@ public class SelectTest extends InitializingContext {
                 .leftJoin(Category.class, condition -> condition.andEqualTo(bindAlias("p", Category::getCategoryId), Category::getCategoryId))
                 .where(condition -> condition.andGreaterThan(bindAlias("user_total", "total_spent"), 100))
                 .orderBy("user_total", "total_spent", SortOrder.DESC)
-                .limit(0, 500)
+                .limit(0, 100)
                 .fetch(UserAndOrderView.class).toList();
         System.out.println(list);
     }

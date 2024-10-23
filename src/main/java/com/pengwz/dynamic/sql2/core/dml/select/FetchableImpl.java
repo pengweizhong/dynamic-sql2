@@ -5,6 +5,7 @@ import com.pengwz.dynamic.sql2.core.database.SqlExecutor;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SqlSelectBuilder;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementSelectWrapper;
+import com.pengwz.dynamic.sql2.enums.DMLType;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.util.List;
@@ -38,7 +39,8 @@ public class FetchableImpl implements Fetchable {
             }
             returnClass = (Class<T>) sqlStatementSelectWrapper.getGuessTheTargetClass();
         }
-        List<Map<String, Object>> wrapperList = SqlExecutionFactory.executorSql(sqlStatementSelectWrapper, SqlExecutor::executeQuery);
+        List<Map<String, Object>> wrapperList = SqlExecutionFactory.executorSql(DMLType.SELECT,
+                sqlStatementSelectWrapper, SqlExecutor::executeQuery);
         return new FetchResultImpl<>(returnClass, wrapperList);
     }
 }

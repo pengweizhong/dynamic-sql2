@@ -10,8 +10,6 @@ public class PageSqlInterceptor implements SqlInterceptor {
 
     @Override
     public boolean beforeExecution(SqlStatementWrapper sqlStatementWrapper) {
-        StringBuilder rawSql = sqlStatementWrapper.getRawSql();
-        log.info("PageSqlInterceptor sql:{}", rawSql);
         return true;
     }
 
