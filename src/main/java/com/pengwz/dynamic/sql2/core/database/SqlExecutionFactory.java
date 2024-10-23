@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.util.List;
 import java.util.function.Function;
 
 public class SqlExecutionFactory {
@@ -25,23 +26,20 @@ public class SqlExecutionFactory {
     private static final Logger log = LoggerFactory.getLogger(SqlExecutionFactory.class);
 
     public static <R> R executorSql(SqlStatementWrapper sqlStatementWrapper, Function<SqlExecutor, R> doSqlExecutor) {
+        Connection connection = null;
+        Exception exception = null;
+        R apply = null;
         String dataSourceName = sqlStatementWrapper.getDataSourceName();
         //添加拦截器
         SqlInterceptorChain sqlInterceptorChain = SqlInterceptorChain.getInstance();
-        boolean beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper);
         StringBuilder rawSql = sqlStatementWrapper.getRawSql();
         ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
         PreparedSql preparedSql = SqlUtils.parsePreparedObject(rawSql, parameterBinder);
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        //输出编译后的SQL
-        if (schemaProperties.isPrintSql()) {
-            log.debug("{} -> {}", dataSourceName, preparedSql.getSql());
-        }
+        boolean beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper);
+        printSql(dataSourceName, schemaProperties, preparedSql);
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
         SqlDialect sqlDialect = schemaProperties.getSqlDialect();
-        Connection connection = null;
-        Exception exception = null;
-        R apply = null;
         try {
             if (beforeExecution) {
                 connection = ConnectionHolder.getConnection(dataSourceMeta.getDataSource());
@@ -69,6 +67,23 @@ public class SqlExecutionFactory {
             }
         }
         return apply;
+    }
+
+    private static void printSql(String dataSourceName, SchemaProperties schemaProperties, PreparedSql preparedSql) {
+        //输出编译后的SQL
+        if (schemaProperties.isPrintSql()) {
+            StringBuilder stringBuilder = new StringBuilder();
+            List<Object> params = preparedSql.getParams();
+            for (int i = 0; i < params.size(); i++) {
+                Object param = params.get(i);
+                stringBuilder.append(param).append("(").append(param.getClass().getSimpleName()).append(")");
+                if (i != params.size() - 1) {
+                    stringBuilder.append(", ");
+                }
+            }
+            log.debug("{} -> Preparing: {}", dataSourceName, preparedSql.getSql());
+            log.debug("{} -> Parameters: {}", dataSourceName, stringBuilder);
+        }
     }
 
 }
