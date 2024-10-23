@@ -1,11 +1,10 @@
 package com.pengwz.dynamic.sql2;
 
 import com.pengwz.dynamic.sql2.context.SqlContextProxy;
-import com.pengwz.dynamic.sql2.context.properties.LogProperties;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
-import com.pengwz.dynamic.sql2.plugins.logger.impl.DefaultSqlLoggerTest;
+import com.pengwz.dynamic.sql2.interceptor.PageSqlInterceptor;
 import org.junit.jupiter.api.BeforeAll;
 
 public class InitializingContext {
@@ -24,7 +23,8 @@ public class InitializingContext {
         schemaProperties.setUseAsInQuery(true);
         schemaProperties.setPrintSql(true);
         sqlContextProperties.addSchemaProperties(schemaProperties);
-        LogProperties.setInstance(new DefaultSqlLoggerTest());
+        sqlContextProperties.addInterceptor(new PageSqlInterceptor());
+//        LogProperties.setInstance(new DefaultSqlLoggerTest());
         sqlContext = SqlContextProxy.newInstance(sqlContextProperties);
     }
 

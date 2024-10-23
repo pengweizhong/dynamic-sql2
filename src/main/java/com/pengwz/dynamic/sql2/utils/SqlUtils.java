@@ -11,7 +11,7 @@ import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
-import com.pengwz.dynamic.sql2.core.database.PreparedObject;
+import com.pengwz.dynamic.sql2.core.database.PreparedSql;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
@@ -389,7 +389,7 @@ public class SqlUtils {
         return SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName()).getSqlDialect();
     }
 
-    public static PreparedObject parsePreparedObject(StringBuilder rawSql, ParameterBinder parameterBinder) {
+    public static PreparedSql parsePreparedObject(StringBuilder rawSql, ParameterBinder parameterBinder) {
         StringBuilder modifiedSql = new StringBuilder(rawSql);
         Pattern uuidPattern = Pattern.compile(":[0-9a-f]{32}");
         Matcher matcher = uuidPattern.matcher(rawSql);
@@ -405,7 +405,7 @@ public class SqlUtils {
                 matcher = uuidPattern.matcher(modifiedSql);
             }
         }
-        return new PreparedObject(modifiedSql.toString(), params);
+        return new PreparedSql(modifiedSql.toString(), params);
     }
 
     public static String replacePlaceholdersWithValues(SqlStatementWrapper sqlStatementWrapper) {

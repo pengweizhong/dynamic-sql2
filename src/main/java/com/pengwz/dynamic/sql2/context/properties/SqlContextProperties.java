@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.context.properties;
 
-import com.pengwz.dynamic.sql2.plugins.logger.SqlLogger;
+import com.pengwz.dynamic.sql2.interceptor.SqlInterceptor;
 import com.pengwz.dynamic.sql2.plugins.schema.DbSchemaMatcher;
 import com.pengwz.dynamic.sql2.plugins.schema.impl.MysqlSchemaMatcher;
 import com.pengwz.dynamic.sql2.plugins.schema.impl.OracleSchemaMatcher;
@@ -19,6 +19,8 @@ public class SqlContextProperties {
     private Set<DbSchemaMatcher> schemaMatchers;
     // 指定具体的命名空间配置
     private List<SchemaProperties> schemaProperties = new ArrayList<>();
+    // 加载自定义拦截器
+    private List<SqlInterceptor> interceptors = new ArrayList<>();
 
     public static SqlContextProperties defaultSqlContextProperties() {
         SqlContextProperties sqlContextProperties = new SqlContextProperties();
@@ -59,5 +61,16 @@ public class SqlContextProperties {
 
     public void addSchemaProperties(SchemaProperties schemaProperties) {
         this.schemaProperties.add(schemaProperties);
+    }
+
+    public List<SqlInterceptor> getInterceptors() {
+        return interceptors;
+    }
+
+    public void addInterceptor(SqlInterceptor interceptor) {
+        if (interceptors.contains(interceptor)) {
+            return;
+        }
+        interceptors.add(interceptor);
     }
 }

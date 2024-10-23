@@ -1,16 +1,14 @@
 package com.pengwz.dynamic.sql2.core.database;
 
-import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
-
 import java.sql.Connection;
 
 public abstract class AbstractSqlExecutor implements SqlExecutor {
 
     protected Connection connection;
-    protected SqlStatementWrapper sqlStatementWrapper;
+    protected PreparedSql preparedSql;
 
-    protected AbstractSqlExecutor(Connection connection, SqlStatementWrapper sqlStatementWrapper) {
+    protected AbstractSqlExecutor(Connection connection, PreparedSql parseSql) {
         this.connection = connection;
-        this.sqlStatementWrapper = sqlStatementWrapper;
+        this.preparedSql = parseSql;
     }
 }

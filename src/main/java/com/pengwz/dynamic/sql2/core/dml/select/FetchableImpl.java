@@ -29,10 +29,14 @@ public class FetchableImpl implements Fetchable {
         return fetchResult(returnClass);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> FetchResult<T> fetchResult(Class<T> returnClass) {
         if (returnClass == null) {
-            throw new IllegalStateException("The query result object cannot be inferred from the context. " +
-                    "Please declare the return type.");
+            if (sqlStatementSelectWrapper.getGuessTheTargetClass() == null) {
+                throw new IllegalStateException("The query result object cannot be inferred from the context. " +
+                        "Please declare the return type.");
+            }
+            returnClass = (Class<T>) sqlStatementSelectWrapper.getGuessTheTargetClass();
         }
         List<Map<String, Object>> wrapperList = SqlExecutionFactory.executorSql(sqlStatementSelectWrapper, SqlExecutor::executeQuery);
         return new FetchResultImpl<>(returnClass, wrapperList);
