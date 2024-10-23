@@ -1,5 +1,7 @@
 package com.pengwz.dynamic.sql2.utils;
 
+import java.util.Collection;
+
 public class StringUtils {
     private StringUtils() {
     }
@@ -80,6 +82,13 @@ public class StringUtils {
 
     public static boolean isNotEqualsIgnoreCase(String str1, String str2) {
         return !isEqualsIgnoreCase(str1, str2);
+    }
+
+    public static String join(CharSequence delimiter, Collection<?> collection) {
+        if (CollectionUtils.isEmpty(collection)) {
+            return "";
+        }
+        return join(delimiter, collection.toArray());
     }
 
     public static String join(CharSequence delimiter, Object... params) {

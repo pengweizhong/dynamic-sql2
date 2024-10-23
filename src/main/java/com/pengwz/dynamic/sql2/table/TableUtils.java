@@ -81,6 +81,7 @@ public class TableUtils {
     }
 
     public static List<ColumnMeta> parseViewClass(Class<?> clazz) {
+
         List<Field> fields = ReflectUtils.getAllFields(clazz, excludeFieldTypes());
         List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(clazz, f))
                 .filter(Objects::nonNull).collect(Collectors.toList());

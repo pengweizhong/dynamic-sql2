@@ -10,6 +10,7 @@ import com.pengwz.dynamic.sql2.enums.SortOrder;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.bindAlias;
 
@@ -111,6 +112,22 @@ public class SelectTest extends InitializingContext {
         System.out.println(list);
     }
 
+    @Test
+    void select2() {
+        Integer count = sqlContext.select().allColumn()
+                .from(select -> select.column(new Count(Product::getProductName)).from(Product.class), "ss")
+                .fetch(Integer.class).toOne();
+        System.out.println(count);
+    }
+
+    @Test
+    void select3() {
+        Set<String> set = sqlContext.select()
+                .column(Product::getProductName)
+                .from(Product.class)
+                .fetch(String.class).toSet();
+        System.out.println(set);
+    }
 
     /**
      * <pre>

@@ -1,7 +1,8 @@
-package com.pengwz.dynamic.sql2.interceptor;
+package com.pengwz.dynamic.sql2.plugins.pagination;
 
 import com.pengwz.dynamic.sql2.core.database.PreparedSql;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
+import com.pengwz.dynamic.sql2.interceptor.SqlInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

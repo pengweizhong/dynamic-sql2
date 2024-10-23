@@ -6,6 +6,7 @@ import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
+import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
@@ -50,7 +51,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     continue;
                 }
                 //数字列不需要关心别名问题
-                if (columFunction instanceof NumberColumn /*|| columFunction instanceof Count*/) {
+                if (columFunction instanceof NumberColumn || columFunction instanceof Count) {
                     sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version));
                     String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
                     sqlBuilder.append(columnAlias).append(columnSeparator);

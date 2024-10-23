@@ -9,6 +9,7 @@ import com.pengwz.dynamic.sql2.table.TableUtils;
 import com.pengwz.dynamic.sql2.utils.CollectionUtils;
 import com.pengwz.dynamic.sql2.utils.ConverterUtils;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
+import com.pengwz.dynamic.sql2.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +40,8 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
     }
 
     @Override
-    public <S extends Set<?>> S toSet(Supplier<S> setSupplier) {
-        return null;
+    public <S extends Set<R>> S toSet(Supplier<S> setSupplier) {
+        return (S) convertToCollection(setSupplier);
     }
 
     @Override
@@ -53,9 +54,12 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         if (CollectionUtils.isEmpty(wrapperList)) {
             return collection;
         }
-        List<ColumnMeta> columnMetas = null;
+        List<ColumnMeta> columnMetas;
         TableMeta tableMeta = TableProvider.getTableMeta(resultClass);
         if (tableMeta == null) {
+            if (resultClass.getClassLoader() == null) {
+                return convertToSystemClass(collection);
+            }
             columnMetas = TableUtils.parseViewClass(resultClass);
         } else {
             columnMetas = tableMeta.getColumnMetas();
@@ -82,6 +86,22 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
                     ReflectUtils.setFieldValue(instance, columnMeta.getField(), value);
                 }
             });
+        }
+        return collection;
+    }
+
+    private Collection<R> convertToSystemClass(Collection<R> collection) {
+        for (Map<String, Object> stringObjectMap : wrapperList) {
+            if (stringObjectMap.size() > 1) {
+                throw new IllegalArgumentException("Multiple columns were queried: "
+                        + StringUtils.join(", ", stringObjectMap.keySet()));
+            }
+            if (stringObjectMap.isEmpty()) {
+                collection.add(null);
+            }
+            Map.Entry<String, Object> entry = stringObjectMap.entrySet().iterator().next();
+            Object value = ConverterUtils.convertToEntityAttribute(resultClass, entry.getValue());
+            collection.add((R) value);
         }
         return collection;
     }
