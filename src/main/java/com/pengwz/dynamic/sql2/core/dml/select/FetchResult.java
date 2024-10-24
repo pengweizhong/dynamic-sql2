@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 /**
  * 定义查询结果的封装接口，提供多种格式的结果转换方法。
  * <p>
- * 该接口允许将查询结果转换为单个对象、列表、集合或映射等等，以尽量满足不同场景下的数据处理需求。
+ * 该接口允许将查询结果转换为单个对象、列表、集合等，以尽量满足不同场景下的数据处理需求。
  *
  * @param <R> 结果对象的类型
  */
@@ -102,11 +102,47 @@ public interface FetchResult<R> {
                                                    BinaryOperator<V> mergeFunction,
                                                    Supplier<M> mapSupplier);
 
+    /**
+     * 根据给定的键映射函数，将集合中的元素分组，并返回一个键值对的映射。
+     * 映射中的键由 keyMapper 函数计算得到，值是一个包含了分组元素的集合。
+     *
+     * @param <T>       集合中元素的类型
+     * @param <K>       映射中的键的类型
+     * @param <C>       存储每组元素的集合类型
+     * @param keyMapper 用于计算分组键的函数
+     * @return 一个以分组键为键，以分组后的集合为值的 Map
+     */
     <T, K, C extends Collection<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper);
 
+    /**
+     * 根据给定的键映射函数和集合生成器，将集合中的元素分组，并返回一个键值对的映射。
+     * 映射中的键由 keyMapper 函数计算得到，值是一个包含了分组元素的集合。
+     * 集合的类型由 collectionSupplier 提供。
+     *
+     * @param <T>                集合中元素的类型
+     * @param <K>                映射中的键的类型
+     * @param <C>                存储每组元素的集合类型
+     * @param keyMapper          用于计算分组键的函数
+     * @param collectionSupplier 用于提供分组集合的生成器
+     * @return 一个以分组键为键，以分组后的集合为值的 Map
+     */
     <T, K, C extends Collection<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper,
                                                            Supplier<C> collectionSupplier);
 
+    /**
+     * 根据给定的键映射函数、集合生成器和 Map 生成器，将集合中的元素分组，并返回一个键值对的映射。
+     * 映射中的键由 keyMapper 函数计算得到，值是一个包含了分组元素的集合。
+     * 集合的类型由 collectionSupplier 提供，Map 的类型由 mapSupplier 提供。
+     *
+     * @param <T>                集合中元素的类型
+     * @param <K>                映射中的键的类型
+     * @param <C>                存储每组元素的集合类型
+     * @param <M>                返回的 Map 类型
+     * @param keyMapper          用于计算分组键的函数
+     * @param collectionSupplier 用于提供分组集合的生成器
+     * @param mapSupplier        用于提供返回 Map 的生成器
+     * @return 一个以分组键为键，以分组后的集合为值的 Map
+     */
     <T, K, C extends Collection<T>, M extends Map<K, C>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper,
                                                                                 Supplier<C> collectionSupplier,
                                                                                 Supplier<M> mapSupplier);
