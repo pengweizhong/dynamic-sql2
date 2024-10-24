@@ -19,7 +19,7 @@ import java.sql.ResultSet;
 
 import static com.pengwz.dynamic.sql2.enums.SqlDialect.MYSQL;
 
-public class PaginationPlugin implements SqlInterceptor {
+public class PaginationInterceptorPlugin implements SqlInterceptor {
 //    private static final Logger log = LoggerFactory.getLogger(PaginationPlugin.class);
 
     @Override
@@ -78,7 +78,7 @@ public class PaginationPlugin implements SqlInterceptor {
 
     @Override
     public void afterExecution(PreparedSql preparedSql, Exception exception) {
-
+        LocalPage.remove();
     }
 
 }
