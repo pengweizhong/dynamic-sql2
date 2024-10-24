@@ -125,16 +125,17 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void select3() {
-        Supplier<Set<String>> selectSupplier = () -> sqlContext.select()
-                .column(Product::getProductName)
+        Supplier<Set<ProductView>> selectSupplier = () -> sqlContext.select()
+//                .column(Product::getProductName)
+                .column(Product::getProductId)
                 .from(Product.class)
-                .fetch(String.class).toSet();
-        PageInfo<Set<String>, String> pageInfo = PageHelper.of(1, 3).selectPageInfo(selectSupplier);
+                .fetch(ProductView.class).toSet();
+        PageInfo<Set<ProductView>, ProductView> pageInfo = PageHelper.of(1, 3).selectPageInfo(selectSupplier);
         System.out.println(pageInfo);
-//        while (pageInfo.hasNextPage()) {
-//            PageInfo<Set<String>, String> pageInfo2 = pageInfo.selectNextPage(selectSupplier);
-//            System.out.println(pageInfo2);
-//        }
+        while (pageInfo.hasNextPage()) {
+            System.out.println(pageInfo.hasPreviousPage());
+            System.out.println(pageInfo.selectNextPage(selectSupplier));
+        }
     }
 
     /**

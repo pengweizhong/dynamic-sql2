@@ -8,9 +8,9 @@ class LocalPage {
 
     public static AbstractPage getCurrentPage() {
         AbstractPage abstractPage = LOCAL_CURRENT_PAGE.get();
-        if (abstractPage == null) {
-            throw new IllegalArgumentException("Missing required paging parameters");
-        }
+//        if (abstractPage == null) {
+//            throw new IllegalArgumentException("Missing required paging parameters");
+//        }
         return abstractPage;
     }
 

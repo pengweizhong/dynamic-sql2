@@ -44,9 +44,9 @@ public class SqlInterceptorChain implements SqlInterceptor {
         // 依次执行拦截器
         for (SqlInterceptor interceptor : interceptors) {
             // 如果某个拦截器返回false，直接中断链条
-            boolean proceed = interceptor.beforeExecution(sqlStatementWrapper,connection);
+            boolean proceed = interceptor.beforeExecution(sqlStatementWrapper, connection);
             if (!proceed) {
-                log.debug("The SQL interceptor link interrupts execution, located at: {}", interceptor.getClass().getCanonicalName());
+                log.trace("The SQL interceptor link interrupts execution, located at: {}", interceptor.getClass().getCanonicalName());
                 return false;
             }
         }

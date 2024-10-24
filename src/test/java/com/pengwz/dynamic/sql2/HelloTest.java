@@ -9,7 +9,7 @@ class HelloTest {
     @Test
     void test() {
         PageHelper.startPage(1, 2).doSelectPageInfo(() -> System.getenv());
-        PageMethod.startPage(1,1).doSelectPage(() -> System.getenv());
+        PageMethod.startPage(1,1).doSelectPage(() -> System.getenv()).getPages();
         System.out.println("Hello World");
     }
 }

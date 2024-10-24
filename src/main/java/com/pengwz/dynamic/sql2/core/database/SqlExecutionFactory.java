@@ -10,7 +10,6 @@ import com.pengwz.dynamic.sql2.datasource.ConnectionHolder;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DMLType;
-import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.interceptor.SqlInterceptorChain;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import org.slf4j.Logger;
@@ -33,7 +32,6 @@ public class SqlExecutionFactory {
         String dataSourceName = sqlStatementWrapper.getDataSourceName();
         //添加拦截器
         SqlInterceptorChain sqlInterceptorChain = SqlInterceptorChain.getInstance();
-        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
         Connection connection = null;
         Exception exception = null;
@@ -41,23 +39,18 @@ public class SqlExecutionFactory {
         PreparedSql preparedSql = null;
         StringBuilder rawSql = sqlStatementWrapper.getRawSql();
         ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
-        boolean beforeExecution = true;
         try {
             connection = ConnectionHolder.getConnection(dataSourceMeta.getDataSource());
-            beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper, connection);
+            boolean beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper, connection);
             preparedSql = SqlUtils.parsePreparedObject(rawSql, parameterBinder);
-            SqlDialect sqlDialect = schemaProperties.getSqlDialect();
             if (beforeExecution) {
-                apply = applySql(connection, sqlDialect, preparedSql, doSqlExecutor);
+                apply = applySql(dmlType, dataSourceName, connection, preparedSql, beforeExecution, doSqlExecutor);
             }
         } catch (Exception e) {
             exception = e;
             throw e;
         } finally {
             try {
-                if (schemaProperties.isPrintSql()) {
-                    printPreparingSql(dmlType, dataSourceName, preparedSql, apply, beforeExecution);
-                }
                 ConnectionHolder.releaseConnection(connection);
             } finally {
                 sqlInterceptorChain.afterExecution(preparedSql, exception);
@@ -66,12 +59,16 @@ public class SqlExecutionFactory {
         return apply;
     }
 
-    public static <R> R applySql(Connection connection,
-                                 SqlDialect sqlDialect,
+    @SuppressWarnings("all")
+    public static <R> R applySql(DMLType dmlType,
+                                 String dataSourceName,
+                                 Connection connection,
                                  PreparedSql preparedSql,
+                                 boolean isIntercepted,
                                  Function<SqlExecutor, R> doSqlExecutor) {
         SqlExecutor sqlExecutor;
-        switch (sqlDialect) {
+        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
+        switch (schemaProperties.getSqlDialect()) {
             case MYSQL:
                 sqlExecutor = new MysqlSqlExecutor(connection, preparedSql);
                 break;
@@ -79,68 +76,40 @@ public class SqlExecutionFactory {
                 sqlExecutor = new OracleSqlExecutor(connection, preparedSql);
                 break;
             default:
-                throw new UnsupportedOperationException("Unsupported sql dialect: " + sqlDialect);
+                throw new UnsupportedOperationException("Unsupported sql dialect: " + schemaProperties.getSqlDialect());
         }
-        return doSqlExecutor.apply(sqlExecutor);
-    }
-
-    /*
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     * */
-    @SuppressWarnings("all")
-    private static void printPreparingSql(DMLType dmlType, String dataSourceName,
-                                          PreparedSql preparedSql,
-                                          Object applyResult, boolean beforeExecution) {
-        if (preparedSql == null) {
-            return;
-        }
-        //输出编译后的SQL
-        StringBuilder stringBuilder = new StringBuilder();
-        List<Object> params = preparedSql.getParams();
-        for (int i = 0; i < params.size(); i++) {
-            Object param = params.get(i);
-            stringBuilder.append(param).append("(").append(param.getClass().getSimpleName()).append(")");
-            if (i != params.size() - 1) {
-                stringBuilder.append(", ");
+        if (schemaProperties.isPrintSql()) {
+            //输出编译后的SQL
+            StringBuilder stringBuilder = new StringBuilder();
+            List<Object> params = preparedSql.getParams();
+            for (int i = 0; i < params.size(); i++) {
+                Object param = params.get(i);
+                stringBuilder.append(param).append("(").append(param.getClass().getSimpleName()).append(")");
+                if (i != params.size() - 1) {
+                    stringBuilder.append(", ");
+                }
+            }
+            log.debug("{} -->     Preparing: {}", dataSourceName, preparedSql.getSql());
+            log.debug("{} -->    Parameters: {}", dataSourceName, stringBuilder);
+            if (!isIntercepted) {
+                log.debug("{} -->       !!!!!! : SQL is intercepted.", dataSourceName);
             }
         }
-        log.debug("{} -->     Preparing: {}", dataSourceName, preparedSql.getSql());
-        log.debug("{} -->    Parameters: {}", dataSourceName, stringBuilder);
-        if (!beforeExecution) {
-            log.debug("{} -->       !!!!!! : SQL is intercepted.", dataSourceName);
-        }
-        if (dmlType == DMLType.SELECT) {
-            if (applyResult instanceof Collection) {
-                Collection collection = (Collection) applyResult;
-                log.debug("{} <--         Total: {}", dataSourceName, collection.size());
-            } else {
-                log.debug("{} <--     Returned: {}", dataSourceName, applyResult);
+        R applyResult = doSqlExecutor.apply(sqlExecutor);
+        if (schemaProperties.isPrintSql()) {
+            if (dmlType == DMLType.SELECT) {
+                if (applyResult instanceof Collection) {
+                    Collection collection = (Collection) applyResult;
+                    log.debug("{} <--         Total: {}", dataSourceName, collection.size());
+                } else {
+                    log.debug("{} <--     Returned: {}", dataSourceName, applyResult);
+                }
             }
-            return;
+            if (dmlType == DMLType.INSERT || dmlType == DMLType.UPDATE || dmlType == DMLType.DELETE) {
+                log.debug("{} <-- Affected Rows: {}", dataSourceName, applyResult);
+            }
         }
-        if (dmlType == DMLType.INSERT || dmlType == DMLType.UPDATE || dmlType == DMLType.DELETE) {
-            log.debug("{} <-- Affected Rows: {}", dataSourceName, applyResult);
-        }
+        return applyResult;
     }
 
 }
