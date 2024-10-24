@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.pengwz.dynamic.sql2.plugins.pagination.LocalPage.setCurrentPage;
-import static com.pengwz.dynamic.sql2.plugins.pagination.PageHelper.Pages.initPage;
 
 public class PageHelper {
     private static final Logger log = LoggerFactory.getLogger(PageHelper.class);
@@ -74,7 +73,7 @@ public class PageHelper {
             } else {
                 collectionPage = (CollectionPage<C, T>) cacheCollectionPage;
             }
-            initPage(collectionPage);
+            setCurrentPage(collectionPage);
             collectionPage.setRecords(selectSupplier);
             return collectionPage;
         }
@@ -102,7 +101,7 @@ public class PageHelper {
             } else {
                 mapPage = (MapPage<K, V, M>) cacheMapPage;
             }
-            initPage(mapPage);
+            setCurrentPage(mapPage);
             mapPage.setRecords(selectSupplier);
             return mapPage;
         }
@@ -130,18 +129,10 @@ public class PageHelper {
             } else {
                 pageInfo = (PageInfo<T>) cachePageInfo;
             }
-            initPage(pageInfo);
+            setCurrentPage(pageInfo);
             pageInfo.setRecords(selectSupplier);
             return pageInfo;
         }
     }
 
-    static class Pages {
-        private Pages() {
-        }
-
-        static void initPage(AbstractPage abstractPage) {
-            setCurrentPage(abstractPage);
-        }
-    }
 }
