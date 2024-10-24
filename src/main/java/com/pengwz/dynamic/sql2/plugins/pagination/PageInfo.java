@@ -13,9 +13,6 @@ public class PageInfo<C extends Collection<T>, T> extends AbstractPage {
         super(pageIndex, pageSize);
     }
 
-    protected void setRecords(C records) {
-        this.records = records;
-    }
 
     public C getRecords() {
         return records;
@@ -42,5 +39,21 @@ public class PageInfo<C extends Collection<T>, T> extends AbstractPage {
 
     public PageInfo<C, T> selectNextPage(Supplier<C> selectSupplier) {
         return PageHelper.of(getPageIndex() + 1, getPageSize()).selectPageInfo(selectSupplier);
+    }
+
+    protected void setRecords(C records) {
+        this.records = records;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("PageInfo{");
+        sb.append("pageIndex=").append(pageIndex);
+        sb.append(", pageSize=").append(pageSize);
+        sb.append(", total=").append(total);
+        sb.append(", totalPage=").append(totalPage);
+        sb.append(", records=").append(records);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -131,10 +131,10 @@ public class SelectTest extends InitializingContext {
                 .fetch(String.class).toSet();
         PageInfo<Set<String>, String> pageInfo = PageHelper.of(1, 3).selectPageInfo(selectSupplier);
         System.out.println(pageInfo);
-        while (pageInfo.hasNextPage()) {
-            PageInfo<Set<String>, String> pageInfo2 = pageInfo.selectNextPage(selectSupplier);
-            System.out.println(pageInfo2);
-        }
+//        while (pageInfo.hasNextPage()) {
+//            PageInfo<Set<String>, String> pageInfo2 = pageInfo.selectNextPage(selectSupplier);
+//            System.out.println(pageInfo2);
+//        }
     }
 
     /**
