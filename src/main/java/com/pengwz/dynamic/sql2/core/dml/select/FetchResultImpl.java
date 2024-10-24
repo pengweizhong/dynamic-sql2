@@ -1,6 +1,5 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
-import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
@@ -10,19 +9,17 @@ import com.pengwz.dynamic.sql2.utils.CollectionUtils;
 import com.pengwz.dynamic.sql2.utils.ConverterUtils;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unchecked")
 public class FetchResultImpl<R> extends AbstractFetchResult<R> {
-    private static final Logger log = LoggerFactory.getLogger(FetchResultImpl.class);
-    private Class<R> resultClass;
+
+    private final Class<R> resultClass;
 
     public FetchResultImpl(Class<R> returnClass, List<Map<String, Object>> wrapperList) {
         super(wrapperList);
@@ -31,7 +28,14 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
 
     @Override
     public R toOne() {
-        return null;
+        Collection<R> rs = convertToCollection(ArrayList::new);
+        if (rs.isEmpty()) {
+            return null;
+        }
+        if (rs.size() > 1) {
+            throw new IllegalStateException("Expected one result, but found: " + rs.size());
+        }
+        return rs.iterator().next();
     }
 
     @Override
@@ -45,11 +49,27 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
     }
 
     @Override
-    public <T1, T2, K, V, M extends Map<K, V>> M toMap(Fn<T1, K> fnKey, Fn<T2, V> fnValue, Supplier<M> mapSupplier) {
-        return null;
+    public <T, K, V, M extends Map<K, V>> Map<K, V> toMap(Function<T, ? extends K> keyMapper,
+                                                          Function<T, ? extends V> valueMapper,
+                                                          BinaryOperator<V> mergeFunction,
+                                                          Supplier<M> mapSupplier) {
+        if (wrapperList.isEmpty()) {
+            return mapSupplier.get();
+        }
+        Map<K, V> map = mapSupplier.get();
+        Collection<R> collection = convertToCollection(ArrayList::new);
+        for (R item : collection) {
+            T value = (T) item; // 将 Map 转换为 T 类型
+            K key = keyMapper.apply(value); // 计算键
+            V val = valueMapper.apply(value); // 计算值
+            // 如果 map 中已存在该键，使用 mergeFunction 处理值冲突
+            map.merge(key, val, mergeFunction);
+        }
+        return map;
     }
 
-    private Collection<R> convertToCollection(Supplier<? extends Collection<R>> listSupplier) {
+
+    private Collection<R> convertToCollection(Supplier<? extends Collection<R>> listSupplier) {//NOSONAR
         Collection<R> collection = listSupplier.get();
         if (CollectionUtils.isEmpty(wrapperList)) {
             return collection;
@@ -113,7 +133,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         if (columnMeta == null) {
             columnMeta = fieldNameMap.get(columnName);
         }
-        //将来实现自动移除未使用的列（自动优化查询）？？？
+        //TODO 将来实现自动移除未使用的列（自动优化查询）？？？
         if (columnMeta == null) {
             log.trace("Column '{}' was queried but not used.", columnName);
         }

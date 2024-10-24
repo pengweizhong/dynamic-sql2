@@ -12,8 +12,10 @@ import com.pengwz.dynamic.sql2.plugins.pagination.PageInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.bindAlias;
 
@@ -137,6 +139,43 @@ public class SelectTest extends InitializingContext {
             System.out.println(pageInfo.selectNextPage(selectSupplier));
         }
     }
+
+    @Test
+    void select4() {
+        List<ProductView> list = sqlContext.select()
+                .allColumn()
+                .from(Product.class)
+                .fetch(ProductView.class).toList();
+        list.stream().collect(Collectors.groupingBy(ProductView::getProductId));
+        System.out.println("======================================================");
+        System.out.println("======================================================");
+        System.out.println("======================================================");
+//        ProductView one = sqlContext.select()
+//                .allColumn()
+//                .from(Product.class)
+//                .fetch(ProductView.class).toOne();
+//        System.out.println(one);
+
+//        Integer one1 = sqlContext.select()
+//                .allColumn()
+//                .from(select -> select
+//                                .column(new Count(1))
+//                                .from(Product.class)
+//                        , "_name")
+//                .fetch(Integer.class).toOne();
+//        System.out.println(one1);
+        //return (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
+        Map<String, ProductView> map = sqlContext.select()
+                .allColumn()
+                .from(Product.class)
+                .fetch(ProductView.class).toMap(ProductView::getProductName, v -> v, (v1, v2) -> {
+                    System.out.println("V1 --> " + v1);
+                    System.out.println("V2 --> " + v2);
+                    return v1;
+                });
+        map.forEach((k, v) -> System.out.println("最终结果：" + k + " --> " + v));
+    }
+
 
     /**
      * <pre>

@@ -1,8 +1,8 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
-import com.pengwz.dynamic.sql2.core.Fn;
-
 import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -54,35 +54,51 @@ public interface FetchResult<R> {
     <S extends Set<R>> S toSet(Supplier<S> setSupplier);
 
     /**
-     * 将查询结果转换为一个 {@link Map} 映射。通过指定的键和值的函数，
-     * 根据查询结果中的字段构建键值对，默认使用{@link  HashMap}进行封装
+     * 将集合中的元素转换为一个 Map，键和值由指定的函数生成。
      *
-     * @param <T1>    用于生成键的对象类型
-     * @param <T2>    用于生成值的对象类型
-     * @param <K>     键的类型
-     * @param <V>     值的类型
-     * @param fnKey   生成映射中键的函数
-     * @param fnValue 生成映射中值的函数
-     * @return 由查询结果生成的 {@link Map}，如果没有匹配结果则返回空映射
+     * @param <T>         输入集合中元素的类型
+     * @param <K>         Map 中键的类型
+     * @param <V>         Map 中值的类型
+     * @param keyMapper   用于生成键的函数
+     * @param valueMapper 用于生成值的函数
+     * @return 返回一个包含映射结果的 Map，如果集合为空则返回空的 Map
      */
-    <T1, T2, K, V> Map<K, V> toMap(Fn<T1, K> fnKey, Fn<T2, V> fnValue);
+    <T, K, V> Map<K, V> toMap(Function<T, ? extends K> keyMapper,
+                              Function<T, ? extends V> valueMapper);
 
     /**
-     * 将查询结果转换为一个 {@link Map} 映射，使用指定的 {@link Supplier} 来创建映射实例。
+     * 将集合中的元素转换为一个 Map，键和值由指定的函数生成。
+     * 当遇到重复键时，使用提供的合并函数来合并值。
      *
-     * @param <T1>        用于生成键的对象类型
-     * @param <T2>        用于生成值的对象类型
-     * @param <K>         键的类型
-     * @param <V>         值的类型
-     * @param <M>         映射类型，与 {@code mapSupplier} 传入的类型一致
-     * @param fnKey       生成映射中键的函数
-     * @param fnValue     生成映射中值的函数
-     * @param mapSupplier 用于创建映射实例的 {@link Supplier}
-     * @return 由查询结果生成的 {@link Map}，如果没有匹配结果则返回空映射
+     * @param <T>           输入集合中元素的类型
+     * @param <K>           Map 中键的类型
+     * @param <V>           Map 中值的类型
+     * @param keyMapper     用于生成键的函数
+     * @param valueMapper   用于生成值的函数
+     * @param mergeFunction 用于处理重复键的合并函数
+     * @return 返回一个包含映射结果的 Map，如果集合为空则返回空的 Map
      */
-    <T1, T2, K, V, M extends Map<K, V>> M toMap(Fn<T1, K> fnKey, Fn<T2, V> fnValue, Supplier<M> mapSupplier);
+    <T, K, V> Map<K, V> toMap(Function<T, ? extends K> keyMapper,
+                              Function<T, ? extends V> valueMapper,
+                              BinaryOperator<V> mergeFunction);
 
-    //TODO 回头研究一下分组方法
-    //void toGroupingBy();
-
+    /**
+     * 将集合中的元素转换为一个 Map，键和值由指定的函数生成。
+     * 当遇到重复键时，使用提供的合并函数来合并值。
+     * 该方法允许用户自定义返回的 Map 类型。
+     *
+     * @param <T>           输入集合中元素的类型
+     * @param <K>           Map 中键的类型
+     * @param <V>           Map 中值的类型
+     * @param <M>           继承自 Map 的类型
+     * @param keyMapper     用于生成键的函数
+     * @param valueMapper   用于生成值的函数
+     * @param mergeFunction 用于处理重复键的合并函数
+     * @param mapSupplier   用于创建 Map 实例的供应商
+     * @return 返回一个包含映射结果的 Map，如果集合为空则返回由 mapSupplier 创建的 Map
+     */
+    <T, K, V, M extends Map<K, V>> Map<K, V> toMap(Function<T, ? extends K> keyMapper,
+                                                   Function<T, ? extends V> valueMapper,
+                                                   BinaryOperator<V> mergeFunction,
+                                                   Supplier<M> mapSupplier);
 }
