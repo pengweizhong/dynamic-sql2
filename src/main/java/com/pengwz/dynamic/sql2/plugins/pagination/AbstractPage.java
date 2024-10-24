@@ -1,5 +1,7 @@
 package com.pengwz.dynamic.sql2.plugins.pagination;
 
+import java.util.function.Supplier;
+
 public abstract class AbstractPage {
     //当前页码
     protected int pageIndex;
@@ -14,6 +16,8 @@ public abstract class AbstractPage {
         this.pageIndex = pageIndex;
         this.pageSize = pageSize;
     }
+
+    abstract void setRecords(Supplier<?> selectSupplier);
 
     public int getPageIndex() {
         return pageIndex;

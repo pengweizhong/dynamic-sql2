@@ -4,26 +4,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.pengwz.dynamic.sql2.plugins.pagination.LocalPage.setCurrentPage;
 
 public class PageHelper {
     private static final Logger log = LoggerFactory.getLogger(PageHelper.class);
-    final PageInfo<?, ?> pageInfo;
+    final AbstractPage page;
 
-    private PageHelper(int pageIndex, int pageSize) {
-        pageInfo = new PageInfo<>(pageIndex, pageSize);
-        setCurrentPage(pageInfo);
+    private PageHelper(Supplier<AbstractPage> supplier) {
+        page = supplier.get();
+        setCurrentPage(page);
     }
 
-    private PageHelper(PageInfo<?, ?> pageInfo) {
-        this.pageInfo = pageInfo;
-        setCurrentPage(pageInfo);
-    }
-
-    static <C extends Collection<T>, T> PageHelper of(PageInfo<C, T> pageInfo) {
-        return new PageHelper(pageInfo);
+    static PageHelper of(Supplier<AbstractPage> supplier) {
+        return new PageHelper(supplier);
     }
 
     /**
@@ -47,7 +43,20 @@ public class PageHelper {
         if (pageSize < 1) {
             throw new IllegalArgumentException("pageSize must be >= 1");
         }
-        return new PageHelper(pageIndex, pageSize);
+        final int pi = pageIndex;
+        return new PageHelper(() -> new PageInfo<>(pi, pageSize));
+    }
+
+    public static PageHelper ofMap(int pageIndex, int pageSize) {
+        if (pageIndex < 1) {
+            log.warn("Invalid pageIndex: {}, setting to 1", pageIndex);
+            pageIndex = 1;
+        }
+        if (pageSize < 1) {
+            throw new IllegalArgumentException("pageSize must be >= 1");
+        }
+        final int pi = pageIndex;
+        return new PageHelper(() -> new MapPage<>(pi, pageSize));
     }
 
 
@@ -61,9 +70,15 @@ public class PageHelper {
      */
     @SuppressWarnings("unchecked")
     public <C extends Collection<T>, T> PageInfo<C, T> selectPageInfo(Supplier<C> selectSupplier) {
-        PageInfo<C, T> page = (PageInfo<C, T>) pageInfo;
-        page.setRecords(selectSupplier.get());
-        return page;
+        page.setRecords(selectSupplier);
+        return (PageInfo<C, T>) page;
     }
+
+    @SuppressWarnings("unchecked")
+    public <K, V, M extends Map<K, V>> MapPage<K, V, M> selectMapPageInfo(Supplier<M> selectSupplier) {
+        page.setRecords(selectSupplier);
+        return (MapPage<K, V, M>) page;
+    }
+
 
 }

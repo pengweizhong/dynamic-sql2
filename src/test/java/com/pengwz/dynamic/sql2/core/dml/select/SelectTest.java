@@ -7,14 +7,13 @@ import com.pengwz.dynamic.sql2.core.column.function.table.JsonTable;
 import com.pengwz.dynamic.sql2.core.column.function.table.JsonTable.JsonColumn;
 import com.pengwz.dynamic.sql2.entites.*;
 import com.pengwz.dynamic.sql2.enums.SortOrder;
+import com.pengwz.dynamic.sql2.plugins.pagination.MapPage;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageHelper;
-import com.pengwz.dynamic.sql2.plugins.pagination.PageInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -129,17 +128,27 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void select3() {
-        Supplier<Set<ProductView>> selectSupplier = () -> sqlContext.select()
-//                .column(Product::getProductName)
+//        Supplier<Set<ProductView>> selectSupplier = () -> sqlContext.select()
+////                .column(Product::getProductName)
+//                .column(Product::getProductId)
+//                .from(Product.class)
+//                .fetch(ProductView.class).toSet();
+//        PageInfo<Set<ProductView>, ProductView> pageInfo = PageHelper.of(1, 3).selectPageInfo(selectSupplier);
+//        System.out.println(pageInfo);
+//        while (pageInfo.hasNextPage()) {
+//            System.out.println(pageInfo.hasPreviousPage());
+//            System.out.println(pageInfo.selectNextPage(selectSupplier));
+//        }
+        System.out.println("======================================================");
+        System.out.println("======================================================");
+        System.out.println("======================================================");
+        Supplier<Map<Integer, String>> selectSupplier2 = () -> sqlContext.select()
                 .column(Product::getProductId)
+                .column(Product::getProductName)
                 .from(Product.class)
-                .fetch(ProductView.class).toSet();
-        PageInfo<Set<ProductView>, ProductView> pageInfo = PageHelper.of(1, 3).selectPageInfo(selectSupplier);
-        System.out.println(pageInfo);
-        while (pageInfo.hasNextPage()) {
-            System.out.println(pageInfo.hasPreviousPage());
-            System.out.println(pageInfo.selectNextPage(selectSupplier));
-        }
+                .fetch(ProductView.class).toMap(ProductView::getProductId, ProductView::getProductName);
+        MapPage<Integer, String, Map<Integer, String>> page = PageHelper.ofMap(-100, 5).selectMapPageInfo(selectSupplier2);
+        System.out.println(page);
     }
 
     @Test

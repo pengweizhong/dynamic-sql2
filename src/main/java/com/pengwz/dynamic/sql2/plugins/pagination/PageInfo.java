@@ -13,6 +13,12 @@ public class PageInfo<C extends Collection<T>, T> extends AbstractPage {
         super(pageIndex, pageSize);
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    void setRecords(Supplier<?> selectSupplier) {
+        records = (C) selectSupplier.get();
+    }
+
     protected PageInfo(int pageIndex, int pageSize, long total) {
         super(pageIndex, pageSize);
         this.total = total;
@@ -54,7 +60,7 @@ public class PageInfo<C extends Collection<T>, T> extends AbstractPage {
      */
     public PageInfo<C, T> selectNextPage(Supplier<C> selectSupplier) {
         pageIndex++;
-        return PageHelper.of(this).selectPageInfo(selectSupplier);
+        return PageHelper.of(() -> this).selectPageInfo(selectSupplier);
     }
 
     protected void setRecords(C records) {
