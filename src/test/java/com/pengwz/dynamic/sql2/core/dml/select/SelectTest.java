@@ -10,6 +10,7 @@ import com.pengwz.dynamic.sql2.enums.SortOrder;
 import com.pengwz.dynamic.sql2.plugins.pagination.CollectionPage;
 import com.pengwz.dynamic.sql2.plugins.pagination.MapPage;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageHelper;
+import com.pengwz.dynamic.sql2.plugins.pagination.PageInfo;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
@@ -154,6 +155,29 @@ public class SelectTest extends InitializingContext {
         while (mapPage.hasNextPage()) {
             System.out.println(mapPage.hasPreviousPage());
             System.out.println(mapPage.selectNextPage(selectSupplier2));
+        }
+        System.out.println("======================================================");
+        System.out.println("======================================================");
+        System.out.println("======================================================");
+        //还是带需要构建一个通用的对象
+        Supplier<List<Product>> selectSupplier3 = () -> sqlContext.select()
+                .allColumn()
+                .from(Product.class)
+                .fetch().toList();
+        PageInfo<List<Product>> listPageInfo = PageHelper.of(1, 12).selectPage(selectSupplier3);
+        System.out.println(listPageInfo);
+        while (listPageInfo.hasNextPage()) {
+            System.out.println(listPageInfo.hasPreviousPage());
+            System.out.println(listPageInfo.selectNextPage(selectSupplier3));
+        }
+        System.out.println("======================================================");
+        System.out.println("======================================================");
+        System.out.println("======================================================");
+        PageInfo<Map<Integer, String>> mapPageInfo = PageHelper.of(1, 9).selectPage(selectSupplier2);
+        System.out.println(mapPageInfo);
+        while (mapPageInfo.hasNextPage()) {
+            System.out.println(mapPageInfo.hasPreviousPage());
+            System.out.println(mapPageInfo.selectNextPage(selectSupplier2));
         }
     }
 

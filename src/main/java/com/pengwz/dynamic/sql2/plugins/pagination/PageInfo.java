@@ -2,33 +2,37 @@ package com.pengwz.dynamic.sql2.plugins.pagination;
 
 import com.pengwz.dynamic.sql2.core.SqlContext;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class MapPage<K, V, M extends Map<K, V>> extends AbstractPage {
-    //分页结果
-    private M records;
+@SuppressWarnings("unchecked")
+public class PageInfo<T> extends AbstractPage {
+    private T records;
 
-    public MapPage(int pageIndex, int pageSize) {
+    protected PageInfo(int pageIndex, int pageSize) {
         super(pageIndex, pageSize);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     void setRecords(Supplier<?> selectSupplier) {
-        records = (M) selectSupplier.get();
+        records = (T) selectSupplier.get();
     }
 
-
-    public M getRecords() {
+    public T getRecords() {
         return records;
     }
 
     @Override
     public int getRealSize() {
-        return records.size();
+        if (records instanceof Collection) {
+            return ((Collection) records).size();
+        }
+        if (records instanceof Map) {
+            return ((Map) records).size();
+        }
+        return 0;
     }
-
 
     /**
      * 查询下一页的记录并返回 {@code MapPage} 对象。
@@ -41,14 +45,14 @@ public class MapPage<K, V, M extends Map<K, V>> extends AbstractPage {
      * @param selectSupplier 查询方法，来源于{@link SqlContext#select()}
      * @return 返回下一页的 {@code MapPage} 对象，包含更新后的分页信息和查询结果。
      */
-    public MapPage<K, V, M> selectNextPage(Supplier<M> selectSupplier) {
+    public PageInfo<T> selectNextPage(Supplier<T> selectSupplier) {
         pageIndex++;
-        return PageHelper.ofMap(this).selectPage(selectSupplier);
+        return PageHelper.of(this).selectPage(selectSupplier);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MapPage{");
+        final StringBuilder sb = new StringBuilder("PageInfo{");
         sb.append("pageIndex=").append(pageIndex);
         sb.append(", pageSize=").append(pageSize);
         sb.append(", realSize=").append(getRealSize());

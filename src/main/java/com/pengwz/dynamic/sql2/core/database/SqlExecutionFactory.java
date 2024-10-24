@@ -47,7 +47,7 @@ public class SqlExecutionFactory {
             try {
                 ConnectionHolder.releaseConnection(connection);
             } finally {
-                sqlInterceptorChain.afterExecution(preparedSql, exception);
+                sqlInterceptorChain.afterExecution(preparedSql, apply, exception);
             }
         }
         return apply;

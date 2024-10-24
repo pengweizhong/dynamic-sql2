@@ -3,9 +3,9 @@ package com.pengwz.dynamic.sql2.core.dml;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 
 public class SqlStatementWrapper {
-    private String dataSourceName;
-    private StringBuilder rawSql;
-    private ParameterBinder parameterBinder;
+    private final String dataSourceName;
+    private final StringBuilder rawSql;
+    private final ParameterBinder parameterBinder;
 
     public SqlStatementWrapper(String dataSourceName, StringBuilder rawSql, ParameterBinder parameterBinder) {
         this.dataSourceName = dataSourceName;

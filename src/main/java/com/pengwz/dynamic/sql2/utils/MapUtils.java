@@ -23,4 +23,12 @@ public class MapUtils {
         }
         return hashMap;
     }
+
+    public static <K, V> boolean isEmpty(Map<K, V> map) {
+        return map == null || map.isEmpty();
+    }
+
+    public static <K, V> boolean isNotEmpty(Map<K, V> map) {
+        return !isEmpty(map);
+    }
 }

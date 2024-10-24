@@ -13,11 +13,6 @@ public class CollectionPage<C extends Collection<T>, T> extends AbstractPage {
         super(pageIndex, pageSize);
     }
 
-    public CollectionPage(int pageIndex, int pageSize, Long total) {
-        super(pageIndex, pageSize);
-        this.total = total;
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     void setRecords(Supplier<?> selectSupplier) {
@@ -28,26 +23,13 @@ public class CollectionPage<C extends Collection<T>, T> extends AbstractPage {
         return records;
     }
 
+    @Override
     public int getRealSize() {
         return records.size();
     }
 
     /**
-     * 是否有上一页
-     */
-    public boolean hasPreviousPage() {
-        return getPageIndex() > 1;
-    }
-
-    /**
-     * 是否有下一页
-     */
-    public boolean hasNextPage() {
-        return getPageIndex() < totalPage;
-    }
-
-    /**
-     * 查询下一页的记录并返回 {@code PageInfo} 对象。
+     * 查询下一页的记录并返回 {@code CollectionPage} 对象。
      * <p>
      * 此方法会将当前的页码 {@code pageIndex} 自增 ，然后执行查询 {@code Supplier}
      * 获取下一页的数据。该方法在实现时优化了查询逻辑，避免了每次都进行总记录数的统计（count 查询），
@@ -55,22 +37,19 @@ public class CollectionPage<C extends Collection<T>, T> extends AbstractPage {
      * </p>
      *
      * @param selectSupplier 查询方法，来源于{@link SqlContext#select()}
-     * @return 返回下一页的 {@code PageInfo} 对象，包含更新后的分页信息和查询结果。
+     * @return 返回下一页的 {@code CollectionPage} 对象，包含更新后的分页信息和查询结果。
      */
     public CollectionPage<C, T> selectNextPage(Supplier<C> selectSupplier) {
         pageIndex++;
         return PageHelper.ofCollection(this).selectPage(selectSupplier);
     }
 
-    protected void setRecords(C records) {
-        this.records = records;
-    }
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PageInfo{");
+        final StringBuilder sb = new StringBuilder("CollectionPage{");
         sb.append("pageIndex=").append(pageIndex);
         sb.append(", pageSize=").append(pageSize);
+        sb.append(", realSize=").append(getRealSize());
         sb.append(", total=").append(total);
         sb.append(", totalPage=").append(totalPage);
         sb.append(", records=").append(records);

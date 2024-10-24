@@ -28,9 +28,10 @@ public interface SqlInterceptor {
      * 在 SQL 执行之后执行的逻辑。
      *
      * @param preparedSql 执行的 SQL 语句及其参数的预处理对象。
+     * @param applyResult sql执行后的对象
      * @param exception   执行过程中可能抛出的异常，如果没有异常则为 {@code null}。
      */
-    void afterExecution(PreparedSql preparedSql, Exception exception);
+    void afterExecution(PreparedSql preparedSql, Object applyResult, Exception exception);
 
     /**
      * 获取拦截器的执行顺序。

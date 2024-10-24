@@ -25,6 +25,15 @@ public class PageHelper {
         return new CollectionPageHelper(collectionPage);
     }
 
+    public static GeneralPageHelper of(int pageIndex, int pageSize) {
+        checkPageParams(pageIndex, pageSize);
+        return new GeneralPageHelper(pageIndex, pageSize);
+    }
+
+    static <T> GeneralPageHelper of(PageInfo<T> pageInfo) {
+        return new GeneralPageHelper(pageInfo);
+    }
+
     public static MapPageHelper ofMap(int pageIndex, int pageSize) {
         checkPageParams(pageIndex, pageSize);
         return new MapPageHelper(Math.max(pageIndex, 1), pageSize);
@@ -96,6 +105,34 @@ public class PageHelper {
             initPage(mapPage);
             mapPage.setRecords(selectSupplier);
             return mapPage;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static class GeneralPageHelper {
+        private int pageIndex;
+        private int pageSize;
+        private PageInfo<?> cachePageInfo;
+
+        private GeneralPageHelper(int pageIndex, int pageSize) {
+            this.pageIndex = pageIndex;
+            this.pageSize = pageSize;
+        }
+
+        private <T> GeneralPageHelper(PageInfo<T> pageInfo) {
+            this.cachePageInfo = pageInfo;
+        }
+
+        public <T> PageInfo<T> selectPage(Supplier<T> selectSupplier) {
+            PageInfo<T> pageInfo;
+            if (cachePageInfo == null) {
+                pageInfo = new PageInfo<>(pageIndex, pageSize);
+            } else {
+                pageInfo = (PageInfo<T>) cachePageInfo;
+            }
+            initPage(pageInfo);
+            pageInfo.setRecords(selectSupplier);
+            return pageInfo;
         }
     }
 

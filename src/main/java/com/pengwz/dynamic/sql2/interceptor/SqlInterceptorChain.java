@@ -55,10 +55,10 @@ public class SqlInterceptorChain implements SqlInterceptor {
     }
 
     @Override
-    public void afterExecution(PreparedSql preparedSql, Exception exception) {
+    public void afterExecution(PreparedSql preparedSql, Object applyResult, Exception exception) {
         // 依次执行每个拦截器的afterExecution方法
         for (SqlInterceptor interceptor : interceptors) {
-            interceptor.afterExecution(preparedSql, exception);
+            interceptor.afterExecution(preparedSql, applyResult, exception);
         }
     }
 

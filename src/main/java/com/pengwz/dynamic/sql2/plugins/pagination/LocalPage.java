@@ -1,10 +1,10 @@
 package com.pengwz.dynamic.sql2.plugins.pagination;
 
 class LocalPage {
+    private static final ThreadLocal<AbstractPage> LOCAL_CURRENT_PAGE = new ThreadLocal<>();//NOSONAR
+
     private LocalPage() {
     }
-
-    private static final ThreadLocal<AbstractPage> LOCAL_CURRENT_PAGE = new ThreadLocal<>();//NOSONAR
 
     public static AbstractPage getCurrentPage() {
         return LOCAL_CURRENT_PAGE.get();
