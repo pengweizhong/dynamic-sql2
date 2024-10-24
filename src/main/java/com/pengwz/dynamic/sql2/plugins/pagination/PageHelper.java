@@ -1,9 +1,10 @@
 package com.pengwz.dynamic.sql2.plugins.pagination;
 
-import com.pengwz.dynamic.sql2.interceptor.SqlInterceptorChain;
-
 import java.util.Collection;
 import java.util.function.Supplier;
+
+import static com.pengwz.dynamic.sql2.plugins.pagination.LocalPage.remove;
+import static com.pengwz.dynamic.sql2.plugins.pagination.LocalPage.setCurrentPage;
 
 public class PageHelper {
 
@@ -28,25 +29,14 @@ public class PageHelper {
     }
 
     public <C extends Collection<T>, T> PageInfo<C, T> selectPageInfo(Supplier<C> selectSupplier) {
-        PageInfo<C, T> pageInfo = new PageInfo<>(pageIndex, pageSize);
-        PageSqlInterceptor interceptor = getPageSqlInterceptor();
         try {
-            interceptor.setCurrentPage(pageInfo);
-            C apply = selectSupplier.get();
-            pageInfo.setRecords(apply);
+            PageInfo<C, T> pageInfo = new PageInfo<>(pageIndex, pageSize);
+            setCurrentPage(pageInfo);
+            pageInfo.setRecords(selectSupplier.get());
+            return pageInfo;
         } finally {
-            interceptor.removeCurrentPage();
+            remove();
         }
-        return pageInfo;
     }
 
-
-    private PageSqlInterceptor getPageSqlInterceptor() {
-        PageSqlInterceptor interceptor = (PageSqlInterceptor) SqlInterceptorChain.getInstance()
-                .getInterceptor(PageSqlInterceptor.class);
-        if (interceptor == null) {
-            throw new IllegalStateException("SQL paging plugin not found.");
-        }
-        return interceptor;
-    }
 }

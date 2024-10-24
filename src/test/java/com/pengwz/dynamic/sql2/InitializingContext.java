@@ -4,7 +4,7 @@ import com.pengwz.dynamic.sql2.context.SqlContextHelper;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
-import com.pengwz.dynamic.sql2.plugins.pagination.PageSqlInterceptor;
+import com.pengwz.dynamic.sql2.plugins.pagination.PaginationPlugin;
 import org.junit.jupiter.api.BeforeAll;
 
 public class InitializingContext {
@@ -23,7 +23,7 @@ public class InitializingContext {
         schemaProperties.setUseAsInQuery(true);
         schemaProperties.setPrintSql(true);
         sqlContextProperties.addSchemaProperties(schemaProperties);
-        sqlContextProperties.addInterceptor(new PageSqlInterceptor());
+        sqlContextProperties.addInterceptor(new PaginationPlugin());
 //        LogProperties.setInstance(new DefaultSqlLoggerTest());
         sqlContext = SqlContextHelper.createSqlContext(sqlContextProperties);
     }

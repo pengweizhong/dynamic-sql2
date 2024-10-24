@@ -12,8 +12,6 @@ import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.interceptor.SqlInterceptor;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,24 +19,20 @@ import java.sql.ResultSet;
 
 import static com.pengwz.dynamic.sql2.enums.SqlDialect.MYSQL;
 
-public class PageSqlInterceptor implements SqlInterceptor {
-    private static final Logger log = LoggerFactory.getLogger(PageSqlInterceptor.class);
-    private static final ThreadLocal<AbstractPage> CURRENT_PAGE = new ThreadLocal<>();
+public class PaginationPlugin implements SqlInterceptor {
+//    private static final Logger log = LoggerFactory.getLogger(PaginationPlugin.class);
 
     @Override
     public boolean beforeExecution(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
-        if (CURRENT_PAGE.get() == null) {
-            throw new IllegalArgumentException("Missing required paging parameters");
-        }
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName());
         SqlDialect sqlDialect = schemaProperties.getSqlDialect();
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:
-                doMysqlPage(sqlStatementWrapper, connection);
+                executeMysqlPaging(sqlStatementWrapper, connection);
                 break;
             case ORACLE:
-                doOraclePage(sqlStatementWrapper, connection);
+                executeOraclePaging(sqlStatementWrapper, connection);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported sql dialect: " + sqlDialect);
@@ -46,8 +40,8 @@ public class PageSqlInterceptor implements SqlInterceptor {
         return true;
     }
 
-    private void doMysqlPage(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
-        AbstractPage abstractPage = CURRENT_PAGE.get();
+    private void executeMysqlPaging(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
+        AbstractPage abstractPage = LocalPage.getCurrentPage();
         ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
         // 计算分页的偏移量 (pageIndex - 1) * pageSize
         int offset = (abstractPage.getPageIndex() - 1) * abstractPage.getPageSize();
@@ -77,7 +71,7 @@ public class PageSqlInterceptor implements SqlInterceptor {
 
     }
 
-    private void doOraclePage(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
+    private void executeOraclePaging(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
 
     }
 
@@ -87,16 +81,4 @@ public class PageSqlInterceptor implements SqlInterceptor {
 
     }
 
-    @Override
-    public int getOrder() {
-        return Integer.MIN_VALUE;
-    }
-
-    public void setCurrentPage(AbstractPage currentPage) {
-        CURRENT_PAGE.set(currentPage);
-    }
-
-    public void removeCurrentPage() {
-        CURRENT_PAGE.remove();
-    }
 }
