@@ -101,4 +101,14 @@ public interface FetchResult<R> {
                                                    Function<T, ? extends V> valueMapper,
                                                    BinaryOperator<V> mergeFunction,
                                                    Supplier<M> mapSupplier);
+
+    <T, K, C extends Collection<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper);
+
+    <T, K, C extends Collection<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper,
+                                                           Supplier<C> collectionSupplier);
+
+    <T, K, C extends Collection<T>, M extends Map<K, C>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper,
+                                                                                Supplier<C> collectionSupplier,
+                                                                                Supplier<M> mapSupplier);
+
 }

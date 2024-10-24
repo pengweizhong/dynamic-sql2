@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class AbstractFetchResult<R> implements FetchResult<R> {
     protected List<Map<String, Object>> wrapperList;
@@ -26,6 +27,7 @@ public abstract class AbstractFetchResult<R> implements FetchResult<R> {
         return this.toSet(HashSet::new);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T, K, V> Map<K, V> toMap(Function<T, ? extends K> keyMapper, Function<T, ? extends V> valueMapper) {
         return toMap(keyMapper, valueMapper, (u, v) -> {
@@ -41,5 +43,15 @@ public abstract class AbstractFetchResult<R> implements FetchResult<R> {
         return toMap(keyMapper, valueMapper, mergeFunction, HashMap::new);
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T, K, C extends Collection<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper) {
+        return toGroupingBy(keyMapper, () -> (C) new ArrayList<T>());
+    }
 
+    @Override
+    public <T, K, C extends Collection<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper,
+                                                                  Supplier<C> collectionSupplier) {
+        return toGroupingBy(keyMapper, collectionSupplier, HashMap::new);
+    }
 }

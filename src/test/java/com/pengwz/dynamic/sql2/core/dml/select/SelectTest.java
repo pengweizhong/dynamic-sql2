@@ -11,9 +11,11 @@ import com.pengwz.dynamic.sql2.plugins.pagination.PageHelper;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageInfo;
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -146,7 +148,7 @@ public class SelectTest extends InitializingContext {
                 .allColumn()
                 .from(Product.class)
                 .fetch(ProductView.class).toList();
-        list.stream().collect(Collectors.groupingBy(ProductView::getProductId));
+        Map<Integer, List<ProductView>> collect = list.stream().collect(Collectors.groupingBy(ProductView::getProductId));
         System.out.println("======================================================");
         System.out.println("======================================================");
         System.out.println("======================================================");
@@ -176,6 +178,18 @@ public class SelectTest extends InitializingContext {
         map.forEach((k, v) -> System.out.println("最终结果：" + k + " --> " + v));
     }
 
+    @Test
+    void select5() {
+        Map<String, LinkedList<ProductView>> groupingBy = sqlContext.select()
+                .allColumn()
+                .from(Product.class)
+                .fetch(ProductView.class)
+                .toGroupingBy(ProductView::getProductName, LinkedList::new, ConcurrentHashMap::new);
+        System.out.println(groupingBy.size());
+        groupingBy.forEach((k, v) -> {
+            System.out.println(k + " --> " + v);
+        });
+    }
 
     /**
      * <pre>

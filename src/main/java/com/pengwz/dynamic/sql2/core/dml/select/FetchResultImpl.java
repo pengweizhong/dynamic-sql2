@@ -68,6 +68,25 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         return map;
     }
 
+    @Override
+    public <T, K, C extends Collection<T>, M extends Map<K, C>> Map<K, C> toGroupingBy(
+            Function<T, ? extends K> keyMapper, Supplier<C> collectionSupplier, Supplier<M> mapSupplier) {
+        M map = mapSupplier.get();
+        if (wrapperList.isEmpty()) {
+            return map;
+        }
+        Collection<R> collection = convertToCollection((Supplier<? extends Collection<R>>) collectionSupplier);
+        for (R item : collection) {
+            T value = (T) item;
+            K key = keyMapper.apply(value);
+            // 获取或创建对应键的集合
+            C groupedCollection = map.computeIfAbsent(key, k -> collectionSupplier.get());
+            // 将当前值添加到集合中
+            groupedCollection.add(value);
+        }
+        return map;
+    }
+
 
     private Collection<R> convertToCollection(Supplier<? extends Collection<R>> listSupplier) {//NOSONAR
         Collection<R> collection = listSupplier.get();
