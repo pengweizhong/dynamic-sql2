@@ -15,6 +15,15 @@ public class PageHelper {
     private PageHelper() {
     }
 
+    public static GeneralPageHelper of(int pageIndex, int pageSize) {
+        checkPageParams(pageIndex, pageSize);
+        return new GeneralPageHelper(Math.max(pageIndex, 1), pageSize);
+    }
+
+    static <T> GeneralPageHelper of(PageInfo<T> pageInfo) {
+        return new GeneralPageHelper(pageInfo);
+    }
+
     public static CollectionPageHelper ofCollection(int pageIndex, int pageSize) {
         checkPageParams(pageIndex, pageSize);
         return new CollectionPageHelper(Math.max(pageIndex, 1), pageSize);
@@ -24,18 +33,13 @@ public class PageHelper {
         return new CollectionPageHelper(collectionPage);
     }
 
-    public static GeneralPageHelper of(int pageIndex, int pageSize) {
-        checkPageParams(pageIndex, pageSize);
-        return new GeneralPageHelper(pageIndex, pageSize);
-    }
-
-    static <T> GeneralPageHelper of(PageInfo<T> pageInfo) {
-        return new GeneralPageHelper(pageInfo);
-    }
-
     public static MapPageHelper ofMap(int pageIndex, int pageSize) {
         checkPageParams(pageIndex, pageSize);
         return new MapPageHelper(Math.max(pageIndex, 1), pageSize);
+    }
+
+    static <K, V, M extends Map<K, V>> MapPageHelper ofMap(MapPage<K, V, M> mapPage) {
+        return new MapPageHelper(mapPage);
     }
 
     private static void checkPageParams(int pageIndex, int pageSize) {
@@ -45,10 +49,6 @@ public class PageHelper {
         if (pageSize < 1) {
             throw new IllegalArgumentException("pageSize must be >= 1");
         }
-    }
-
-    static <K, V, M extends Map<K, V>> MapPageHelper ofMap(MapPage<K, V, M> mapPage) {
-        return new MapPageHelper(mapPage);
     }
 
     @SuppressWarnings("unchecked")

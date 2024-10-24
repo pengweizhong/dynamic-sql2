@@ -164,7 +164,7 @@ public class SelectTest extends InitializingContext {
                 .allColumn()
                 .from(Product.class)
                 .fetch().toList();
-        PageInfo<List<Product>> listPageInfo = PageHelper.of(1, 12).selectPage(selectSupplier3);
+        PageInfo<List<Product>> listPageInfo = PageHelper.of(-999, 12).selectPage(selectSupplier3);
         System.out.println(listPageInfo);
         while (listPageInfo.hasNextPage()) {
             System.out.println(listPageInfo.hasPreviousPage());
