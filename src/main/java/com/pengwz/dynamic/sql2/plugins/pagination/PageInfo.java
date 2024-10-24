@@ -46,7 +46,7 @@ public class PageInfo<C extends Collection<T>, T> extends AbstractPage {
      * <p>
      * 此方法会将当前的页码 {@code pageIndex} 自增 ，然后执行查询 {@code Supplier}
      * 获取下一页的数据。该方法在实现时优化了查询逻辑，避免了每次都进行总记录数的统计（count 查询），
-     * 适合用于已经获取过总记录数的场景，从而提高查询性能。
+     * 从而提高查询性能。
      * </p>
      *
      * @param selectSupplier 查询方法，来源于{@link SqlContext#select()}
