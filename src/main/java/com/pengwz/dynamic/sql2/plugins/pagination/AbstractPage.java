@@ -17,8 +17,6 @@ public abstract class AbstractPage {
         this.pageSize = pageSize;
     }
 
-    abstract void setRecords(Supplier<?> selectSupplier);
-
     public int getPageIndex() {
         return pageIndex;
     }
@@ -26,6 +24,12 @@ public abstract class AbstractPage {
     public int getPageSize() {
         return pageSize;
     }
+
+    abstract void setRecords(Supplier<?> selectSupplier);
+
+    public abstract boolean hasPreviousPage();
+
+    public abstract boolean hasNextPage();
 
     public long getTotal() {
         if (total == null) {

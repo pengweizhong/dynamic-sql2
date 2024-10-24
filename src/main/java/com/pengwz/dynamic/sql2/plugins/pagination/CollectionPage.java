@@ -5,12 +5,17 @@ import com.pengwz.dynamic.sql2.core.SqlContext;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-public class PageInfo<C extends Collection<T>, T> extends AbstractPage {
+public class CollectionPage<C extends Collection<T>, T> extends AbstractPage {
     //分页结果
     private C records;
 
-    public PageInfo(int pageIndex, int pageSize) {
+    public CollectionPage(int pageIndex, int pageSize) {
         super(pageIndex, pageSize);
+    }
+
+    public CollectionPage(int pageIndex, int pageSize, Long total) {
+        super(pageIndex, pageSize);
+        this.total = total;
     }
 
     @Override
@@ -18,12 +23,6 @@ public class PageInfo<C extends Collection<T>, T> extends AbstractPage {
     void setRecords(Supplier<?> selectSupplier) {
         records = (C) selectSupplier.get();
     }
-
-    protected PageInfo(int pageIndex, int pageSize, long total) {
-        super(pageIndex, pageSize);
-        this.total = total;
-    }
-
 
     public C getRecords() {
         return records;
@@ -58,9 +57,9 @@ public class PageInfo<C extends Collection<T>, T> extends AbstractPage {
      * @param selectSupplier 查询方法，来源于{@link SqlContext#select()}
      * @return 返回下一页的 {@code PageInfo} 对象，包含更新后的分页信息和查询结果。
      */
-    public PageInfo<C, T> selectNextPage(Supplier<C> selectSupplier) {
+    public CollectionPage<C, T> selectNextPage(Supplier<C> selectSupplier) {
         pageIndex++;
-        return PageHelper.of(() -> this).selectPageInfo(selectSupplier);
+        return PageHelper.ofCollection(this).selectPage(selectSupplier);
     }
 
     protected void setRecords(C records) {

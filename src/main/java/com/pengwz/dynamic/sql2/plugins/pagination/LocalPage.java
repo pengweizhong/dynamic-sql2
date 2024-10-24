@@ -7,11 +7,7 @@ class LocalPage {
     private static final ThreadLocal<AbstractPage> LOCAL_CURRENT_PAGE = new ThreadLocal<>();//NOSONAR
 
     public static AbstractPage getCurrentPage() {
-        AbstractPage abstractPage = LOCAL_CURRENT_PAGE.get();
-//        if (abstractPage == null) {
-//            throw new IllegalArgumentException("Missing required paging parameters");
-//        }
-        return abstractPage;
+        return LOCAL_CURRENT_PAGE.get();
     }
 
     public static void setCurrentPage(AbstractPage page) {
