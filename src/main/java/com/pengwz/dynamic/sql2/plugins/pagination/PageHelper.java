@@ -22,6 +22,10 @@ public class PageHelper {
         setCurrentPage(pageInfo);
     }
 
+    static <C extends Collection<T>, T> PageHelper of(PageInfo<C, T> pageInfo) {
+        return new PageHelper(pageInfo);
+    }
+
     /**
      * 创建一个新的 {@code PageHelper} 实例，并设置分页的页码和每页大小。
      * <p>
@@ -46,9 +50,6 @@ public class PageHelper {
         return new PageHelper(pageIndex, pageSize);
     }
 
-    static <C extends Collection<T>, T> PageHelper of(PageInfo<C, T> pageInfo) {
-        return new PageHelper(pageInfo);
-    }
 
     /**
      * 执行分页查询，并将查询结果设置到 {@code PageInfo} 对象中。

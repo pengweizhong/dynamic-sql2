@@ -12,19 +12,13 @@ import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DMLType;
 import com.pengwz.dynamic.sql2.interceptor.SqlInterceptorChain;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
-import java.util.Collection;
-import java.util.List;
 import java.util.function.Function;
 
 public class SqlExecutionFactory {
     private SqlExecutionFactory() {
     }
-
-    private static final Logger log = LoggerFactory.getLogger(SqlExecutionFactory.class);
 
     public static <R> R executorSql(DMLType dmlType,
                                     SqlStatementWrapper sqlStatementWrapper,
@@ -78,36 +72,13 @@ public class SqlExecutionFactory {
             default:
                 throw new UnsupportedOperationException("Unsupported sql dialect: " + schemaProperties.getSqlDialect());
         }
+
         if (schemaProperties.isPrintSql()) {
-            //输出编译后的SQL
-            StringBuilder stringBuilder = new StringBuilder();
-            List<Object> params = preparedSql.getParams();
-            for (int i = 0; i < params.size(); i++) {
-                Object param = params.get(i);
-                stringBuilder.append(param).append("(").append(param.getClass().getSimpleName()).append(")");
-                if (i != params.size() - 1) {
-                    stringBuilder.append(", ");
-                }
-            }
-            log.debug("{} -->     Preparing: {}", dataSourceName, preparedSql.getSql());
-            log.debug("{} -->    Parameters: {}", dataSourceName, stringBuilder);
-            if (!isIntercepted) {
-                log.debug("{} -->       !!!!!! : SQL is intercepted.", dataSourceName);
-            }
+            SqlDebugger.debug(preparedSql, dataSourceName, isIntercepted);
         }
         R applyResult = doSqlExecutor.apply(sqlExecutor);
         if (schemaProperties.isPrintSql()) {
-            if (dmlType == DMLType.SELECT) {
-                if (applyResult instanceof Collection) {
-                    Collection collection = (Collection) applyResult;
-                    log.debug("{} <--         Total: {}", dataSourceName, collection.size());
-                } else {
-                    log.debug("{} <--     Returned: {}", dataSourceName, applyResult);
-                }
-            }
-            if (dmlType == DMLType.INSERT || dmlType == DMLType.UPDATE || dmlType == DMLType.DELETE) {
-                log.debug("{} <-- Affected Rows: {}", dataSourceName, applyResult);
-            }
+            SqlDebugger.debug(dmlType, dataSourceName, applyResult);
         }
         return applyResult;
     }
