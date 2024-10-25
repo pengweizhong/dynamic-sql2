@@ -550,7 +550,7 @@ public class GenericWhereCondition extends WhereSelectCondition {
     public <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
-                .append(" < ").append(parameterBinder.registerValueWithKey(fn, value));
+                .append(" > ").append(parameterBinder.registerValueWithKey(fn, value));
         return this;
     }
 
@@ -571,7 +571,10 @@ public class GenericWhereCondition extends WhereSelectCondition {
 
     @Override
     public <T, F> Condition orGreaterThanOrEqualTo(Fn<T, F> fn, Object value) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(name)
+                .append(" <= ").append(parameterBinder.registerValueWithKey(fn, value));
+        return this;
     }
 
     @Override
@@ -581,7 +584,10 @@ public class GenericWhereCondition extends WhereSelectCondition {
 
     @Override
     public <T, F> Condition andLessThan(Fn<T, F> fn, Object value) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(name)
+                .append(" < ").append(parameterBinder.registerValueWithKey(fn, value));
+        return this;
     }
 
     @Override
