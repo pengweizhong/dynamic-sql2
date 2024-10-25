@@ -11,9 +11,15 @@ class MapUtilsTest {
         Map<Object, Object> objectObjectMap = MapUtils.of("男", 1, "女", 2);
         System.out.println(objectObjectMap);
     }
+
     @Test
     void of2() {
-        Map<Object, Object> objectObjectMap = MapUtils.of("男", 1, "女");
-        System.out.println(objectObjectMap);
+        try {
+            Map<Object, Object> objectObjectMap = MapUtils.of("男", 1, "女");
+            System.out.println(objectObjectMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

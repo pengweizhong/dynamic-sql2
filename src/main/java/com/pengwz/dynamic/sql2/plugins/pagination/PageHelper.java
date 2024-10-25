@@ -170,7 +170,10 @@ public class PageHelper {
 
     static void executeQuery(AbstractPage abstractPage, Supplier<?> selectSupplier) {
         setCurrentPage(abstractPage);
-        abstractPage.setRecords(selectSupplier);
-        clearCurrentPage();
+        try {
+            abstractPage.setRecords(selectSupplier);
+        } finally {
+            clearCurrentPage();
+        }
     }
 }

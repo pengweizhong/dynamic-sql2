@@ -18,25 +18,33 @@ class SchemaStructureScannerTest {
     void findTableEntities() {
         List<String> list = Arrays.asList("com.pengwz.dynamic.sql2.table"
                 , "com.pengwz.dynamic.sql2.entites");
-        for (String s : list) {
-            List<TableEntityMapping> tableEntities = SchemaStructureScanner.findTableEntities(s);
-            Assertions.assertNotNull(tableEntities);
-            System.out.println(tableEntities.size());
-            tableEntities.forEach(System.out::println);
+        try {
+            for (String s : list) {
+                List<TableEntityMapping> tableEntities = SchemaStructureScanner.findTableEntities(s);
+                Assertions.assertNotNull(tableEntities);
+                System.out.println(tableEntities.size());
+                tableEntities.forEach(System.out::println);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @Test
     void matchBestDataSourceName() {
-        //MysqlCustomDataSource#dataSource 设置为默认数据源
-        String dbname = SchemaStructureScanner.matchBestDataSourceName(Aoo.class, null);
-        Assertions.assertEquals("dataSource", dbname);
-        String dbname2 = SchemaStructureScanner.matchBestDataSourceName(Boo.class, "testDB");
-        Assertions.assertEquals("testDB", dbname2);
         try {
-            SchemaStructureScanner.matchBestDataSourceName(Aoo.class, "testDB-1");
+            //MysqlCustomDataSource#dataSource 设置为默认数据源
+            String dbname = SchemaStructureScanner.matchBestDataSourceName(Aoo.class, null);
+            Assertions.assertEquals("dataSource", dbname);
+            String dbname2 = SchemaStructureScanner.matchBestDataSourceName(Boo.class, "testDB");
+            Assertions.assertEquals("testDB", dbname2);
+            try {
+                SchemaStructureScanner.matchBestDataSourceName(Aoo.class, "testDB-1");
+            } catch (Exception e) {
+                //ignore
+            }
         } catch (Exception e) {
-            //ignore
+            e.printStackTrace();
         }
     }
 

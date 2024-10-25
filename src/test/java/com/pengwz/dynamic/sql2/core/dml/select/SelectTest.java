@@ -12,8 +12,13 @@ import com.pengwz.dynamic.sql2.plugins.pagination.MapPage;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageHelper;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageInfo;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -21,6 +26,17 @@ import java.util.stream.Collectors;
 import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.bindAlias;
 
 public class SelectTest extends InitializingContext {
+    private static final Logger log = LoggerFactory.getLogger(SelectTest.class);
+
+    @Test
+    void testLog() {
+        log.trace("这是trace日志");
+        log.debug("这是debug日志");
+        log.info("这是info日志");
+        log.warn("这是warn日志");
+        log.error("这是error日志");
+    }
+
     /**
      * 从多个表中提取用户及其订单相关的信息，包括用户的总花费、订单数量、所购买的产品及其分类等
      * <p/>
