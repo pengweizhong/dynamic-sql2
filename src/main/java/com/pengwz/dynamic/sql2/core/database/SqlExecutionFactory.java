@@ -38,7 +38,9 @@ public class SqlExecutionFactory {
             boolean beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper, connection);
             preparedSql = SqlUtils.parsePreparedObject(rawSql, parameterBinder);
             if (beforeExecution) {
-                apply = applySql(dmlType, dataSourceName, connection, preparedSql, beforeExecution, doSqlExecutor);
+                apply = applySql(dmlType, dataSourceName, connection, preparedSql, true, doSqlExecutor);
+            } else {
+                apply = sqlInterceptorChain.retrieveSkippedResult(sqlStatementWrapper, connection);
             }
         } catch (Exception e) {
             exception = e;
