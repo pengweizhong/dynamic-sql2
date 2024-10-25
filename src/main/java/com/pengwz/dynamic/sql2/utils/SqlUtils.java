@@ -7,7 +7,6 @@ import com.pengwz.dynamic.sql2.core.GroupFn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
 import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.TableAliasImpl;
-import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
@@ -332,16 +331,17 @@ public class SqlUtils {
         }
     }
 
-    public static WhereCondition matchDialectCondition(SqlDialect sqlDialect, Version version,
-                                                       Map<String, String> aliasTableMap, String dataSourceName) {
+    @SuppressWarnings("unchecked")
+    public static <T extends WhereSelectCondition> T matchDialectCondition(SqlDialect sqlDialect, Version version,
+                                                                           Map<String, String> aliasTableMap, String dataSourceName) {
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:
-                return new MysqlWhereCondition(version, aliasTableMap, dataSourceName);
+                return (T) new MysqlWhereCondition(version, aliasTableMap, dataSourceName);
             case ORACLE:
-                return new OracleWhereCondition(version, aliasTableMap, dataSourceName);
+                return (T) new OracleWhereCondition(version, aliasTableMap, dataSourceName);
             default:
-                return new GenericWhereCondition(version, aliasTableMap, dataSourceName);
+                return (T) new GenericWhereCondition(version, aliasTableMap, dataSourceName);
         }
     }
 

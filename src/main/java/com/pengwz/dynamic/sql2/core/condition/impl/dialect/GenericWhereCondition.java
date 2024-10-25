@@ -7,10 +7,10 @@ import com.pengwz.dynamic.sql2.core.column.function.aggregate.AggregateFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.FunctionCondition;
 import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
-import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementSelectWrapper;
+import com.pengwz.dynamic.sql2.core.dml.select.build.WhereSelectCondition;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.AND;
 import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.OR;
 
-public class GenericWhereCondition implements WhereCondition {
+public class GenericWhereCondition extends WhereSelectCondition {
     private final Version version;
     private final Map<String, String> aliasTableMap;
     private final StringBuilder condition = new StringBuilder();
@@ -402,7 +402,7 @@ public class GenericWhereCondition implements WhereCondition {
     }
 
     private Condition nestedCondition(Consumer<Condition> nestedCondition, LogicalOperatorType logicalOperatorType) {
-        WhereCondition whereCondition = SqlUtils.matchDialectCondition(matchSqlDialect(), version, aliasTableMap, dataSourceName);
+        MysqlWhereCondition whereCondition = SqlUtils.matchDialectCondition(matchSqlDialect(), version, aliasTableMap, dataSourceName);
         nestedCondition.accept(whereCondition);
         condition.append(" ").append(logicalOperatorType(logicalOperatorType))
                 .append(" (").append(whereCondition.getWhereConditionSyntax()).append(") ");

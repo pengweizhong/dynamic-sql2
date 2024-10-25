@@ -1,11 +1,10 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
-import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.JoinTable;
+import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.function.Consumer;
 public class SelectSpecification {
     private List<ColumnQuery> columFunctions = new ArrayList<>();
     private List<JoinTable> joinTables = new ArrayList<>();
-    private Consumer<WhereCondition> whereCondition;
+    private Consumer<WhereSelectCondition> whereCondition;
     private List<Fn<?, ?>> groupByFields;
     private Consumer<HavingCondition> havingCondition;
     private List<OrderBy> orderBys;
@@ -35,11 +34,11 @@ public class SelectSpecification {
         return groupByFields;
     }
 
-    public Consumer<WhereCondition> getWhereCondition() {
+    public Consumer<WhereSelectCondition> getWhereCondition() {
         return whereCondition;
     }
 
-    public void setWhereCondition(Consumer<WhereCondition> whereCondition) {
+    public void setWhereCondition(Consumer<WhereSelectCondition> whereCondition) {
         this.whereCondition = whereCondition;
     }
 

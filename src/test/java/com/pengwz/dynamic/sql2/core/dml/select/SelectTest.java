@@ -176,6 +176,7 @@ public class SelectTest extends InitializingContext {
         Supplier<List<Product>> selectSupplier3 = () -> sqlContext.select()
                 .allColumn()
                 .from(Product.class)
+                .where()
                 .fetch().toList();
         PageInfo<List<Product>> listPageInfo = PageHelper.of(-999, 12).selectPage(selectSupplier3);
         System.out.println(listPageInfo);

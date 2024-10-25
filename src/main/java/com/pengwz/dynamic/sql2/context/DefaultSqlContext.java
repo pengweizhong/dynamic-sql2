@@ -2,11 +2,11 @@ package com.pengwz.dynamic.sql2.context;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.SqlContext;
-import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.delete.Delete;
 import com.pengwz.dynamic.sql2.core.dml.insert.Insert;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
+import com.pengwz.dynamic.sql2.core.dml.select.build.WhereSelectCondition;
 import com.pengwz.dynamic.sql2.core.dml.update.Update;
 
 import java.util.Collection;
@@ -23,7 +23,7 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition) {
+    public <T> int delete(Class<T> entityClass, Consumer<WhereSelectCondition> condition) {
         return new Delete().delete(entityClass, condition);
     }
 
@@ -63,12 +63,12 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> int update(T data, Consumer<WhereCondition> condition) {
+    public <T> int update(T data, Consumer<WhereSelectCondition> condition) {
         return new Update().update(data, condition);
     }
 
     @Override
-    public <T> int updateSelective(T entity, Consumer<WhereCondition> condition) {
+    public <T> int updateSelective(T entity, Consumer<WhereSelectCondition> condition) {
         return new Update().updateSelective(entity, condition);
     }
 
@@ -78,7 +78,7 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T, F> int updateSelective(T entity, Collection<Fn<T, F>> forcedFields, Consumer<WhereCondition> condition) {
+    public <T, F> int updateSelective(T entity, Collection<Fn<T, F>> forcedFields, Consumer<WhereSelectCondition> condition) {
         return new Update().updateSelective(entity, forcedFields, condition);
     }
 

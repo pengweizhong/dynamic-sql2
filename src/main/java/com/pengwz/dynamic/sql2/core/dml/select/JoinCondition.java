@@ -2,7 +2,7 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
-import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.build.WhereSelectCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 
 import java.util.function.Consumer;
@@ -221,7 +221,7 @@ public interface JoinCondition extends Fetchable {
      * @param condition 用于构建 where 条件的 {@link Consumer} 对象。
      * @return 返回表连接的实例
      */
-    TableRelation<?> where(Consumer<WhereCondition> condition);//NOSONAR
+    TableRelation<?> where(Consumer<WhereSelectCondition> condition);//NOSONAR
 
     /**
      * 限制查询结果的返回行数
