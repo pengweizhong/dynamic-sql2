@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings("all")
 public class PageInfo<T> extends AbstractPage {
     private T records;
 
@@ -31,7 +31,7 @@ public class PageInfo<T> extends AbstractPage {
         if (records instanceof Map) {
             return ((Map) records).size();
         }
-        return 0;
+        throw new IllegalStateException("Unsupported records type: " + records.getClass().getCanonicalName());
     }
 
     /**
