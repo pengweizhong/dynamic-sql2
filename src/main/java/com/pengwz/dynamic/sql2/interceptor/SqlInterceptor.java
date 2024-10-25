@@ -25,12 +25,12 @@ public interface SqlInterceptor {
     boolean beforeExecution(SqlStatementWrapper sqlStatementWrapper, Connection connection);
 
     /**
-     * 当 {@code beforeExecution} 返回 {@code false} 时调用，允许获取跳过数据库交互的结果。
+     * 当 {@code beforeExecution} 返回 {@code false} 时调用，返回跳过数据库交互的结果。
      *
      * @param sqlStatementWrapper SQL 语句包装对象，包含原始 SQL 及其参数。
      * @param connection          可用数据库连接
      * @param <R>                 返回结果的类型。
-     * @return 允许返回任意兼容的对象类型，比如可以返回缓存的查询结果或其他合适的对象。
+     * @return 允许返回任意兼容的对象类型
      */
     default <R> R retrieveSkippedResult(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
         return null;

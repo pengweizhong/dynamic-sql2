@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class SqlInterceptorChain implements SqlInterceptor {
             return;
         }
         this.interceptors.add(interceptor);
-        Collections.sort(this.interceptors, Comparator.comparingInt(SqlInterceptor::getOrder));
+        this.interceptors.sort(Comparator.comparingInt(SqlInterceptor::getOrder));
     }
 
     @Override
@@ -46,12 +45,28 @@ public class SqlInterceptorChain implements SqlInterceptor {
             // 如果某个拦截器返回false，直接中断链条
             boolean proceed = interceptor.beforeExecution(sqlStatementWrapper, connection);
             if (!proceed) {
-                log.trace("The SQL interceptor link interrupts execution, located at: {}", interceptor.getClass().getCanonicalName());
+                log.trace("The SQL interceptor link interrupts execution, located at: {}#{}",
+                        interceptor.getClass().getSimpleName(), "beforeExecution(sqlStatementWrapper, connection)");
                 return false;
             }
         }
         // 只有所有拦截器都通过时，才返回true
         return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <R> R retrieveSkippedResult(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
+        for (SqlInterceptor interceptor : interceptors) {
+            Object skippedResult = interceptor.retrieveSkippedResult(sqlStatementWrapper, connection);
+            // 如果某个拦截器返回了结果，直接中断链条
+            if (skippedResult != null) {
+                log.trace("The SQL interceptor link interrupts execution, located at: {}#{}",
+                        interceptor.getClass().getSimpleName(), "retrieveSkippedResult(sqlStatementWrapper, connection)");
+                return (R) skippedResult;
+            }
+        }
+        return null;
     }
 
     @Override

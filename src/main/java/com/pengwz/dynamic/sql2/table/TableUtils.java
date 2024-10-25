@@ -202,7 +202,7 @@ public class TableUtils {
         }
         //检测字段是否为基本类型
         if (log.isDebugEnabled() && field.getType().isPrimitive()) {
-            log.debug("It is not recommended that the field type be a basic type," +
+            log.warn("It is not recommended that the field type be a basic type," +
                             " because the basic type is not equal to null at any time. Field position: {}#{}",
                     entityClass.getName(), field.getName());
         }
