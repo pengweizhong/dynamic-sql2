@@ -4,7 +4,6 @@ import com.pengwz.dynamic.sql2.context.SqlContextHelper;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
-import com.pengwz.dynamic.sql2.datasource.DataSourceUtils;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageInterceptorPlugin;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
@@ -12,16 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class InitializingContext {
     protected static SqlContext sqlContext;
-    private static final Logger log = LoggerFactory.getLogger(DataSourceUtils.class);
-
-    static {
-        log.info("初始化日志配置");
-        System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
-        System.setProperty("org.slf4j.simpleLogger.logFile", "System.out");
-        System.setProperty("org.slf4j.simpleLogger.showDateTime", "true");
-        System.setProperty("org.slf4j.simpleLogger.dateTimeFormat", "yyyy-MM-dd HH:mm:ss");
-        log.info("初始化日志配置完成");
-    }
+    private static final Logger log = LoggerFactory.getLogger(InitializingContext.class);
 
     @BeforeAll
     static void setUp() {
