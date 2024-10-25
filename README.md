@@ -170,8 +170,35 @@
                 .fetch().toOne();
         System.out.println(percentage);
     }
-    
-}
+
+   /**
+    * 构建分页查询
+    */
+   @Test
+   void select2() {
+      //提取查询方法可以重复利用
+      Supplier<List<Product>> selectSupplier = () -> sqlContext.select()
+              .allColumn()
+              .from(Product.class)
+              .fetch().toList();
+      //List 分页
+      PageInfo<List<Product>> listPageInfo = PageHelper.of(1, 12).selectPage(selectSupplier);
+      System.out.println(listPageInfo);
+      while (listPageInfo.hasNextPage()) {
+         System.out.println(listPageInfo.hasPreviousPage());
+         System.out.println(listPageInfo.selectNextPage(selectSupplier));
+      }
+      System.out.println("======================================================");
+      //Map 分页
+      PageInfo<Map<Integer, String>> mapPageInfo = PageHelper.of(1, 9)
+              .selectPage(() -> sqlContext.select()
+                      .column(Product::getProductId)
+                      .column(Product::getProductName)
+                      .from(Product.class)
+                      .fetch(ProductView.class).toMap(ProductView::getProductId, ProductView::getProductName));
+      System.out.println(mapPageInfo);
+   }
+
 ```
 # 开源支持
 
