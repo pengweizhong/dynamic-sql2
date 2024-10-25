@@ -2,15 +2,12 @@ package com.pengwz.dynamic.sql2.context;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.SqlContext;
-import com.pengwz.dynamic.sql2.core.dml.delete.Delete;
-import com.pengwz.dynamic.sql2.core.dml.insert.Insert;
+import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
+import com.pengwz.dynamic.sql2.core.dml.insert.impl.EntitiesInserter;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
-import com.pengwz.dynamic.sql2.core.dml.select.build.WhereSelectCondition;
-import com.pengwz.dynamic.sql2.core.dml.update.Update;
 
 import java.util.Collection;
-import java.util.function.Consumer;
 
 
 public class DefaultSqlContext implements SqlContext {
@@ -23,73 +20,24 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> int delete(Class<T> entityClass, Consumer<WhereSelectCondition> condition) {
-        return new Delete().delete(entityClass, condition);
-    }
-
-    @Override
-    public <T> int deleteByPrimaryKey(Class<T> entityClass, Object key) {
-        return new Delete().deleteByPrimaryKey(entityClass, key);
-    }
-
-    @Override
     public <T> int insertSelective(T entity) {
-        return new Insert().insertSelective(entity);
+        return new EntitiesInserter(entity).wrapperInsert(InsertHandler::insertSelective);
     }
 
     @Override
     public <T, F> int insertSelective(T entity, Collection<Fn<T, F>> forcedFields) {
-        return new Insert().insertSelective(entity, forcedFields);
+        return 0;
     }
 
     @Override
     public <T> int insert(T entity) {
-        return new Insert().insert(entity);
+        return 0;
     }
 
     @Override
     public <T> int batchInsert(Collection<T> entities) {
-        return new Insert().batchInsert(entities);
+        return 0;
     }
 
-    @Override
-    public <T> int upsert(T entity) {
-        return new Insert().upsert(entity);
-    }
-
-    @Override
-    public <T> int batchUpsert(Collection<T> entities) {
-        return new Insert().batchUpsert(entities);
-    }
-
-    @Override
-    public <T> int update(T data, Consumer<WhereSelectCondition> condition) {
-        return new Update().update(data, condition);
-    }
-
-    @Override
-    public <T> int updateSelective(T entity, Consumer<WhereSelectCondition> condition) {
-        return new Update().updateSelective(entity, condition);
-    }
-
-    @Override
-    public <T, F> int updateSelective(T entity, Collection<Fn<T, F>> forcedFields) {
-        return new Update().updateSelective(entity, forcedFields);
-    }
-
-    @Override
-    public <T, F> int updateSelective(T entity, Collection<Fn<T, F>> forcedFields, Consumer<WhereSelectCondition> condition) {
-        return new Update().updateSelective(entity, forcedFields, condition);
-    }
-
-    @Override
-    public <T> int updateByPrimaryKey(T entity) {
-        return new Update().updateByPrimaryKey(entity);
-    }
-
-    @Override
-    public <T> int updateSelectiveByPrimaryKey(T entity) {
-        return new Update().updateSelectiveByPrimaryKey(entity);
-    }
 
 }

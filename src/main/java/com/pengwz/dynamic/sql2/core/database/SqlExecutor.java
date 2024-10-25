@@ -1,13 +1,8 @@
 package com.pengwz.dynamic.sql2.core.database;
 
-import java.util.List;
-import java.util.Map;
+import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
+import com.pengwz.dynamic.sql2.core.dml.select.QueryHandler;
 
-public interface SqlExecutor {
+public interface SqlExecutor extends QueryHandler, InsertHandler {
 
-    List<Map<String, Object>> executeQuery();
-
-//    int executeUpdate(String sql);
-//
-//    void execute(String sql);
 }

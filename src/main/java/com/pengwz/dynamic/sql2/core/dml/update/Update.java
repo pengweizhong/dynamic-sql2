@@ -38,4 +38,7 @@ public class Update implements DataUpdater {
     public <T> int updateSelectiveByPrimaryKey(T entity) {
         return 0;
     }
+    //    int upsert();
+    //
+    //    int batchUpsert();
 }
