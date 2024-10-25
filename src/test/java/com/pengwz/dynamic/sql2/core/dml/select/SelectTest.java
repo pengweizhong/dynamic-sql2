@@ -13,10 +13,7 @@ import com.pengwz.dynamic.sql2.plugins.pagination.PageHelper;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageInfo;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -189,6 +186,14 @@ public class SelectTest extends InitializingContext {
                 .fetch(ProductView.class).toList();
         Map<String, List<ProductView>> collect = list.stream().collect(Collectors.groupingBy(ProductView::getProductName));
         collect.forEach((k, v) -> System.out.println("最终结果：" + k + " --> " + v));
+        System.out.println("======================================================");
+        System.out.println("======================================================");
+        System.out.println("======================================================");
+        Map<String, List<ProductView>> groupingBy = sqlContext.select()
+                .allColumn()
+                .from(Product.class)
+                .fetch(ProductView.class).toGroupingBy(ProductView::getProductName);
+        groupingBy.forEach((k, v) -> System.out.println("最终结果：" + k + " --> " + v));
         System.out.println("======================================================");
         System.out.println("======================================================");
         System.out.println("======================================================");

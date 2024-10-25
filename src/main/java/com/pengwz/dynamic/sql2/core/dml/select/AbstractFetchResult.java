@@ -45,7 +45,7 @@ public abstract class AbstractFetchResult<R> implements FetchResult<R> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T, K, C extends Collection<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper) {
+    public <T, K, C extends List<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper) {
         return toGroupingBy(keyMapper, () -> (C) new ArrayList<T>());
     }
 

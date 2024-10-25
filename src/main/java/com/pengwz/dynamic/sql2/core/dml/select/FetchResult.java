@@ -112,7 +112,7 @@ public interface FetchResult<R> {
      * @param keyMapper 用于计算分组键的函数
      * @return 一个以分组键为键，以分组后的集合为值的 Map
      */
-    <T, K, C extends Collection<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper);
+    <T, K, C extends List<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper);
 
     /**
      * 根据给定的键映射函数和集合生成器，将集合中的元素分组，并返回一个键值对的映射。
