@@ -187,7 +187,8 @@ public class SelectTest extends InitializingContext {
                 .allColumn()
                 .from(Product.class)
                 .fetch(ProductView.class).toList();
-        Map<Integer, List<ProductView>> collect = list.stream().collect(Collectors.groupingBy(ProductView::getProductId));
+        Map<String, List<ProductView>> collect = list.stream().collect(Collectors.groupingBy(ProductView::getProductName));
+        collect.forEach((k, v) -> System.out.println("最终结果：" + k + " --> " + v));
         System.out.println("======================================================");
         System.out.println("======================================================");
         System.out.println("======================================================");

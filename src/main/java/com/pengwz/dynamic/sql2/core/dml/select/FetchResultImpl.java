@@ -53,42 +53,16 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
                                                           Function<T, ? extends V> valueMapper,
                                                           BinaryOperator<V> mergeFunction,
                                                           Supplier<M> mapSupplier) {
-        if (wrapperList.isEmpty()) {
-            return mapSupplier.get();
-        }
-        Map<K, V> map = mapSupplier.get();
-        Collection<R> collection = convertToCollection(ArrayList::new);
-        for (R item : collection) {
-            T value = (T) item; // 将 Map 转换为 T 类型
-            K key = keyMapper.apply(value); // 计算键
-            V val = valueMapper.apply(value); // 计算值
-            // 如果 map 中已存在该键，使用 mergeFunction 处理值冲突
-            map.merge(key, val, mergeFunction);
-        }
-        return map;
+        return convertToMap(keyMapper, valueMapper, mergeFunction, mapSupplier);
     }
 
     @Override
     public <T, K, C extends Collection<T>, M extends Map<K, C>> Map<K, C> toGroupingBy(
             Function<T, ? extends K> keyMapper, Supplier<C> collectionSupplier, Supplier<M> mapSupplier) {
-        M map = mapSupplier.get();
-        if (wrapperList.isEmpty()) {
-            return map;
-        }
-        Collection<R> collection = convertToCollection((Supplier<? extends Collection<R>>) collectionSupplier);
-        for (R item : collection) {
-            T value = (T) item;
-            K key = keyMapper.apply(value);
-            // 获取或创建对应键的集合
-            C groupedCollection = map.computeIfAbsent(key, k -> collectionSupplier.get());
-            // 将当前值添加到集合中
-            groupedCollection.add(value);
-        }
-        return map;
+        return convertToGroupingBy(keyMapper, collectionSupplier, mapSupplier);
     }
 
-
-    private Collection<R> convertToCollection(Supplier<? extends Collection<R>> listSupplier) {//NOSONAR
+    private Collection<R> convertToCollection(Supplier<? extends Collection<R>> listSupplier) {
         Collection<R> collection = listSupplier.get();
         if (CollectionUtils.isEmpty(wrapperList)) {
             return collection;
@@ -106,27 +80,34 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         Map<String, ColumnMeta> columnNameMap = columnMetas.stream().collect(Collectors.toMap(ColumnMeta::getColumnName, v -> v));
         Map<String, ColumnMeta> fieldNameMap = columnMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
         for (Map<String, Object> columnObjectMap : wrapperList) {
-            R instance = ReflectUtils.instance(resultClass);
-            collection.add(instance);
-            columnObjectMap.forEach((columnName, columnValue) -> {
-                ColumnMeta columnMeta = getColumnMeta(columnName, columnNameMap, fieldNameMap);
-                if (columnMeta == null) {
-                    return;
-                }
-                Object value;
-                if (null != columnMeta.getConverter()) {
-                    AttributeConverter<Object, Object> objectObjectAttributeConverter =
-                            ConverterUtils.loadCustomConverter(columnMeta.getConverter());
-                    value = objectObjectAttributeConverter.convertToEntityAttribute(columnValue);
-                } else {
-                    value = ConverterUtils.convertToEntityAttribute(columnMeta.getField().getType(), columnValue);
-                }
-                if (value != null) {
-                    ReflectUtils.setFieldValue(instance, columnMeta.getField(), value);
-                }
-            });
+            collection.add(reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap));
         }
         return collection;
+    }
+
+    private <T, K, V, M extends Map<K, V>> Map<K, V> convertToMap(Function<T, ? extends K> keyMapper,
+                                                                  Function<T, ? extends V> valueMapper,
+                                                                  BinaryOperator<V> mergeFunction,
+                                                                  Supplier<M> mapSupplier) {
+        return convertTo(mapSupplier, (m, columnObjectMap, columnNameMap, fieldNameMap) -> {
+            T value = (T) reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap);
+            K key = keyMapper.apply(value); // 计算键
+            V val = valueMapper.apply(value); // 计算值
+            // 如果 map 中已存在该键，使用 mergeFunction 处理值冲突
+            m.merge(key, val, mergeFunction);
+        });
+    }
+
+    public <T, K, C extends Collection<T>, M extends Map<K, C>> Map<K, C> convertToGroupingBy(
+            Function<T, ? extends K> keyMapper, Supplier<C> collectionSupplier, Supplier<M> mapSupplier) {
+        return convertTo(mapSupplier, (m, columnObjectMap, columnNameMap, fieldNameMap) -> {
+            T value = (T) reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap);
+            K key = keyMapper.apply(value);
+            // 获取或创建对应键的集合
+            C groupedCollection = (C) m.computeIfAbsent(key, k -> collectionSupplier.get());
+            // 将当前值添加到集合中
+            groupedCollection.add(value);
+        });
     }
 
     private Collection<R> convertToSystemClass(Collection<R> collection) {
@@ -139,8 +120,8 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
                 collection.add(null);
             }
             Map.Entry<String, Object> entry = stringObjectMap.entrySet().iterator().next();
-            Object value = ConverterUtils.convertToEntityAttribute(resultClass, entry.getValue());
-            collection.add((R) value);
+            R value = ConverterUtils.convertToEntityAttribute(resultClass, entry.getValue());
+            collection.add(value);
         }
         return collection;
     }
@@ -152,10 +133,63 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         if (columnMeta == null) {
             columnMeta = fieldNameMap.get(columnName);
         }
-        //TODO 将来实现自动移除未使用的列（自动优化查询）？？？
+        //将来实现自动移除未使用的列（自动优化查询）？？？
         if (columnMeta == null) {
             log.trace("Column '{}' was queried but not used.", columnName);
         }
         return columnMeta;
+    }
+
+    R reflectionInstance(Map<String, Object> columnObjectMap,
+                         Map<String, ColumnMeta> columnNameMap,
+                         Map<String, ColumnMeta> fieldNameMap) {
+        R instance = ReflectUtils.instance(resultClass);
+        columnObjectMap.forEach((columnName, columnValue) -> {
+            ColumnMeta columnMeta = getColumnMeta(columnName, columnNameMap, fieldNameMap);
+            if (columnMeta == null) {
+                return;
+            }
+            Object value;
+            if (null != columnMeta.getConverter()) {
+                AttributeConverter<Object, Object> objectObjectAttributeConverter =
+                        ConverterUtils.loadCustomConverter(columnMeta.getConverter());
+                value = objectObjectAttributeConverter.convertToEntityAttribute(columnValue);
+            } else {
+                value = ConverterUtils.convertToEntityAttribute(columnMeta.getField().getType(), columnValue);
+            }
+            if (value != null) {
+                ReflectUtils.setFieldValue(instance, columnMeta.getField(), value);
+            }
+        });
+        return instance;
+    }
+
+    private <K, V, M extends Map<K, V>> Map<K, V> convertTo(Supplier<M> mapSupplier, Operator operator) {
+        M m = mapSupplier.get();
+        if (CollectionUtils.isEmpty(wrapperList)) {
+            return m;
+        }
+        List<ColumnMeta> columnMetas;
+        TableMeta tableMeta = TableProvider.getTableMeta(resultClass);
+        if (tableMeta == null) {
+            if (resultClass.getClassLoader() == null) {
+                throw new IllegalStateException(resultClass.getCanonicalName() + " cannot be mapped to Map");
+            }
+            columnMetas = TableUtils.parseViewClass(resultClass);
+        } else {
+            columnMetas = tableMeta.getColumnMetas();
+        }
+        Map<String, ColumnMeta> columnNameMap = columnMetas.stream().collect(Collectors.toMap(ColumnMeta::getColumnName, v -> v));
+        Map<String, ColumnMeta> fieldNameMap = columnMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
+        for (Map<String, Object> columnObjectMap : wrapperList) {
+            operator.apply(m, columnObjectMap, columnNameMap, fieldNameMap);
+        }
+        return m;
+    }
+
+    interface Operator {
+        @SuppressWarnings("all")
+        void apply(Map m, Map<String, Object> columnObjectMap,
+                   Map<String, ColumnMeta> columnNameMap, Map<String, ColumnMeta> fieldNameMap);
     }
 }
