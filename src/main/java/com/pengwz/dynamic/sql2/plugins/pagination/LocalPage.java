@@ -14,7 +14,7 @@ class LocalPage {
         LOCAL_CURRENT_PAGE.set(page);
     }
 
-    public static void remove() {
+    public static void clearCurrentPage() {
         LOCAL_CURRENT_PAGE.remove();
     }
 }

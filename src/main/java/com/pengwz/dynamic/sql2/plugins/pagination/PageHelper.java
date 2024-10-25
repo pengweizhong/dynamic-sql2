@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.pengwz.dynamic.sql2.plugins.pagination.LocalPage.clearCurrentPage;
 import static com.pengwz.dynamic.sql2.plugins.pagination.LocalPage.setCurrentPage;
 
 public class PageHelper {
@@ -73,8 +74,7 @@ public class PageHelper {
             } else {
                 collectionPage = (CollectionPage<C, T>) cacheCollectionPage;
             }
-            setCurrentPage(collectionPage);
-            collectionPage.setRecords(selectSupplier);
+            executeQuery(collectionPage, selectSupplier);
             return collectionPage;
         }
     }
@@ -101,8 +101,7 @@ public class PageHelper {
             } else {
                 mapPage = (MapPage<K, V, M>) cacheMapPage;
             }
-            setCurrentPage(mapPage);
-            mapPage.setRecords(selectSupplier);
+            executeQuery(mapPage, selectSupplier);
             return mapPage;
         }
     }
@@ -129,10 +128,14 @@ public class PageHelper {
             } else {
                 pageInfo = (PageInfo<T>) cachePageInfo;
             }
-            setCurrentPage(pageInfo);
-            pageInfo.setRecords(selectSupplier);
+            executeQuery(pageInfo, selectSupplier);
             return pageInfo;
         }
     }
 
+    static void executeQuery(AbstractPage abstractPage, Supplier<?> selectSupplier) {
+        setCurrentPage(abstractPage);
+        abstractPage.setRecords(selectSupplier);
+        clearCurrentPage();
+    }
 }

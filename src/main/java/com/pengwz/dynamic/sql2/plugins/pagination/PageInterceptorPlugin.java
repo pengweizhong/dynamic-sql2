@@ -10,13 +10,9 @@ import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.DMLType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.interceptor.SqlInterceptor;
-import com.pengwz.dynamic.sql2.utils.CollectionUtils;
-import com.pengwz.dynamic.sql2.utils.MapUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.sql.Connection;
-import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -88,20 +84,7 @@ public class PageInterceptorPlugin implements SqlInterceptor {
 
     @Override
     public void afterExecution(PreparedSql preparedSql, Object applyResult, Exception exception) {
-        //如果后续的查询发现数据突然没了  则后续完全没有继续查询的必要（如果还有后续操作）
-        //目前体现在递归查询下一页中
-//        if (applyResult instanceof Collection) {
-//            Collection collection = (Collection) applyResult;
-//            if (CollectionUtils.isEmpty(collection)) {
-//                LocalPage.getCurrentPage().setTotal(0);
-//            }
-//        } else if (applyResult instanceof Map) {
-//            Map map = (Map) applyResult;
-//            if (MapUtils.isEmpty(map)) {
-//                LocalPage.getCurrentPage().setTotal(0);
-//            }
-//        }
-        LocalPage.remove();
+
     }
 
     private long selectTotal(SqlStatementWrapper sqlStatementWrapper,
