@@ -17,6 +17,7 @@ import com.pengwz.dynamic.sql2.interceptor.SqlInterceptorChain;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -29,7 +30,7 @@ public class SqlExecutionFactory {
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:
-                return new MysqlParser(schemaProperties,(List) param);
+                return new MysqlParser(schemaProperties, (Collection) param);
             default:
                 throw new UnsupportedOperationException("Unsupported dialect: " + sqlDialect);
         }

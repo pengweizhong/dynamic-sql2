@@ -9,6 +9,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.Select;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,7 +36,7 @@ public class DefaultSqlContext implements SqlContext {
 
     @Override
     public <T> int insert(T entity) {
-        return 0;
+        return new EntitiesInserter(Collections.singleton(entity)).insert(InsertHandler::insert);
     }
 
     @Override

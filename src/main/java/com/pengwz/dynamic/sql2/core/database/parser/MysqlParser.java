@@ -14,10 +14,10 @@ import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import java.util.*;
 
 public class MysqlParser extends AbstractDialectParser {
-    private final List<Object> entities;
+    private final Collection<Object> entities;
     private SqlStatementWrapper sqlStatementWrapper;
 
-    public MysqlParser(SchemaProperties schemaProperties, List<Object> entities) {
+    public MysqlParser(SchemaProperties schemaProperties, Collection<Object> entities) {
         super(schemaProperties);
         this.entities = entities;
     }
@@ -30,7 +30,11 @@ public class MysqlParser extends AbstractDialectParser {
 
     @Override
     public void insertSelective(Fn<?, ?>[] forcedFields) {
-        Object entity = entities.get(0);
+        parseInsert(InsertType.INSERT_SELECTIVE, forcedFields);
+    }
+
+    private void parseInsert(InsertType insertType, Fn<?, ?>[] forcedFields) {
+        Object entity = entities.iterator().next();
         TableMeta tableMeta = TableProvider.getTableMeta(entity.getClass());
         List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
         Set<String> forcedFieldNames = getForcedFieldNames(forcedFields);
@@ -42,7 +46,8 @@ public class MysqlParser extends AbstractDialectParser {
         for (int i = 0; i < columnMetas.size(); i++) {
             ColumnMeta columnMeta = columnMetas.get(i);
             Object fieldValue = ReflectUtils.getFieldValue(entity, columnMeta.getField());
-            if (fieldValue != null || forcedFieldNames.contains(columnMeta.getColumnName())) {
+            if (fieldValue != null || insertType == InsertType.INSERT
+                    || forcedFieldNames.contains(columnMeta.getColumnName())) {
                 sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnMeta.getColumnName()));
                 values.add(ConverterUtils.convertToDatabaseColumn(columnMeta, fieldValue));
                 if (i < columnMetas.size() - 1) {
@@ -81,7 +86,7 @@ public class MysqlParser extends AbstractDialectParser {
 
     @Override
     public void insert() {
-
+        parseInsert(InsertType.INSERT, null);
     }
 
     @Override
@@ -92,5 +97,9 @@ public class MysqlParser extends AbstractDialectParser {
     @Override
     public List<Map<String, Object>> executeQuery() {
         return Collections.emptyList();
+    }
+
+    enum InsertType {
+        INSERT, INSERT_SELECTIVE;
     }
 }

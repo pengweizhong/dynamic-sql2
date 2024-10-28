@@ -11,11 +11,13 @@ import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
 public class EntitiesInserter {
-    private final List<Object> entities;
+    private final Collection<Object> entities;
     private AbstractDialectParser dialectParser;
     private final Fn<?, ?>[] forcedFields;
 
@@ -26,14 +28,15 @@ public class EntitiesInserter {
         init();
     }
 
-    public EntitiesInserter(List<Object> entities) {
+    public EntitiesInserter(Collection<Object> entities) {
         this.entities = entities;
         this.forcedFields = null;
         init();
     }
 
     private void init() {
-        TableMeta tableMeta = TableProvider.getTableMeta(entities.get(0).getClass());
+        Object next = entities.iterator().next();
+        TableMeta tableMeta = TableProvider.getTableMeta(next.getClass());
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
         dialectParser = SqlExecutionFactory.chosenDialectParser(schemaProperties, entities);
@@ -44,4 +47,8 @@ public class EntitiesInserter {
         return SqlExecutionFactory.executorSql(DMLType.INSERT, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
     }
 
+    public int insert(Function<SqlExecutor, Integer> doSqlExecutor) {
+        dialectParser.insert();
+        return SqlExecutionFactory.executorSql(DMLType.INSERT, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+    }
 }
