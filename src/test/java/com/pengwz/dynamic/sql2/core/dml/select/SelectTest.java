@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -277,6 +278,16 @@ public class SelectTest extends InitializingContext {
                 ), "jt", null)
                 .fetch().toList();
         System.out.println(list);
+    }
+
+    @Test
+    void test6() {
+        LocalDate one = sqlContext.select()
+                .column(Product::getCreatedAt)
+                .from(Product.class)
+                .limit(1)
+                .fetch(LocalDate.class).toOne();
+        System.out.println(one);
     }
 }
 

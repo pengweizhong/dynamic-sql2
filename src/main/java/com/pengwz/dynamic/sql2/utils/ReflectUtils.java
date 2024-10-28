@@ -212,4 +212,15 @@ public class ReflectUtils {
             throw new RuntimeException(ex);//NOSONAR
         }
     }
+
+    public static Object getFieldValue(Object target, Field field) {
+        try {
+            if (!Modifier.isPublic(field.getModifiers())) {
+                makeAccessible(field);
+            }
+            return field.get(target);//NOSONAR
+        } catch (IllegalAccessException ex) {
+            throw new RuntimeException(ex);//NOSONAR
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.utils;
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverterModel;
 import com.pengwz.dynamic.sql2.plugins.conversion.impl.BigDecimalAttributeConverter;
+import com.pengwz.dynamic.sql2.table.ColumnMeta;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
@@ -28,6 +29,21 @@ public class ConverterUtils {
         AttributeConverter instance = ReflectUtils.instance(converterClass);
         CUSTOM_ATTRIBUTE_CONVERTERS.put(converterClass, instance);
         return instance;
+    }
+
+    public static Object convertToDatabaseColumn(ColumnMeta columnMeta, Object value) {
+        if (value == null) {
+            return null;
+        }
+        //如果该字段直接实现了转换器
+        if (value instanceof AttributeConverter) {
+            AttributeConverter attributeConverter = (AttributeConverter) value;
+            return attributeConverter.convertToDatabaseColumn(value);
+        }
+        if (columnMeta.getConverter() != null) {
+            return loadCustomConverter(columnMeta.getConverter()).convertToDatabaseColumn(value);
+        }
+        return value;
     }
 
     @SuppressWarnings("unchecked")

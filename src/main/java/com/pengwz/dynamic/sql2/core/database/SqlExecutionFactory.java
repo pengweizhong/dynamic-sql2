@@ -4,20 +4,35 @@ import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.database.impl.MysqlSqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.impl.OracleSqlExecutor;
+import com.pengwz.dynamic.sql2.core.database.parser.AbstractDialectParser;
+import com.pengwz.dynamic.sql2.core.database.parser.MysqlParser;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.datasource.ConnectionHolder;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DMLType;
+import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.interceptor.SqlInterceptorChain;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.sql.Connection;
+import java.util.List;
 import java.util.function.Function;
 
 public class SqlExecutionFactory {
     private SqlExecutionFactory() {
+    }
+
+    public static <T> AbstractDialectParser chosenDialectParser(SchemaProperties schemaProperties, T param) {
+        SqlDialect sqlDialect = schemaProperties.getSqlDialect();
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return new MysqlParser(schemaProperties,(List) param);
+            default:
+                throw new UnsupportedOperationException("Unsupported dialect: " + sqlDialect);
+        }
     }
 
     public static <R> R executorSql(DMLType dmlType,

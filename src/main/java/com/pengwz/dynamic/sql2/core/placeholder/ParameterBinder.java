@@ -2,7 +2,6 @@ package com.pengwz.dynamic.sql2.core.placeholder;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
-import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
@@ -29,12 +28,6 @@ public class ParameterBinder {
 
     public String registerValueWithKey(Fn<?, ?> fn, Object value) {
         String key = generateBindingKey();
-        //如果是枚举类直接实现了它？
-        if (value instanceof AttributeConverter) {
-            AttributeConverter attributeConverter = (AttributeConverter) value;
-            parameters.put(key, attributeConverter.convertToDatabaseColumn(value));
-            return key;
-        }
         if (fn instanceof AbstractAliasHelper) {
             parameters.put(key, value);
             return key;
@@ -43,11 +36,7 @@ public class ParameterBinder {
         String fieldName = ReflectUtils.fnToFieldName(fn);
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
         ColumnMeta columnMeta = tableMeta.getColumnMeta(fieldName);
-        if (columnMeta.getConverter() != null) {
-            parameters.put(key, ConverterUtils.loadCustomConverter(columnMeta.getConverter()).convertToDatabaseColumn(value));
-        } else {
-            parameters.put(key, value);
-        }
+        parameters.put(key, ConverterUtils.convertToDatabaseColumn(columnMeta, value));
         return key;
     }
 

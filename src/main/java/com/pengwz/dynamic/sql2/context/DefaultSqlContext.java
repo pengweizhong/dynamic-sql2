@@ -21,7 +21,7 @@ public class DefaultSqlContext implements SqlContext {
 
     @Override
     public <T> int insertSelective(T entity) {
-        return new EntitiesInserter(entity).wrapperInsert(InsertHandler::insertSelective);
+        return new EntitiesInserter(entity).insertSelective(InsertHandler::insertSelective);
     }
 
     @Override
