@@ -7,7 +7,11 @@ import com.pengwz.dynamic.sql2.core.dml.insert.impl.EntitiesInserter;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class DefaultSqlContext implements SqlContext {
@@ -21,12 +25,12 @@ public class DefaultSqlContext implements SqlContext {
 
     @Override
     public <T> int insertSelective(T entity) {
-        return insertSelective(entity, null);
+        return insertSelective(entity, new ArrayList<>());
     }
 
     @Override
-    public <T, F> int insertSelective(T entity, Fn<T, F>... forcedFields) {
-        return new EntitiesInserter(entity, forcedFields).insertSelective(InsertHandler::insertSelective);
+    public <T, F> int insertSelective(T entity, Collection<Fn<T, F>> forcedFields) {
+        return new EntitiesInserter(entity, forcedFields.toArray(new Fn[]{})).insertSelective(InsertHandler::insertSelective);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.entites.Product;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Date;
 
 class InsertTest extends InitializingContext {
@@ -16,7 +17,7 @@ class InsertTest extends InitializingContext {
         product.setStock(666);
         product.setCreatedAt(new Date());
         product.setCategoryId(1);
-        int i = sqlContext.insert(product);
+        int i = sqlContext.insertSelective(product);
         System.out.println(i);
     }
 
@@ -28,7 +29,7 @@ class InsertTest extends InitializingContext {
         product.setStock(666);
         product.setCreatedAt(new Date());
         product.setCategoryId(1);
-        int i = sqlContext.insertSelective(product, Product::getAttributes);
+        int i = sqlContext.insertSelective(product, Arrays.asList(Product::getAttributes, Product::getProductId));
         System.out.println(i);
     }
 }

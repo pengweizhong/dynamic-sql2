@@ -53,8 +53,7 @@ public class MysqlParser extends AbstractDialectParser {
         if (values.isEmpty()) {
             throw new IllegalStateException("No non-null attribute fields were provided.");
         }
-        sql.append(") ");
-        sql.append(" values (");
+        sql.append(") values (");
         ParameterBinder parameterBinder = new ParameterBinder();
         for (int i = 0; i < values.size(); i++) {
             Object value = values.get(i);
