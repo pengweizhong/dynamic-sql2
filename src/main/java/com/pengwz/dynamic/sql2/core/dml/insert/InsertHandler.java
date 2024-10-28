@@ -8,8 +8,6 @@ public interface InsertHandler {
 
     int insertSelective();
 
-    <T, F> int insertSelective(Collection<Fn<T, F>> forcedFields);
-
     int insert();
 
     int batchInsert();

@@ -22,7 +22,10 @@ public class SqlDebugger {
         List<Object> params = preparedSql.getParams();
         for (int i = 0; i < params.size(); i++) {
             Object param = params.get(i);
-            stringBuilder.append(param).append("(").append(param.getClass().getSimpleName()).append(")");
+            stringBuilder.append(param);
+            if (param != null) {
+                stringBuilder.append("(").append(param.getClass().getSimpleName()).append(")");
+            }
             if (i != params.size() - 1) {
                 stringBuilder.append(", ");
             }

@@ -50,4 +50,20 @@ public class RootExecutor {
         return arrayList;
     }
 
+    public static int executeInsert(Connection connection, PreparedSql preparedSql) {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            preparedStatement = connection.prepareStatement(preparedSql.getSql());
+            List<Object> params = preparedSql.getParams();
+            for (int i = 1; i <= params.size(); i++) {
+                preparedStatement.setObject(i, params.get(i - 1));
+            }
+            return preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        } finally {
+            SqlUtils.close(resultSet, preparedStatement);
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.dml.insert.impl;
 
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
+import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.database.SqlExecutionFactory;
 import com.pengwz.dynamic.sql2.core.database.SqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.parser.AbstractDialectParser;
@@ -16,15 +17,18 @@ import java.util.function.Function;
 public class EntitiesInserter {
     private final List<Object> entities;
     private AbstractDialectParser dialectParser;
+    private final Fn<?, ?>[] forcedFields;
 
-    public EntitiesInserter(Object entity) {
+    public EntitiesInserter(Object entity, Fn<?, ?>[] forcedFields) {
         this.entities = new ArrayList<>();
         this.entities.add(entity);
+        this.forcedFields = forcedFields;
         init();
     }
 
     public EntitiesInserter(List<Object> entities) {
         this.entities = entities;
+        this.forcedFields = null;
         init();
     }
 
@@ -36,7 +40,7 @@ public class EntitiesInserter {
     }
 
     public int insertSelective(Function<SqlExecutor, Integer> doSqlExecutor) {
-        dialectParser.insertSelective();
+        dialectParser.insertSelective(forcedFields);
         return SqlExecutionFactory.executorSql(DMLType.INSERT, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
     }
 

@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.plugins.conversion.impl;
+package com.pengwz.dynamic.sql2.plugins.conversion.attribute;
 
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverterModel;
 import org.slf4j.Logger;
@@ -8,6 +8,11 @@ import java.math.BigDecimal;
 
 public class BigDecimalAttributeConverter extends AttributeConverterModel<BigDecimal> {
     private static final Logger log = LoggerFactory.getLogger(BigDecimalAttributeConverter.class);
+
+    @Override
+    public Object convertToDatabaseColumn(BigDecimal attribute) {
+        return attribute;
+    }
 
     @Override
     public BigDecimal convertToEntityAttribute(Object dbData) {

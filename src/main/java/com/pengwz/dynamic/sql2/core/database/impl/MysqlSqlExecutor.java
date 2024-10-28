@@ -26,12 +26,7 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
 
     @Override
     public int insertSelective() {
-        return 0;
-    }
-
-    @Override
-    public <T, F> int insertSelective(Collection<Fn<T, F>> forcedFields) {
-        return 0;
+        return RootExecutor.executeInsert(connection, preparedSql);
     }
 
     @Override

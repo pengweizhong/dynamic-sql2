@@ -27,11 +27,6 @@ public class OracleSqlExecutor extends AbstractSqlExecutor {
     }
 
     @Override
-    public <T, F> int insertSelective(Collection<Fn<T, F>> forcedFields) {
-        return 0;
-    }
-
-    @Override
     public int insert() {
         return 0;
     }

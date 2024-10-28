@@ -18,7 +18,7 @@ public interface SqlContext {
 
     <T> int insertSelective(T entity);
 
-    <T, F> int insertSelective(T entity, Collection<Fn<T, F>> forcedFields);
+    <T, F> int insertSelective(T entity, Fn<T, F>... forcedFields);
 
     <T> int insert(T entity);
 

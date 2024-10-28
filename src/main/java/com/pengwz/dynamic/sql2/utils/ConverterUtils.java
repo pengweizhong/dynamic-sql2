@@ -2,10 +2,12 @@ package com.pengwz.dynamic.sql2.utils;
 
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverterModel;
-import com.pengwz.dynamic.sql2.plugins.conversion.impl.BigDecimalAttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.attribute.BigDecimalAttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.attribute.LocalDateAttributeConverter;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,6 +21,7 @@ public class ConverterUtils {
 
     static {
         putAttributeConverterModel(BigDecimal.class, new BigDecimalAttributeConverter());
+        putAttributeConverterModel(LocalDate.class, new LocalDateAttributeConverter());
     }
 
     public static <Y> AttributeConverter<Object, Y> loadCustomConverter(Class<? extends AttributeConverter> converterClass) {
@@ -43,6 +46,11 @@ public class ConverterUtils {
         if (columnMeta.getConverter() != null) {
             return loadCustomConverter(columnMeta.getConverter()).convertToDatabaseColumn(value);
         }
+        AttributeConverter<Object, Object> attributeConverter = GENERAL_ATTRIBUTE_CONVERTER_MODEL.get(columnMeta.getField().getType());
+        if (attributeConverter != null) {
+            return attributeConverter.convertToDatabaseColumn(value);
+        }
+        // 如果没有找到适合的转换器，抛出异常或者返回默认值
         return value;
     }
 

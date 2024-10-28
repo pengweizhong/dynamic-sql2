@@ -21,12 +21,12 @@ public class DefaultSqlContext implements SqlContext {
 
     @Override
     public <T> int insertSelective(T entity) {
-        return new EntitiesInserter(entity).insertSelective(InsertHandler::insertSelective);
+        return insertSelective(entity, null);
     }
 
     @Override
-    public <T, F> int insertSelective(T entity, Collection<Fn<T, F>> forcedFields) {
-        return 0;
+    public <T, F> int insertSelective(T entity, Fn<T, F>... forcedFields) {
+        return new EntitiesInserter(entity, forcedFields).insertSelective(InsertHandler::insertSelective);
     }
 
     @Override

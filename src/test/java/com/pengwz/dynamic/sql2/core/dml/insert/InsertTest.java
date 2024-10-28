@@ -15,7 +15,20 @@ class InsertTest extends InitializingContext {
         product.setPrice(6.66);
         product.setStock(666);
         product.setCreatedAt(new Date());
-//        int i = sqlContext.insertSelective(product);
-//        System.out.println(i);
+        product.setCategoryId(1);
+        int i = sqlContext.insert(product);
+        System.out.println(i);
+    }
+
+    @Test
+    void insertSelective2() {
+        Product product = new Product();
+        product.setProductName("菠萝手机");
+        product.setPrice(6.66);
+        product.setStock(666);
+        product.setCreatedAt(new Date());
+        product.setCategoryId(1);
+        int i = sqlContext.insertSelective(product, Product::getAttributes);
+        System.out.println(i);
     }
 }
