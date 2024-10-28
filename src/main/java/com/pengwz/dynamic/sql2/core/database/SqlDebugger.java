@@ -15,7 +15,9 @@ public class SqlDebugger {
     }
 
     public static void debug(PreparedSql preparedSql, String dataSourceName, boolean isIntercepted) {
-        //输出编译后的SQL
+        if (!log.isDebugEnabled()) {
+            return;
+        }
         StringBuilder stringBuilder = new StringBuilder();
         List<Object> params = preparedSql.getParams();
         for (int i = 0; i < params.size(); i++) {
@@ -35,6 +37,7 @@ public class SqlDebugger {
     /*
      *
      *
+     *
      * 这么注释其实就是想让LOG输出在我想要的行号上。。。
      * 所以故意跨域了很多行。。。
      * 包括方法名也是特意做的对其。。。
@@ -43,6 +46,9 @@ public class SqlDebugger {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static void debug(DMLType dmlType, String dataSourceName, Object applyResult) {//NOSONAR
+        if (!log.isDebugEnabled()) {
+            return;
+        }
         if (dmlType == DMLType.SELECT) {
             if (applyResult instanceof Collection) {
                 Collection collection = (Collection) applyResult;
