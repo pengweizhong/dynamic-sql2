@@ -32,7 +32,13 @@ public class OracleSqlExecutor extends AbstractSqlExecutor {
     }
 
     @Override
-    public int batchInsert() {
+    public int insertBatch() {
         return 0;
     }
+
+    @Override
+    public int insertMultiple() {
+        return 0;
+    }
+
 }

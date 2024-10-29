@@ -71,6 +71,37 @@ public class MysqlParser extends AbstractDialectParser {
         sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinder);
     }
 
+    private void parseInsertBatch() {
+//        Object firstEntity = entities.iterator().next();
+//        TableMeta tableMeta = TableProvider.getTableMeta(firstEntity.getClass());
+//        List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
+//        StringBuilder sql = new StringBuilder();
+//        sql.append("insert into ");
+//        sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
+//        sql.append(" (");
+//        StringBuilder placeHolders = new StringBuilder();
+//        for (int i = 0; i < columnMetas.size(); i++) {
+//            ColumnMeta columnMeta = columnMetas.get(i);
+//            sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnMeta.getColumnName()));
+//            placeHolders.append("?");
+//            if (i < columnMetas.size() - 1) {
+//                sql.append(", ");
+//                placeHolders.append(", ");
+//            }
+//        }
+//        sql.append(") values (").append(placeHolders).append(")");
+//        ArrayList<ParameterBinder> parameterBinders = new ArrayList<>();
+//        for (Object entity : entities) {
+//            ParameterBinder parameterBinder = new ParameterBinder();
+//            for (ColumnMeta columnMeta : columnMetas) {
+//                Object fieldValue = ReflectUtils.getFieldValue(entity, columnMeta.getField());
+//                parameterBinder.registerValueWithKey(ConverterUtils.convertToDatabaseColumn(columnMeta, fieldValue));
+//            }
+//            parameterBinders.add(parameterBinder);
+//        }
+////        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinders);
+    }
+
     private Set<String> getForcedFieldNames(Fn<?, ?>[] forcedFields) {
         Set<String> forcedFieldNames = new HashSet<>();
         if (forcedFields == null || forcedFields.length < 1) {
@@ -90,9 +121,10 @@ public class MysqlParser extends AbstractDialectParser {
     }
 
     @Override
-    public void batchInsert() {
-
+    public void insertBatch() {
+        parseInsertBatch();
     }
+
 
     @Override
     public List<Map<String, Object>> executeQuery() {

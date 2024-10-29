@@ -35,7 +35,14 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
     }
 
     @Override
-    public int batchInsert() {
+    public int insertBatch() {
+//        return RootExecutor.executeInsertBatch(connection, preparedSql);
         return 0;
     }
+
+    @Override
+    public int insertMultiple() {
+        return 0;
+    }
+
 }

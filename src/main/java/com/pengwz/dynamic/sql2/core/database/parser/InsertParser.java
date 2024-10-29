@@ -8,6 +8,5 @@ public interface InsertParser {
 
     void insert();
 
-    void batchInsert();
-
+    void insertBatch();
 }

@@ -51,4 +51,8 @@ public class EntitiesInserter {
         dialectParser.insert();
         return SqlExecutionFactory.executorSql(DMLType.INSERT, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
     }
+
+    public int insertBatch(Function<SqlExecutor, Integer> doSqlExecutor) {
+        return 0;
+    }
 }
