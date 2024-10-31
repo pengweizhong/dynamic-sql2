@@ -92,16 +92,15 @@ public class MysqlParser extends AbstractDialectParser {
             }
         }
         sql.append(") values (").append(placeHolders).append(")");
-        ArrayList<ParameterBinder> parameterBinders = new ArrayList<>();
+        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql);
         for (Object entity : entities) {
             ParameterBinder parameterBinder = new ParameterBinder();
             for (ColumnMeta columnMeta : columnMetas) {
                 Object fieldValue = ReflectUtils.getFieldValue(entity, columnMeta.getField());
                 registerValueWithKey(parameterBinder, ConverterUtils.convertToDatabaseColumn(columnMeta, fieldValue));
             }
-            parameterBinders.add(parameterBinder);
+            sqlStatementWrapper.addBatchParameterBinder(parameterBinder);
         }
-//        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinders);
     }
 
     private Set<String> getForcedFieldNames(Fn<?, ?>[] forcedFields) {

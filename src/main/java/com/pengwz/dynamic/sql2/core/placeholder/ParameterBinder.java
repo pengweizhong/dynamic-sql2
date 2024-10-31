@@ -1,17 +1,8 @@
 package com.pengwz.dynamic.sql2.core.placeholder;
 
-import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
-import com.pengwz.dynamic.sql2.table.ColumnMeta;
-import com.pengwz.dynamic.sql2.table.TableMeta;
-import com.pengwz.dynamic.sql2.table.TableProvider;
-import com.pengwz.dynamic.sql2.utils.ConverterUtils;
-import com.pengwz.dynamic.sql2.utils.ReflectUtils;
-
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class ParameterBinder {
     private final Map<String, Object> parameters = new LinkedHashMap<>();
@@ -37,6 +28,10 @@ public class ParameterBinder {
 
     public Object getValue(String key) {
         return parameters.get(key);
+    }
+
+    public Collection<Object> getValues() {
+        return parameters.values();
     }
 
 }

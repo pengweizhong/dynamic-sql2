@@ -52,7 +52,7 @@ class InsertTest extends InitializingContext {
         ArrayList<Product> products = new ArrayList<>();
         for (int i = 1; i <= 3; i++) {
             Product product = new Product();
-            product.setProductName("菠萝手机-insert");
+            product.setProductName("菠萝手机-insert-" + i);
             product.setPrice(6.66);
             product.setStock(666);
             product.setCreatedAt(new Date());

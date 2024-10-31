@@ -66,4 +66,24 @@ public class RootExecutor {
             SqlUtils.close(resultSet, preparedStatement);
         }
     }
+
+    public static int executeInsertBatch(Connection connection, PreparedSql preparedSql) {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            preparedStatement = connection.prepareStatement(preparedSql.getSql());
+            List<List<Object>> batchParams = preparedSql.getBatchParams();
+            for (List<Object> batchParam : batchParams) {
+                for (int i = 1; i <= batchParam.size(); i++) {
+                    preparedStatement.setObject(i, batchParam.get(i - 1));
+                }
+                preparedStatement.addBatch();
+            }
+            return preparedStatement.executeBatch().length;
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        } finally {
+            SqlUtils.close(resultSet, preparedStatement);
+        }
+    }
 }

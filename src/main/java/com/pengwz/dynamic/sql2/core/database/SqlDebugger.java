@@ -18,8 +18,19 @@ public class SqlDebugger {
         if (!log.isDebugEnabled()) {
             return;
         }
+        log.debug("{} -->     Preparing: {}", dataSourceName, preparedSql.getSql());
+        List<List<Object>> batchParams = preparedSql.getBatchParams();
+        //
+        for (List<Object> batchParam : batchParams) {
+            log.debug("{} -->    Parameters: {}", dataSourceName, assemblyParameters(batchParam));
+        }
+        if (!isIntercepted) {
+            log.debug("{} -->       !!!!!! : SQL is intercepted.", dataSourceName);
+        }
+    }
+
+    private static StringBuilder assemblyParameters(List<Object> params) {
         StringBuilder stringBuilder = new StringBuilder();
-        List<Object> params = preparedSql.getParams();
         for (int i = 0; i < params.size(); i++) {
             Object param = params.get(i);
             stringBuilder.append(param);
@@ -30,22 +41,8 @@ public class SqlDebugger {
                 stringBuilder.append(", ");
             }
         }
-        log.debug("{} -->     Preparing: {}", dataSourceName, preparedSql.getSql());
-        log.debug("{} -->    Parameters: {}", dataSourceName, stringBuilder);
-        if (!isIntercepted) {
-            log.debug("{} -->       !!!!!! : SQL is intercepted.", dataSourceName);
-        }
+        return stringBuilder;
     }
-
-    /*
-     *
-     *
-     *
-     * 这么注释其实就是想让LOG输出在我想要的行号上。。。
-     * 所以故意跨域了很多行。。。
-     * 包括方法名也是特意做的对其。。。
-     *
-     */
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static void debug(DMLType dmlType, String dataSourceName, Object applyResult) {//NOSONAR

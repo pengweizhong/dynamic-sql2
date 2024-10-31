@@ -7,7 +7,6 @@ import com.pengwz.dynamic.sql2.core.database.impl.OracleSqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.parser.AbstractDialectParser;
 import com.pengwz.dynamic.sql2.core.database.parser.MysqlParser;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
-import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.datasource.ConnectionHolder;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
@@ -18,7 +17,6 @@ import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.sql.Connection;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Function;
 
 public class SqlExecutionFactory {
@@ -47,12 +45,10 @@ public class SqlExecutionFactory {
         Exception exception = null;
         R apply = null;
         PreparedSql preparedSql = null;
-        StringBuilder rawSql = sqlStatementWrapper.getRawSql();
-        ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
         try {
             connection = ConnectionHolder.getConnection(dataSourceMeta.getDataSource());
             boolean beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper, connection);
-            preparedSql = SqlUtils.parsePreparedObject(rawSql, parameterBinder);
+            preparedSql = SqlUtils.parsePreparedObject(sqlStatementWrapper);
             if (beforeExecution) {
                 apply = applySql(dmlType, dataSourceName, connection, preparedSql, true, doSqlExecutor);
             } else {

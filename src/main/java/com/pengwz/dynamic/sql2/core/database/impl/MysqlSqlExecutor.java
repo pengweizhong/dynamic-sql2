@@ -1,6 +1,5 @@
 package com.pengwz.dynamic.sql2.core.database.impl;
 
-import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.database.AbstractSqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.PreparedSql;
 import com.pengwz.dynamic.sql2.core.database.RootExecutor;
@@ -8,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -36,8 +34,7 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
 
     @Override
     public int insertBatch() {
-//        return RootExecutor.executeInsertBatch(connection, preparedSql);
-        return 0;
+        return RootExecutor.executeInsertBatch(connection, preparedSql);
     }
 
     @Override

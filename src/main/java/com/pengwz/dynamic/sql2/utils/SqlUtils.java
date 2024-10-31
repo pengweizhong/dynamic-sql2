@@ -40,6 +40,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -392,7 +393,24 @@ public class SqlUtils {
         return SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName()).getSqlDialect();
     }
 
+    public static PreparedSql parsePreparedObject(SqlStatementWrapper sqlStatementWrapper) {
+        //判断是否是批量SQL，如果是批量的就按照顺序填充参数，而不需要替换
+        if (!sqlStatementWrapper.isBatch()) {
+            StringBuilder rawSql = sqlStatementWrapper.getRawSql();
+            ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
+            return parsePreparedObject(rawSql, parameterBinder);
+        }
+        List<ParameterBinder> batchParameterBinders = sqlStatementWrapper.getBatchParameterBinders();
+        PreparedSql preparedSql = new PreparedSql(sqlStatementWrapper.getRawSql().toString());
+        for (ParameterBinder batchParameterBinder : batchParameterBinders) {
+            List<Object> param = new ArrayList<>(batchParameterBinder.getValues());
+            preparedSql.addBatchParams(param);
+        }
+        return preparedSql;
+    }
+
     public static PreparedSql parsePreparedObject(StringBuilder rawSql, ParameterBinder parameterBinder) {
+        //判断是否是批量SQL，如果是批量的就按照顺序填充参数，而不需要替换
         StringBuilder modifiedSql = new StringBuilder(rawSql);
         Pattern uuidPattern = Pattern.compile(":[0-9a-f]{32}");
         Matcher matcher = uuidPattern.matcher(rawSql);
