@@ -53,6 +53,7 @@ public class EntitiesInserter {
     }
 
     public int insertBatch(Function<SqlExecutor, Integer> doSqlExecutor) {
-        return 0;
+        dialectParser.insertBatch();
+        return SqlExecutionFactory.executorSql(DMLType.INSERT, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
     }
 }

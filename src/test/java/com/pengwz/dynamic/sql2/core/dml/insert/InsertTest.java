@@ -49,16 +49,17 @@ class InsertTest extends InitializingContext {
 
     @Test
     void batchInsert() {
-//        Product product = new Product();
-//        product.setProductName("菠萝手机-insert");
-//        product.setPrice(6.66);
-//        product.setStock(666);
-//        product.setCreatedAt(new Date());
-//        product.setCategoryId(1);
-//        ArrayList<Product> objects = new ArrayList<>();
-//        objects.add(product);
-//        Gson gson = new Gson();
-//        int i = sqlContext.batchInsert(product);
-//        System.out.println(i);
+        ArrayList<Product> products = new ArrayList<>();
+        for (int i = 1; i <= 3; i++) {
+            Product product = new Product();
+            product.setProductName("菠萝手机-insert");
+            product.setPrice(6.66);
+            product.setStock(666);
+            product.setCreatedAt(new Date());
+            product.setCategoryId(1);
+            products.add(product);
+        }
+        int i = sqlContext.insertBatch(products);
+        System.out.println(i);
     }
 }

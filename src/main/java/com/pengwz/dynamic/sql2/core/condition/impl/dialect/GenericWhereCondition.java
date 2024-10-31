@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 
 import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.AND;
 import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.OR;
+import static com.pengwz.dynamic.sql2.utils.SqlUtils.registerValueWithKey;
 
 public class GenericWhereCondition extends WhereSelectCondition {
     private final Version version;
@@ -414,7 +415,7 @@ public class GenericWhereCondition extends WhereSelectCondition {
     public <T, F> Condition andEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
-                .append(" = ").append(parameterBinder.registerValueWithKey(fn, value));
+                .append(" = ").append(registerValueWithKey(parameterBinder, fn, value));
         return this;
     }
 
@@ -431,7 +432,7 @@ public class GenericWhereCondition extends WhereSelectCondition {
     public <T, F> Condition orEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
-                .append(" = ").append(parameterBinder.registerValueWithKey(fn, value));
+                .append(" = ").append(registerValueWithKey(parameterBinder, fn, value));
         return this;
     }
 
@@ -444,7 +445,7 @@ public class GenericWhereCondition extends WhereSelectCondition {
     public <T, F> Condition andNotEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
-                .append(" != ").append(parameterBinder.registerValueWithKey(fn, value));
+                .append(" != ").append(registerValueWithKey(parameterBinder, fn, value));
         return this;
     }
 
@@ -537,7 +538,7 @@ public class GenericWhereCondition extends WhereSelectCondition {
     public <T, F> Condition andGreaterThan(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(AND))
-                .append(name).append(" > ").append(parameterBinder.registerValueWithKey(fn, value));
+                .append(name).append(" > ").append(registerValueWithKey(parameterBinder, fn, value));
         return this;
     }
 
@@ -550,7 +551,7 @@ public class GenericWhereCondition extends WhereSelectCondition {
     public <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
-                .append(" > ").append(parameterBinder.registerValueWithKey(fn, value));
+                .append(" > ").append(registerValueWithKey(parameterBinder, fn, value));
         return this;
     }
 
@@ -573,7 +574,7 @@ public class GenericWhereCondition extends WhereSelectCondition {
     public <T, F> Condition orGreaterThanOrEqualTo(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
-                .append(" <= ").append(parameterBinder.registerValueWithKey(fn, value));
+                .append(" <= ").append(registerValueWithKey(parameterBinder, fn, value));
         return this;
     }
 
@@ -586,7 +587,7 @@ public class GenericWhereCondition extends WhereSelectCondition {
     public <T, F> Condition andLessThan(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
-                .append(" < ").append(parameterBinder.registerValueWithKey(fn, value));
+                .append(" < ").append(registerValueWithKey(parameterBinder, fn, value));
         return this;
     }
 
@@ -818,7 +819,7 @@ public class GenericWhereCondition extends WhereSelectCondition {
     @Override
     public HavingCondition andEqualTo(AggregateFunction function, Object value) {
         String functionToString = executeFunctionToString(function);
-        condition.append(" ").append(functionToString).append(" = ").append(parameterBinder.registerValueWithKey(value));
+        condition.append(" ").append(functionToString).append(" = ").append(registerValueWithKey(parameterBinder, value));
         return this;
     }
 

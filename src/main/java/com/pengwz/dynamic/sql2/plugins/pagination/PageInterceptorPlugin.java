@@ -16,6 +16,8 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
+import static com.pengwz.dynamic.sql2.utils.SqlUtils.registerValueWithKey;
+
 public class PageInterceptorPlugin implements SqlInterceptor {
 //    private static final Logger log = LoggerFactory.getLogger(PaginationPlugin.class);
 
@@ -32,8 +34,8 @@ public class PageInterceptorPlugin implements SqlInterceptor {
         ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
         // 计算分页的偏移量 (pageIndex - 1) * pageSize
         int offset = (abstractPage.getPageIndex() - 1) * abstractPage.getPageSize();
-        String offsetKey = parameterBinder.registerValueWithKey(offset);
-        String pageSizeKey = parameterBinder.registerValueWithKey(abstractPage.getPageSize());
+        String offsetKey = registerValueWithKey(parameterBinder, offset);
+        String pageSizeKey = registerValueWithKey(parameterBinder, abstractPage.getPageSize());
         Long total = abstractPage.getCacheTotal();
         if (total == null) {
             total = selectTotal(sqlStatementWrapper, connection, offsetKey, pageSizeKey);

@@ -6,6 +6,8 @@ import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
+import static com.pengwz.dynamic.sql2.utils.SqlUtils.registerValueWithKey;
+
 public final class NumberColumn implements ColumFunction {
 
     protected int numberColumn;
@@ -27,7 +29,7 @@ public final class NumberColumn implements ColumFunction {
     @Override
     public ParameterBinder getParameterBinder() {
         ParameterBinder parameterBinder = new ParameterBinder();
-        parameterBinder.registerValueWithKey(numberColumn);
+        registerValueWithKey(parameterBinder, numberColumn);
         return parameterBinder;
     }
 

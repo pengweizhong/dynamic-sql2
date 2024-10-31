@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import static com.pengwz.dynamic.sql2.utils.SqlUtils.registerValueWithKey;
+
 public class GenericSqlSelectBuilder extends SqlSelectBuilder {
 
     public GenericSqlSelectBuilder(SelectSpecification selectSpecification) {
@@ -173,9 +175,9 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         }
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxLimit(SqlDialect.MYSQL)).append(" ");
         if (limitInfo.getOffset() != null) {
-            sqlBuilder.append(parameterBinder.registerValueWithKey(limitInfo.getOffset())).append(", ");
+            sqlBuilder.append(registerValueWithKey(parameterBinder, limitInfo.getOffset())).append(", ");
         }
-        sqlBuilder.append(parameterBinder.registerValueWithKey(limitInfo.getLimit()));
+        sqlBuilder.append(registerValueWithKey(parameterBinder, limitInfo.getLimit()));
     }
 
     private void parseAllColumn(AllColumn allColumn, boolean isAppendComma) {

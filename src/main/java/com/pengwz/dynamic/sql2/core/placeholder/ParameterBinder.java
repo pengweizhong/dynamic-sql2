@@ -9,36 +9,12 @@ import com.pengwz.dynamic.sql2.utils.ConverterUtils;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class ParameterBinder {
-    private final Map<String, Object> parameters = new HashMap<>();
-
-    public String generateBindingKey() {
-        //Key 的构成："^:[0-9a-f]{32}$"
-        return ":" + UUID.randomUUID().toString().replace("-", "");
-    }
-
-    public String registerValueWithKey(Object value) {
-        String key = generateBindingKey();
-        parameters.put(key, value);
-        return key;
-    }
-
-    public String registerValueWithKey(Fn<?, ?> fn, Object value) {
-        String key = generateBindingKey();
-        if (fn instanceof AbstractAliasHelper) {
-            parameters.put(key, value);
-            return key;
-        }
-        String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
-        String fieldName = ReflectUtils.fnToFieldName(fn);
-        TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
-        ColumnMeta columnMeta = tableMeta.getColumnMeta(fieldName);
-        parameters.put(key, ConverterUtils.convertToDatabaseColumn(columnMeta, value));
-        return key;
-    }
+    private final Map<String, Object> parameters = new LinkedHashMap<>();
 
     public void addParameterBinder(ParameterBinder parameterBinder) {
         if (parameterBinder == null) {

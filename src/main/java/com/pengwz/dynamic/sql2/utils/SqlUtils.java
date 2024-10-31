@@ -41,6 +41,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -408,6 +409,31 @@ public class SqlUtils {
             }
         }
         return new PreparedSql(modifiedSql.toString(), params);
+    }
+
+    public static String registerValueWithKey(ParameterBinder parameters, Object value) {
+        String key = generateBindingKey();
+        parameters.add(key, value);
+        return key;
+    }
+
+    public static String registerValueWithKey(ParameterBinder parameters, Fn<?, ?> fn, Object value) {
+        String key = generateBindingKey();
+        if (fn instanceof AbstractAliasHelper) {
+            parameters.add(key, value);
+            return key;
+        }
+        String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
+        String fieldName = ReflectUtils.fnToFieldName(fn);
+        TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
+        ColumnMeta columnMeta = tableMeta.getColumnMeta(fieldName);
+        parameters.add(key, ConverterUtils.convertToDatabaseColumn(columnMeta, value));
+        return key;
+    }
+
+    public static String generateBindingKey() {
+        //Key 的构成："^:[0-9a-f]{32}$"
+        return ":" + UUID.randomUUID().toString().replace("-", "");
     }
 
     public static String replacePlaceholdersWithValues(SqlStatementWrapper sqlStatementWrapper) {

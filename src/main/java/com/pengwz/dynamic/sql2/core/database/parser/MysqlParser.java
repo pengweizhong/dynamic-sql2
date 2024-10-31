@@ -13,6 +13,8 @@ import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.util.*;
 
+import static com.pengwz.dynamic.sql2.utils.SqlUtils.registerValueWithKey;
+
 public class MysqlParser extends AbstractDialectParser {
     private final Collection<Object> entities;
     private SqlStatementWrapper sqlStatementWrapper;
@@ -62,7 +64,7 @@ public class MysqlParser extends AbstractDialectParser {
         ParameterBinder parameterBinder = new ParameterBinder();
         for (int i = 0; i < values.size(); i++) {
             Object value = values.get(i);
-            sql.append(parameterBinder.registerValueWithKey(value));
+            sql.append(registerValueWithKey(parameterBinder, value));
             if (i < values.size() - 1) {
                 sql.append(", ");
             }
@@ -72,34 +74,34 @@ public class MysqlParser extends AbstractDialectParser {
     }
 
     private void parseInsertBatch() {
-//        Object firstEntity = entities.iterator().next();
-//        TableMeta tableMeta = TableProvider.getTableMeta(firstEntity.getClass());
-//        List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
-//        StringBuilder sql = new StringBuilder();
-//        sql.append("insert into ");
-//        sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
-//        sql.append(" (");
-//        StringBuilder placeHolders = new StringBuilder();
-//        for (int i = 0; i < columnMetas.size(); i++) {
-//            ColumnMeta columnMeta = columnMetas.get(i);
-//            sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnMeta.getColumnName()));
-//            placeHolders.append("?");
-//            if (i < columnMetas.size() - 1) {
-//                sql.append(", ");
-//                placeHolders.append(", ");
-//            }
-//        }
-//        sql.append(") values (").append(placeHolders).append(")");
-//        ArrayList<ParameterBinder> parameterBinders = new ArrayList<>();
-//        for (Object entity : entities) {
-//            ParameterBinder parameterBinder = new ParameterBinder();
-//            for (ColumnMeta columnMeta : columnMetas) {
-//                Object fieldValue = ReflectUtils.getFieldValue(entity, columnMeta.getField());
-//                parameterBinder.registerValueWithKey(ConverterUtils.convertToDatabaseColumn(columnMeta, fieldValue));
-//            }
-//            parameterBinders.add(parameterBinder);
-//        }
-////        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinders);
+        Object firstEntity = entities.iterator().next();
+        TableMeta tableMeta = TableProvider.getTableMeta(firstEntity.getClass());
+        List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
+        StringBuilder sql = new StringBuilder();
+        sql.append("insert into ");
+        sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
+        sql.append(" (");
+        StringBuilder placeHolders = new StringBuilder();
+        for (int i = 0; i < columnMetas.size(); i++) {
+            ColumnMeta columnMeta = columnMetas.get(i);
+            sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnMeta.getColumnName()));
+            placeHolders.append("?");
+            if (i < columnMetas.size() - 1) {
+                sql.append(", ");
+                placeHolders.append(", ");
+            }
+        }
+        sql.append(") values (").append(placeHolders).append(")");
+        ArrayList<ParameterBinder> parameterBinders = new ArrayList<>();
+        for (Object entity : entities) {
+            ParameterBinder parameterBinder = new ParameterBinder();
+            for (ColumnMeta columnMeta : columnMetas) {
+                Object fieldValue = ReflectUtils.getFieldValue(entity, columnMeta.getField());
+                registerValueWithKey(parameterBinder, ConverterUtils.convertToDatabaseColumn(columnMeta, fieldValue));
+            }
+            parameterBinders.add(parameterBinder);
+        }
+//        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinders);
     }
 
     private Set<String> getForcedFieldNames(Fn<?, ?>[] forcedFields) {
