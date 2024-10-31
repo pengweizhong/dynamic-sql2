@@ -1,14 +1,19 @@
 package com.pengwz.dynamic.sql2.core.database;
 
+import com.pengwz.dynamic.sql2.core.dml.insert.impl.EntitiesInserter;
+import com.pengwz.dynamic.sql2.enums.GenerationType;
+import com.pengwz.dynamic.sql2.table.ColumnMeta;
+import com.pengwz.dynamic.sql2.table.GeneratedStrategy;
+import com.pengwz.dynamic.sql2.table.TableMeta;
+import com.pengwz.dynamic.sql2.table.TableProvider;
+import com.pengwz.dynamic.sql2.utils.ConverterUtils;
+import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RootExecutor {
     private RootExecutor() {
@@ -53,25 +58,44 @@ public class RootExecutor {
     public static int executeInsert(Connection connection, PreparedSql preparedSql) {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        int rowsAffected;
+        ColumnMeta columnMeta = extractAutoIncrementColumnMeta();
         try {
-            preparedStatement = connection.prepareStatement(preparedSql.getSql());
+            if (columnMeta == null) {
+                preparedStatement = connection.prepareStatement(preparedSql.getSql());
+            } else {
+                preparedStatement = connection.prepareStatement(preparedSql.getSql(), Statement.RETURN_GENERATED_KEYS);
+            }
             List<Object> params = preparedSql.getParams();
             for (int i = 1; i <= params.size(); i++) {
                 preparedStatement.setObject(i, params.get(i - 1));
             }
-            return preparedStatement.executeUpdate();
+            rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected <= 0 || columnMeta == null) {
+                return rowsAffected;
+            }
+            // 获取自增键值
+            resultSet = preparedStatement.getGeneratedKeys();
+            assignValueToPrimaryKey(resultSet, columnMeta);
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         } finally {
             SqlUtils.close(resultSet, preparedStatement);
         }
+        return rowsAffected;
     }
 
     public static int executeInsertBatch(Connection connection, PreparedSql preparedSql) {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        int rowsAffected;
+        ColumnMeta columnMeta = extractAutoIncrementColumnMeta();
         try {
-            preparedStatement = connection.prepareStatement(preparedSql.getSql());
+            if (columnMeta == null) {
+                preparedStatement = connection.prepareStatement(preparedSql.getSql());
+            } else {
+                preparedStatement = connection.prepareStatement(preparedSql.getSql(), Statement.RETURN_GENERATED_KEYS);
+            }
             List<List<Object>> batchParams = preparedSql.getBatchParams();
             for (List<Object> batchParam : batchParams) {
                 for (int i = 1; i <= batchParam.size(); i++) {
@@ -79,11 +103,39 @@ public class RootExecutor {
                 }
                 preparedStatement.addBatch();
             }
-            return preparedStatement.executeBatch().length;
+            rowsAffected = preparedStatement.executeBatch().length;
+            if (rowsAffected <= 0 || columnMeta == null) {
+                return rowsAffected;
+            }
+            // 获取自增键值
+            resultSet = preparedStatement.getGeneratedKeys();
+            assignValueToPrimaryKey(resultSet, columnMeta);
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         } finally {
             SqlUtils.close(resultSet, preparedStatement);
+        }
+        return rowsAffected;
+    }
+
+    private static ColumnMeta extractAutoIncrementColumnMeta() {
+        Collection<Object> localEntities = EntitiesInserter.getLocalEntities();
+        Object next = localEntities.iterator().next();
+        TableMeta tableMeta = TableProvider.getTableMeta(next.getClass());
+        List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
+        return columnMetas.stream().filter(columnMeta -> {
+            GeneratedStrategy generatedStrategy = columnMeta.getGeneratedStrategy();
+            return generatedStrategy != null && (GenerationType.AUTO.equals(generatedStrategy.getStrategy()));
+        }).findFirst().orElse(null);
+    }
+
+    private static void assignValueToPrimaryKey(ResultSet resultSet, ColumnMeta columnMeta) throws SQLException {
+        for (Object obj : EntitiesInserter.getLocalEntities()) {
+            resultSet.next();
+            Long generatedKey = resultSet.getLong(1);
+            // 设置自增ID值到实体对应字段
+            Object o = ConverterUtils.convertToEntityAttribute(columnMeta.getField().getType(), generatedKey);
+            ReflectUtils.setFieldValue(obj, columnMeta.getField(), o);
         }
     }
 }

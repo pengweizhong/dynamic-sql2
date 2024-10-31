@@ -10,50 +10,95 @@ import com.pengwz.dynamic.sql2.enums.DMLType;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class EntitiesInserter {
-    private final Collection<Object> entities;
+    private static final ThreadLocal<Collection<Object>> LOCAL_ENTITIES = new ThreadLocal<>();
     private AbstractDialectParser dialectParser;
     private final Fn<?, ?>[] forcedFields;
 
     public EntitiesInserter(Object entity, Fn<?, ?>[] forcedFields) {
-        this.entities = new ArrayList<>();
-        this.entities.add(entity);
         this.forcedFields = forcedFields;
+        setEntities(Collections.singleton(entity));
         init();
     }
 
     public EntitiesInserter(Collection<Object> entities) {
-        this.entities = entities;
         this.forcedFields = null;
+        setEntities(entities);
         init();
     }
 
     private void init() {
-        Object next = entities.iterator().next();
+        Object next = getLocalEntities().iterator().next();
         TableMeta tableMeta = TableProvider.getTableMeta(next.getClass());
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        dialectParser = SqlExecutionFactory.chosenDialectParser(schemaProperties, entities);
+        dialectParser = SqlExecutionFactory.chosenDialectParser(schemaProperties, getLocalEntities());
     }
 
+    /**
+     * 模板方法，通过指定的SQL构建过程和执行器完成SQL操作。
+     *
+     * @param dmlType       DML操作类型
+     * @param sqlAction     SQL语句的构建过程
+     * @param doSqlExecutor SQL执行的具体实现
+     * @return 受影响的行数
+     */
+    private int execute(DMLType dmlType,
+                        Consumer<AbstractDialectParser> sqlAction,
+                        Function<SqlExecutor, Integer> doSqlExecutor) {
+        try {
+            sqlAction.accept(dialectParser);
+            return SqlExecutionFactory.executorSql(dmlType, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+        } finally {
+            clearEntities();
+        }
+
+    }
+
+    /**
+     * 执行带有选择性字段的插入。
+     *
+     * @param doSqlExecutor SQL执行器
+     * @return 受影响的行数
+     */
     public int insertSelective(Function<SqlExecutor, Integer> doSqlExecutor) {
-        dialectParser.insertSelective(forcedFields);
-        return SqlExecutionFactory.executorSql(DMLType.INSERT, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+        return execute(DMLType.INSERT, parser -> parser.insertSelective(forcedFields), doSqlExecutor);
     }
 
+    /**
+     * 执行普通插入操作。
+     *
+     * @param doSqlExecutor SQL执行器
+     * @return 受影响的行数
+     */
     public int insert(Function<SqlExecutor, Integer> doSqlExecutor) {
-        dialectParser.insert();
-        return SqlExecutionFactory.executorSql(DMLType.INSERT, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+        return execute(DMLType.INSERT, AbstractDialectParser::insert, doSqlExecutor);
     }
 
+    /**
+     * 执行批量插入操作。
+     *
+     * @param doSqlExecutor SQL执行器
+     * @return 受影响的行数
+     */
     public int insertBatch(Function<SqlExecutor, Integer> doSqlExecutor) {
-        dialectParser.insertBatch();
-        return SqlExecutionFactory.executorSql(DMLType.INSERT, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+        return execute(DMLType.INSERT, AbstractDialectParser::insertBatch, doSqlExecutor);
+    }
+
+    private void setEntities(Collection<Object> entities) {
+        LOCAL_ENTITIES.set(entities);
+    }
+
+    public static Collection<Object> getLocalEntities() {
+        return LOCAL_ENTITIES.get();
+    }
+
+    private void clearEntities() {
+        LOCAL_ENTITIES.remove();
     }
 }

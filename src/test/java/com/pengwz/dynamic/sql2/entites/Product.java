@@ -1,5 +1,7 @@
 package com.pengwz.dynamic.sql2.entites;
 
+import com.pengwz.dynamic.sql2.anno.GeneratedValue;
+import com.pengwz.dynamic.sql2.anno.Id;
 import com.pengwz.dynamic.sql2.anno.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +14,8 @@ import java.util.Date;
 @AllArgsConstructor
 @Table("products")
 public class Product {
+    @Id
+    @GeneratedValue
     private int productId;  // 产品 ID
     private String productName;  // 产品名称
     private double price;  // 产品价格

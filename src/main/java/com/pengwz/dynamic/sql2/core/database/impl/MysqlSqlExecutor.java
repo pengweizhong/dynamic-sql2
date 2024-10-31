@@ -12,9 +12,15 @@ import java.util.Map;
 
 public class MysqlSqlExecutor extends AbstractSqlExecutor {
     private static final Logger log = LoggerFactory.getLogger(MysqlSqlExecutor.class);
+    private List<Object> entities;
 
     public MysqlSqlExecutor(Connection connection, PreparedSql preparedSql) {
         super(connection, preparedSql);
+    }
+
+    public MysqlSqlExecutor(List<Object> entities, Connection connection, PreparedSql preparedSql) {
+        super(connection, preparedSql);
+        this.entities = entities;
     }
 
     @Override

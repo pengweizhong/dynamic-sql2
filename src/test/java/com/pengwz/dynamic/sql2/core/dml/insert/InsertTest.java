@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.dml.insert;
 
 import com.google.gson.Gson;
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.core.dml.insert.impl.EntitiesInserter;
 import com.pengwz.dynamic.sql2.entites.Product;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +22,8 @@ class InsertTest extends InitializingContext {
         product.setCategoryId(1);
         int i = sqlContext.insertSelective(product);
         System.out.println(i);
+        System.out.println(EntitiesInserter.getLocalEntities());
+        System.out.println(product);
     }
 
     @Test
@@ -50,16 +53,19 @@ class InsertTest extends InitializingContext {
     @Test
     void batchInsert() {
         ArrayList<Product> products = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 1; i <= 10; i++) {
             Product product = new Product();
-            product.setProductName("菠萝手机-insert-" + i);
+            product.setProductName("菠萝手机-insert-1000/" + i);
             product.setPrice(6.66);
             product.setStock(666);
             product.setCreatedAt(new Date());
             product.setCategoryId(1);
             products.add(product);
         }
+        long timeMillis = System.currentTimeMillis();
         int i = sqlContext.insertBatch(products);
+        System.out.println(System.currentTimeMillis() - timeMillis);
         System.out.println(i);
+        products.forEach(System.out::println);
     }
 }
