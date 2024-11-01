@@ -48,4 +48,19 @@ public class DefaultSqlContext implements SqlContext {
         return new EntitiesInserter((Collection<Object>) entities).insertMultiple(InsertHandler::insertMultiple);
     }
 
+    @Override
+    public int deleteByPrimaryKey(Object pkValue) {
+        return 0;
+    }
+
+    @Override
+    public int deleteByPrimaryKey(Collection<Object> pkValues) {
+        return 0;
+    }
+
+    @Override
+    public int deleteByCondition(String condition) {
+        return 0;
+    }
+
 }

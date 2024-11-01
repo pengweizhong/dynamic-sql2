@@ -62,4 +62,10 @@ public interface SqlContext {
      * @return 实际插入的记录数。
      */
     <T> int insertMultiple(Collection<T> entities);
+
+    int deleteByPrimaryKey(Object pkValue);
+
+    int deleteByPrimaryKey(Collection<Object> pkValues);
+
+    int deleteByCondition(String condition);
 }
