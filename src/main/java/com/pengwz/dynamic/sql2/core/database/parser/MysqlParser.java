@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core.database.parser;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
+import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper.BatchType;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
@@ -124,8 +125,35 @@ public class MysqlParser extends AbstractDialectParser {
     @Override
     public void insertBatch() {
         parseInsertBatch();
+        sqlStatementWrapper.setBatchType(BatchType.BATCH);
     }
 
+    @Override
+    public void insertMultiple() {
+        parseInsertBatch();
+        StringBuilder rawSql = sqlStatementWrapper.getRawSql();
+        //继续追加values
+        List<ParameterBinder> batchParameterBinders = sqlStatementWrapper.getBatchParameterBinders();
+        //从第二个开始，第一个已经拼接过了
+        rawSql.append(", ");
+        for (int i = 1; i < batchParameterBinders.size(); i++) {
+            ParameterBinder parameterBinder = batchParameterBinders.get(i);
+            Collection<Object> values = parameterBinder.getValues();
+            rawSql.append("(");
+            int j = 0;
+            for (Object ignored : values) {//NOSONAR
+                rawSql.append("?");
+                if (j++ < values.size() - 1) {
+                    rawSql.append(", ");
+                }
+            }
+            rawSql.append(")");
+            if (i < batchParameterBinders.size() - 1) {
+                rawSql.append(", ");
+            }
+        }
+        sqlStatementWrapper.setBatchType(BatchType.MULTIPLE);
+    }
 
     @Override
     public List<Map<String, Object>> executeQuery() {

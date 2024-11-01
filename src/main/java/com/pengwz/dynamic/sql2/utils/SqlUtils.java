@@ -12,6 +12,7 @@ import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
 import com.pengwz.dynamic.sql2.core.database.PreparedSql;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
+import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper.BatchType;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 import com.pengwz.dynamic.sql2.core.dml.select.build.*;
@@ -395,17 +396,29 @@ public class SqlUtils {
 
     public static PreparedSql parsePreparedObject(SqlStatementWrapper sqlStatementWrapper) {
         //判断是否是批量SQL，如果是批量的就按照顺序填充参数，而不需要替换
-        if (!sqlStatementWrapper.isBatch()) {
+        BatchType batchType = sqlStatementWrapper.getBatchType();
+        if (batchType == null) {
             StringBuilder rawSql = sqlStatementWrapper.getRawSql();
             ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
             return parsePreparedObject(rawSql, parameterBinder);
         }
-        List<ParameterBinder> batchParameterBinders = sqlStatementWrapper.getBatchParameterBinders();
+        //如果是批量模式
         PreparedSql preparedSql = new PreparedSql(sqlStatementWrapper.getRawSql().toString());
-        for (ParameterBinder batchParameterBinder : batchParameterBinders) {
-            List<Object> param = new ArrayList<>(batchParameterBinder.getValues());
-            preparedSql.addBatchParams(param);
+        if (batchType == BatchType.BATCH) {
+            List<ParameterBinder> batchParameterBinders = sqlStatementWrapper.getBatchParameterBinders();
+            for (ParameterBinder batchParameterBinder : batchParameterBinders) {
+                List<Object> param = new ArrayList<>(batchParameterBinder.getValues());
+                preparedSql.addBatchParams(param);
+            }
+            return preparedSql;
         }
+        //是追加模式
+        List<ParameterBinder> batchParameterBinders = sqlStatementWrapper.getBatchParameterBinders();
+        ArrayList<Object> params = new ArrayList<>();
+        for (ParameterBinder batchParameterBinder : batchParameterBinders) {
+            params.addAll(batchParameterBinder.getValues());
+        }
+        preparedSql.addBatchParams(params);
         return preparedSql;
     }
 

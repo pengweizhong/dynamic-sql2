@@ -45,7 +45,7 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
 
     @Override
     public int insertMultiple() {
-        return 0;
+        return RootExecutor.executeInsertMultiple(connection, preparedSql);
     }
 
 }

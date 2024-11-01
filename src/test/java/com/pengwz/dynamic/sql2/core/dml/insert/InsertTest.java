@@ -1,6 +1,5 @@
 package com.pengwz.dynamic.sql2.core.dml.insert;
 
-import com.google.gson.Gson;
 import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.core.dml.insert.impl.EntitiesInserter;
 import com.pengwz.dynamic.sql2.entites.Product;
@@ -53,7 +52,7 @@ class InsertTest extends InitializingContext {
     @Test
     void batchInsert() {
         ArrayList<Product> products = new ArrayList<>();
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 1000; i++) {
             Product product = new Product();
             product.setProductName("菠萝手机-insert-1000/" + i);
             product.setPrice(6.66);
@@ -64,6 +63,25 @@ class InsertTest extends InitializingContext {
         }
         long timeMillis = System.currentTimeMillis();
         int i = sqlContext.insertBatch(products);
+        System.out.println(System.currentTimeMillis() - timeMillis);
+        System.out.println(i);
+        products.forEach(System.out::println);
+    }
+
+    @Test
+    void insertMultiple() {
+        ArrayList<Product> products = new ArrayList<>();
+        for (int i = 1; i <= 1000; i++) {
+            Product product = new Product();
+            product.setProductName("菠萝手机-insertMultiple-1000/" + i);
+            product.setPrice(6.66);
+            product.setStock(666);
+            product.setCreatedAt(new Date());
+            product.setCategoryId(1);
+            products.add(product);
+        }
+        long timeMillis = System.currentTimeMillis();
+        int i = sqlContext.insertMultiple(products);
         System.out.println(System.currentTimeMillis() - timeMillis);
         System.out.println(i);
         products.forEach(System.out::println);

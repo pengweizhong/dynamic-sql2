@@ -118,6 +118,36 @@ public class RootExecutor {
         return rowsAffected;
     }
 
+    public static int executeInsertMultiple(Connection connection, PreparedSql preparedSql) {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int rowsAffected;
+        ColumnMeta columnMeta = extractAutoIncrementColumnMeta();
+        try {
+            if (columnMeta == null) {
+                preparedStatement = connection.prepareStatement(preparedSql.getSql());
+            } else {
+                preparedStatement = connection.prepareStatement(preparedSql.getSql(), Statement.RETURN_GENERATED_KEYS);
+            }
+            List<Object> multipleParams = preparedSql.getParams();
+            for (int i = 1; i <= multipleParams.size(); i++) {
+                preparedStatement.setObject(i, multipleParams.get(i - 1));
+            }
+            rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected <= 0 || columnMeta == null) {
+                return rowsAffected;
+            }
+            // 获取自增键值
+            resultSet = preparedStatement.getGeneratedKeys();
+            assignValueToPrimaryKey(resultSet, columnMeta);
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        } finally {
+            SqlUtils.close(resultSet, preparedStatement);
+        }
+        return rowsAffected;
+    }
+
     private static ColumnMeta extractAutoIncrementColumnMeta() {
         Collection<Object> localEntities = EntitiesInserter.getLocalEntities();
         Object next = localEntities.iterator().next();
@@ -138,4 +168,5 @@ public class RootExecutor {
             ReflectUtils.setFieldValue(obj, columnMeta.getField(), o);
         }
     }
+
 }

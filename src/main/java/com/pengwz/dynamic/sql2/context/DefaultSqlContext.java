@@ -43,8 +43,9 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> int insertMultiple(Collection<T> entities) {
-        return 0;
+        return new EntitiesInserter((Collection<Object>) entities).insertMultiple(InsertHandler::insertMultiple);
     }
 
 }

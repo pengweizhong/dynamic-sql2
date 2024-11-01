@@ -101,4 +101,8 @@ public class EntitiesInserter {
     private void clearEntities() {
         LOCAL_ENTITIES.remove();
     }
+
+    public int insertMultiple(Function<SqlExecutor, Integer> doSqlExecutor) {
+        return execute(DMLType.INSERT, AbstractDialectParser::insertMultiple, doSqlExecutor);
+    }
 }

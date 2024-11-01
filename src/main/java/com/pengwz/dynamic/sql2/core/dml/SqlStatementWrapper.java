@@ -23,6 +23,8 @@ public class SqlStatementWrapper {
      */
     private final List<ParameterBinder> parameterBinders = new ArrayList<>();
 
+    private BatchType batchType;
+
     /**
      * 构造一个新的 SqlStatementWrapper 实例。
      *
@@ -92,10 +94,18 @@ public class SqlStatementWrapper {
         return dataSourceName;
     }
 
+    public void setBatchType(BatchType batchType) {
+        this.batchType = batchType;
+    }
+
     /**
      * 是否批量语句
      */
-    public boolean isBatch() {
-        return parameterBinders.size() > 1;
+    public BatchType getBatchType() {
+        return batchType;
+    }
+
+    public enum BatchType {
+        BATCH, MULTIPLE;
     }
 }
