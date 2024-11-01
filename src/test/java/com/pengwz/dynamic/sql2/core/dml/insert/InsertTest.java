@@ -3,10 +3,13 @@ package com.pengwz.dynamic.sql2.core.dml.insert;
 import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.core.dml.insert.impl.EntitiesInserter;
 import com.pengwz.dynamic.sql2.entites.Product;
+import com.pengwz.dynamic.sql2.entites.UserAndOrderView;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 
 class InsertTest extends InitializingContext {
@@ -85,5 +88,12 @@ class InsertTest extends InitializingContext {
         System.out.println(System.currentTimeMillis() - timeMillis);
         System.out.println(i);
         products.forEach(System.out::println);
+    }
+
+    @Test
+    void batchInsertMultiple() {
+        UserAndOrderView userAndOrderView = new UserAndOrderView();
+        userAndOrderView.setPrice(BigDecimal.ONE);
+        sqlContext.insertMultiple(Collections.singleton(userAndOrderView));
     }
 }

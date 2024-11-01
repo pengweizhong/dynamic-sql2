@@ -35,6 +35,10 @@ public class EntitiesInserter {
     private void init() {
         Object next = getLocalEntities().iterator().next();
         TableMeta tableMeta = TableProvider.getTableMeta(next.getClass());
+        if (tableMeta == null) {
+            throw new IllegalStateException("Class `" + next.getClass().getCanonicalName()
+                    + "` is not managed or cached by Dynamic-SQL");
+        }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
         dialectParser = SqlExecutionFactory.chosenDialectParser(schemaProperties, getLocalEntities());
