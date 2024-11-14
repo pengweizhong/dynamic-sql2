@@ -155,9 +155,15 @@ public class MysqlParser extends AbstractDialectParser {
         sqlStatementWrapper.setBatchType(BatchType.MULTIPLE);
     }
 
+
     @Override
-    public List<Map<String, Object>> executeQuery() {
-        return Collections.emptyList();
+    public int delete() {
+        return 0;
+    }
+
+    @Override
+    public int deleteByPrimaryKey() {
+        return 0;
     }
 
     enum InsertType {
