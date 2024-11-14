@@ -3,7 +3,7 @@ package com.pengwz.dynamic.sql2.context;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.SqlContext;
 import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
-import com.pengwz.dynamic.sql2.core.dml.insert.impl.EntitiesInserter;
+import com.pengwz.dynamic.sql2.core.dml.insert.EntitiesInserter;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 

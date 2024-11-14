@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.database;
 
-import com.pengwz.dynamic.sql2.core.dml.insert.impl.EntitiesInserter;
+import com.pengwz.dynamic.sql2.core.dml.insert.EntitiesInserter;
 import com.pengwz.dynamic.sql2.enums.GenerationType;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.GeneratedStrategy;

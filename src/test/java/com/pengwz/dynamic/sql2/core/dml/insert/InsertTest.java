@@ -1,7 +1,6 @@
 package com.pengwz.dynamic.sql2.core.dml.insert;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
-import com.pengwz.dynamic.sql2.core.dml.insert.impl.EntitiesInserter;
 import com.pengwz.dynamic.sql2.entites.Product;
 import com.pengwz.dynamic.sql2.entites.UserAndOrderView;
 import org.junit.jupiter.api.Test;

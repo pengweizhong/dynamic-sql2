@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.core.dml.insert.impl;
+package com.pengwz.dynamic.sql2.core.dml.insert;
 
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
