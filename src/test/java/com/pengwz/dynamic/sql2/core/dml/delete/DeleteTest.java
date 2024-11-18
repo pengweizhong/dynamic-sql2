@@ -4,12 +4,20 @@ import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.entites.Product;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 class DeleteTest extends InitializingContext {
 
     @Test
-    void delete() {
+    void deleteByPrimaryKey() {
         int pkValue = 5011;
         int i = sqlContext.deleteByPrimaryKey(Product.class, pkValue);
+        System.out.println(i);
+    }
+
+    @Test
+    void deleteByPrimaryKey2() {
+        int i = sqlContext.deleteByPrimaryKey(Product.class, Arrays.asList(5001, 5002, 5003, 5004, 5005));
         System.out.println(i);
     }
 

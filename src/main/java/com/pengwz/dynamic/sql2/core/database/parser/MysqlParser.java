@@ -84,9 +84,26 @@ public class MysqlParser extends AbstractDialectParser {
             throw new IllegalStateException("The `" + tableMeta.getTableName() + "` table does not declare a primary key value");
         }
         sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnMeta.getColumnName()));
-        sql.append(" = ");
+        if (params.size() > 1) {
+            sql.append(" in (");
+        } else {
+            sql.append(" = ");
+        }
         ParameterBinder parameterBinder = new ParameterBinder();
-        sql.append(registerValueWithKey(parameterBinder, params.iterator().next()));
+        Iterator<Object> iterator = params.iterator();
+        while (iterator.hasNext()) {
+            Object param = iterator.next();
+            sql.append(registerValueWithKey(parameterBinder, param));
+            // 如果还有下一个元素，则添加逗号
+            if (iterator.hasNext()) {
+                sql.append(", ");
+            }
+        }
+        //集合类追加括号
+        if (params.size() > 1) {
+            sql.append(")");
+        }
+
         sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinder);
     }
 

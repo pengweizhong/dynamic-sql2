@@ -8,6 +8,7 @@ import com.pengwz.dynamic.sql2.core.dml.insert.EntitiesInserter;
 import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
+import com.pengwz.dynamic.sql2.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,12 +53,18 @@ public class DefaultSqlContext implements SqlContext {
 
     @Override
     public <T> int deleteByPrimaryKey(Class<T> entityClass, Object pkValue) {
+        if (pkValue == null) {
+            throw new IllegalArgumentException("pkValue can not be null");
+        }
         return new EntitiesDeleter(entityClass).deleteByPrimaryKey(pkValue, DeleteHandler::deleteByPrimaryKey);
     }
 
     @Override
-    public int deleteByPrimaryKey(Collection<Object> pkValues) {
-        return 0;
+    public <T> int deleteByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues) {
+        if (CollectionUtils.isEmpty(pkValues)) {
+            throw new IllegalArgumentException("pkValues can not be null");
+        }
+        return new EntitiesDeleter(entityClass).deleteByPrimaryKey(pkValues, DeleteHandler::deleteByPrimaryKey);
     }
 
     @Override

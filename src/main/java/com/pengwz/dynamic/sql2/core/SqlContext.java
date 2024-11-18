@@ -71,7 +71,7 @@ public interface SqlContext {
 
     <T> int deleteByPrimaryKey(Class<T> entityClass, Object pkValue);
 
-    int deleteByPrimaryKey(Collection<Object> pkValues);
+    <T> int deleteByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues);
 
     int deleteByCondition(String condition);
 }

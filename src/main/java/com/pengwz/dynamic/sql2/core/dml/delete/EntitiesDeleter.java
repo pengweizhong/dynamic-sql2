@@ -9,6 +9,7 @@ import com.pengwz.dynamic.sql2.enums.DMLType;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Function;
 
@@ -19,7 +20,7 @@ public class EntitiesDeleter {
         this.entityClass = entityClass;
     }
 
-    private AbstractDialectParser getDialectParser(Object param) {
+    private AbstractDialectParser getDialectParser(Collection<Object> params) {
         TableMeta tableMeta = TableProvider.getTableMeta(entityClass);
         if (tableMeta == null) {
             throw new IllegalStateException("Class `" + entityClass.getCanonicalName()
@@ -27,11 +28,17 @@ public class EntitiesDeleter {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        return SqlExecutionFactory.chosenDialectParser(schemaProperties, entityClass, Collections.singletonList(param));
+        return SqlExecutionFactory.chosenDialectParser(schemaProperties, entityClass, params);
     }
 
     public int deleteByPrimaryKey(Object pkValue, Function<SqlExecutor, Integer> doSqlExecutor) {
-        AbstractDialectParser dialectParser = getDialectParser(pkValue);
+        AbstractDialectParser dialectParser = getDialectParser(Collections.singletonList(pkValue));
+        dialectParser.deleteByPrimaryKey();
+        return SqlExecutionFactory.executorSql(DMLType.UPDATE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+    }
+
+    public int deleteByPrimaryKey(Collection<Object> pkValues, Function<SqlExecutor, Integer> doSqlExecutor) {
+        AbstractDialectParser dialectParser = getDialectParser(pkValues);
         dialectParser.deleteByPrimaryKey();
         return SqlExecutionFactory.executorSql(DMLType.UPDATE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
     }
