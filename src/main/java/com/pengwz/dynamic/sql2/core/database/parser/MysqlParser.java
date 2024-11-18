@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.database.parser;
 
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper.BatchType;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
@@ -18,8 +19,9 @@ public class MysqlParser extends AbstractDialectParser {
     private final Collection<Object> params;
     private SqlStatementWrapper sqlStatementWrapper;
 
-    public MysqlParser(Class<?> entityClass, SchemaProperties schemaProperties, Collection<Object> params) {
-        super(entityClass, schemaProperties);
+    public MysqlParser(Class<?> entityClass, SchemaProperties schemaProperties,
+                       Collection<Object> params, WhereCondition whereCondition) {
+        super(entityClass, schemaProperties, whereCondition);
         this.params = params;
     }
 
@@ -103,8 +105,22 @@ public class MysqlParser extends AbstractDialectParser {
         if (params.size() > 1) {
             sql.append(")");
         }
-
         sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinder);
+    }
+
+    @Override
+    public void delete() {
+        StringBuilder sql = new StringBuilder();
+        sql.append("delete from ");
+        sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableAlias()));
+        sql.append(" ");
+        sql.append(SqlUtils.getSyntaxAs(schemaProperties.getSqlDialect()));
+        sql.append(" ");
+        sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
+        if (whereCondition != null) {
+            sql.append(" where ");
+        }
+        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, null);
     }
 
     enum InsertType {

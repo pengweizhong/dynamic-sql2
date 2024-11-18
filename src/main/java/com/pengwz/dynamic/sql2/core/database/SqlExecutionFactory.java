@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.database;
 
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.database.impl.MysqlSqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.impl.OracleSqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.parser.AbstractDialectParser;
@@ -24,12 +25,20 @@ public class SqlExecutionFactory {
     }
 
     public static AbstractDialectParser chosenDialectParser(SchemaProperties schemaProperties,
-                                                            Class<?> entityClass, Collection<Object> param) {
+                                                            Class<?> entityClass,
+                                                            Collection<Object> param) {
+        return chosenDialectParser(schemaProperties, entityClass, param, null);
+    }
+
+    public static AbstractDialectParser chosenDialectParser(SchemaProperties schemaProperties,
+                                                            Class<?> entityClass,
+                                                            Collection<Object> param,
+                                                            WhereCondition whereCondition) {
         SqlDialect sqlDialect = schemaProperties.getSqlDialect();
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:
-                return new MysqlParser(entityClass, schemaProperties, param);
+                return new MysqlParser(entityClass, schemaProperties, param, whereCondition);
             default:
                 throw new UnsupportedOperationException("Unsupported dialect: " + sqlDialect);
         }

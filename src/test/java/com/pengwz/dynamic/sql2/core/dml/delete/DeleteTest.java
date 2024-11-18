@@ -30,4 +30,10 @@ class DeleteTest extends InitializingContext {
         System.out.println(i);
     }
 
+    @Test
+    void deleteAll() {
+        int i = sqlContext.delete(Product.class, null);
+        System.out.println(i);
+    }
+
 }
