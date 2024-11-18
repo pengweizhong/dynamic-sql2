@@ -1,7 +1,7 @@
 package com.pengwz.dynamic.sql2.core;
 
-import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -70,10 +70,34 @@ public interface SqlContext {
      */
     <T> int insertMultiple(Collection<T> entities);
 
-
+    /**
+     * 根据主键值删除数据库中的单条记录。
+     *
+     * @param <T>         实体类的类型。
+     * @param entityClass 实体类，表示需要操作的表。
+     * @param pkValue     主键值，指定要删除的记录。
+     * @return 返回删除的记录条数
+     */
     <T> int deleteByPrimaryKey(Class<T> entityClass, Object pkValue);
 
+    /**
+     * 根据主键值集合删除数据库中的多条记录。
+     *
+     * @param <T>         实体类的类型。
+     * @param entityClass 实体类，表示需要操作的表。
+     * @param pkValues    主键值集合，指定要删除的多条记录。
+     * @return 返回删除的记录条数
+     */
     <T> int deleteByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues);
 
+    /**
+     * 根据指定的条件删除数据库中的记录。
+     *
+     * @param <T>         实体类的类型。
+     * @param entityClass 实体类，表示需要操作的表。
+     * @param condition   条件构造器，使用 {@link Consumer} 定义删除条件。
+     *                    如果传入 null，则删除整张表的所有数据。
+     * @return 返回删除的记录条数。
+     */
     <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition);
 }
