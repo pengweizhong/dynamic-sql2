@@ -10,7 +10,7 @@ import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementSelectWrapper;
-import com.pengwz.dynamic.sql2.core.dml.select.build.WhereSelectCondition;
+import com.pengwz.dynamic.sql2.core.dml.select.build.WhereCondition;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -23,7 +23,7 @@ import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.AND;
 import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.OR;
 import static com.pengwz.dynamic.sql2.utils.SqlUtils.registerValueWithKey;
 
-public class GenericWhereCondition extends WhereSelectCondition {
+public class GenericWhereCondition extends WhereCondition {
     private final Version version;
     private final Map<String, String> aliasTableMap;
     private final StringBuilder condition = new StringBuilder();

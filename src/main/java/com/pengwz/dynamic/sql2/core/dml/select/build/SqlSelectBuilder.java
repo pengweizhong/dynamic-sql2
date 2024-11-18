@@ -125,7 +125,7 @@ public abstract class SqlSelectBuilder {
     }
 
     private void parseHaving(Consumer<HavingCondition> havingCondition) {
-        WhereSelectCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
+        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
         havingCondition.accept(whereCondition);
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxHaving(sqlDialect))
                 .append(" ").append(whereCondition.getWhereConditionSyntax());
@@ -146,8 +146,8 @@ public abstract class SqlSelectBuilder {
         }
     }
 
-    private void parseWhere(Consumer<WhereSelectCondition> whereConditionConsumer) {
-        WhereSelectCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
+    private void parseWhere(Consumer<WhereCondition> whereConditionConsumer) {
+        WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
         whereConditionConsumer.accept(whereCondition);
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxWhere(sqlDialect))
                 .append(" ").append(whereCondition.getWhereConditionSyntax());

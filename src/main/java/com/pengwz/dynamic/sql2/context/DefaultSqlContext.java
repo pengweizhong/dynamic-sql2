@@ -8,11 +8,13 @@ import com.pengwz.dynamic.sql2.core.dml.insert.EntitiesInserter;
 import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
+import com.pengwz.dynamic.sql2.core.dml.select.build.WhereCondition;
 import com.pengwz.dynamic.sql2.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.function.Consumer;
 
 
 public class DefaultSqlContext implements SqlContext {
@@ -68,8 +70,7 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public int deleteByCondition(String condition) {
+    public <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition) {
         return 0;
     }
-
 }

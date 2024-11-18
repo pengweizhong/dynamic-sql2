@@ -153,7 +153,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         Consumer<Condition> onCondition = joinTable.getOnCondition();
         if (onCondition != null) {
             String syntaxOn = " " + SqlUtils.getSyntaxOn(sqlDialect) + " ";
-            WhereSelectCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
+            WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
             onCondition.accept(whereCondition);
             parameterBinder.addParameterBinder(whereCondition.getParameterBinder());
             sqlBuilder.append(syntaxOn).append(whereCondition.getWhereConditionSyntax());

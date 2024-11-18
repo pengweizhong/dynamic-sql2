@@ -5,9 +5,9 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.GroupFn;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
-import com.pengwz.dynamic.sql2.core.dml.select.build.WhereSelectCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.LimitInfo;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
+import com.pengwz.dynamic.sql2.core.dml.select.build.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
@@ -159,7 +159,7 @@ public class TableRelation<R> implements JoinCondition {
 
 
     @Override
-    public TableRelation<R> where(Consumer<WhereSelectCondition> condition) {
+    public TableRelation<R> where(Consumer<WhereCondition> condition) {
         selectSpecification.setWhereCondition(condition);
         return this;
     }

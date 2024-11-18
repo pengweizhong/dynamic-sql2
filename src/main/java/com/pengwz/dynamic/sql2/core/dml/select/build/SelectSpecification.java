@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public class SelectSpecification {
     private List<ColumnQuery> columFunctions = new ArrayList<>();
     private List<JoinTable> joinTables = new ArrayList<>();
-    private Consumer<WhereSelectCondition> whereCondition;
+    private Consumer<WhereCondition> whereCondition;
     private List<Fn<?, ?>> groupByFields;
     private Consumer<HavingCondition> havingCondition;
     private List<OrderBy> orderBys;
@@ -34,11 +34,11 @@ public class SelectSpecification {
         return groupByFields;
     }
 
-    public Consumer<WhereSelectCondition> getWhereCondition() {
+    public Consumer<WhereCondition> getWhereCondition() {
         return whereCondition;
     }
 
-    public void setWhereCondition(Consumer<WhereSelectCondition> whereCondition) {
+    public void setWhereCondition(Consumer<WhereCondition> whereCondition) {
         this.whereCondition = whereCondition;
     }
 

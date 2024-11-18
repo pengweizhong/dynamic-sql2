@@ -1,8 +1,10 @@
 package com.pengwz.dynamic.sql2.core;
 
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
+import com.pengwz.dynamic.sql2.core.dml.select.build.WhereCondition;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * 此接口提供了执行 SQL 操作的上下文环境。
@@ -73,5 +75,5 @@ public interface SqlContext {
 
     <T> int deleteByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues);
 
-    int deleteByCondition(String condition);
+    <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition);
 }
