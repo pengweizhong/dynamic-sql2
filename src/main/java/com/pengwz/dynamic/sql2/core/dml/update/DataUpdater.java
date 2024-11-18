@@ -1,7 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.update;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.dml.select.build.WhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 
 import java.util.Collection;
 import java.util.function.Consumer;

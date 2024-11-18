@@ -8,6 +8,8 @@ import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
@@ -153,7 +155,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         Consumer<Condition> onCondition = joinTable.getOnCondition();
         if (onCondition != null) {
             String syntaxOn = " " + SqlUtils.getSyntaxOn(sqlDialect) + " ";
-            WhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
+            GenericWhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
             onCondition.accept(whereCondition);
             parameterBinder.addParameterBinder(whereCondition.getParameterBinder());
             sqlBuilder.append(syntaxOn).append(whereCondition.getWhereConditionSyntax());

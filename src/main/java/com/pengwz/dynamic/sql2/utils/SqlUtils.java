@@ -335,8 +335,8 @@ public class SqlUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends WhereCondition> T matchDialectCondition(SqlDialect sqlDialect, Version version,
-                                                                     Map<String, String> aliasTableMap, String dataSourceName) {
+    public static <T extends GenericWhereCondition> T matchDialectCondition(SqlDialect sqlDialect, Version version,
+                                                                            Map<String, String> aliasTableMap, String dataSourceName) {
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:

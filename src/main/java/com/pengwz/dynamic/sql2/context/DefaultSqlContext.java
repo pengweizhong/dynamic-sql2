@@ -8,7 +8,7 @@ import com.pengwz.dynamic.sql2.core.dml.insert.EntitiesInserter;
 import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
-import com.pengwz.dynamic.sql2.core.dml.select.build.WhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.utils.CollectionUtils;
 
 import java.util.ArrayList;

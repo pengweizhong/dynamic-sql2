@@ -1,7 +1,7 @@
 package com.pengwz.dynamic.sql2.core;
 
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
-import com.pengwz.dynamic.sql2.core.dml.select.build.WhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 
 import java.util.Collection;
 import java.util.function.Consumer;

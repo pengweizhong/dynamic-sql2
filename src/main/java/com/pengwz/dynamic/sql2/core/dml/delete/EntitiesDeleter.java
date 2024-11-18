@@ -6,7 +6,7 @@ import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.database.SqlExecutionFactory;
 import com.pengwz.dynamic.sql2.core.database.SqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.parser.AbstractDialectParser;
-import com.pengwz.dynamic.sql2.core.dml.select.build.WhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.enums.DMLType;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;

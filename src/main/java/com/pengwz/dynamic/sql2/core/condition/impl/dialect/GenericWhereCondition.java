@@ -7,10 +7,10 @@ import com.pengwz.dynamic.sql2.core.column.function.aggregate.AggregateFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.FunctionCondition;
 import com.pengwz.dynamic.sql2.core.condition.NestedCondition;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.HavingCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementSelectWrapper;
-import com.pengwz.dynamic.sql2.core.dml.select.build.WhereCondition;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -791,12 +791,10 @@ public class GenericWhereCondition extends WhereCondition {
         return null;
     }
 
-    @Override
     public String getWhereConditionSyntax() {
         return condition.toString();
     }
 
-    @Override
     public ParameterBinder getParameterBinder() {
         return parameterBinder;
     }
