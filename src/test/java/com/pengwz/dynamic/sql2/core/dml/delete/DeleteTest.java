@@ -24,8 +24,8 @@ class DeleteTest extends InitializingContext {
     @Test
     void delete() {
         int i = sqlContext.delete(Product.class, where -> {
-            where.andEqualTo(Product::getProductId, 5006);
-            where.orEqualTo(Product::getProductId, 5007);
+            where.andEqualTo(Product::getProductId, 1);
+            where.orEqualTo(Product::getProductId, 2);
         });
         System.out.println(i);
     }

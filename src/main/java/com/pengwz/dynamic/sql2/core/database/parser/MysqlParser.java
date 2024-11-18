@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core.database.parser;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
+import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper.BatchType;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
@@ -117,10 +118,16 @@ public class MysqlParser extends AbstractDialectParser {
         sql.append(SqlUtils.getSyntaxAs(schemaProperties.getSqlDialect()));
         sql.append(" ");
         sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
-        if (whereCondition != null) {
-            sql.append(" where ");
+        if (whereCondition == null) {
+            sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, null);
+            return;
         }
-        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, null);
+        sql.append(" where ");
+        GenericWhereCondition genericWhereCondition = (GenericWhereCondition) whereCondition;
+        String whereConditionSyntax = genericWhereCondition.getWhereConditionSyntax();
+        ParameterBinder parameterBinder = genericWhereCondition.getParameterBinder();
+        sql.append(whereConditionSyntax);
+        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinder);
     }
 
     enum InsertType {
