@@ -41,7 +41,7 @@ public class EntitiesInserter {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        dialectParser = SqlExecutionFactory.chosenDialectParser(schemaProperties, getLocalEntities());
+        dialectParser = SqlExecutionFactory.chosenDialectParser(schemaProperties, next.getClass(), getLocalEntities());
     }
 
     /**

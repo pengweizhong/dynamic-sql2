@@ -85,6 +85,27 @@ public class RootExecutor {
         return rowsAffected;
     }
 
+    public static int executeUpdate(Connection connection, PreparedSql preparedSql) {
+        PreparedStatement preparedStatement = null;
+        int rowsAffected;
+        try {
+            preparedStatement = connection.prepareStatement(preparedSql.getSql());
+            List<Object> params = preparedSql.getParams();
+            for (int i = 1; i <= params.size(); i++) {
+                preparedStatement.setObject(i, params.get(i - 1));
+            }
+            rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected <= 0) {
+                return rowsAffected;
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        } finally {
+            SqlUtils.close(null, preparedStatement);
+        }
+        return rowsAffected;
+    }
+
     public static int executeInsertBatch(Connection connection, PreparedSql preparedSql) {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;

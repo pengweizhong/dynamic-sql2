@@ -23,12 +23,13 @@ public class SqlExecutionFactory {
     private SqlExecutionFactory() {
     }
 
-    public static <T> AbstractDialectParser chosenDialectParser(SchemaProperties schemaProperties, T param) {
+    public static AbstractDialectParser chosenDialectParser(SchemaProperties schemaProperties,
+                                                            Class<?> entityClass, Collection<Object> param) {
         SqlDialect sqlDialect = schemaProperties.getSqlDialect();
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:
-                return new MysqlParser(schemaProperties, (Collection) param);
+                return new MysqlParser(entityClass, schemaProperties, param);
             default:
                 throw new UnsupportedOperationException("Unsupported dialect: " + sqlDialect);
         }

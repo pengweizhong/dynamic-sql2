@@ -54,4 +54,13 @@ public class TableMeta {
     public void setTableAlias(String tableAlias) {
         this.tableAlias = tableAlias;
     }
+
+    public ColumnMeta getColumnPrimaryKey() {
+        for (ColumnMeta columnMeta : columnMetas) {
+            if (columnMeta.isPrimary()) {
+                return columnMeta;
+            }
+        }
+        return null;
+    }
 }

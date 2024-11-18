@@ -69,7 +69,7 @@ public interface SqlContext {
     <T> int insertMultiple(Collection<T> entities);
 
 
-    int deleteByPrimaryKey(Object pkValue);
+    <T> int deleteByPrimaryKey(Class<T> entityClass, Object pkValue);
 
     int deleteByPrimaryKey(Collection<Object> pkValues);
 

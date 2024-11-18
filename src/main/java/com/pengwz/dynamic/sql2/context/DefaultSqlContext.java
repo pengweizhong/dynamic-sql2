@@ -2,8 +2,10 @@ package com.pengwz.dynamic.sql2.context;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.SqlContext;
-import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
+import com.pengwz.dynamic.sql2.core.dml.delete.DeleteHandler;
+import com.pengwz.dynamic.sql2.core.dml.delete.EntitiesDeleter;
 import com.pengwz.dynamic.sql2.core.dml.insert.EntitiesInserter;
+import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 
@@ -49,8 +51,8 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public int deleteByPrimaryKey(Object pkValue) {
-        return 0;
+    public <T> int deleteByPrimaryKey(Class<T> entityClass, Object pkValue) {
+        return new EntitiesDeleter(entityClass).deleteByPrimaryKey(pkValue, DeleteHandler::deleteByPrimaryKey);
     }
 
     @Override
