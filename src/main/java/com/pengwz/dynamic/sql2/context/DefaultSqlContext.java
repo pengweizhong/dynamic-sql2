@@ -9,6 +9,8 @@ import com.pengwz.dynamic.sql2.core.dml.insert.EntitiesInserter;
 import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
+import com.pengwz.dynamic.sql2.core.dml.update.EntitiesUpdater;
+import com.pengwz.dynamic.sql2.core.dml.update.UpdateHandler;
 import com.pengwz.dynamic.sql2.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -73,5 +75,10 @@ public class DefaultSqlContext implements SqlContext {
     @Override
     public <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition) {
         return new EntitiesDeleter(entityClass).delete(condition, DeleteHandler::delete);
+    }
+
+    @Override
+    public <T> int updateByPrimaryKey(T entity) {
+        return new EntitiesUpdater(Collections.singleton(entity)).updateByPrimaryKey(UpdateHandler::updateByPrimaryKey);
     }
 }

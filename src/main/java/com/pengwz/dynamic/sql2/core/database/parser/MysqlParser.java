@@ -130,6 +130,11 @@ public class MysqlParser extends AbstractDialectParser {
         sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinder);
     }
 
+    @Override
+    public void updateByPrimaryKey() {
+
+    }
+
     enum InsertType {
         INSERT, INSERT_SELECTIVE;
     }

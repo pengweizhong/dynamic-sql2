@@ -100,4 +100,6 @@ public interface SqlContext {
      * @return 返回删除的记录条数。
      */
     <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition);
+
+    <T> int updateByPrimaryKey(T entity);
 }

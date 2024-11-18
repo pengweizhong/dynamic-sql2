@@ -6,7 +6,7 @@ import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 
-public abstract class AbstractDialectParser implements InsertParser, DeleteParser {
+public abstract class AbstractDialectParser implements InsertParser, DeleteParser, UpdateParser {
     protected TableMeta tableMeta;
     protected SchemaProperties schemaProperties;
     protected WhereCondition whereCondition;
