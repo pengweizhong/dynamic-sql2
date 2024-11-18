@@ -4,4 +4,5 @@ public interface DeleteHandler {
 
     int deleteByPrimaryKey();
 
+    int delete();
 }

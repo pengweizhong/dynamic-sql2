@@ -71,6 +71,6 @@ public class DefaultSqlContext implements SqlContext {
 
     @Override
     public <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition) {
-        return 0;
+        return new EntitiesDeleter(entityClass).delete(condition, DeleteHandler::delete);
     }
 }

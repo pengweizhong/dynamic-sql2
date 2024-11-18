@@ -46,4 +46,9 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
     public int deleteByPrimaryKey() {
         return RootExecutor.executeUpdate(connection, preparedSql);
     }
+
+    @Override
+    public int delete() {
+        return 0;
+    }
 }

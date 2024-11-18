@@ -43,4 +43,9 @@ public class OracleSqlExecutor extends AbstractSqlExecutor {
     public int deleteByPrimaryKey() {
         return 0;
     }
+
+    @Override
+    public int delete() {
+        return 0;
+    }
 }
