@@ -106,4 +106,11 @@ public interface SqlContext {
     <T> int updateSelectiveByPrimaryKey(T entity);
 
     <T> int updateSelectiveByPrimaryKey(T entity, Collection<Fn<T, ?>> forcedFields);
+
+    <T> int update(T entity, Consumer<WhereCondition> condition);
+
+    <T> int updateSelective(T entity, Consumer<WhereCondition> condition);
+
+    <T> int updateSelective(T entity, Collection<Fn<T, ?>> forcedFields, Consumer<WhereCondition> condition);
+
 }

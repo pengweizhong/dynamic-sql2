@@ -5,7 +5,9 @@ import com.pengwz.dynamic.sql2.core.Fn;
 public interface UpdateParser {
     void updateByPrimaryKey();
 
-    void updateSelectiveByPrimaryKey();
-
     void updateSelectiveByPrimaryKey(Fn<?, ?>[] forcedFields);
+
+    void update();
+
+    void updateSelective(Fn<?, ?>[] forcedFields);
 }

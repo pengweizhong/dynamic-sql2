@@ -5,7 +5,6 @@ import com.pengwz.dynamic.sql2.entites.Product;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
@@ -52,6 +51,45 @@ class UpdateTest extends InitializingContext {
         product.setCategoryId(categoryId);
         product.setCreatedAt(new Date());
         int i = sqlContext.updateSelectiveByPrimaryKey(product, Collections.singletonList(Product::getAttributes));
+        System.out.println(i);
+    }
+
+    @Test
+    void update() {
+        Product product = new Product();
+        product.setProductId(20);
+        product.setProductName("New Coffee Maker4");
+        product.setCategoryId(4);
+        product.setCreatedAt(new Date());
+        product.setPrice(BigDecimal.valueOf(879));
+        product.setStock(222);
+        int i = sqlContext.update(product, whereCondition -> whereCondition.andEqualTo(Product::getProductId, 20));
+        System.out.println(i);
+    }
+
+    @Test
+    void update2() {
+        Product product = new Product();
+        product.setProductId(20);
+        product.setProductName("New Coffee Maker5");
+        product.setCategoryId(4);
+        product.setCreatedAt(new Date());
+        product.setPrice(BigDecimal.valueOf(879));
+        product.setStock(222);
+        int i = sqlContext.updateSelective(product, whereCondition -> whereCondition.andEqualTo(Product::getProductId, 20));
+        System.out.println(i);
+    }
+
+    @Test
+    void update3() {
+        Product product = new Product();
+        product.setProductId(20);
+        product.setProductName("New Coffee Maker6");
+        product.setCategoryId(4);
+        product.setCreatedAt(new Date());
+        product.setPrice(BigDecimal.valueOf(879));
+        product.setStock(222);
+        int i = sqlContext.updateSelective(product, Collections.singletonList(Product::getAttributes), whereCondition -> whereCondition.andEqualTo(Product::getProductId, 20));
         System.out.println(i);
     }
 

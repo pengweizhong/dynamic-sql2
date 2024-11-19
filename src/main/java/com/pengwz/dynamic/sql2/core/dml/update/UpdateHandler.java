@@ -6,6 +6,10 @@ public interface UpdateHandler {
 
     int updateSelectiveByPrimaryKey();
 
+    int update();
+
+    int updateSelective();
+
     //    int update(Consumer<WhereCondition> condition);
 //
 //    <T> int updateSelective(T entity, Consumer<WhereCondition> condition);

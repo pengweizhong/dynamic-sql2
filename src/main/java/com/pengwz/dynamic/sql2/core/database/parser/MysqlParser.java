@@ -136,13 +136,56 @@ public class MysqlParser extends AbstractDialectParser {
     }
 
     @Override
-    public void updateSelectiveByPrimaryKey() {
-        updateEntityByPrimaryKey(true, null);
+    public void updateSelectiveByPrimaryKey(Fn<?, ?>[] forcedFields) {
+        updateEntityByPrimaryKey(true, forcedFields);
     }
 
     @Override
-    public void updateSelectiveByPrimaryKey(Fn<?, ?>[] forcedFields) {
-        updateEntityByPrimaryKey(true, forcedFields);
+    public void update() {
+        updateEntities(false, null);
+    }
+
+    @Override
+    public void updateSelective(Fn<?, ?>[] forcedFields) {
+        updateEntities(true, forcedFields);
+    }
+
+    private void updateEntities(boolean isIgnoreNull, Fn<?, ?>[] forcedFields) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("update ");
+        sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
+        sql.append(" set ");
+        List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
+        Iterator<ColumnMeta> iterator = columnMetas.iterator();
+        Object entity = params.iterator().next();
+        ParameterBinder parameterBinder = new ParameterBinder();
+        Set<String> forcedFieldNames = getForcedFieldNames(forcedFields);
+        while (iterator.hasNext()) {
+            ColumnMeta column = iterator.next();
+            Object fieldValue = ReflectUtils.getFieldValue(entity, column.getField());
+            //原值为null且没有强制更新null就忽略
+            if (fieldValue != null || !isIgnoreNull || forcedFieldNames.contains(column.getField().getName())) {
+                sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), column.getColumnName()));
+                sql.append(" = ");
+                Object param = ConverterUtils.convertToDatabaseColumn(column, fieldValue);
+                sql.append(registerValueWithKey(parameterBinder, param));
+                sql.append(", ");
+            }
+        }
+        if (parameterBinder.isEmpty()) {
+            throw new IllegalStateException("The `" + tableMeta.getTableName() + "` table has no columns that need to be updated");
+        }
+        sql.setLength(sql.length() - 2);
+        if (whereCondition == null) {
+            sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinder);
+            return;
+        }
+        sql.append(" where ");
+        GenericWhereCondition genericWhereCondition = (GenericWhereCondition) whereCondition;
+        String whereConditionSyntax = genericWhereCondition.getWhereConditionSyntax();
+        parameterBinder.addParameterBinder(genericWhereCondition.getParameterBinder());
+        sql.append(whereConditionSyntax);
+        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinder);
     }
 
     private void updateEntityByPrimaryKey(boolean isIgnoreNull, Fn<?, ?>[] forcedFields) {
