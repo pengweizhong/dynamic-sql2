@@ -86,4 +86,9 @@ public class DefaultSqlContext implements SqlContext {
     public <T> int updateSelectiveByPrimaryKey(T entity) {
         return new EntitiesUpdater(Collections.singleton(entity)).updateSelectiveByPrimaryKey(UpdateHandler::updateSelectiveByPrimaryKey);
     }
+
+    @Override
+    public <T> int updateSelectiveByPrimaryKey(T entity, Collection<Fn<T, ?>> forcedFields) {
+        return new EntitiesUpdater(Collections.singleton(entity), forcedFields.toArray(new Fn[]{})).updateSelectiveByPrimaryKey(UpdateHandler::updateSelectiveByPrimaryKey);
+    }
 }

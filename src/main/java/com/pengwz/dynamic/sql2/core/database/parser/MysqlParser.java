@@ -132,15 +132,20 @@ public class MysqlParser extends AbstractDialectParser {
 
     @Override
     public void updateByPrimaryKey() {
-        updateEntityByPrimaryKey(false);
+        updateEntityByPrimaryKey(false, null);
     }
 
     @Override
     public void updateSelectiveByPrimaryKey() {
-        updateEntityByPrimaryKey(true);
+        updateEntityByPrimaryKey(true, null);
     }
 
-    private void updateEntityByPrimaryKey(boolean isIgnoreNull) {
+    @Override
+    public void updateSelectiveByPrimaryKey(Fn<?, ?>[] forcedFields) {
+        updateEntityByPrimaryKey(true, forcedFields);
+    }
+
+    private void updateEntityByPrimaryKey(boolean isIgnoreNull, Fn<?, ?>[] forcedFields) {
         ColumnMeta columnPrimaryKey = tableMeta.getColumnPrimaryKey();
         if (columnPrimaryKey == null) {
             throw new IllegalStateException("The `" + tableMeta.getTableName() + "` table does not declare a primary key value");
@@ -153,6 +158,7 @@ public class MysqlParser extends AbstractDialectParser {
         Iterator<ColumnMeta> iterator = columnMetas.iterator();
         Object entity = params.iterator().next();
         ParameterBinder parameterBinder = new ParameterBinder();
+        Set<String> forcedFieldNames = getForcedFieldNames(forcedFields);
         while (iterator.hasNext()) {
             ColumnMeta column = iterator.next();
             //不需要更新已知的主键
@@ -160,15 +166,14 @@ public class MysqlParser extends AbstractDialectParser {
                 continue;
             }
             Object fieldValue = ReflectUtils.getFieldValue(entity, column.getField());
-            //原值为null且忽略
-            if (fieldValue == null && isIgnoreNull) {
-                continue;
+            //原值为null且没有强制更新null就忽略
+            if (fieldValue != null || !isIgnoreNull || forcedFieldNames.contains(column.getField().getName())) {
+                sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), column.getColumnName()));
+                sql.append(" = ");
+                Object param = ConverterUtils.convertToDatabaseColumn(column, fieldValue);
+                sql.append(registerValueWithKey(parameterBinder, param));
+                sql.append(", ");
             }
-            sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), column.getColumnName()));
-            sql.append(" = ");
-            Object param = ConverterUtils.convertToDatabaseColumn(column, fieldValue);
-            sql.append(registerValueWithKey(parameterBinder, param));
-            sql.append(", ");
         }
         if (parameterBinder.isEmpty()) {
             throw new IllegalStateException("The `" + tableMeta.getTableName() + "` table has no columns that need to be updated");

@@ -104,4 +104,6 @@ public interface SqlContext {
     <T> int updateByPrimaryKey(T entity);
 
     <T> int updateSelectiveByPrimaryKey(T entity);
+
+    <T> int updateSelectiveByPrimaryKey(T entity, Collection<Fn<T, ?>> forcedFields);
 }
