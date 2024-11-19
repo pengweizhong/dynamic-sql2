@@ -4,6 +4,7 @@ import com.pengwz.dynamic.sql2.InitializingContext;
 import com.pengwz.dynamic.sql2.entites.Product;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 class UpdateTest extends InitializingContext {
@@ -18,6 +19,8 @@ class UpdateTest extends InitializingContext {
         product.setProductName("New Coffee Maker");
         product.setCategoryId(categoryId);
         product.setCreatedAt(new Date());
+        product.setPrice(BigDecimal.TEN);
+        product.setStock(123);
         int i = sqlContext.updateByPrimaryKey(product);
         System.out.println(i);
     }

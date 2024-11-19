@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -17,13 +18,13 @@ import java.util.Date;
 public class Product {
     @Id
     @GeneratedValue
-    private int productId;  // 产品 ID
+    private Integer productId;  // 产品 ID
     private String productName;  // 产品名称
-    private double price;  // 产品价格
-    private int stock;  // 产品库存
-    private int categoryId;  // 外键，关联 Categories 表
+    private BigDecimal price;  // 产品价格
+    private Integer stock;  // 产品库存
+    private Integer categoryId;  // 外键，关联 Categories 表
     private String attributes;  // JSON 格式的产品属性
 //    @Column(pattern = "yyyy-MM-dd")
     private Date createdAt;  // 产品创建日期
-    private boolean isAvailable;  // 是否上架
+    private Boolean isAvailable;  // 是否上架
 }

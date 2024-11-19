@@ -34,4 +34,7 @@ public class ParameterBinder {
         return parameters.values();
     }
 
+    public boolean isEmpty() {
+        return parameters.isEmpty();
+    }
 }

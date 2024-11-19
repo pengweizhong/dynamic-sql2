@@ -17,7 +17,7 @@ class InsertTest extends InitializingContext {
     void insertSelective() {
         Product product = new Product();
         product.setProductName("菠萝手机-insertSelective");
-        product.setPrice(6.66);
+        product.setPrice(BigDecimal.valueOf(6.66));
         product.setStock(666);
         product.setCreatedAt(new Date());
         product.setCategoryId(1);
@@ -31,7 +31,7 @@ class InsertTest extends InitializingContext {
     void insertSelective2() {
         Product product = new Product();
         product.setProductName("菠萝手机-insertSelective2");
-        product.setPrice(6.66);
+        product.setPrice(BigDecimal.valueOf(6.66));
         product.setStock(666);
         product.setCreatedAt(new Date());
         product.setCategoryId(1);
@@ -43,7 +43,7 @@ class InsertTest extends InitializingContext {
     void insert() {
         Product product = new Product();
         product.setProductName("菠萝手机-insert");
-        product.setPrice(6.66);
+        product.setPrice(BigDecimal.valueOf(6.66));
         product.setStock(666);
         product.setCreatedAt(new Date());
         product.setCategoryId(1);
@@ -57,7 +57,7 @@ class InsertTest extends InitializingContext {
         for (int i = 1; i <= 10_000; i++) {
             Product product = new Product();
             product.setProductName("菠萝手机-insert-1000/" + i);
-            product.setPrice(6.66);
+            product.setPrice(BigDecimal.valueOf(6.66));
             product.setStock(666);
             product.setCreatedAt(new Date());
             product.setCategoryId(1);
@@ -76,7 +76,7 @@ class InsertTest extends InitializingContext {
         for (int i = 1; i <= 10_000; i++) {
             Product product = new Product();
             product.setProductName("菠萝手机-insertMultiple-1000/" + i);
-            product.setPrice(6.66);
+            product.setPrice(BigDecimal.valueOf(6.66));
             product.setStock(666);
             product.setCreatedAt(new Date());
             product.setCategoryId(1);

@@ -166,13 +166,14 @@ public class MysqlParser extends AbstractDialectParser {
             }
             sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), column.getColumnName()));
             sql.append(" = ");
-
             Object param = ConverterUtils.convertToDatabaseColumn(column, fieldValue);
             sql.append(registerValueWithKey(parameterBinder, param));
-            if (iterator.hasNext()) {
-                sql.append(", ");
-            }
+            sql.append(", ");
         }
+        if (parameterBinder.isEmpty()) {
+            throw new IllegalStateException("The `" + tableMeta.getTableName() + "` table has no columns that need to be updated");
+        }
+        sql.setLength(sql.length() - 2);
         sql.append(" where ");
         sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnPrimaryKey.getColumnName()));
         sql.append(" = ");
