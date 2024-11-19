@@ -54,6 +54,6 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
 
     @Override
     public int updateByPrimaryKey() {
-        return 0;
+        return RootExecutor.executeUpdate(connection, preparedSql);
     }
 }

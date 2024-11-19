@@ -132,7 +132,40 @@ public class MysqlParser extends AbstractDialectParser {
 
     @Override
     public void updateByPrimaryKey() {
-
+        ColumnMeta columnPrimaryKey = tableMeta.getColumnPrimaryKey();
+        if (columnPrimaryKey == null) {
+            throw new IllegalStateException("The `" + tableMeta.getTableName() + "` table does not declare a primary key value");
+        }
+        StringBuilder sql = new StringBuilder();
+        sql.append("update ");
+        sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
+        sql.append(" set ");
+        List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
+        Iterator<ColumnMeta> iterator = columnMetas.iterator();
+        Object entity = params.iterator().next();
+        ParameterBinder parameterBinder = new ParameterBinder();
+        while (iterator.hasNext()) {
+            ColumnMeta column = iterator.next();
+            //不需要更新已知的主键
+            if (column.equals(columnPrimaryKey)) {
+                continue;
+            }
+            sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), column.getColumnName()));
+            sql.append(" = ");
+            Object fieldValue = ReflectUtils.getFieldValue(entity, column.getField());
+            Object param = ConverterUtils.convertToDatabaseColumn(column, fieldValue);
+            sql.append(registerValueWithKey(parameterBinder, param));
+            if (iterator.hasNext()) {
+                sql.append(", ");
+            }
+        }
+        sql.append(" where ");
+        sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnPrimaryKey.getColumnName()));
+        sql.append(" = ");
+        Object fieldValue = ReflectUtils.getFieldValue(entity, columnPrimaryKey.getField());
+        Object param = ConverterUtils.convertToDatabaseColumn(columnPrimaryKey, fieldValue);
+        sql.append(registerValueWithKey(parameterBinder, param));
+        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinder);
     }
 
     enum InsertType {

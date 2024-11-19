@@ -29,8 +29,8 @@ public class EntitiesUpdater {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        AbstractDialectParser dialectParser = SqlExecutionFactory.chosenDialectParser(schemaProperties, entityClass, null);
-        dialectParser.deleteByPrimaryKey();
-        return SqlExecutionFactory.executorSql(DMLType.DELETE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+        AbstractDialectParser dialectParser = SqlExecutionFactory.chosenDialectParser(schemaProperties, entityClass, entities);
+        dialectParser.updateByPrimaryKey();
+        return SqlExecutionFactory.executorSql(DMLType.UPDATE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
     }
 }
