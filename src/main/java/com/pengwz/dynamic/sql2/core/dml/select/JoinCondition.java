@@ -223,6 +223,8 @@ public interface JoinCondition extends Fetchable {
      */
     TableRelation<?> where(Consumer<WhereCondition> condition);//NOSONAR
 
+    TableRelation<?> where();//NOSONAR
+
     /**
      * 限制查询结果的返回行数
      *

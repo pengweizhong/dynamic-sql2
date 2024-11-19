@@ -1,7 +1,6 @@
 package com.pengwz.dynamic.sql2.core.dml.delete;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
-import com.pengwz.dynamic.sql2.entites.Order;
 import com.pengwz.dynamic.sql2.entites.Product;
 import org.junit.jupiter.api.Test;
 
