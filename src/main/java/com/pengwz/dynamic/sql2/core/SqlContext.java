@@ -102,4 +102,6 @@ public interface SqlContext {
     <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition);
 
     <T> int updateByPrimaryKey(T entity);
+
+    <T> int updateSelectiveByPrimaryKey(T entity);
 }

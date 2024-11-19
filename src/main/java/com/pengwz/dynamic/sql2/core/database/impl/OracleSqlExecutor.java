@@ -53,4 +53,9 @@ public class OracleSqlExecutor extends AbstractSqlExecutor {
     public int updateByPrimaryKey() {
         return 0;
     }
+
+    @Override
+    public int updateSelectiveByPrimaryKey() {
+        return 0;
+    }
 }

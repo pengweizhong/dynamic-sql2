@@ -132,6 +132,15 @@ public class MysqlParser extends AbstractDialectParser {
 
     @Override
     public void updateByPrimaryKey() {
+        updateEntityByPrimaryKey(false);
+    }
+
+    @Override
+    public void updateSelectiveByPrimaryKey() {
+        updateEntityByPrimaryKey(true);
+    }
+
+    private void updateEntityByPrimaryKey(boolean isIgnoreNull) {
         ColumnMeta columnPrimaryKey = tableMeta.getColumnPrimaryKey();
         if (columnPrimaryKey == null) {
             throw new IllegalStateException("The `" + tableMeta.getTableName() + "` table does not declare a primary key value");
@@ -150,9 +159,14 @@ public class MysqlParser extends AbstractDialectParser {
             if (column.equals(columnPrimaryKey)) {
                 continue;
             }
+            Object fieldValue = ReflectUtils.getFieldValue(entity, column.getField());
+            //原值为null且忽略
+            if (fieldValue == null && isIgnoreNull) {
+                continue;
+            }
             sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), column.getColumnName()));
             sql.append(" = ");
-            Object fieldValue = ReflectUtils.getFieldValue(entity, column.getField());
+
             Object param = ConverterUtils.convertToDatabaseColumn(column, fieldValue);
             sql.append(registerValueWithKey(parameterBinder, param));
             if (iterator.hasNext()) {

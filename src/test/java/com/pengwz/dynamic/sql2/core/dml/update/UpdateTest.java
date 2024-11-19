@@ -22,4 +22,18 @@ class UpdateTest extends InitializingContext {
         System.out.println(i);
     }
 
+    @Test
+    void updateSelectiveByPrimaryKey() {
+        Integer categoryId = sqlContext.select().column(Product::getCategoryId).from(Product.class)
+                .where(whereCondition -> whereCondition.andEqualTo(Product::getProductId, 20))
+                .fetch(Integer.class).toOne();
+        Product product = new Product();
+        product.setProductId(20);
+        product.setProductName("New Coffee Maker2");
+        product.setCategoryId(categoryId);
+        product.setCreatedAt(new Date());
+        int i = sqlContext.updateSelectiveByPrimaryKey(product);
+        System.out.println(i);
+    }
+
 }

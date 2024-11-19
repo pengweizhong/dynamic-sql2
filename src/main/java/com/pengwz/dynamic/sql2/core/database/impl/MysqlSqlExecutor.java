@@ -56,4 +56,9 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
     public int updateByPrimaryKey() {
         return RootExecutor.executeUpdate(connection, preparedSql);
     }
+
+    @Override
+    public int updateSelectiveByPrimaryKey() {
+        return RootExecutor.executeUpdate(connection, preparedSql);
+    }
 }

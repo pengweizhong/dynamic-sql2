@@ -22,6 +22,18 @@ public class EntitiesUpdater {
     }
 
     public int updateByPrimaryKey(Function<SqlExecutor, Integer> doSqlExecutor) {
+        AbstractDialectParser dialectParser = getDialectParser(entities);
+        dialectParser.updateByPrimaryKey();
+        return SqlExecutionFactory.executorSql(DMLType.UPDATE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+    }
+
+    public int updateSelectiveByPrimaryKey(Function<SqlExecutor, Integer> doSqlExecutor) {
+        AbstractDialectParser dialectParser = getDialectParser(entities);
+        dialectParser.updateSelectiveByPrimaryKey();
+        return SqlExecutionFactory.executorSql(DMLType.UPDATE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+    }
+
+    private AbstractDialectParser getDialectParser(Collection<Object> params) {
         TableMeta tableMeta = TableProvider.getTableMeta(entityClass);
         if (tableMeta == null) {
             throw new IllegalStateException("Class `" + entityClass.getCanonicalName()
@@ -29,8 +41,7 @@ public class EntitiesUpdater {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        AbstractDialectParser dialectParser = SqlExecutionFactory.chosenDialectParser(schemaProperties, entityClass, entities);
-        dialectParser.updateByPrimaryKey();
-        return SqlExecutionFactory.executorSql(DMLType.UPDATE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+        return SqlExecutionFactory.chosenDialectParser(schemaProperties, entityClass, params);
     }
+
 }
