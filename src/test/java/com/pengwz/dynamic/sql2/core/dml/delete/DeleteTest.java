@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.delete;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.entites.Order;
 import com.pengwz.dynamic.sql2.entites.Product;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,10 @@ class DeleteTest extends InitializingContext {
     void delete() {
         int i = sqlContext.delete(Product.class, where -> {
             where.andEqualTo(Product::getProductId, 1);
-            where.orEqualTo(Product::getProductId, 2);
+            where.orCondition(nestedWhere -> {
+                nestedWhere.andEqualTo(Product::getProductId, 3);
+                nestedWhere.orEqualTo(Product::getProductId, 4);
+            });
         });
         System.out.println(i);
     }
