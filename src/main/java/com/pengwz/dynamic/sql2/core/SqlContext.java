@@ -101,34 +101,112 @@ public interface SqlContext {
      */
     <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition);
 
+    /**
+     * 根据主键更新整个实体对象的所有字段。
+     *
+     * @param <T>    实体类的类型。
+     * @param entity 包含主键和其他字段的实体对象，所有字段将被更新。
+     * @return 返回更新的记录条数
+     */
     <T> int updateByPrimaryKey(T entity);
 
+    /**
+     * 根据主键更新实体对象中非空字段。
+     *
+     * @param <T>    实体类的类型。
+     * @param entity 包含主键的实体对象，仅更新非空字段。
+     * @return 返回更新的记录条数
+     */
     <T> int updateSelectiveByPrimaryKey(T entity);
 
+    /**
+     * 根据主键更新实体对象中非空字段，并强制更新指定的字段。
+     *
+     * @param <T>          实体类的类型。
+     * @param entity       包含主键的实体对象，仅更新非空字段。
+     * @param forcedFields 需要强制更新的字段，即使字段值为空也会更新。
+     * @return 返回更新的记录条数
+     */
     <T> int updateSelectiveByPrimaryKey(T entity, Collection<Fn<T, ?>> forcedFields);
 
+    /**
+     * 根据指定条件更新实体对象的所有字段。
+     *
+     * @param <T>       实体类的类型。
+     * @param entity    实体对象，表示需要更新的数据。
+     * @param condition 条件构造器，使用 {@link Consumer} 定义更新条件，为null更新所有。
+     * @return 返回更新的记录条数。
+     */
     <T> int update(T entity, Consumer<WhereCondition> condition);
 
+    /**
+     * 根据指定条件更新实体对象的非空字段。
+     *
+     * @param <T>       实体类的类型。
+     * @param entity    实体对象，仅更新非空字段。
+     * @param condition 条件构造器，使用 {@link Consumer} 定义更新条件，为null更新所有。
+     * @return 返回更新的记录条数。
+     */
     <T> int updateSelective(T entity, Consumer<WhereCondition> condition);
 
+    /**
+     * 根据指定条件更新实体对象的非空字段，并强制更新指定的字段。
+     *
+     * @param <T>          实体类的类型。
+     * @param entity       实体对象，仅更新非空字段。
+     * @param forcedFields 需要强制更新的字段，即使字段值为空也会更新。
+     * @param condition    条件构造器，使用 {@link Consumer} 定义更新条件，为null更新所有。
+     * @return 返回更新的记录条数。
+     */
     <T> int updateSelective(T entity, Collection<Fn<T, ?>> forcedFields, Consumer<WhereCondition> condition);
 
+    /**
+     * 插入或更新实体对象的所有字段。
+     * <p>
+     * 如果记录不存在，则执行插入操作。
+     * 如果记录已存在，则更新所有字段。
+     *
+     * @param <T>    实体类的类型。
+     * @param entity 要插入或更新的实体对象。
+     * @return 返回新增或更新的总记录条数，通常为 1 或 2。
+     */
     <T> int upsert(T entity);
 
     /**
      * 插入或更新实体（仅更新非空字段）。
      * <p>
-     * 根据传入的实体对象 `entity`：
-     * - 如果记录不存在，则执行插入操作。
-     * - 如果记录已存在，则仅更新非空字段。
+     * 如果记录不存在，则执行插入操作。
+     * 如果记录已存在，则仅更新非空字段。
      *
+     * @param <T>    实体类的类型。
      * @param entity 要插入或更新的实体对象。
-     * @param <T>    实体对象的类型。
-     * @return 新增或者更新的总数
+     * @return 返回新增或更新的总记录条数，通常为 1 或 2。
      */
     <T> int upsertSelective(T entity);
 
+    /**
+     * 插入或更新实体（仅更新非空字段），并强制更新指定字段。
+     * <p>
+     * 如果记录不存在，则执行插入操作。
+     * 如果记录已存在，则仅更新非空字段，并强制更新指定字段。
+     *
+     * @param <T>          实体类的类型。
+     * @param entity       要插入或更新的实体对象。
+     * @param forcedFields 需要强制更新的字段，即使字段值为空也会更新。
+     * @return 返回新增或更新的总记录条数，通常为 1 或 2。
+     */
     <T> int upsertSelective(T entity, Collection<Fn<T, ?>> forcedFields);
 
+    /**
+     * 批量插入或更新实体对象的所有字段。
+     * <p>
+     * 对于每个实体：
+     * 如果记录不存在，则执行插入操作。
+     * 如果记录已存在，则更新所有字段。
+     *
+     * @param <T>      实体类的类型。
+     * @param entities 包含需要插入或更新的实体对象集合。
+     * @return 返回新增或更新的总记录条数。
+     */
     <T> int upsertMultiple(Collection<T> entities);
 }
