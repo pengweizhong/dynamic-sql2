@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.database.parser;
 
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
@@ -148,6 +149,77 @@ public class MysqlParser extends AbstractDialectParser {
     @Override
     public void updateSelective(Fn<?, ?>[] forcedFields) {
         updateEntities(true, forcedFields);
+    }
+
+    @Override
+    public void upsertSelective(Fn<?, ?>[] forcedFields) {
+        upsertEntities(null, true, forcedFields);
+    }
+
+    private void upsertEntities(BatchType batchType, boolean isIgnoreNull, Fn<?, ?>[] forcedFields) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("insert into ");
+        sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
+        List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
+        Iterator<ColumnMeta> columnIterator = columnMetas.iterator();
+        Iterator<Object> entitiesIterator = params.iterator();
+        Set<String> forcedFieldNames = getForcedFieldNames(forcedFields);
+        ArrayList<String> columns = new ArrayList<>();
+        ArrayList<ParameterBinder> parameterBinders = new ArrayList<>();
+        boolean isRetrieveColumnNames = true;
+        while (entitiesIterator.hasNext()) {
+            ParameterBinder parameterBinder = new ParameterBinder();
+            parameterBinders.add(parameterBinder);
+            Object entity = entitiesIterator.next();
+            while (columnIterator.hasNext()) {
+                ColumnMeta column = columnIterator.next();
+                Object fieldValue = ReflectUtils.getFieldValue(entity, column.getField());
+                //原值为null且没有强制更新null就忽略
+                if (fieldValue != null || !isIgnoreNull || forcedFieldNames.contains(column.getField().getName())) {
+                    if (isRetrieveColumnNames) {
+                        columns.add(column.getColumnName());
+                    }
+                    registerValueWithKey(parameterBinder, ConverterUtils.convertToDatabaseColumn(column, fieldValue));
+                }
+            }
+            isRetrieveColumnNames = false;
+        }
+        Iterator<String> iterator = columns.iterator();
+        sql.append(" (");
+        while (iterator.hasNext()) {
+            String columnName = iterator.next();
+            sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnName));
+            if (iterator.hasNext()) {
+                sql.append(", ");
+            }
+        }
+        sql.append(") values (");
+        ParameterBinder parameterBinder = parameterBinders.get(0);
+        sql.append(String.join(", ", parameterBinder.getKeys()));
+        sql.append(") ");
+        //https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-20.html
+        Version version = new Version(schemaProperties.getMajorVersionNumber(),
+                schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
+        boolean isNewVersion = version.isGreaterThanOrEqual(new Version(8, 0, 20));
+        if (isNewVersion) {
+            sql.append("as _tmp_upsert ");
+        }
+        sql.append("on duplicate key update ");
+        Iterator<String> iteratorName = columns.iterator();
+        while (iteratorName.hasNext()) {
+            String columnName = SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), iteratorName.next());
+            sql.append(columnName);
+            if (isNewVersion) {
+                sql.append(" = ").append("_tmp_upsert.").append(columnName);
+            } else {
+                sql.append(" = values(").append(columnName).append(")");
+            }
+            if (iteratorName.hasNext()) {
+                sql.append(", ");
+            }
+        }
+        sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql);
+        sqlStatementWrapper.addBatchParameterBinders(parameterBinders);
     }
 
     private void updateEntities(boolean isIgnoreNull, Fn<?, ?>[] forcedFields) {

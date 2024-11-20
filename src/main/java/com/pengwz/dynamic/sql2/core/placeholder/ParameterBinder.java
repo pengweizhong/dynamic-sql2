@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core.placeholder;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ParameterBinder {
     private final Map<String, Object> parameters = new LinkedHashMap<>();
@@ -14,7 +15,7 @@ public class ParameterBinder {
         parameters.putAll(parameterBinder.getParameters());
     }
 
-    protected Map<String, Object> getParameters() {
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 
@@ -28,6 +29,10 @@ public class ParameterBinder {
 
     public Object getValue(String key) {
         return parameters.get(key);
+    }
+
+    public Set<String> getKeys() {
+        return parameters.keySet();
     }
 
     public Collection<Object> getValues() {

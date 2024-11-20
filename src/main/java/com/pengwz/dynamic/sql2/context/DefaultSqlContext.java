@@ -114,12 +114,12 @@ public class DefaultSqlContext implements SqlContext {
 
     @Override
     public <T> int upsertSelective(T entity) {
-        return 0;
+        return new EntitiesUpdater(Collections.singleton(entity)).upsertSelective(UpdateHandler::upsertSelective);
     }
 
     @Override
     public <T> int upsertSelective(T entity, Collection<Fn<T, ?>> forcedFields) {
-        return 0;
+        return new EntitiesUpdater(Collections.singleton(entity), forcedFields.toArray(new Fn[]{})).upsertSelective(UpdateHandler::upsertSelective);
     }
 
     @Override

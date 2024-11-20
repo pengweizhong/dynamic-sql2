@@ -28,12 +28,6 @@ public class MysqlCustomDataSource {
         ds.setTestOnReturn(false);
         ds.setUseUnfairLock(true);
         ds.setTestWhileIdle(true);
-        try {
-            ds.setFilters("stat,wall,slf4j");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        //连接泄露监测
         ds.setRemoveAbandoned(true);
         ds.setRemoveAbandonedTimeout(60 * 5);
         ds.setLogAbandoned(true);

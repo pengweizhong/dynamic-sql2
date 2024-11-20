@@ -79,7 +79,7 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
 
     @Override
     public int upsertSelective() {
-        return 0;
+        return RootExecutor.executeUpdate(connection, preparedSql);
     }
 
     @Override

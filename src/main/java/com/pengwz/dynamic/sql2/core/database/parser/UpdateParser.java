@@ -10,4 +10,6 @@ public interface UpdateParser {
     void update();
 
     void updateSelective(Fn<?, ?>[] forcedFields);
+
+    void upsertSelective(Fn<?, ?>[] forcedFields);
 }

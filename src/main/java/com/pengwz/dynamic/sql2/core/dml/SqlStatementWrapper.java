@@ -85,6 +85,10 @@ public class SqlStatementWrapper {
         this.parameterBinders.add(parameterBinder);
     }
 
+    public void addBatchParameterBinders(List<ParameterBinder> parameterBinders) {
+        this.parameterBinders.addAll(parameterBinders);
+    }
+
     /**
      * 获取数据源名称。
      *
