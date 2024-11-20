@@ -120,29 +120,4 @@ public class EntitiesUpdater {
         return SqlExecutionFactory.executorSql(DMLType.UPDATE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
     }
 
-    public int upsert(Function<SqlExecutor, Integer> doSqlExecutor) {
-        return 0;
-    }
-
-    public int upsertSelective(Function<SqlExecutor, Integer> doSqlExecutor) {
-        TableMeta tableMeta = TableProvider.getTableMeta(entityClass);
-        if (tableMeta == null) {
-            throw new IllegalStateException("Class `" + entityClass.getCanonicalName()
-                    + "` is not managed or cached by Dynamic-SQL");
-        }
-        String dataSourceName = tableMeta.getBindDataSourceName();
-        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        WhereCondition whereCondition = null;
-        if (condition != null) {
-            Version version = new Version(schemaProperties.getMajorVersionNumber(),
-                    schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
-            whereCondition = SqlUtils.matchDialectCondition(schemaProperties.getSqlDialect(),
-                    version, null, dataSourceName);
-            condition.accept(whereCondition);
-        }
-        AbstractDialectParser dialectParser =
-                SqlExecutionFactory.chosenDialectParser(schemaProperties, entityClass, entities, whereCondition);
-        dialectParser.upsertSelective(forcedFields);
-        return SqlExecutionFactory.executorSql(DMLType.UPDATE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
-    }
 }

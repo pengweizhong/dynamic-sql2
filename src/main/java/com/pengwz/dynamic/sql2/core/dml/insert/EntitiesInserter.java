@@ -94,6 +94,14 @@ public class EntitiesInserter {
         return execute(DMLType.INSERT, AbstractDialectParser::insertBatch, doSqlExecutor);
     }
 
+    public int upsert(Function<SqlExecutor, Integer> doSqlExecutor) {
+        return 0;
+    }
+
+    public int upsertSelective(Function<SqlExecutor, Integer> doSqlExecutor) {
+        return execute(DMLType.UPSERT, parser -> parser.upsertSelective(forcedFields), doSqlExecutor);
+    }
+
     private void setEntities(Collection<Object> entities) {
         LOCAL_ENTITIES.set(entities);
     }
@@ -109,4 +117,5 @@ public class EntitiesInserter {
     public int insertMultiple(Function<SqlExecutor, Integer> doSqlExecutor) {
         return execute(DMLType.INSERT, AbstractDialectParser::insertMultiple, doSqlExecutor);
     }
+
 }

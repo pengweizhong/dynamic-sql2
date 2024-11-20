@@ -153,7 +153,9 @@ public class RootExecutor {
 
     private static void assignValueToPrimaryKey(ResultSet resultSet, ColumnMeta columnMeta) throws SQLException {
         for (Object obj : EntitiesInserter.getLocalEntities()) {
-            resultSet.next();
+            if (!resultSet.next()) {
+                return;
+            }
             Long generatedKey = resultSet.getLong(1);
             // 设置自增ID值到实体对应字段
             Object o = ConverterUtils.convertToEntityAttribute(columnMeta.getField().getType(), generatedKey);

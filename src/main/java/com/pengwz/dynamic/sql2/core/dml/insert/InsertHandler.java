@@ -9,4 +9,12 @@ public interface InsertHandler {
     int insertBatch();
 
     int insertMultiple();
+
+    int upsert();
+
+    int upsertSelective();
+
+    int batchUpsert();
+
+    int upsertMultiple();
 }

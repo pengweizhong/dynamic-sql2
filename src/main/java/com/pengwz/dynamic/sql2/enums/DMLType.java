@@ -1,5 +1,5 @@
 package com.pengwz.dynamic.sql2.enums;
 
 public enum DMLType {
-    INSERT, DELETE, UPDATE, SELECT;
+    INSERT, UPSERT, DELETE, UPDATE, SELECT;
 }

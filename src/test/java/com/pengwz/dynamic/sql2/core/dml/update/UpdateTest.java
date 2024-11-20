@@ -109,11 +109,13 @@ class UpdateTest extends InitializingContext {
         Product product = sqlContext.select().allColumn().from(Product.class)
                 .where(whereCondition -> whereCondition.andEqualTo(Product::getProductId, 20))
                 .fetch().toOne();
-        product.setProductName("New Coffee Maker -> upsert2");
+        product.setProductName("New Coffee Maker -> upsert3");
         product.setCreatedAt(new Date());
         product.setAttributes(null);
+        product.setProductId(null);
         int i = sqlContext.upsertSelective(product, Collections.singletonList(Product::getAttributes));
         System.out.println(i);
+        System.out.println(product);
     }
 
 }

@@ -9,12 +9,4 @@ public interface UpdateHandler {
     int update();
 
     int updateSelective();
-
-    int upsert();
-
-    int upsertSelective();
-
-    int batchUpsert();
-
-    int upsertMultiple();
 }
