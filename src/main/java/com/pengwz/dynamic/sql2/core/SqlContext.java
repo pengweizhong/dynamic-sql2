@@ -115,6 +115,17 @@ public interface SqlContext {
 
     <T> int upsert(T entity);
 
+    /**
+     * 插入或更新实体（仅更新非空字段）。
+     * <p>
+     * 根据传入的实体对象 `entity`：
+     * - 如果记录不存在，则执行插入操作。
+     * - 如果记录已存在，则仅更新非空字段。
+     *
+     * @param entity 要插入或更新的实体对象。
+     * @param <T>    实体对象的类型。
+     * @return 新增或者更新的总数
+     */
     <T> int upsertSelective(T entity);
 
     <T> int upsertSelective(T entity, Collection<Fn<T, ?>> forcedFields);

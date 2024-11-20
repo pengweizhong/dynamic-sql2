@@ -95,25 +95,42 @@ class UpdateTest extends InitializingContext {
 
     @Test
     void upsert() {
-        Product product = sqlContext.select().allColumn().from(Product.class)
-                .where(whereCondition -> whereCondition.andEqualTo(Product::getProductId, 20))
-                .fetch().toOne();
-        product.setProductName("New Coffee Maker -> upsert");
+        Product product = new Product();
+//        product.setProductId(20);
+        product.setProductName("New Coffee Maker");
+        product.setCategoryId(4);
         product.setCreatedAt(new Date());
+        product.setPrice(BigDecimal.TEN);
+        product.setStock(123);
         int i = sqlContext.upsert(product);
         System.out.println(i);
+        System.out.println(product);
     }
 
     @Test
     void upsertSelective() {
         Product product = sqlContext.select().allColumn().from(Product.class)
-                .where(whereCondition -> whereCondition.andEqualTo(Product::getProductId, 20))
+                .where(whereCondition -> whereCondition.andEqualTo(Product::getProductId, 7))
                 .fetch().toOne();
-        product.setProductName("New Coffee Maker -> upsert3");
+        product.setProductName("MacBook Pro2");
+        product.setCreatedAt(new Date());
+        product.setAttributes("{\"a\":1}");
+        product.setProductId(null);
+        int i = sqlContext.upsertSelective(product, Collections.singletonList(Product::getAttributes));
+        System.out.println(i);
+        System.out.println(product);
+    }
+
+    @Test
+    void upsertSelective2() {
+        Product product = sqlContext.select().allColumn().from(Product.class)
+                .where(whereCondition -> whereCondition.andEqualTo(Product::getProductId, 7))
+                .fetch().toOne();
+        product.setProductName("MacBook Pro2");
         product.setCreatedAt(new Date());
         product.setAttributes(null);
         product.setProductId(null);
-        int i = sqlContext.upsertSelective(product, Collections.singletonList(Product::getAttributes));
+        int i = sqlContext.upsertSelective(product);
         System.out.println(i);
         System.out.println(product);
     }

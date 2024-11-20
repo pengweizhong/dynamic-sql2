@@ -74,7 +74,7 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
 
     @Override
     public int upsert() {
-        return 0;
+        return RootExecutor.executeInsert(connection, preparedSql);
     }
 
     @Override

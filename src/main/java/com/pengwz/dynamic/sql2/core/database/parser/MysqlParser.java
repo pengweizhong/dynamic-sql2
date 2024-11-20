@@ -78,6 +78,16 @@ public class MysqlParser extends AbstractDialectParser {
     }
 
     @Override
+    public void upsert(Fn<?, ?>[] forcedFields) {
+        upsertEntities(null, true, forcedFields);
+    }
+
+    @Override
+    public void upsertSelective(Fn<?, ?>[] forcedFields) {
+        upsertEntities(null, true, forcedFields);
+    }
+
+    @Override
     public void deleteByPrimaryKey() {
         StringBuilder sql = new StringBuilder();
         sql.append("delete from ");
@@ -149,11 +159,6 @@ public class MysqlParser extends AbstractDialectParser {
     @Override
     public void updateSelective(Fn<?, ?>[] forcedFields) {
         updateEntities(true, forcedFields);
-    }
-
-    @Override
-    public void upsertSelective(Fn<?, ?>[] forcedFields) {
-        upsertEntities(null, true, forcedFields);
     }
 
     private void upsertEntities(BatchType batchType, boolean isIgnoreNull, Fn<?, ?>[] forcedFields) {

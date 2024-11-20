@@ -95,7 +95,7 @@ public class EntitiesInserter {
     }
 
     public int upsert(Function<SqlExecutor, Integer> doSqlExecutor) {
-        return 0;
+        return execute(DMLType.UPSERT, parser -> parser.upsert(forcedFields), doSqlExecutor);
     }
 
     public int upsertSelective(Function<SqlExecutor, Integer> doSqlExecutor) {
