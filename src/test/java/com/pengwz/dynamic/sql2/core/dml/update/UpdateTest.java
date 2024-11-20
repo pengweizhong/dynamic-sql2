@@ -5,6 +5,7 @@ import com.pengwz.dynamic.sql2.entites.Product;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
@@ -133,6 +134,23 @@ class UpdateTest extends InitializingContext {
         int i = sqlContext.upsertSelective(product);
         System.out.println(i);
         System.out.println(product);
+    }
+
+    @Test
+    void upsertMultiple() {
+        ArrayList<Product> products = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) {
+            Product product = new Product();
+            product.setProductName("New Coffee Maker " + i);
+            product.setCategoryId(4);
+            product.setCreatedAt(new Date());
+            product.setPrice(BigDecimal.TEN);
+            product.setStock(123);
+            products.add(product);
+        }
+        int i = sqlContext.upsertMultiple(products);
+        System.out.println(i);
+        products.forEach(System.out::println);
     }
 
 }

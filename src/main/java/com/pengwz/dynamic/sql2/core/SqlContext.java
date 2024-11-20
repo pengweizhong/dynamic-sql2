@@ -130,7 +130,5 @@ public interface SqlContext {
 
     <T> int upsertSelective(T entity, Collection<Fn<T, ?>> forcedFields);
 
-    <T> int batchUpsert(Collection<T> entities);
-
     <T> int upsertMultiple(Collection<T> entities);
 }

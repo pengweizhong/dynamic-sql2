@@ -14,7 +14,5 @@ public interface InsertHandler {
 
     int upsertSelective();
 
-    int batchUpsert();
-
     int upsertMultiple();
 }

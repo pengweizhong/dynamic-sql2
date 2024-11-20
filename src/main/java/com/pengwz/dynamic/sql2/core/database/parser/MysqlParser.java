@@ -79,12 +79,17 @@ public class MysqlParser extends AbstractDialectParser {
 
     @Override
     public void upsert(Fn<?, ?>[] forcedFields) {
-        upsertEntities(null, true, forcedFields);
+        upsertEntities(true, forcedFields);
+    }
+
+    @Override
+    public void upsertMultiple() {
+        upsertEntities(false, null);
     }
 
     @Override
     public void upsertSelective(Fn<?, ?>[] forcedFields) {
-        upsertEntities(null, true, forcedFields);
+        upsertEntities(true, forcedFields);
     }
 
     @Override
@@ -161,12 +166,10 @@ public class MysqlParser extends AbstractDialectParser {
         updateEntities(true, forcedFields);
     }
 
-    private void upsertEntities(BatchType batchType, boolean isIgnoreNull, Fn<?, ?>[] forcedFields) {
+    private void upsertEntities(boolean isIgnoreNull, Fn<?, ?>[] forcedFields) {
         StringBuilder sql = new StringBuilder();
         sql.append("insert into ");
         sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
-        List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
-        Iterator<ColumnMeta> columnIterator = columnMetas.iterator();
         Iterator<Object> entitiesIterator = params.iterator();
         Set<String> forcedFieldNames = getForcedFieldNames(forcedFields);
         ArrayList<String> columns = new ArrayList<>();
@@ -174,10 +177,8 @@ public class MysqlParser extends AbstractDialectParser {
         boolean isRetrieveColumnNames = true;
         while (entitiesIterator.hasNext()) {
             ParameterBinder parameterBinder = new ParameterBinder();
-            parameterBinders.add(parameterBinder);
             Object entity = entitiesIterator.next();
-            while (columnIterator.hasNext()) {
-                ColumnMeta column = columnIterator.next();
+            for (ColumnMeta column : tableMeta.getColumnMetas()) {
                 Object fieldValue = ReflectUtils.getFieldValue(entity, column.getField());
                 //原值为null且没有强制更新null就忽略
                 if (fieldValue != null || !isIgnoreNull || forcedFieldNames.contains(column.getField().getName())) {
@@ -188,6 +189,12 @@ public class MysqlParser extends AbstractDialectParser {
                 }
             }
             isRetrieveColumnNames = false;
+            if (!parameterBinder.isEmpty()) {
+                parameterBinders.add(parameterBinder);
+            }
+        }
+        if (parameterBinders.isEmpty()) {
+            throw new IllegalArgumentException("All upsert parameters are null");
         }
         Iterator<String> iterator = columns.iterator();
         sql.append(" (");
@@ -198,16 +205,30 @@ public class MysqlParser extends AbstractDialectParser {
                 sql.append(", ");
             }
         }
-        sql.append(") values (");
-        ParameterBinder parameterBinder = parameterBinders.get(0);
-        sql.append(String.join(", ", parameterBinder.getKeys()));
-        sql.append(") ");
+        sql.append(") values ");
+        Iterator<ParameterBinder> parameterBinderIterator = parameterBinders.iterator();
+        while (parameterBinderIterator.hasNext()) {
+            ParameterBinder parameterBinder = parameterBinderIterator.next();
+            sql.append("(");
+            Iterator<String> keyIterator = parameterBinder.getKeys().iterator();
+            while (keyIterator.hasNext()) {
+                keyIterator.next();
+                sql.append("?");
+                if (keyIterator.hasNext()) {
+                    sql.append(", ");
+                }
+            }
+            sql.append(")");
+            if (parameterBinderIterator.hasNext()) {
+                sql.append(", ");
+            }
+        }
         //https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-20.html
         Version version = new Version(schemaProperties.getMajorVersionNumber(),
                 schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
         boolean isNewVersion = version.isGreaterThanOrEqual(new Version(8, 0, 20));
         if (isNewVersion) {
-            sql.append("as _tmp_upsert ");
+            sql.append(" as _tmp_upsert ");
         }
         sql.append("on duplicate key update ");
         Iterator<String> iteratorName = columns.iterator();
@@ -225,6 +246,7 @@ public class MysqlParser extends AbstractDialectParser {
         }
         sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql);
         sqlStatementWrapper.addBatchParameterBinders(parameterBinders);
+        sqlStatementWrapper.setBatchType(BatchType.MULTIPLE);
     }
 
     private void updateEntities(boolean isIgnoreNull, Fn<?, ?>[] forcedFields) {

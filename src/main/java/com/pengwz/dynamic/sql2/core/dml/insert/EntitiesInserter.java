@@ -6,6 +6,7 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.database.SqlExecutionFactory;
 import com.pengwz.dynamic.sql2.core.database.SqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.parser.AbstractDialectParser;
+import com.pengwz.dynamic.sql2.core.database.parser.InsertParser;
 import com.pengwz.dynamic.sql2.enums.DMLType;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
@@ -94,12 +95,20 @@ public class EntitiesInserter {
         return execute(DMLType.INSERT, AbstractDialectParser::insertBatch, doSqlExecutor);
     }
 
+    public int insertMultiple(Function<SqlExecutor, Integer> doSqlExecutor) {
+        return execute(DMLType.INSERT, AbstractDialectParser::insertMultiple, doSqlExecutor);
+    }
+
     public int upsert(Function<SqlExecutor, Integer> doSqlExecutor) {
         return execute(DMLType.UPSERT, parser -> parser.upsert(forcedFields), doSqlExecutor);
     }
 
     public int upsertSelective(Function<SqlExecutor, Integer> doSqlExecutor) {
         return execute(DMLType.UPSERT, parser -> parser.upsertSelective(forcedFields), doSqlExecutor);
+    }
+
+    public int upsertMultiple(Function<SqlExecutor, Integer> doSqlExecutor) {
+        return execute(DMLType.UPSERT, InsertParser::upsertMultiple, doSqlExecutor);
     }
 
     private void setEntities(Collection<Object> entities) {
@@ -113,9 +122,4 @@ public class EntitiesInserter {
     private void clearEntities() {
         LOCAL_ENTITIES.remove();
     }
-
-    public int insertMultiple(Function<SqlExecutor, Integer> doSqlExecutor) {
-        return execute(DMLType.INSERT, AbstractDialectParser::insertMultiple, doSqlExecutor);
-    }
-
 }

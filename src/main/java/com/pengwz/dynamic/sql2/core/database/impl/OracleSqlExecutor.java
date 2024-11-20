@@ -80,11 +80,6 @@ public class OracleSqlExecutor extends AbstractSqlExecutor {
     }
 
     @Override
-    public int batchUpsert() {
-        return 0;
-    }
-
-    @Override
     public int upsertMultiple() {
         return 0;
     }

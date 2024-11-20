@@ -123,12 +123,11 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> int batchUpsert(Collection<T> entities) {
-        return 0;
-    }
-
-    @Override
+    @SuppressWarnings("unchecked")
     public <T> int upsertMultiple(Collection<T> entities) {
-        return 0;
+        if (CollectionUtils.isEmpty(entities)) {
+            return 0;
+        }
+        return new EntitiesInserter((Collection<Object>) entities).upsertMultiple(InsertHandler::upsertMultiple);
     }
 }

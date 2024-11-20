@@ -13,4 +13,6 @@ public interface InsertParser {
     void insertMultiple();
 
     void upsert(Fn<?, ?>[] forcedFields);
+
+    void upsertMultiple();
 }
