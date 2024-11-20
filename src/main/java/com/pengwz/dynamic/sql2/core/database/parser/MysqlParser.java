@@ -228,9 +228,9 @@ public class MysqlParser extends AbstractDialectParser {
                 schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
         boolean isNewVersion = version.isGreaterThanOrEqual(new Version(8, 0, 20));
         if (isNewVersion) {
-            sql.append(" as _tmp_upsert ");
+            sql.append(" as _tmp_upsert");
         }
-        sql.append("on duplicate key update ");
+        sql.append(" on duplicate key update ");
         Iterator<String> iteratorName = columns.iterator();
         while (iteratorName.hasNext()) {
             String columnName = SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), iteratorName.next());

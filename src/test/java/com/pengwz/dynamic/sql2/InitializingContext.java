@@ -27,6 +27,7 @@ public class InitializingContext {
         schemaProperties.setUseSchemaInQuery(false);
 //        schemaProperties.setSqlDialect(SqlDialect.ORACLE);
 //        schemaProperties.setDatabaseProductVersion("11.0.0.1");
+//        schemaProperties.setDatabaseProductVersion("5.6.0");
         schemaProperties.setUseAsInQuery(true);
         schemaProperties.setPrintSql(true);
         sqlContextProperties.addSchemaProperties(schemaProperties);
