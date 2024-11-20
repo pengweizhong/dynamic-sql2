@@ -93,4 +93,15 @@ class UpdateTest extends InitializingContext {
         System.out.println(i);
     }
 
+    @Test
+    void upsert() {
+        Product product = sqlContext.select().allColumn().from(Product.class)
+                .where(whereCondition -> whereCondition.andEqualTo(Product::getProductId, 20))
+                .fetch().toOne();
+        product.setProductName("New Coffee Maker -> upsert");
+        product.setCreatedAt(new Date());
+        int i = sqlContext.upsert(product);
+        System.out.println(i);
+    }
+
 }

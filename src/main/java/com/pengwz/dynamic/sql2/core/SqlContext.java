@@ -113,4 +113,13 @@ public interface SqlContext {
 
     <T> int updateSelective(T entity, Collection<Fn<T, ?>> forcedFields, Consumer<WhereCondition> condition);
 
+    <T> int upsert(T entity);
+
+    <T> int upsertSelective(T entity);
+
+    <T> int upsertSelective(T entity, Collection<Fn<T, ?>> forcedFields);
+
+    <T> int batchUpsert(Collection<T> entities);
+
+    <T> int upsertMultiple(Collection<T> entities);
 }

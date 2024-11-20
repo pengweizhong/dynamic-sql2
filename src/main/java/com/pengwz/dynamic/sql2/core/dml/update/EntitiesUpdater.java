@@ -119,4 +119,8 @@ public class EntitiesUpdater {
         dialectParser.updateSelective(forcedFields);
         return SqlExecutionFactory.executorSql(DMLType.UPDATE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
     }
+
+    public int upsert(Function<SqlExecutor, Integer> doSqlExecutor) {
+        return 0;
+    }
 }

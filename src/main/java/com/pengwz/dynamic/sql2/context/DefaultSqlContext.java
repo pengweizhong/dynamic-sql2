@@ -106,4 +106,29 @@ public class DefaultSqlContext implements SqlContext {
     public <T> int updateSelective(T entity, Collection<Fn<T, ?>> forcedFields, Consumer<WhereCondition> condition) {
         return new EntitiesUpdater(Collections.singleton(entity), forcedFields.toArray(new Fn[]{}), condition).updateSelective(UpdateHandler::updateSelective);
     }
+
+    @Override
+    public <T> int upsert(T entity) {
+        return new EntitiesUpdater(Collections.singleton(entity)).upsert(UpdateHandler::upsert);
+    }
+
+    @Override
+    public <T> int upsertSelective(T entity) {
+        return 0;
+    }
+
+    @Override
+    public <T> int upsertSelective(T entity, Collection<Fn<T, ?>> forcedFields) {
+        return 0;
+    }
+
+    @Override
+    public <T> int batchUpsert(Collection<T> entities) {
+        return 0;
+    }
+
+    @Override
+    public <T> int upsertMultiple(Collection<T> entities) {
+        return 0;
+    }
 }

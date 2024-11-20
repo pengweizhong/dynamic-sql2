@@ -68,4 +68,24 @@ public class OracleSqlExecutor extends AbstractSqlExecutor {
     public int updateSelective() {
         return 0;
     }
+
+    @Override
+    public int upsert() {
+        return 0;
+    }
+
+    @Override
+    public int upsertSelective() {
+        return 0;
+    }
+
+    @Override
+    public int batchUpsert() {
+        return 0;
+    }
+
+    @Override
+    public int upsertMultiple() {
+        return 0;
+    }
 }
