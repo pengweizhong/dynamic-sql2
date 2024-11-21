@@ -94,16 +94,12 @@ public class SqlExecutionFactory {
                 sqlExecutor = new OracleSqlExecutor(connection, preparedSql);
                 break;
             default:
-                throw new UnsupportedOperationException("Unsupported sql dialect: " + schemaProperties.getSqlDialect());
+                throw new UnsupportedOperationException("Unsupported sql dialect" + schemaProperties.getSqlDialect());
         }
-
-        if (schemaProperties.isPrintSql()) {
-            SqlDebugger.debug(preparedSql, dataSourceName, isIntercepted);
-        }
+        SchemaProperties.PrintSqlProperties printSqlProperties = schemaProperties.getPrintSqlProperties();
+        SqlDebugger.debug(printSqlProperties, preparedSql, dataSourceName, isIntercepted);
         R applyResult = doSqlExecutor.apply(sqlExecutor);
-        if (schemaProperties.isPrintSql()) {
-            SqlDebugger.debug(dmlType, dataSourceName, applyResult);
-        }
+        SqlDebugger.debug(printSqlProperties, dmlType, dataSourceName, applyResult);
         return applyResult;
     }
 

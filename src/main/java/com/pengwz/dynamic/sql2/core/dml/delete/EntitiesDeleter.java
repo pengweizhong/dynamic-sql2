@@ -67,7 +67,8 @@ public class EntitiesDeleter {
                     version, null, dataSourceName);
             condition.accept(whereCondition);
         }
-        if (schemaProperties.isPrintSql() && condition == null) {
+        SchemaProperties.PrintSqlProperties printSqlProperties = schemaProperties.getPrintSqlProperties();
+        if (printSqlProperties.isPrintSql() && condition == null) {
             log.warn("When the Where condition is null, the data in the entire table will be deleted");
         }
         AbstractDialectParser dialectParser =

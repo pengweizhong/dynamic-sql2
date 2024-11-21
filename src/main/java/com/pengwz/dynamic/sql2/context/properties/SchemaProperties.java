@@ -17,7 +17,7 @@ public class SchemaProperties {
     // 强制指定兼容的数据库版本
     private String databaseProductVersion;
     // 打印SQL语句
-    private boolean printSql = true;
+    private PrintSqlProperties printSqlProperties = new PrintSqlProperties();
     //主版本号
     private int majorVersionNumber;
     //次版本号
@@ -80,16 +80,16 @@ public class SchemaProperties {
         return useAsInQuery;
     }
 
-    public boolean isPrintSql() {
-        return printSql;
-    }
-
     public void setUseAsInQuery(boolean useAsInQuery) {
         this.useAsInQuery = useAsInQuery;
     }
 
-    public void setPrintSql(boolean printSql) {
-        this.printSql = printSql;
+    public PrintSqlProperties getPrintSqlProperties() {
+        return printSqlProperties;
+    }
+
+    public void setPrintSqlProperties(PrintSqlProperties printSqlProperties) {
+        this.printSqlProperties = printSqlProperties;
     }
 
     public int getMajorVersionNumber() {
@@ -102,5 +102,28 @@ public class SchemaProperties {
 
     public int getPatchVersionNumber() {
         return patchVersionNumber;
+    }
+
+    public static class PrintSqlProperties {
+        // 打印SQL语句
+        private boolean printSql = true;
+        // 打印SQL时是否打印数据源名称
+        private boolean printDataSourceName = true;
+
+        public boolean isPrintSql() {
+            return printSql;
+        }
+
+        public void setPrintSql(boolean printSql) {
+            this.printSql = printSql;
+        }
+
+        public boolean isPrintDataSourceName() {
+            return printDataSourceName;
+        }
+
+        public void setPrintDataSourceName(boolean printDataSourceName) {
+            this.printDataSourceName = printDataSourceName;
+        }
     }
 }

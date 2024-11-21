@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.core.database;
 
+import com.pengwz.dynamic.sql2.context.properties.SchemaProperties.PrintSqlProperties;
 import com.pengwz.dynamic.sql2.enums.DMLType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +15,13 @@ public class SqlDebugger {
     private SqlDebugger() {
     }
 
-    public static void debug(PreparedSql preparedSql, String dataSourceName, boolean isIntercepted) {
+    public static void debug(PrintSqlProperties printSqlProperties,
+                             PreparedSql preparedSql, String dataSourceName, boolean isIntercepted) {
         if (!log.isDebugEnabled()) {
             return;
+        }
+        if (!printSqlProperties.isPrintDataSourceName()) {
+            dataSourceName = "";
         }
         log.debug("{} -->     Preparing: {}", dataSourceName, preparedSql.getSql());
         List<List<Object>> batchParams = preparedSql.getBatchParams();
@@ -45,9 +50,12 @@ public class SqlDebugger {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static void debug(DMLType dmlType, String dataSourceName, Object applyResult) {//NOSONAR
+    public static void debug(PrintSqlProperties printSqlProperties, DMLType dmlType, String dataSourceName, Object applyResult) {//NOSONAR
         if (!log.isDebugEnabled()) {
             return;
+        }
+        if (!printSqlProperties.isPrintDataSourceName()) {
+            dataSourceName = "";
         }
         if (dmlType == DMLType.SELECT) {
             if (applyResult instanceof Collection) {

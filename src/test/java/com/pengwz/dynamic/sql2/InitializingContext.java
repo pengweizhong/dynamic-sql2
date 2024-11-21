@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2;
 
 import com.pengwz.dynamic.sql2.context.SqlContextHelper;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
+import com.pengwz.dynamic.sql2.context.properties.SchemaProperties.PrintSqlProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageInterceptorPlugin;
@@ -30,7 +31,10 @@ public class InitializingContext {
 //        schemaProperties.setDatabaseProductVersion("11.0.0.1");
 //        schemaProperties.setDatabaseProductVersion("5.6.0");
         schemaProperties.setUseAsInQuery(true);
-        schemaProperties.setPrintSql(true);
+        PrintSqlProperties printSqlProperties = new PrintSqlProperties();
+        printSqlProperties.setPrintSql(true);
+        printSqlProperties.setPrintDataSourceName(false);
+        schemaProperties.setPrintSqlProperties(printSqlProperties);
         sqlContextProperties.addSchemaProperties(schemaProperties);
         sqlContextProperties.addInterceptor(new PageInterceptorPlugin());
 //        LogProperties.setInstance(new DefaultSqlLoggerTest());
