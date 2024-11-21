@@ -344,21 +344,19 @@ public class MysqlParser extends AbstractDialectParser {
         sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
         sql.append(" (");
         Object entity = params.iterator().next();
-        for (int i = 0; i < columnMetas.size(); i++) {
-            ColumnMeta columnMeta = columnMetas.get(i);
+        ArrayList<String> insertColumns = new ArrayList<>();
+        for (ColumnMeta columnMeta : columnMetas) {
             Object fieldValue = ReflectUtils.getFieldValue(entity, columnMeta.getField());
             if (fieldValue != null || insertType == InsertType.INSERT
                     || forcedFieldNames.contains(columnMeta.getColumnName())) {
-                sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnMeta.getColumnName()));
+                insertColumns.add(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnMeta.getColumnName()));
                 values.add(ConverterUtils.convertToDatabaseColumn(columnMeta, fieldValue));
-                if (i < columnMetas.size() - 1) {
-                    sql.append(", ");
-                }
             }
         }
         if (values.isEmpty()) {
             throw new IllegalStateException("No non-null attribute fields were provided.");
         }
+        sql.append(String.join(", ", insertColumns));
         sql.append(") values (");
         ParameterBinder parameterBinder = new ParameterBinder();
         for (int i = 0; i < values.size(); i++) {
