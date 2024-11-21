@@ -22,7 +22,7 @@ public class MapperProxyFactory {
     private static SqlContext sqlContext;
 
     @SuppressWarnings("unchecked")
-    public static <T> MapperRegistry<T> getCacheEntityClass(Class<EntityMapper<?>> entityMapperClass) {
+    public static <T> MapperRegistry<T> getMapperRegistry(Class<EntityMapper<?>> entityMapperClass) {
         return (MapperRegistry<T>) ENTITY_MAPPER_CLASS_CACHE.get(entityMapperClass);
     }
 

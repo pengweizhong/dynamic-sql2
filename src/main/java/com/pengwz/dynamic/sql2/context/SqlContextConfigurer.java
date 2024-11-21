@@ -34,7 +34,7 @@ public class SqlContextConfigurer {
         scanAndInitTable(sqlContextProperties.getScanTablePackage());
         scanAndInitCTETableInfo(sqlContextProperties.getScanTablePackage());
         scanAndInitViewInfo(sqlContextProperties.getScanTablePackage());
-        scanAndInitMapper(sqlContextProperties.getScanMapperPackage());
+        scanAndInitMapper(sqlContextProperties.getScanMapperPackage(), getSqlContext());
     }
 
     private void validateProperty() {

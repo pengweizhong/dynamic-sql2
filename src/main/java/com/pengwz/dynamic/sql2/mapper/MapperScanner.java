@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.mapper;
 
+import com.pengwz.dynamic.sql2.core.SqlContext;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
@@ -16,7 +17,7 @@ public class MapperScanner {
 
     private static final Logger log = LoggerFactory.getLogger(MapperScanner.class);
 
-    public static void scanAndInitMapper(String[] scanMapperPackage) {
+    public static void scanAndInitMapper(String[] scanMapperPackage, SqlContext sqlContext) {
         if (scanMapperPackage == null) {
             return;
         }
@@ -32,6 +33,6 @@ public class MapperScanner {
                 MapperProxyFactory.loadMapper(mapperClass);
             }
         }
-
+        MapperProxyFactory.setSqlContext(sqlContext);
     }
 }

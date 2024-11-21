@@ -17,7 +17,7 @@ public class EntityMapperProxy implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Class<EntityMapper<?>> entityMapperClass = (Class<EntityMapper<?>>) proxy.getClass().getInterfaces()[0];
         if (!SPECIAL_SIGNATURE_METHOD.contains(method.getName())) {
-            String  methodSignature= MapperProxyFactory.getMethodSignature(method, null);
+            String methodSignature = MapperProxyFactory.getMethodSignature(method, null);
             Method sqlContextMethod = MapperProxyFactory.getSqlContextMethod(methodSignature);
             try {
                 return sqlContextMethod.invoke(MapperProxyFactory.getSqlContext(), args);
@@ -28,7 +28,8 @@ public class EntityMapperProxy implements InvocationHandler {
         String methodSignature = MapperProxyFactory.getMethodSignature(method, "java.lang.Class");
         Method sqlContextMethod = MapperProxyFactory.getSqlContextMethod(methodSignature);
         Object[] params = new Object[args.length + 1];
-        params[0] = MapperProxyFactory.getCacheEntityClass(entityMapperClass);
+        MapperRegistry<Object> mapperRegistry = MapperProxyFactory.getMapperRegistry(entityMapperClass);
+        params[0] = mapperRegistry.getEntityClass();
         System.arraycopy(args, 0, params, 1, args.length);
         try {
             return sqlContextMethod.invoke(MapperProxyFactory.getSqlContext(), params);
