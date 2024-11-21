@@ -34,21 +34,6 @@ public class SqlDebugger {
         }
     }
 
-    private static StringBuilder assemblyParameters(List<Object> params) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < params.size(); i++) {
-            Object param = params.get(i);
-            stringBuilder.append(param);
-            if (param != null) {
-                stringBuilder.append("(").append(param.getClass().getSimpleName()).append(")");
-            }
-            if (i != params.size() - 1) {
-                stringBuilder.append(", ");
-            }
-        }
-        return stringBuilder;
-    }
-
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static void debug(PrintSqlProperties printSqlProperties, DMLType dmlType, String dataSourceName, Object applyResult) {//NOSONAR
         if (!log.isDebugEnabled()) {
@@ -79,5 +64,20 @@ public class SqlDebugger {
         if (dmlType == DMLType.INSERT || dmlType == DMLType.UPDATE || dmlType == DMLType.DELETE) {
             log.debug("{} <-- Affected Rows: {}", dataSourceName, applyResult);
         }
+    }
+
+    private static StringBuilder assemblyParameters(List<Object> params) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < params.size(); i++) {
+            Object param = params.get(i);
+            stringBuilder.append(param);
+            if (param != null) {
+                stringBuilder.append("(").append(param.getClass().getSimpleName()).append(")");
+            }
+            if (i != params.size() - 1) {
+                stringBuilder.append(", ");
+            }
+        }
+        return stringBuilder;
     }
 }
