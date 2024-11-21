@@ -10,12 +10,20 @@ public class SqlContextHelper {
     }
 
     public static SqlContext createSqlContext(SqlContextProperties sqlContextProperties) {
-        SqlContextConfigurer sqlContextConfigurer = new SqlContextConfigurer(sqlContextProperties, new DefaultSqlContext());
+        SqlContextConfigurer sqlContextConfigurer = createSqlContextConfigurer(sqlContextProperties);
         sqlContextConfigurer.initializeContext();
-        for (SchemaProperties schemaProperty : sqlContextConfigurer.getSqlContextProperties().getSchemaProperties()) {
-            SchemaContextHolder.addSchemaProperties(schemaProperty);
-        }
+        addSchemaProperties(sqlContextConfigurer.getSqlContextProperties());
         sqlContextProperties.getInterceptors().forEach(SqlInterceptorChain.getInstance()::addInterceptor);
         return sqlContextConfigurer.getSqlContext();
+    }
+
+    public static SqlContextConfigurer createSqlContextConfigurer(SqlContextProperties sqlContextProperties) {
+        return new SqlContextConfigurer(sqlContextProperties, new DefaultSqlContext());
+    }
+
+    public static void addSchemaProperties(SqlContextProperties sqlContextProperties) {
+        for (SchemaProperties schemaProperty : sqlContextProperties.getSchemaProperties()) {
+            SchemaContextHolder.addSchemaProperties(schemaProperty);
+        }
     }
 }

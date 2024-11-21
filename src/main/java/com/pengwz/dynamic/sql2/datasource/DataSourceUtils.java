@@ -60,37 +60,41 @@ public class DataSourceUtils {
                     }
                 });
         for (DataSourceMapping dataSourceMapping : dataSources) {
-            log.debug("Test the data source connection to get the URL For '{}'. ", dataSourceMapping.getDataSourceName());
-            Connection connection = null;
-            SchemaProperties schemaProperties = getSchemaProperties(sqlContextProperties, dataSourceMapping.getDataSourceName());
-            try {
-                connection = ConnectionHolder.getConnection(dataSourceMapping.getDataSource());
-                DatabaseMetaData metaData = connection.getMetaData();
-                DbType dbType = matchDbType(metaData.getURL());
-                String schema = matchSchema(sqlContextProperties.getSchemaMatchers(), dbType, metaData.getURL());
-                String version = metaData.getDatabaseProductVersion();
-                schemaProperties.setDatabaseProductVersion(StringUtils.isEmpty(schemaProperties.getDatabaseProductVersion())
-                        ? version : schemaProperties.getDatabaseProductVersion());
-                SqlDialect sqlDialect = schemaProperties.getSqlDialect();
-                if (sqlDialect == null && dbType.equals(DbType.OTHER)) {
-                    log.error("Unsupported SQL dialect, If your database supports an existing SQL dialect, manually specify the dialect type.");
-                    throw new UnsupportedOperationException("Unsupported SQL dialect");
-                }
-                sqlDialect = sqlDialect == null ? SqlDialect.valueOf(dbType.name()) : sqlDialect;
-                schemaProperties.setSqlDialect(sqlDialect);
-                //设置其他参数
-                schemaProperties.setDataSourceName(dataSourceMapping.getDataSourceName());
-                initDataSource(dataSourceMapping.getDataSourceName(),
-                        dbType, schema,
-                        dataSourceMapping.getDataSource(),
-                        dataSourceMapping.isGlobalDefault(),
-                        version,
-                        dataSourceMapping.getBindBasePackages());
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to read meta information", e);
-            } finally {
-                ConnectionHolder.releaseConnection(connection);
+            checkAndSave(sqlContextProperties, dataSourceMapping);
+        }
+    }
+
+    public static void checkAndSave(SqlContextProperties sqlContextProperties, DataSourceMapping dataSourceMapping) {
+        log.debug("Test the data source connection to get the URL For '{}'. ", dataSourceMapping.getDataSourceName());
+        Connection connection = null;
+        SchemaProperties schemaProperties = getSchemaProperties(sqlContextProperties, dataSourceMapping.getDataSourceName());
+        try {
+            connection = ConnectionHolder.getConnection(dataSourceMapping.getDataSource());
+            DatabaseMetaData metaData = connection.getMetaData();
+            DbType dbType = matchDbType(metaData.getURL());
+            String schema = matchSchema(sqlContextProperties.getSchemaMatchers(), dbType, metaData.getURL());
+            String version = metaData.getDatabaseProductVersion();
+            schemaProperties.setDatabaseProductVersion(StringUtils.isEmpty(schemaProperties.getDatabaseProductVersion())
+                    ? version : schemaProperties.getDatabaseProductVersion());
+            SqlDialect sqlDialect = schemaProperties.getSqlDialect();
+            if (sqlDialect == null && dbType.equals(DbType.OTHER)) {
+                log.error("Unsupported SQL dialect, If your database supports an existing SQL dialect, manually specify the dialect type.");
+                throw new UnsupportedOperationException("Unsupported SQL dialect");
             }
+            sqlDialect = sqlDialect == null ? SqlDialect.valueOf(dbType.name()) : sqlDialect;
+            schemaProperties.setSqlDialect(sqlDialect);
+            //设置其他参数
+            schemaProperties.setDataSourceName(dataSourceMapping.getDataSourceName());
+            initDataSource(dataSourceMapping.getDataSourceName(),
+                    dbType, schema,
+                    dataSourceMapping.getDataSource(),
+                    dataSourceMapping.isGlobalDefault(),
+                    version,
+                    dataSourceMapping.getBindBasePackages());
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to read meta information", e);
+        } finally {
+            ConnectionHolder.releaseConnection(connection);
         }
     }
 

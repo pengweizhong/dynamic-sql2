@@ -9,8 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DataSourceProvider {//NOSONAR
 
-    private static final DataSourceProvider INSTANCE = new DataSourceProvider();
-
     //key 是数据源名称
     private static final Map<String, DataSourceMeta> DATA_SOURCE_META_MAP = new ConcurrentHashMap<>();
 

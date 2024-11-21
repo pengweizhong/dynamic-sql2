@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.table;
 
 import com.pengwz.dynamic.sql2.table.cte.CTEMeta;
 import com.pengwz.dynamic.sql2.table.view.ViewMeta;
+import javafx.scene.control.Tab;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,12 @@ public class TableProvider {//NOSONAR
     }
 
     public static TableMeta getTableMeta(Class<?> tableClass) {
-        return TABLE_META_MAP.get(tableClass);
+        TableMeta tableMeta = TABLE_META_MAP.get(tableClass);
+        if (tableMeta == null) {
+            tableMeta = TableUtils.parseTableClass(tableClass);
+            saveTableMeta(tableClass, tableMeta);
+        }
+        return tableMeta;
     }
 
     public static TableMeta getTableMeta(String classCanonicalName) {
