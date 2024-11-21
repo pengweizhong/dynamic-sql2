@@ -22,6 +22,7 @@ public class InitializingContext {
         SqlContextProperties sqlContextProperties = SqlContextProperties.defaultSqlContextProperties();
         sqlContextProperties.setScanTablePackage("com.pengwz.dynamic.sql2");
         sqlContextProperties.setScanDatabasePackage("com.pengwz.dynamic.sql2");
+        sqlContextProperties.setScanMapperPackage("com.pengwz.dynamic.sql2.mapper");
         SchemaProperties schemaProperties = new SchemaProperties();
         schemaProperties.setDataSourceName("dataSource");
         schemaProperties.setUseSchemaInQuery(false);

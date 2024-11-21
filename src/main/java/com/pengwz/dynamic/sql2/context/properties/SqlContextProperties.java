@@ -15,6 +15,8 @@ public class SqlContextProperties {
     private String[] scanDatabasePackage;
     // 扫描表实体包路径
     private String[] scanTablePackage;
+    // 扫描Mapper包路径
+    private String[] scanMapperPackage;
     // 数据库命名空间匹配器
     private Set<DbSchemaMatcher> schemaMatchers;
     // 指定具体的命名空间配置
@@ -45,6 +47,14 @@ public class SqlContextProperties {
 
     public void setScanTablePackage(String... scanTablePackage) {
         this.scanTablePackage = scanTablePackage;
+    }
+
+    public String[] getScanMapperPackage() {
+        return scanMapperPackage;
+    }
+
+    public void setScanMapperPackage(String... scanMapperPackage) {
+        this.scanMapperPackage = scanMapperPackage;
     }
 
     public Set<DbSchemaMatcher> getSchemaMatchers() {

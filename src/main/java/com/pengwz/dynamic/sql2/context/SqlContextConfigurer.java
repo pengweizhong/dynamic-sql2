@@ -10,6 +10,7 @@ import java.util.List;
 
 import static com.pengwz.dynamic.sql2.context.properties.SqlContextProperties.defaultSqlContextProperties;
 import static com.pengwz.dynamic.sql2.datasource.DataSourceUtils.scanAndInitDataSource;
+import static com.pengwz.dynamic.sql2.mapper.MapperScanner.scanAndInitMapper;
 import static com.pengwz.dynamic.sql2.table.TableUtils.*;
 
 public class SqlContextConfigurer {
@@ -33,6 +34,7 @@ public class SqlContextConfigurer {
         scanAndInitTable(sqlContextProperties.getScanTablePackage());
         scanAndInitCTETableInfo(sqlContextProperties.getScanTablePackage());
         scanAndInitViewInfo(sqlContextProperties.getScanTablePackage());
+        scanAndInitMapper(sqlContextProperties.getScanMapperPackage());
     }
 
     private void validateProperty() {
