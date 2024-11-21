@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.condition.impl.dialect;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.AggregateFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
@@ -416,6 +417,16 @@ public class GenericWhereCondition extends WhereCondition {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
                 .append(" = ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
+    }
+
+    @Override
+    public Condition andEqualTo(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version);
+        String key = SqlUtils.generateBindingKey();
+        parameterBinder.add(key, value);
+        condition.append(functionToString).append(" = ").append(key);
         return this;
     }
 
@@ -1029,5 +1040,9 @@ public class GenericWhereCondition extends WhereCondition {
             return SqlDialect.ORACLE;
         }
         return SqlDialect.MYSQL;
+    }
+
+    protected SqlDialect sqlDialect() {
+        throw new UnsupportedOperationException("Unimplemented SQL dialects");
     }
 }

@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.condition;
 
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 
 import java.util.function.Consumer;
 
@@ -46,6 +47,8 @@ public interface Condition {
      * @return 当前 Condition 实例
      */
     <T, F> Condition andEqualTo(Fn<T, F> fn, Object value);
+
+    Condition andEqualTo(Column column, Object value);
 
     /**
      * 添加等值连接条件，并且运算。

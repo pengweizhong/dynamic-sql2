@@ -6,4 +6,6 @@ import java.util.Map;
 public interface SelectHandler {
 
     List<Map<String, Object>> executeQuery();
+
+    <T> T selectByPrimaryKey(Class<T> entityClass, Object pkValue);
 }

@@ -8,6 +8,7 @@ import com.pengwz.dynamic.sql2.core.dml.delete.EntitiesDeleter;
 import com.pengwz.dynamic.sql2.core.dml.insert.EntitiesInserter;
 import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
+import com.pengwz.dynamic.sql2.core.dml.select.DefaultSelectHandler;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 import com.pengwz.dynamic.sql2.core.dml.update.EntitiesUpdater;
 import com.pengwz.dynamic.sql2.core.dml.update.UpdateHandler;
@@ -27,6 +28,17 @@ public class DefaultSqlContext implements SqlContext {
     @Override
     public AbstractColumnReference select() {
         return new Select().loadColumReference();
+    }
+
+    @Override
+    public <T> T selectByPrimaryKey(Class<T> entityClass, Object pkValue) {
+        if (entityClass == null) {
+            return null;
+        }
+        if (pkValue == null) {
+            throw new IllegalArgumentException("pkValue can not be null");
+        }
+        return new DefaultSelectHandler().selectByPrimaryKey(entityClass, pkValue);
     }
 
     @Override

@@ -289,6 +289,16 @@ public class SelectTest extends InitializingContext {
                 .fetch(LocalDate.class).toOne();
         System.out.println(one);
     }
+
+    @Test
+    void test7() {
+        Product product = sqlContext.select().allColumn().from(Product.class)
+                .where(whereCondition -> whereCondition.andEqualTo(Product::getProductId, 7))
+                .fetch().toOne();
+        System.out.println(product);
+        Product product2 = sqlContext.selectByPrimaryKey(Product.class, 7);
+        System.out.println(product2);
+    }
 }
 
 

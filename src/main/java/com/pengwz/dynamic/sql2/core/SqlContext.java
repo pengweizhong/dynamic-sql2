@@ -19,6 +19,16 @@ public interface SqlContext {
     AbstractColumnReference select();
 
     /**
+     * 根据主键查询实体对象。
+     *
+     * @param <T>         实体类的类型。
+     * @param entityClass 实体类的 {@link Class} 对象，用于指定查询结果的映射类型。
+     * @param pkValue     主键值，用于定位唯一的数据库记录。
+     * @return 查询到的实体对象。如果没有匹配的记录，则返回 {@code null}。
+     */
+    <T> T selectByPrimaryKey(Class<T> entityClass, Object pkValue);
+
+    /**
      * 插入一个实体到数据库，选择性插入非空字段。
      *
      * @param entity 要插入的实体对象，不能为空。
@@ -209,4 +219,5 @@ public interface SqlContext {
      * @return 返回新增或更新的总记录条数。
      */
     <T> int upsertMultiple(Collection<T> entities);
+
 }
