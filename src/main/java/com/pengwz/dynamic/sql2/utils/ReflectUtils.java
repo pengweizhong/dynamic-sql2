@@ -6,10 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.beans.Introspector;
 import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -176,6 +173,48 @@ public class ReflectUtils {
             log.warn(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    /**
+     * 获取指定类的泛型类型。
+     *
+     * @param clazz 要解析的类
+     * @return 泛型类型的 Class 对象列表
+     */
+    public static List<Class<?>> getGenericTypes(Class<?> clazz) {
+        return getGenericTypes(clazz, null);
+    }
+
+    /**
+     * 获取指定类的泛型类型。
+     * 如果传入了 `filterRawType` 参数，则仅返回匹配的原始类型（Raw Type）所关联的泛型类型。
+     *
+     * @param clazz         要解析的类
+     * @param filterRawType （可选）用于筛选的原始类型（Raw Type），例如接口或类的类型
+     * @return 泛型类型的 Class 对象列表
+     */
+    public static List<Class<?>> getGenericTypes(Class<?> clazz, Class<?>... filterRawType) {
+        Type[] genericInterfaces = clazz.getGenericInterfaces();
+        ArrayList<Class<?>> types = new ArrayList<>();
+        List<Class<?>> filterRawTypeList = new ArrayList<>();
+        if (filterRawType != null && filterRawType.length > 0) {
+            filterRawTypeList.addAll(Arrays.asList(filterRawType));
+        }
+        for (Type type : genericInterfaces) {
+            if (type instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+                // 返回泛型 的实际类型
+                Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                for (Type actualTypeArgument : actualTypeArguments) {
+                    if (filterRawTypeList.isEmpty()) {
+                        types.add((Class<?>) actualTypeArgument);
+                    } else if (filterRawTypeList.contains((Class<?>) parameterizedType.getRawType())) {
+                        types.add((Class<?>) actualTypeArgument);
+                    }
+                }
+            }
+        }
+        return types;
     }
 
     public static <T> T instance(Class<T> clazz, Object... args) {
