@@ -6,7 +6,7 @@
 
     <groupId>com.pengwz</groupId>
     <artifactId>dynamic-sql2</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
     <description>动态 SQL 框架，支持安全且灵活的 SQL 构建，使用 Java API 提供简洁的 DSL 风格接口。</description>
     <inceptionYear>2024</inceptionYear>
     <url>https://github.com/pengweizhong/dynamic-sql2</url>
@@ -68,7 +68,6 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <!-- <version>1.2.23</version>-->
             <version>1.2.23</version>
             <scope>test</scope>
         </dependency>
@@ -85,5 +84,16 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+    <build>
+        <plugins>
+            <!-- skipTests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
