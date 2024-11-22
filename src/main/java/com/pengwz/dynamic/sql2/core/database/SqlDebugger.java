@@ -17,7 +17,7 @@ public class SqlDebugger {
 
     public static void debug(PrintSqlProperties printSqlProperties,
                              PreparedSql preparedSql, String dataSourceName, boolean isIntercepted) {
-        if (!log.isDebugEnabled()) {
+        if (!log.isDebugEnabled() || !printSqlProperties.isPrintSql()) {
             return;
         }
         if (!printSqlProperties.isPrintDataSourceName()) {
@@ -36,7 +36,7 @@ public class SqlDebugger {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static void debug(PrintSqlProperties printSqlProperties, DMLType dmlType, String dataSourceName, Object applyResult) {//NOSONAR
-        if (!log.isDebugEnabled()) {
+        if (!log.isDebugEnabled() || !printSqlProperties.isPrintSql()) {
             return;
         }
         if (!printSqlProperties.isPrintDataSourceName()) {
