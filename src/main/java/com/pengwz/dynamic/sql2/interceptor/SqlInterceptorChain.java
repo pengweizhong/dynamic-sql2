@@ -45,7 +45,7 @@ public class SqlInterceptorChain implements SqlInterceptor {
             // 如果某个拦截器返回false，直接中断链条
             boolean proceed = interceptor.beforeExecution(sqlStatementWrapper, connection);
             if (!proceed) {
-                log.trace("The SQL interceptor link interrupts execution, located at: {}#{}",
+                log.debug("The SQL interceptor link interrupts execution, located at: {}#{}",
                         interceptor.getClass().getSimpleName(), "beforeExecution(sqlStatementWrapper, connection)");
                 return false;
             }
@@ -61,7 +61,7 @@ public class SqlInterceptorChain implements SqlInterceptor {
             Object skippedResult = interceptor.retrieveSkippedResult(sqlStatementWrapper, connection);
             // 如果某个拦截器返回了结果，直接中断链条
             if (skippedResult != null) {
-                log.trace("The SQL interceptor link interrupts execution, located at: {}#{}",
+                log.debug("The SQL interceptor link interrupts execution, located at: {}#{}",
                         interceptor.getClass().getSimpleName(), "retrieveSkippedResult(sqlStatementWrapper, connection)");
                 return (R) skippedResult;
             }
