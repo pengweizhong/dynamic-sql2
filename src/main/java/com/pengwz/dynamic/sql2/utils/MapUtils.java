@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.utils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class MapUtils {
     private MapUtils() {
@@ -31,4 +32,13 @@ public class MapUtils {
     public static <K, V> boolean isNotEmpty(Map<K, V> map) {
         return !isEmpty(map);
     }
+
+    public static <K, V> V computeIfAbsent(Map<K, V> map, K key, Function<K, V> mappingFunction) {
+        V value = map.get(key);
+        if (value != null) {
+            return value;
+        }
+        return map.computeIfAbsent(key, mappingFunction);
+    }
+
 }
