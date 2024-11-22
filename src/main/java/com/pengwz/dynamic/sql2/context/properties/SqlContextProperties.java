@@ -18,7 +18,7 @@ public class SqlContextProperties {
     // 扫描Mapper包路径
     private String[] scanMapperPackage;
     // 数据库命名空间匹配器
-    private Set<DbSchemaMatcher> schemaMatchers;
+    private Set<DbSchemaMatcher> schemaMatchers = new LinkedHashSet<>();
     // 指定具体的命名空间配置
     private List<SchemaProperties> schemaProperties = new ArrayList<>();
     // 加载自定义拦截器
