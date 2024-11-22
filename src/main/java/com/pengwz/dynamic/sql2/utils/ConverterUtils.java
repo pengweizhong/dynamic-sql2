@@ -78,10 +78,10 @@ public class ConverterUtils {
             return (T) value.toString();
         }
         if (fieldType == Integer.class || fieldType == int.class) {
-            return (T) Integer.valueOf(value.toString());
+            return (T) Integer.valueOf(ifBooleanToNumber(value).toString());
         }
         if (fieldType == Long.class || fieldType == long.class) {
-            return (T) Long.valueOf(value.toString());
+            return (T) Long.valueOf(ifBooleanToNumber(value).toString());
         }
         if (fieldType == Boolean.class || fieldType == boolean.class) {
             if (value instanceof Number) {
@@ -92,10 +92,10 @@ public class ConverterUtils {
             return (T) Boolean.valueOf(value.toString());
         }
         if (fieldType == Double.class || fieldType == double.class) {
-            return (T) Double.valueOf(value.toString());
+            return (T) Double.valueOf(ifBooleanToNumber(value).toString());
         }
         if (fieldType == Float.class || fieldType == float.class) {
-            return (T) Float.valueOf(value.toString());
+            return (T) Float.valueOf(ifBooleanToNumber(value).toString());
         }
         if (fieldType.isEnum()) {
             //枚举对象
@@ -112,5 +112,13 @@ public class ConverterUtils {
 
     public static void putAttributeConverterModel(Class<?> fieldType, AttributeConverterModel attributeConverter) {
         GENERAL_ATTRIBUTE_CONVERTER_MODEL.put(fieldType, attributeConverter);
+    }
+
+    public static Object ifBooleanToNumber(Object value) {
+        if (value instanceof Boolean) {
+            // true -> 1, false -> 0
+            return Boolean.compare((Boolean) value, false);
+        }
+        return value;
     }
 }
