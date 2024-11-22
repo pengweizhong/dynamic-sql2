@@ -5,10 +5,7 @@ import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MapperProxyFactory {
@@ -26,6 +23,13 @@ public class MapperProxyFactory {
     @SuppressWarnings("unchecked")
     public static <T> MapperRegistry<T> getMapperRegistry(Class<EntityMapper<?>> entityMapperClass) {
         return (MapperRegistry<T>) ENTITY_MAPPER_CLASS_CACHE.get(entityMapperClass);
+    }
+
+    public static List<MapperRegistry<?>> getMapperRegistrys() {
+        if (ENTITY_MAPPER_CLASS_CACHE.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(ENTITY_MAPPER_CLASS_CACHE.values());
     }
 
     @SuppressWarnings("all")
@@ -62,6 +66,9 @@ public class MapperProxyFactory {
     }
 
     public static void setSqlContext(SqlContext sqlContext) {
+        if (!SQL_CONTEXT_METHOD_CACHE.isEmpty()) {
+            return;
+        }
         MapperProxyFactory.sqlContext = sqlContext;
         Method[] methods = sqlContext.getClass().getMethods();
         List<String> methodTypes = Arrays.asList("delete", "insert", "upsert", "update", "select");
@@ -75,6 +82,9 @@ public class MapperProxyFactory {
     }
 
     public static void initEntityMapperMethod() {
+        if (!ENTITY_MAPPER_METHOD_NAME.isEmpty()) {
+            return;
+        }
         Method[] methods = EntityMapper.class.getMethods();
         List<String> methodTypes = Arrays.asList("delete", "insert", "upsert", "update", "select");
         for (Method m : methods) {
