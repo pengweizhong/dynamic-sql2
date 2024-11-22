@@ -159,6 +159,9 @@ public class SchemaStructureScanner {
 
     public static TableEntityMapping parseTableEntityMapping(Class<?> annotatedClass) {
         Table table = annotatedClass.getAnnotation(Table.class);
+        if (table == null) {
+            return null;
+        }
         //判断应当归属哪个数据源
         TableEntityMapping tableEntityMapping = new TableEntityMapping();
         tableEntityMapping.setTableName(table.value().trim());

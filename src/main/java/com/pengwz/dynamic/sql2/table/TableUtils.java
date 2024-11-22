@@ -78,6 +78,9 @@ public class TableUtils {
 
     public static TableMeta parseTableClass(Class<?> tableClazz) {
         TableEntityMapping tableEntityMapping = SchemaStructureScanner.parseTableEntityMapping(tableClazz);
+        if (tableEntityMapping == null) {
+            return null;
+        }
         return parseTableClass(tableEntityMapping).get(tableClazz);
     }
 

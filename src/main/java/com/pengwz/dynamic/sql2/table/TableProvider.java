@@ -32,6 +32,9 @@ public class TableProvider {//NOSONAR
         TableMeta tableMeta = TABLE_META_MAP.get(tableClass);
         if (tableMeta == null) {
             tableMeta = TableUtils.parseTableClass(tableClass);
+            if (tableMeta == null) {
+                return null;
+            }
             saveTableMeta(tableClass, tableMeta);
         }
         return tableMeta;
