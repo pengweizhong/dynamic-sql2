@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.Map;
 
 class MapperTest extends InitializingContext {
-    static EntityMapper<Product> productEntityMapper;
+    static ProductMapper productEntityMapper;
 
     @BeforeAll
     static void setUp() {
@@ -68,4 +68,8 @@ class MapperTest extends InitializingContext {
         System.out.println(i);
     }
 
+    @Test
+    void sayHello() {
+        productEntityMapper.printSayHello();
+    }
 }

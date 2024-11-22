@@ -2,7 +2,6 @@ package com.pengwz.dynamic.sql2.table;
 
 import com.pengwz.dynamic.sql2.table.cte.CTEMeta;
 import com.pengwz.dynamic.sql2.table.view.ViewMeta;
-import javafx.scene.control.Tab;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

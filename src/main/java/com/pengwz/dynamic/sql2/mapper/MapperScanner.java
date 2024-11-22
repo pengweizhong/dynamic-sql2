@@ -34,5 +34,6 @@ public class MapperScanner {
             }
         }
         MapperProxyFactory.setSqlContext(sqlContext);
+        MapperProxyFactory.initEntityMapperMethod();
     }
 }

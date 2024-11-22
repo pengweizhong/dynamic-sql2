@@ -6,6 +6,7 @@ import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,6 +17,7 @@ public class MapperProxyFactory {
 
     //代理SQL_CONTEXT应用到的所有方法
     private static final Map<String, Method> SQL_CONTEXT_METHOD_CACHE = new ConcurrentHashMap<>();
+    private static final LinkedHashSet<String> ENTITY_MAPPER_METHOD_NAME = new LinkedHashSet<>();
     //Key 是mapper， value是mapper对应的实体类
     private static final Map<Class<EntityMapper<?>>, MapperRegistry<?>> ENTITY_MAPPER_CLASS_CACHE = new ConcurrentHashMap<>();
 
@@ -27,10 +29,10 @@ public class MapperProxyFactory {
     }
 
     @SuppressWarnings("all")
-    public static <T, M extends EntityMapper<T>> EntityMapper<T> loadMapper(Class<M> mapperClass) {
+    public static <T, M extends EntityMapper<T>> M loadMapper(Class<M> mapperClass) {
         MapperRegistry<T> mapperRegistry = (MapperRegistry<T>) ENTITY_MAPPER_CLASS_CACHE.get(mapperClass);
         if (mapperRegistry != null) {
-            return mapperRegistry.getProxyMapper();
+            return (M) mapperRegistry.getProxyMapper();
         }
         List<Class<?>> genericTypes = ReflectUtils.getGenericTypes(mapperClass, EntityMapper.class);
         if (genericTypes.isEmpty()) {
@@ -39,7 +41,7 @@ public class MapperProxyFactory {
         Class<T> entityClass = (Class<T>) genericTypes.get(0);
         EntityMapper<T> entityMapper = createMapper(mapperClass);
         ENTITY_MAPPER_CLASS_CACHE.put((Class<EntityMapper<?>>) mapperClass, new MapperRegistry(entityMapper, entityClass));
-        return entityMapper;
+        return (M) entityMapper;
     }
 
     @SuppressWarnings("all")
@@ -70,6 +72,22 @@ public class MapperProxyFactory {
                 }
             }
         }
+    }
+
+    public static void initEntityMapperMethod() {
+        Method[] methods = EntityMapper.class.getMethods();
+        List<String> methodTypes = Arrays.asList("delete", "insert", "upsert", "update", "select");
+        for (Method m : methods) {
+            for (String methodType : methodTypes) {
+                if (m.getName().startsWith(methodType)) {
+                    ENTITY_MAPPER_METHOD_NAME.add(m.getName());
+                }
+            }
+        }
+    }
+
+    public static LinkedHashSet<String> getEntityMapperMethodNames() {
+        return ENTITY_MAPPER_METHOD_NAME;
     }
 
     public static String getMethodSignature(Method method, String paramClassType) {
