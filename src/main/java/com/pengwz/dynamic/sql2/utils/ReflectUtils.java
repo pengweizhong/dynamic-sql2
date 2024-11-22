@@ -10,6 +10,7 @@ import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class ReflectUtils {
@@ -21,20 +22,24 @@ public class ReflectUtils {
     private ReflectUtils() {
     }
 
+    public static List<Field> getAllFields(Class<?> clazz) {
+        return getAllFields(clazz, null);
+    }
+
     /**
      * 获取指定类中的所有字段
      *
-     * @param clazz          指定类
-     * @param filterModifier 如果需要过滤类型，建议使用{@link Modifier}
+     * @param clazz       指定类
+     * @param filterRules 自定义过滤规则,只选择匹配到的属性
      * @return 返回字段集合
      */
-    public static List<Field> getAllFields(Class<?> clazz, int... filterModifier) {
+    public static List<Field> getAllFields(Class<?> clazz, Function<Field, Boolean> filterRules) {
         List<Field> fields = new ArrayList<>();
-        collectFields(clazz, fields, filterModifier);
+        collectFields(clazz, fields, filterRules);
         return fields;
     }
 
-    private static void collectFields(Class<?> clazz, List<Field> fields, int... filterModifier) {
+    private static void collectFields(Class<?> clazz, List<Field> fields, Function<Field, Boolean> filterRules) {
         if (clazz == null || clazz.equals(Object.class)) {
             return;
         }
@@ -42,18 +47,16 @@ public class ReflectUtils {
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {//NOSONAR
             // 过滤字段
-            if (filterModifier == null || filterModifier.length == 0) {
+            if (filterRules == null) {
                 fields.add(field);
                 continue;
             }
-            int modifiers = field.getModifiers();
-            if (Arrays.stream(filterModifier).anyMatch(mod -> modifiers == mod)) {
-                continue;
+            if (Boolean.TRUE.equals(filterRules.apply(field))) {
+                fields.add(field);
             }
-            fields.add(field);
         }
         // 递归处理父类
-        collectFields(clazz.getSuperclass(), fields);
+        collectFields(clazz.getSuperclass(), fields, filterRules);
     }
 
     /**

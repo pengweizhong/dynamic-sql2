@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class TableUtils {
@@ -82,7 +83,7 @@ public class TableUtils {
 
     public static List<ColumnMeta> parseViewClass(Class<?> clazz) {
 
-        List<Field> fields = ReflectUtils.getAllFields(clazz, excludeFieldTypes());
+        List<Field> fields = ReflectUtils.getAllFields(clazz, filterFieldTypeRules());
         List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(clazz, f))
                 .filter(Objects::nonNull).collect(Collectors.toList());
         //检查列声明标识是否合规
@@ -92,7 +93,7 @@ public class TableUtils {
     private static Map<Class<?>, TableMeta> parseTableClass(TableEntityMapping tableEntity) {
         log.trace("Parsing table class: {}", tableEntity);
         Class<?> entityClass = tableEntity.getEntityClass();
-        List<Field> fields = ReflectUtils.getAllFields(entityClass, excludeFieldTypes());
+        List<Field> fields = ReflectUtils.getAllFields(entityClass, filterFieldTypeRules());
         TableMeta tableMeta = new TableMeta();
         tableMeta.setTableName(tableEntity.getTableName());
         if (StringUtils.isBlank(tableMeta.getTableName())) {
@@ -103,7 +104,8 @@ public class TableUtils {
             throw new IllegalArgumentException("The table alias is empty");
         }
         tableMeta.setBindDataSourceName(tableEntity.getBindDataSourceName());
-        List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(entityClass, f))
+        List<ColumnMetaSymbol> columnMetaSymbols = fields.stream()
+                .map(f -> parseTableColumn(entityClass, f))
                 .filter(Objects::nonNull).collect(Collectors.toList());
         //检查列声明标识是否合规
         List<ColumnMeta> columnMetas = assertAndFilterColumn(columnMetaSymbols, tableMeta.getTableName());
@@ -114,7 +116,7 @@ public class TableUtils {
     public static CTEMeta parseCTEClass(CTEEntityMapping cteEntityMapping) {
         CTEMeta cteMeta = new CTEMeta();
         cteMeta.setCteName(cteEntityMapping.getCteName());
-        List<Field> fields = ReflectUtils.getAllFields(cteEntityMapping.getCteClass(), excludeFieldTypes());
+        List<Field> fields = ReflectUtils.getAllFields(cteEntityMapping.getCteClass(), filterFieldTypeRules());
         List<CTEColumnMeta> cteColumnMetas = fields.stream().map(field -> {
             Column column = field.getDeclaredAnnotation(Column.class);
             String columnValue = column != null ? column.value() : null;
@@ -210,8 +212,18 @@ public class TableUtils {
     }
 
     public static int[] excludeFieldTypes() {
-        return new int[]{Modifier.STATIC, Modifier.FINAL};
+        return new int[]{Modifier.STATIC, Modifier.FINAL, Modifier.NATIVE, Modifier.TRANSIENT};
     }
+
+    public static Function<Field, Boolean> filterFieldTypeRules() {
+        return field -> {
+            return !Modifier.isFinal(field.getModifiers())
+                    && !Modifier.isStatic(field.getModifiers())
+                    && !Modifier.isNative(field.getModifiers())
+                    && !Modifier.isTransient(field.getModifiers());
+        };
+    }
+
 
     static class ColumnMetaSymbol {
         ColumnMeta columnMeta;
@@ -233,4 +245,5 @@ public class TableUtils {
             this.primary = primary;
         }
     }
+
 }

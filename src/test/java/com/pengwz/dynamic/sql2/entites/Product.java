@@ -1,6 +1,5 @@
 package com.pengwz.dynamic.sql2.entites;
 
-import com.pengwz.dynamic.sql2.anno.Column;
 import com.pengwz.dynamic.sql2.anno.GeneratedValue;
 import com.pengwz.dynamic.sql2.anno.Id;
 import com.pengwz.dynamic.sql2.anno.Table;
@@ -8,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -15,7 +15,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("products")
-public class Product {
+public class Product implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue
     private Integer productId;  // 产品 ID
@@ -24,7 +25,7 @@ public class Product {
     private Integer stock;  // 产品库存
     private Integer categoryId;  // 外键，关联 Categories 表
     private String attributes;  // JSON 格式的产品属性
-//    @Column(pattern = "yyyy-MM-dd")
+    //    @Column(pattern = "yyyy-MM-dd")
     private Date createdAt;  // 产品创建日期
     private Boolean isAvailable;  // 是否上架
 }

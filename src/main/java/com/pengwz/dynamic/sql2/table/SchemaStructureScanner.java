@@ -23,7 +23,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.pengwz.dynamic.sql2.table.TableUtils.excludeFieldTypes;
+import static com.pengwz.dynamic.sql2.table.TableUtils.filterFieldTypeRules;
 
 public class SchemaStructureScanner {
     private static final Logger log = LoggerFactory.getLogger(SchemaStructureScanner.class);
@@ -68,7 +68,7 @@ public class SchemaStructureScanner {
         Map<Class<?>, ViewMeta> viewMap = new HashMap<>();
         reflections.getTypesAnnotatedWith(View.class).forEach(cls -> {
             ViewMeta viewMeta = new ViewMeta();
-            List<Field> allFields = ReflectUtils.getAllFields(cls, excludeFieldTypes());
+            List<Field> allFields = ReflectUtils.getAllFields(cls, filterFieldTypeRules());
             List<ViewColumnMeta> viewColumnMetas = allFields.stream().map(field -> {
                 Column column = field.getDeclaredAnnotation(Column.class);
                 String columnValue = column != null ? column.value() : null;
