@@ -26,9 +26,6 @@ public class MapperProxyFactory {
     }
 
     public static List<MapperRegistry<?>> getMapperRegistrys() {
-        if (ENTITY_MAPPER_CLASS_CACHE.isEmpty()) {
-            return Collections.emptyList();
-        }
         return new ArrayList<>(ENTITY_MAPPER_CLASS_CACHE.values());
     }
 
