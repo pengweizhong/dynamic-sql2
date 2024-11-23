@@ -17,19 +17,19 @@ public class ConnectionHolder {
         return connectionHandle.getConnection(dataSource);
     }
 
-    public static void releaseConnection(Connection connection) {
+    public static void releaseConnection(DataSource dataSource, Connection connection) {
         checkConnectionHandle();
-        connectionHandle.releaseConnection(connection, null, null);
+        connectionHandle.releaseConnection(dataSource, connection, null, null);
     }
 
-    public static void releaseConnection(Connection connection, Statement statement) {
+    public static void releaseConnection(DataSource dataSource, Connection connection, Statement statement) {
         checkConnectionHandle();
-        connectionHandle.releaseConnection(connection, null, statement);
+        connectionHandle.releaseConnection(dataSource, connection, null, statement);
     }
 
-    public static void releaseConnection(Connection connection, ResultSet resultSet, Statement statement) {
+    public static void releaseConnection(DataSource dataSource, Connection connection, ResultSet resultSet, Statement statement) {
         checkConnectionHandle();
-        connectionHandle.releaseConnection(connection, resultSet, statement);
+        connectionHandle.releaseConnection(dataSource, connection, resultSet, statement);
     }
 
     private static void checkConnectionHandle() {

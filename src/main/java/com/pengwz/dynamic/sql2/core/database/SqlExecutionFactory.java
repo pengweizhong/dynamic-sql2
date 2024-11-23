@@ -69,7 +69,7 @@ public class SqlExecutionFactory {
             throw e;
         } finally {
             try {
-                ConnectionHolder.releaseConnection(connection);
+                ConnectionHolder.releaseConnection(dataSourceMeta.getDataSource(), connection);
             } finally {
                 sqlInterceptorChain.afterExecution(preparedSql, apply, exception);
             }

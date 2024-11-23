@@ -95,7 +95,7 @@ public class DataSourceUtils {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to read meta information", e);
         } finally {
-            ConnectionHolder.releaseConnection(connection);
+            ConnectionHolder.releaseConnection(dataSourceMapping.getDataSource(), connection);
         }
     }
 
