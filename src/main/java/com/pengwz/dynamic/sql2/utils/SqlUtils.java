@@ -23,7 +23,6 @@ import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.DefaultOrderBy;
 import com.pengwz.dynamic.sql2.core.dml.select.order.OrderBy;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
-import com.pengwz.dynamic.sql2.datasource.ConnectionHolder;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DbType;
@@ -487,7 +486,13 @@ public class SqlUtils {
     }
 
     public static void close(Connection connection, ResultSet resultSet, Statement statement) {
-        ConnectionHolder.releaseConnection(connection);
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                log.error("Connection closed abnormally.", e);
+            }
+        }
         close(resultSet, statement);
     }
 

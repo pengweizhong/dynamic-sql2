@@ -8,7 +8,7 @@ import com.pengwz.dynamic.sql2.core.database.impl.OracleSqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.parser.AbstractDialectParser;
 import com.pengwz.dynamic.sql2.core.database.parser.MysqlParser;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
-import com.pengwz.dynamic.sql2.datasource.ConnectionHolder;
+import com.pengwz.dynamic.sql2.datasource.connection.ConnectionHolder;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.enums.DMLType;

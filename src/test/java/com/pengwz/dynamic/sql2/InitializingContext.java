@@ -5,6 +5,9 @@ import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties.PrintSqlProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
+import com.pengwz.dynamic.sql2.datasource.connection.ConnectionHandle;
+import com.pengwz.dynamic.sql2.datasource.connection.ConnectionHolder;
+import com.pengwz.dynamic.sql2.datasource.connection.SimpleConnectionHandle;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageInterceptorPlugin;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
@@ -38,6 +41,7 @@ public class InitializingContext {
         sqlContextProperties.addSchemaProperties(schemaProperties);
         sqlContextProperties.addInterceptor(new PageInterceptorPlugin());
 //        LogProperties.setInstance(new DefaultSqlLoggerTest());
+        ConnectionHolder.setConnectionHandle(new SimpleConnectionHandle());
         sqlContext = SqlContextHelper.createSqlContext(sqlContextProperties);
     }
 
