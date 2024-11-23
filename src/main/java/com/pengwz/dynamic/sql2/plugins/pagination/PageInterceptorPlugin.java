@@ -9,6 +9,7 @@ import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.DMLType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
+import com.pengwz.dynamic.sql2.interceptor.ExecutionControl;
 import com.pengwz.dynamic.sql2.interceptor.SqlInterceptor;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
@@ -22,11 +23,11 @@ public class PageInterceptorPlugin implements SqlInterceptor {
 //    private static final Logger log = LoggerFactory.getLogger(PaginationPlugin.class);
 
     @Override
-    public boolean beforeExecution(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
+    public ExecutionControl beforeExecution(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
         AbstractPage currentPage = LocalPage.getCurrentPage();
         //没有分页参数，直接跳过
         if (currentPage == null) {
-            return true;
+            return ExecutionControl.PROCEED;
         }
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName());
         SqlDialect sqlDialect = schemaProperties.getSqlDialect();
@@ -44,11 +45,11 @@ public class PageInterceptorPlugin implements SqlInterceptor {
         }
         //没有数据就没有必要继续执行
         if (total == 0) {
-            return false;
+            return ExecutionControl.SKIP;
         }
         //如果超出了查询范围，也没有必要执行
         if (abstractPage.getPageIndex() > abstractPage.getTotalPage()) {
-            return false;
+            return ExecutionControl.SKIP;
         }
         switch (sqlDialect) {
             case MYSQL:
@@ -61,7 +62,7 @@ public class PageInterceptorPlugin implements SqlInterceptor {
             default:
                 throw new UnsupportedOperationException("Unsupported sql dialect: " + sqlDialect);
         }
-        return true;
+        return ExecutionControl.PROCEED;
     }
 
     private void executeMysqlPaging(SqlStatementWrapper sqlStatementWrapper,

@@ -13,6 +13,7 @@ import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
 import com.pengwz.dynamic.sql2.datasource.connection.ConnectionHolder;
 import com.pengwz.dynamic.sql2.enums.DMLType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
+import com.pengwz.dynamic.sql2.interceptor.ExecutionControl;
 import com.pengwz.dynamic.sql2.interceptor.SqlInterceptorChain;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
@@ -57,9 +58,9 @@ public class SqlExecutionFactory {
         PreparedSql preparedSql = null;
         try {
             connection = ConnectionHolder.getConnection(dataSourceMeta.getDataSource());
-            boolean beforeExecution = sqlInterceptorChain.beforeExecution(sqlStatementWrapper, connection);
+            ExecutionControl executionControl = sqlInterceptorChain.beforeExecution(sqlStatementWrapper, connection);
             preparedSql = SqlUtils.parsePreparedObject(sqlStatementWrapper);
-            if (beforeExecution) {
+            if (executionControl == ExecutionControl.PROCEED) {
                 apply = applySql(dmlType, dataSourceName, connection, preparedSql, true, doSqlExecutor);
             } else {
                 apply = sqlInterceptorChain.retrieveSkippedResult(sqlStatementWrapper, connection);

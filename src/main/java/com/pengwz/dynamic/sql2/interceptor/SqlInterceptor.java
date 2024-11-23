@@ -22,7 +22,7 @@ public interface SqlInterceptor {
      * @return 如果返回 {@code true}，表示继续执行后续拦截器或 SQL 执行；如果返回 {@code false}，
      * 则中断后续操作。
      */
-    boolean beforeExecution(SqlStatementWrapper sqlStatementWrapper, Connection connection);
+    ExecutionControl beforeExecution(SqlStatementWrapper sqlStatementWrapper, Connection connection);
 
     /**
      * 当 {@code beforeExecution} 返回 {@code false} 时调用，返回跳过数据库交互的结果。

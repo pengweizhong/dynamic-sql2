@@ -39,18 +39,18 @@ public class SqlInterceptorChain implements SqlInterceptor {
     }
 
     @Override
-    public boolean beforeExecution(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
+    public ExecutionControl beforeExecution(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
         // 依次执行拦截器
         for (SqlInterceptor interceptor : interceptors) {
             // 如果某个拦截器返回false，直接中断链条
-            boolean proceed = interceptor.beforeExecution(sqlStatementWrapper, connection);
-            if (!proceed) {
+            ExecutionControl executionControl = interceptor.beforeExecution(sqlStatementWrapper, connection);
+            if (executionControl == ExecutionControl.SKIP) {
                 log.trace("The SQL interceptor link interrupts execution, located at: {}", interceptor.getClass().getSimpleName());
-                return false;
+                return executionControl;
             }
         }
         // 只有所有拦截器都通过时，才返回true
-        return true;
+        return ExecutionControl.PROCEED;
     }
 
     @SuppressWarnings("unchecked")
