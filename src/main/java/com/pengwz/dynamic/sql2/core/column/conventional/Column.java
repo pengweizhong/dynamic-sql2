@@ -33,14 +33,6 @@ public final class Column implements ColumFunction, TableFunction {
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
-//        if (columnFn instanceof OriginColumnAliasImpl) {
-//            return ((OriginColumnAliasImpl) (columnFn)).getAbsoluteColumn(sqlDialect);
-//        }
-//        Fn<?, ?> fn = this.columnFn;
-//        if (columnFn instanceof TableAliasImpl) {
-//            AbstractAliasHelper alias = (AbstractAliasHelper) columnFn;
-//            fn = alias.getFnColumn();
-//        }
         if (columnName != null) {
             return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." +
                     SqlUtils.quoteIdentifier(sqlDialect, columnName);
@@ -53,7 +45,6 @@ public final class Column implements ColumFunction, TableFunction {
         return SqlUtils.quoteIdentifier(sqlDialect, tableAliasName) + "." +
                 SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
     }
-
 
     @Override
     public Fn<?, ?> getOriginColumnFn() {

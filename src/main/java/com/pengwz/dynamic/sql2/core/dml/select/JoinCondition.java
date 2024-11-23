@@ -8,7 +8,6 @@ import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-//TODO 1、LATERAL  2、直接join函数
 public interface JoinCondition extends Fetchable {
     /**
      * 表示 INNER JOIN 连接。此方法是 {@link #innerJoin(Class, Consumer)} 的别名。
