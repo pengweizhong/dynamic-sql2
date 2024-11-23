@@ -601,7 +601,7 @@ public class GenericWhereCondition extends WhereCondition {
     @Override
     public <T, F> Condition andLessThan(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
-        condition.append(" ").append(logicalOperatorType(OR)).append(name)
+        condition.append(" ").append(logicalOperatorType(AND)).append(name)
                 .append(" < ").append(registerValueWithKey(parameterBinder, fn, value));
         return this;
     }
