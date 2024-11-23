@@ -17,6 +17,7 @@ import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -449,7 +450,10 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T1, T2, F> Condition orEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName))
+                .append(" = ").append(SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName));
+        return this;
     }
 
     @Override
@@ -639,7 +643,19 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T, F> Condition andIn(Fn<T, F> fn, Iterable<?> values) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" in (");
+        Iterator<?> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            Object value = iterator.next();
+            condition.append(registerValueWithKey(parameterBinder, fn, value));
+            if (iterator.hasNext()) {
+                condition.append(", ");
+            }
+        }
+        condition.append(")");
+        return this;
     }
 
     @Override

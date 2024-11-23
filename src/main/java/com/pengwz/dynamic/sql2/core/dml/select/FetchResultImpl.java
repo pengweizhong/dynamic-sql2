@@ -70,6 +70,9 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         List<ColumnMeta> columnMetas;
         TableMeta tableMeta = TableProvider.getTableMeta(resultClass);
         if (tableMeta == null) {
+            if (resultClass == Object.class || resultClass == List.class) {
+                return (Collection<R>) wrapperList;
+            }
             if (resultClass.getClassLoader() == null) {
                 return convertToSystemClass(collection);
             }

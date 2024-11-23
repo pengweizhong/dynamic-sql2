@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table("categories")
 public class Category {
-    private int categoryId;  // 分类 ID
+    private Integer categoryId;  // 分类 ID
     private String categoryName;  // 分类名称
     private String description;  // 分类描述
 }
