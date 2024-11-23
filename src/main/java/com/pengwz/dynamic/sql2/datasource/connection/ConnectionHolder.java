@@ -9,6 +9,9 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 public class ConnectionHolder {
+    private ConnectionHolder() {
+    }
+
     private static final Logger log = LoggerFactory.getLogger(ConnectionHolder.class);
     private static ConnectionHandle connectionHandle;
 
@@ -41,6 +44,9 @@ public class ConnectionHolder {
     public static synchronized void setConnectionHandle(ConnectionHandle inputHandle) {
         if (connectionHandle == null && inputHandle != null) {
             ConnectionHolder.connectionHandle = inputHandle;
+        }
+        if (connectionHandle != null) {
+            throw new IllegalStateException("ConnectionHandle already set");
         }
     }
 
