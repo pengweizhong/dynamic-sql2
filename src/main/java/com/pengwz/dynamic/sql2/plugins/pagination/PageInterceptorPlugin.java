@@ -38,7 +38,7 @@ public class PageInterceptorPlugin implements SqlInterceptor {
         String pageSizeKey = registerValueWithKey(parameterBinder, abstractPage.getPageSize());
         Long total = abstractPage.getCacheTotal();
         if (total == null) {
-            total = selectTotal(sqlStatementWrapper, connection, offsetKey, pageSizeKey);
+            total = selectTotal(sqlStatementWrapper, connection);
             currentPage.setTotal(total);
             currentPage.initTotalPage();
         }
@@ -90,15 +90,15 @@ public class PageInterceptorPlugin implements SqlInterceptor {
     }
 
     private long selectTotal(SqlStatementWrapper sqlStatementWrapper,
-                             Connection connection,
-                             String offsetKey,
-                             String pageSizeKey) {
+                             Connection connection
+                             /*String offsetKey,
+                             String pageSizeKey*/) {
         StringBuilder selectCountSql = new StringBuilder(sqlStatementWrapper.getRawSql());
         selectCountSql.insert(0, "select count(1) from (");
-        selectCountSql.append(") _count_page_temp limit ");
-        selectCountSql.append(offsetKey);
-        selectCountSql.append(", ");
-        selectCountSql.append(pageSizeKey);
+        selectCountSql.append(") _count_page_temp ");
+//        selectCountSql.append(offsetKey);
+//        selectCountSql.append(", ");
+//        selectCountSql.append(pageSizeKey);
         PreparedSql preparedSql = SqlUtils.parsePreparedObject(selectCountSql, sqlStatementWrapper.getParameterBinder());
 
         List<Map<String, Object>> resultCountList = SqlExecutionFactory.applySql(DMLType.SELECT,
