@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 class JoinTest extends InitializingContext {
     /**
@@ -45,7 +46,7 @@ class JoinTest extends InitializingContext {
 
     @Test
     void innerJoin() {
-        List<Object> list = sqlContext.select()
+        List<Map<String, Object>> list = sqlContext.select()
                 .column(Product::getProductId)
                 .column(Product::getProductName)
                 .column(Product::getCreatedAt)
@@ -55,7 +56,7 @@ class JoinTest extends InitializingContext {
                 .from(Product.class)
                 .innerJoin(Category.class, on -> on.orEqualTo(Product::getCategoryId, Category::getCategoryId))
                 .where(whereCondition -> whereCondition.andIn(Product::getProductId, Arrays.asList(1, 2, 3, 4, 5)))
-                .fetch(Object.class).toList();
+                .fetchOriginalMap().toList();
         list.forEach(System.out::println);
     }
 }

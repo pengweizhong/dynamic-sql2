@@ -1,5 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
+import java.util.Map;
+
 /**
  * 定义数据获取操作的接口，提供了两种方式来获取查询结果。
  */
@@ -25,4 +27,22 @@ public interface Fetchable {
      * @return 查询结果的封装 {@link FetchResult}
      */
     <T> FetchResult<T> fetch(Class<T> returnClass);
+
+    /**
+     * 获取查询结果并返回原始的 {@code  Map<String, Object>} 类型数据。
+     * <p>
+     * 该方法将返回一个包含键值对的 {@link Map}，其中键是列名（或字段名），值是对应列的数据。
+     * 这对于没有明确映射到实体类的查询非常有用，例如动态查询或需要临时处理的场景。
+     * <p>
+     * 该方法强制转换 {@link FetchResult} 为 {@code Map<String, Object>} 类型。
+     *
+     * @return 查询结果的封装 {@code FetchResult<Map<String, Object>>}，包含了查询结果的数据。
+     * 结果中的每一项都是一个 {@link Map}，其中键是字段名，值是字段的值。
+     * @throws ClassCastException 如果查询结果的类型不匹配，可能会抛出类型转换异常。
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    default FetchResult<Map<String, Object>> fetchOriginalMap() {
+        // 强制转换：将 fetch(Map.class) 返回的结果转换为 FetchResult<Map<String, Object>> 类型
+        return (FetchResult<Map<String, Object>>) ((FetchResult) fetch(Map.class));//NOSONAR
+    }
 }
