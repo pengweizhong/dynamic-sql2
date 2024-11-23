@@ -18,7 +18,7 @@ public class InitializingContext {
     private static final Logger log = LoggerFactory.getLogger(InitializingContext.class);
 
     @BeforeAll
-    static void setUp() {
+    synchronized static void setUp() {
         if (sqlContext != null) {
             log.info("--------------------- SqlContext 已被初始化 ---------------------");
             return;

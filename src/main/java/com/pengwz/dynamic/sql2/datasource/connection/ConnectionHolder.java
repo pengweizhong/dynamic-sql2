@@ -44,10 +44,15 @@ public class ConnectionHolder {
     public static synchronized void setConnectionHandle(ConnectionHandle inputHandle) {
         if (connectionHandle == null && inputHandle != null) {
             ConnectionHolder.connectionHandle = inputHandle;
+            return;
         }
         if (connectionHandle != null) {
             throw new IllegalStateException("ConnectionHandle already set");
         }
+    }
+
+    public static ConnectionHandle getConnectionHandle() {
+        return connectionHandle;
     }
 
 }
