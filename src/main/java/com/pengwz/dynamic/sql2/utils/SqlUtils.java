@@ -256,6 +256,15 @@ public class SqlUtils {
                     return "FULL OUTER JOIN";
             }
         }
+        if (joinTableType == JoinTableType.CROSS) {
+            switch (sqlDialect) {
+                case MYSQL:
+                case MARIADB:
+                    return "cross join";
+                default:
+                    return "CROSS JOIN";
+            }
+        }
         throw new UnsupportedOperationException("Unsupported associated table query type.");
     }
 

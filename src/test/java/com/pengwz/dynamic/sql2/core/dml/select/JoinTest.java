@@ -166,4 +166,28 @@ class JoinTest extends InitializingContext {
         list.forEach(System.out::println);
     }
 
+    /**
+     * <pre>
+     * {@code
+     * select
+     * 	o.*,
+     * 	u.*
+     * from
+     * 	orders o
+     * cross join users u on
+     * 	o.user_id = u.user_id
+     * }
+     *     </pre>
+     */
+    @Test
+    void crossJoin() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .allColumn(User.class)
+                .allColumn(Order.class)
+                .from(User.class)
+                .crossJoin(Order.class)
+                .fetchOriginalMap().toList();
+        list.forEach(System.out::println);
+    }
+
 }
