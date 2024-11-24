@@ -166,6 +166,19 @@ class JoinTest extends InitializingContext {
         list.forEach(System.out::println);
     }
 
+    @Test
+    void fullJoin2() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .allColumn(User.class)
+                .allColumn(Order.class)
+                .from(User.class)
+                .fullJoin(Order.class,
+                        on -> on.orEqualTo(User::getUserId, Order::getUserId))
+                .where(whereCondition -> whereCondition.andIn(User::getUserId, Arrays.asList(1, 2, 3, 4, 5)))
+                .fetchOriginalMap().toList();
+        list.forEach(System.out::println);
+    }
+
     /**
      * <pre>
      * {@code
