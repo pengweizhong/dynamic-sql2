@@ -8,7 +8,6 @@ import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
-import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
@@ -36,13 +35,12 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
     }
 
     protected void parseColumnFunction() {
-        List<ColumnQuery> columFunctions1 = selectSpecification.getColumFunctions();
         sqlBuilder.append(SqlUtils.getSyntaxSelect(sqlDialect)).append(" ");
-        for (int i = 0; i < columFunctions1.size(); i++) {
-            ColumnQuery columnQuery = columFunctions1.get(i);
+        for (int i = 0; i < selectSpecification.getColumFunctions().size(); i++) {
+            ColumnQuery columnQuery = selectSpecification.getColumFunctions().get(i);
             String columnSeparator = "";
             //最后一个列后面不追加逗号
-            if (columFunctions1.size() - 1 != i) {
+            if (selectSpecification.getColumFunctions().size() - 1 != i) {
                 columnSeparator = ", ";
             }
             if (columnQuery instanceof FunctionColumn) {
@@ -50,7 +48,11 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 ColumFunction columFunction = functionColumn.getColumFunction();
                 //是否查询的全部列
                 if (columFunction instanceof AllColumn) {
-                    parseAllColumn((AllColumn) columFunction, columFunctions1.size() - 1 > i);
+                    //除了第一个后续元素都要追加`,`
+                    if (i != 0) {
+                        sqlBuilder.append(", ");
+                    }
+                    parseAllColumn((AllColumn) columFunction, selectSpecification.getColumFunctions().size() - 1 > i);
                     continue;
                 }
                 //数字列不需要关心别名问题
@@ -103,14 +105,15 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
     }
 
     @Override
-    protected void parseFormTables() {
+    protected boolean parseFormTables() {
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         for (JoinTable joinTable : joinTables) {
-            parseJoinTable(joinTable, this.sqlBuilder);
+            parseJoinTable(joinTable);
         }
+        return true;
     }
 
-    protected void parseJoinTable(JoinTable joinTable, StringBuilder sqlBuilder) {
+    protected void parseJoinTable(JoinTable joinTable) {
         if (joinTable instanceof FromNestedJoin) {
             FromNestedJoin fromNestedJoin = (FromNestedJoin) joinTable;
             NestedJoin nestedJoin = fromNestedJoin.getNestedJoin();

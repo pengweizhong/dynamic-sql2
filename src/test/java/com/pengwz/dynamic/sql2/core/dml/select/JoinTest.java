@@ -97,4 +97,73 @@ class JoinTest extends InitializingContext {
                 .fetchOriginalMap().toList();
         list.forEach(System.out::println);
     }
+
+    /**
+     * <pre>
+     * {@code
+     * select
+     * 	u.user_id ,
+     * 	u.name ,
+     * 	o.order_id ,
+     * 	o.order_details
+     * from
+     * 	users u
+     * right join orders o
+     * on
+     * 	u.user_id = o.user_id
+     * 	and o.order_date < '2023-12-12'
+     * where
+     * 	 u.user_id in (1, 2, 3, 4, 5);
+     * }
+     *     </pre>
+     */
+    @Test
+    void rightJoin() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .column(User::getUserId)
+                .column(User::getName)
+                .column(Order::getOrderId)
+                .column(Order::getOrderDetails)
+                .from(User.class)
+                .rightJoin(Order.class,
+                        on -> on.orEqualTo(User::getUserId, Order::getUserId)
+                                .andLessThan(Order::getOrderDate, LocalDate.of(2023, 12, 12)))
+                .where(whereCondition -> whereCondition.andIn(User::getUserId, Arrays.asList(1, 2, 3, 4, 5)))
+                .fetchOriginalMap().toList();
+        list.forEach(System.out::println);
+    }
+
+    /**
+     * <pre>
+     * {@code
+     * select
+     * 	o.*,
+     * 	u.*
+     * from
+     * 	orders o
+     * left join users u on
+     * 	o.user_id = u.user_id
+     * union
+     * select
+     * 	o.*,
+     * 	u.*
+     * from
+     * 	orders o
+     * right join users u on
+     * 	o.user_id = u.user_id
+     * }
+     *     </pre>
+     */
+    @Test
+    void fullJoin() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .allColumn(User.class)
+                .allColumn(Order.class)
+                .from(User.class)
+                .fullJoin(Order.class,
+                        on -> on.orEqualTo(User::getUserId, Order::getUserId))
+                .fetchOriginalMap().toList();
+        list.forEach(System.out::println);
+    }
+
 }

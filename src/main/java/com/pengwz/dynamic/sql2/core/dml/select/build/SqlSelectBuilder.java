@@ -59,7 +59,12 @@ public abstract class SqlSelectBuilder {
 
     protected abstract void parseColumnFunction();
 
-    protected abstract void parseFormTables();
+    /**
+     * 解析From
+     *
+     * @return 是否继续执行解析，true继续，false终止
+     */
+    protected abstract boolean parseFormTables();
 
     protected abstract void parseLimit();
 
@@ -88,7 +93,24 @@ public abstract class SqlSelectBuilder {
         sqlBuilder.append(" ");
         //step2 解析查询的表
         sqlBuilder.append(SqlUtils.getSyntaxFrom(sqlDialect)).append(" ");
-        parseFormTables();
+        if (parseFormTables()) {
+            //继续解析SQL
+            continueParsingSql();
+        }
+        //猜测可能需要fetch的对象，如果用户没有生命具体的对象，就把这个类作为返回对象
+        JoinTable guessTheTarget = joinTables.stream().filter(joinTable -> joinTable.getTableClass() != null)
+                .findFirst().orElse(null);
+        Class<?> guessTheTargetClass = null;
+        if (guessTheTarget != null) {
+            guessTheTargetClass = guessTheTarget.getTableClass();
+        }
+        return new SqlStatementSelectWrapper(dataSourceName, sqlBuilder, parameterBinder, guessTheTargetClass);
+    }
+
+    /**
+     * 将解析表后的操作都聚拢在这里
+     */
+    protected void continueParsingSql() {
         //step3 解析where条件
         if (selectSpecification.getWhereCondition() != null) {
             parseWhere(selectSpecification.getWhereCondition());
@@ -109,14 +131,6 @@ public abstract class SqlSelectBuilder {
         if (selectSpecification.getLimitInfo() != null) {
             parseLimit();
         }
-        //猜测可能需要fetch的对象，如果用户没有生命具体的对象，就把这个类作为返回对象
-        JoinTable guessTheTarget = joinTables.stream().filter(joinTable -> joinTable.getTableClass() != null)
-                .findFirst().orElse(null);
-        Class<?> guessTheTargetClass = null;
-        if (guessTheTarget != null) {
-            guessTheTargetClass = guessTheTarget.getTableClass();
-        }
-        return new SqlStatementSelectWrapper(dataSourceName, sqlBuilder, parameterBinder, guessTheTargetClass);
     }
 
     private void parseGroupBy(List<Fn<?, ?>> groupByFields) {

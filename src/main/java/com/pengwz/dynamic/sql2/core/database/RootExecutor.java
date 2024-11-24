@@ -34,19 +34,21 @@ public class RootExecutor {
             resultSet = preparedStatement.executeQuery();
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
+            HashSet<String> detectedColumnNameSet = new HashSet<>();
             while (resultSet.next()) {
                 LinkedHashMap<String, Object> objectMap = new LinkedHashMap<>();
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnLabel(i);
                     if (objectMap.containsKey(columnName)) {
-                        log.error("Duplicate column name detected: {}", columnName);
-                        throw new IllegalArgumentException("Duplicate column name: " + columnName);
+                        detectedColumnNameSet.add(columnName);
+//                        throw new IllegalArgumentException("Duplicate column name: " + columnName);
                     }
                     Object columnValue = resultSet.getObject(i);
                     objectMap.put(columnName, columnValue);
                 }
                 arrayList.add(objectMap);
             }
+            detectedColumnNameSet.forEach(columnName -> log.warn("Duplicate column name detected: {}", columnName));
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         } finally {
