@@ -8,6 +8,7 @@ import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Upper;
 import com.pengwz.dynamic.sql2.entites.User;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -75,143 +76,89 @@ class ConditionTest extends InitializingContext {
 
 
     @Test
-    void andIsEmpty() {
-    }
-
-    @Test
-    void orIsEmpty() {
-    }
-
-    @Test
-    void andIsNotEmpty() {
-    }
-
-    @Test
-    void orIsNotEmpty() {
-    }
-
-    @Test
     void andIsNull() {
-    }
-
-    @Test
-    void orIsNull() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition ->
+                        whereCondition.andIsNull(User::getName).orIsNull(User::getName))
+                .fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
     @Test
     void andIsNotNull() {
-    }
-
-    @Test
-    void orIsNotNull() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition ->
+                        whereCondition.andIsNotNull(User::getName).orIsNotNull(User::getName))
+                .fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
     @Test
     void andGreaterThan() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition ->
+                        whereCondition.andGreaterThan(User::getUserId, 5))
+                .fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
     @Test
-    void testAndGreaterThan() {
+    void andGreaterThan2() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition ->
+                        whereCondition.andGreaterThan(User::getUserId, User::getUserId))
+                .fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
-    @Test
-    void orGreaterThan() {
-    }
-
-    @Test
-    void testOrGreaterThan() {
-    }
-
-    @Test
-    void andGreaterThanOrEqualTo() {
-    }
-
-    @Test
-    void testAndGreaterThanOrEqualTo() {
-    }
-
-    @Test
-    void orGreaterThanOrEqualTo() {
-    }
-
-    @Test
-    void testOrGreaterThanOrEqualTo() {
-    }
-
-    @Test
-    void andLessThan() {
-    }
-
-    @Test
-    void testAndLessThan() {
-    }
-
-    @Test
-    void orLessThan() {
-    }
-
-    @Test
-    void testOrLessThan() {
-    }
-
-    @Test
-    void andLessThanOrEqualTo() {
-    }
-
-    @Test
-    void testAndLessThanOrEqualTo() {
-    }
-
-    @Test
-    void orLessThanOrEqualTo() {
-    }
-
-    @Test
-    void testOrLessThanOrEqualTo() {
-    }
-
-    @Test
+    @Test()
     void andIn() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition ->
+                        whereCondition.andIn(User::getUserId, Arrays.asList(1, 2, 3))
+                ).fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
-    @Test
-    void orIn() {
-    }
-
-    @Test
-    void andNotIn() {
-    }
-
-    @Test
-    void orNotIn() {
-    }
 
     @Test
     void andBetween() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition ->
+                        whereCondition.andBetween(User::getUserId, 1, 2)
+                ).fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
-    @Test
-    void testAndBetween() {
-    }
-
-    @Test
-    void orBetween() {
-    }
-
-    @Test
-    void testOrBetween() {
-    }
-
-    @Test
-    void andNotBetween() {
-    }
-
-    @Test
-    void orNotBetween() {
-    }
 
     @Test
     void andLike() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition ->
+                        whereCondition.andLike(User::getName, "%rr%")
+                ).fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
     @Test

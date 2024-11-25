@@ -464,22 +464,34 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T, F> Condition andIsNull(Fn<T, F> fn) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
+                .append(" is null");
+        return this;
     }
 
     @Override
     public <T, F> Condition orIsNull(Fn<T, F> fn) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
+                .append(" is null");
+        return this;
     }
 
     @Override
     public <T, F> Condition andIsNotNull(Fn<T, F> fn) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
+                .append(" is not null");
+        return this;
     }
 
     @Override
     public <T, F> Condition orIsNotNull(Fn<T, F> fn) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
+                .append(" is not null");
+        return this;
     }
 
     @Override
@@ -492,7 +504,11 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T1, T2, F> Condition andGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
+        String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(name).append(" > ").append(name2);
+        return this;
     }
 
     @Override
@@ -505,30 +521,45 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T1, T2, F> Condition orGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
+        String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(name).append(" > ").append(name2);
+        return this;
     }
 
     @Override
     public <T, F> Condition andGreaterThanOrEqualTo(Fn<T, F> fn, Object value) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(name)
+                .append(" >= ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
     }
 
     @Override
     public <T1, T2, F> Condition andGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
+        String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(name).append(" >= ").append(name2);
+        return this;
     }
 
     @Override
     public <T, F> Condition orGreaterThanOrEqualTo(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
-                .append(" <= ").append(registerValueWithKey(parameterBinder, fn, value));
+                .append(" >= ").append(registerValueWithKey(parameterBinder, fn, value));
         return this;
     }
 
     @Override
     public <T1, T2, F> Condition orGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
+        String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(name).append(" >= ").append(name2);
+        return this;
     }
 
     @Override
@@ -541,45 +572,69 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T1, T2, F> Condition andLessThan(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
+        String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(name).append(" <= ").append(name2);
+        return this;
     }
 
     @Override
     public <T, F> Condition orLessThan(Fn<T, F> fn, Object value) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(name)
+                .append(" < ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
     }
 
     @Override
     public <T1, T2, F> Condition orLessThan(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
+        String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(name).append(" <= ").append(name2);
+        return this;
     }
 
     @Override
     public <T, F> Condition andLessThanOrEqualTo(Fn<T, F> fn, Object value) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(name)
+                .append(" <= ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
     }
 
     @Override
     public <T1, T2, F> Condition andLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
+        String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(name).append(" <= ").append(name2);
+        return this;
     }
 
     @Override
     public <T, F> Condition orLessThanOrEqualTo(Fn<T, F> fn, Object value) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(name)
+                .append(" <= ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
     }
 
     @Override
     public <T1, T2, F> Condition orLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        String name = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
+        String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(name).append(" <= ").append(name2);
+        return this;
     }
 
-    @Override
-    public <T, F> Condition andIn(Fn<T, F> fn, Iterable<?> values) {
-        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
-        condition.append(" ").append(logicalOperatorType(OR)).append(column)
-                .append(" in (");
-        Iterator<?> iterator = values.iterator();
+    private <T, F> void iteratingCollection(Fn<T, F> fn, Iterator<?> iterator) {
+        if (iterator == null || !iterator.hasNext()) {
+            throw new IllegalArgumentException("The parameter set cannot be empty");
+        }
+        condition.append(" (");
         while (iterator.hasNext()) {
             Object value = iterator.next();
             condition.append(registerValueWithKey(parameterBinder, fn, value));
@@ -588,72 +643,132 @@ public class GenericWhereCondition extends WhereCondition {
             }
         }
         condition.append(")");
+    }
+
+    @Override
+    public <T, F> Condition andIn(Fn<T, F> fn, Iterable<?> values) {
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" in");
+        iteratingCollection(fn, values.iterator());
         return this;
     }
 
     @Override
     public <T, F> Condition orIn(Fn<T, F> fn, Iterable<?> values) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" in");
+        iteratingCollection(fn, values.iterator());
+        return this;
     }
 
     @Override
     public <T, F> Condition andNotIn(Fn<T, F> fn, Iterable<?> values) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" not in");
+        iteratingCollection(fn, values.iterator());
+        return this;
     }
 
     @Override
     public <T, F> Condition orNotIn(Fn<T, F> fn, Iterable<?> values) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" not in");
+        iteratingCollection(fn, values.iterator());
+        return this;
     }
 
     @Override
     public <T, F> Condition andBetween(Fn<T, F> fn, Object start, Object end) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" between ").append(registerValueWithKey(parameterBinder, fn, start))
+                .append(" and ").append(registerValueWithKey(parameterBinder, fn, end));
+        return this;
     }
 
     @Override
     public <T1, T2, F> Condition andBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
+        String column2 = SqlUtils.extractQualifiedAlias(startField, aliasTableMap, dataSourceName);
+        String column3 = SqlUtils.extractQualifiedAlias(endField, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" between ").append(column2)
+                .append(" and ").append(column3);
+        return this;
     }
 
     @Override
     public <T, F> Condition orBetween(Fn<T, F> fn, Object start, Object end) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" between ").append(registerValueWithKey(parameterBinder, fn, start))
+                .append(" and ").append(registerValueWithKey(parameterBinder, fn, end));
+        return this;
     }
 
     @Override
     public <T1, T2, F> Condition orBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
+        String column2 = SqlUtils.extractQualifiedAlias(startField, aliasTableMap, dataSourceName);
+        String column3 = SqlUtils.extractQualifiedAlias(endField, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" between ").append(column2)
+                .append(" and ").append(column3);
+        return this;
     }
 
     @Override
     public <T, F> Condition andNotBetween(Fn<T, F> fn, Object start, Object end) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" not between ").append(registerValueWithKey(parameterBinder, fn, start))
+                .append(" and ").append(registerValueWithKey(parameterBinder, fn, end));
+        return this;
     }
 
     @Override
     public <T, F> Condition orNotBetween(Fn<T, F> fn, Object start, Object end) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" not between ").append(registerValueWithKey(parameterBinder, fn, start))
+                .append(" and ").append(registerValueWithKey(parameterBinder, fn, end));
+        return this;
     }
 
     @Override
     public <T, F> Condition andLike(Fn<T, F> fn, String pattern) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" like ").append(registerValueWithKey(parameterBinder, fn, pattern));
+        return this;
     }
 
     @Override
     public <T, F> Condition orLike(Fn<T, F> fn, String pattern) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" like ").append(registerValueWithKey(parameterBinder, fn, pattern));
+        return this;
     }
 
     @Override
     public <T, F> Condition andNotLike(Fn<T, F> fn, String pattern) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" not like ").append(registerValueWithKey(parameterBinder, fn, pattern));
+        return this;
     }
 
     @Override
     public <T, F> Condition orNotLike(Fn<T, F> fn, String pattern) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" not like ").append(registerValueWithKey(parameterBinder, fn, pattern));
+        return this;
     }
 
     @Override
