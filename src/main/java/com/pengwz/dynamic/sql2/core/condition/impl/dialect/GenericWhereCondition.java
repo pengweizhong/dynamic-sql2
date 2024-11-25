@@ -463,26 +463,6 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
-    public <T, F> Condition andIsEmpty(Fn<T, F> fn) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition orIsEmpty(Fn<T, F> fn) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition andIsNotEmpty(Fn<T, F> fn) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition orIsNotEmpty(Fn<T, F> fn) {
-        return null;
-    }
-
-    @Override
     public <T, F> Condition andIsNull(Fn<T, F> fn) {
         return null;
     }

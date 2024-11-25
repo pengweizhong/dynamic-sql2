@@ -136,46 +136,6 @@ public interface Condition {
     <T1, T2, F> Condition orNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
-     * 添加字段为空条件，并且运算。
-     *
-     * @param fn  用于获取字段值的函数
-     * @param <T> 实体类类型
-     * @param <F> 字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition andIsEmpty(Fn<T, F> fn);
-
-    /**
-     * 添加字段为空条件，或运算。
-     *
-     * @param fn  用于获取字段值的函数
-     * @param <T> 实体类类型
-     * @param <F> 字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition orIsEmpty(Fn<T, F> fn);
-
-    /**
-     * 添加字段非空条件，并且运算。
-     *
-     * @param fn  用于获取字段值的函数
-     * @param <T> 实体类类型
-     * @param <F> 字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition andIsNotEmpty(Fn<T, F> fn);
-
-    /**
-     * 添加字段非空条件，或运算。
-     *
-     * @param fn  用于获取字段值的函数
-     * @param <T> 实体类类型
-     * @param <F> 字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition orIsNotEmpty(Fn<T, F> fn);
-
-    /**
      * 添加字段为空值条件，并且运算。
      *
      * @param fn  用于获取字段值的函数
