@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.bindAlias;
+
 class JoinTest extends InitializingContext {
     /**
      * <pre>
@@ -199,6 +201,30 @@ class JoinTest extends InitializingContext {
                 .allColumn(Order.class)
                 .from(User.class)
                 .crossJoin(Order.class)
+                .fetchOriginalMap().toList();
+        list.forEach(System.out::println);
+    }
+
+    /**
+     * <pre>
+     * {@code
+     * select
+     * 	o.*,
+     * 	u.*
+     * from
+     * 	orders o
+     * cross join users u on
+     * 	o.user_id = u.user_id
+     * }
+     *     </pre>
+     */
+    @Test
+    void selfJoin() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .allColumn(User.class)
+                .from(User.class, "a")
+                .selfJoin(User.class, "b",
+                        on -> on.orEqualTo(bindAlias("a", User::getUserId), bindAlias("b", User::getUserId)))
                 .fetchOriginalMap().toList();
         list.forEach(System.out::println);
     }

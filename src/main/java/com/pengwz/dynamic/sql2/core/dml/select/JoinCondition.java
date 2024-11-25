@@ -212,6 +212,10 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition selfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
 
+    JoinCondition leftSelfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
+
+    JoinCondition rightSelfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
+
     JoinCondition selfJoin(CteTable cte, Consumer<Condition> onCondition);
 
     /**

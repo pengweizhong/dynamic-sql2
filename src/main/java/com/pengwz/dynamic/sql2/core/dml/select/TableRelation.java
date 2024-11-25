@@ -5,9 +5,9 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.GroupFn;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
+import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.LimitInfo;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
-import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.core.dml.select.order.CustomOrderBy;
@@ -48,14 +48,16 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition innerJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.INNER, tableFunction, alias, onCondition));
-        return this;
+//        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.INNER, tableFunction, alias, onCondition));
+//        return this;
+        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
     public JoinCondition innerJoin(CteTable cte, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new InnerJoin(cte, onCondition));
-        return this;
+//        selectSpecification.getJoinTables().add(new InnerJoin(cte, onCondition));
+//        return this;
+        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
@@ -77,14 +79,16 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition leftJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.LEFT, tableFunction, alias, onCondition));
-        return this;
+//        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.LEFT, tableFunction, alias, onCondition));
+//        return this;
+        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
     public JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new LeftJoin(cte, onCondition));
-        return this;
+//        selectSpecification.getJoinTables().add(new LeftJoin(cte, onCondition));
+//        return this;
+        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
@@ -106,14 +110,16 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition rightJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.RIGHT, tableFunction, alias, onCondition));
-        return this;
+//        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.RIGHT, tableFunction, alias, onCondition));
+//        return this;
+        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
     public JoinCondition rightJoin(CteTable cte, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new RightJoin(cte, onCondition));
-        return this;
+//        selectSpecification.getJoinTables().add(new RightJoin(cte, onCondition));
+//        return this;
+        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
@@ -129,8 +135,9 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition fullJoin(CteTable cte, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new FullJoin(cte, onCondition));
-        return this;
+//        selectSpecification.getJoinTables().add(new FullJoin(cte, onCondition));
+//        return this;
+        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
@@ -147,14 +154,25 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition selfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new SelfJoin(clazz, alias, onCondition));
-        return this;
+//        selectSpecification.getJoinTables().add(new SelfJoin(clazz, alias, onCondition));
+        return innerJoin(clazz, alias, onCondition);
+    }
+
+    @Override
+    public JoinCondition leftSelfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+        return leftJoin(clazz, alias, onCondition);
+    }
+
+    @Override
+    public JoinCondition rightSelfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+        return rightJoin(clazz, alias, onCondition);
     }
 
     @Override
     public JoinCondition selfJoin(CteTable cte, Consumer<Condition> onCondition) {
-        selectSpecification.getJoinTables().add(new SelfJoin(cte, onCondition));
-        return this;
+//        selectSpecification.getJoinTables().add(new SelfJoin(cte, onCondition));
+//        return this;
+        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
 
