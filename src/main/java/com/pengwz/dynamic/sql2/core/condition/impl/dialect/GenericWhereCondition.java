@@ -78,42 +78,20 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T, F> FunctionCondition andNotEqualTo(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
+                .append(" != ").append(columFunction.getFunctionToString(sqlDialect(), version));
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        return this;
     }
 
     @Override
     public <T, F> FunctionCondition orNotEqualTo(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition andLengthEquals(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition orLengthEquals(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition andLengthGreaterThan(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition orLengthGreaterThan(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition andLengthLessThan(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition orLengthLessThan(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
+                .append(" != ").append(columFunction.getFunctionToString(sqlDialect(), version));
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        return this;
     }
 
     @Override
@@ -273,36 +251,6 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T, F> NestedCondition orNotEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition andLengthEquals(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition orLengthEquals(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition andLengthGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition orLengthGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition andLengthLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition orLengthLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         return null;
     }
 

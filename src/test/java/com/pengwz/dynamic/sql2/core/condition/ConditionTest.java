@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.condition;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Length;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.SubString;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Upper;
@@ -37,36 +38,28 @@ class ConditionTest extends InitializingContext {
         mapList.forEach(System.out::println);
     }
 
-    @Test
-    void testAndEqualTo1() {
-    }
-
-    @Test
-    void orEqualTo() {
-    }
-
-    @Test
-    void testOrEqualTo() {
-    }
 
     @Test
     void andNotEqualTo() {
-    }
-
-    @Test
-    void testAndNotEqualTo() {
-    }
-
-    @Test
-    void orNotEqualTo() {
-    }
-
-    @Test
-    void testOrNotEqualTo() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition -> whereCondition.andNotEqualTo(User::getName, new SubString("Jerry123", 1, 5)))
+                .fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
     @Test
     void andLengthEquals() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition ->
+                        whereCondition.andEqualTo(5, new Length(User::getName)))
+                .fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
     @Test

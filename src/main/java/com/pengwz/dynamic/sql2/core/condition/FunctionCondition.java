@@ -17,38 +17,19 @@ public interface FunctionCondition extends Condition {
 
     <T, F> FunctionCondition orNotEqualTo(Fn<T, F> fn, ColumFunction columFunction);
 
-
-    <T, F> FunctionCondition andLengthEquals(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition orLengthEquals(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition andLengthGreaterThan(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition orLengthGreaterThan(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition andLengthLessThan(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition orLengthLessThan(Fn<T, F> fn, ColumFunction columFunction);
-
     <T, F> FunctionCondition andGreaterThan(Fn<T, F> fn, ColumFunction columFunction);
 
-
     <T, F> FunctionCondition orGreaterThan(Fn<T, F> fn, ColumFunction columFunction);
-
 
     <T, F> FunctionCondition andGreaterThanOrEqualTo(Fn<T, F> fn, ColumFunction columFunction);
 
     <T, F> FunctionCondition orGreaterThanOrEqualTo(Fn<T, F> fn, ColumFunction columFunction);
 
-
     <T, F> FunctionCondition andLessThan(Fn<T, F> fn, ColumFunction columFunction);
-
 
     <T, F> FunctionCondition orLessThan(Fn<T, F> fn, ColumFunction columFunction);
 
-
     <T, F> FunctionCondition andLessThanOrEqualTo(Fn<T, F> fn, ColumFunction columFunction);
-
 
     <T, F> FunctionCondition orLessThanOrEqualTo(Fn<T, F> fn, ColumFunction columFunction);
 
