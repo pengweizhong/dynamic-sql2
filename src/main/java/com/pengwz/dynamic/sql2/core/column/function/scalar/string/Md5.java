@@ -5,11 +5,13 @@ import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
+import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedFunctionException;
 import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedSqlDialectException;
 
 public class Md5 extends ColumnFunctionDecorator {
+    String string;
 
     public Md5(ColumFunction delegateFunction) {
         super(delegateFunction);
@@ -23,10 +25,17 @@ public class Md5 extends ColumnFunctionDecorator {
         super(tableAlias, fn);
     }
 
+    public Md5(String string) {
+        this.string = string;
+    }
+
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.MYSQL) {
+            if (string != null) {
+                return "md5(" + SqlUtils.registerValueWithKey(parameterBinder, string) + ")";
+            }
             return "md5(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
         if (sqlDialect == SqlDialect.ORACLE) {

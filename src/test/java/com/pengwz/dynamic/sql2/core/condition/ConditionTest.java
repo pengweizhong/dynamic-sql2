@@ -1,7 +1,9 @@
 package com.pengwz.dynamic.sql2.core.condition;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.SubString;
+import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Upper;
 import com.pengwz.dynamic.sql2.entites.User;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +25,16 @@ class ConditionTest extends InitializingContext {
 
     @Test
     void testAndEqualTo() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition -> {
+                            whereCondition.andEqualTo(User::getName, new SubString("Dana Lee666", 1, 8));
+                            whereCondition.orEqualTo("99914B932BD37A50B983C5E7C90AE93B", new Upper(new Md5("{}")));
+                        }
+                ).fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
     @Test

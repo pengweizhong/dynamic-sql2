@@ -50,8 +50,30 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
+    public FunctionCondition andEqualTo(Object value, ColumFunction columFunction) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(registerValueWithKey(parameterBinder, value))
+                .append(" = ").append(columFunction.getFunctionToString(sqlDialect(), version));
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        return this;
+    }
+
+    @Override
     public <T, F> FunctionCondition orEqualTo(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
+                .append(" = ").append(columFunction.getFunctionToString(sqlDialect(), version));
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        return this;
+    }
+
+    @Override
+    public FunctionCondition orEqualTo(Object value, ColumFunction columFunction) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(registerValueWithKey(parameterBinder, value))
+                .append(" = ").append(columFunction.getFunctionToString(sqlDialect(), version));
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        return this;
     }
 
     @Override

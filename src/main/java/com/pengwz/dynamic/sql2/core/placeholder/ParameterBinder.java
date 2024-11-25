@@ -8,11 +8,12 @@ import java.util.Set;
 public class ParameterBinder {
     private final Map<String, Object> parameters = new LinkedHashMap<>();
 
-    public void addParameterBinder(ParameterBinder parameterBinder) {
+    public ParameterBinder addParameterBinder(ParameterBinder parameterBinder) {
         if (parameterBinder == null) {
-            return;
+            return this;
         }
         parameters.putAll(parameterBinder.getParameters());
+        return this;
     }
 
     public Map<String, Object> getParameters() {

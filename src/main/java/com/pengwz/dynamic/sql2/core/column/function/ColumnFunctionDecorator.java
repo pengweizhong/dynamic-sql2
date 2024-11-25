@@ -56,7 +56,7 @@ public abstract class ColumnFunctionDecorator
 
     @Override
     public ParameterBinder getParameterBinder() {
-        return parameterBinder;
+        return parameterBinder.addParameterBinder(delegateFunction.getParameterBinder());
     }
 
     @Override

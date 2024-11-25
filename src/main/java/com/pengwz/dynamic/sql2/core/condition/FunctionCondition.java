@@ -7,7 +7,11 @@ public interface FunctionCondition extends Condition {
 
     <T, F> FunctionCondition andEqualTo(Fn<T, F> fn, ColumFunction columFunction);
 
+    FunctionCondition andEqualTo(Object value, ColumFunction columFunction);
+
     <T, F> FunctionCondition orEqualTo(Fn<T, F> fn, ColumFunction columFunction);
+
+    FunctionCondition orEqualTo(Object value, ColumFunction columFunction);
 
     <T, F> FunctionCondition andNotEqualTo(Fn<T, F> fn, ColumFunction columFunction);
 
