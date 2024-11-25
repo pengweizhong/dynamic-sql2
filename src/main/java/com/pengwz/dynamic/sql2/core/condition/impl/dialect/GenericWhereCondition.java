@@ -440,17 +440,26 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T1, T2, F> Condition andNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName))
+                .append(" != ").append(SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName));
+        return this;
     }
 
     @Override
     public <T, F> Condition orNotEqualTo(Fn<T, F> fn, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
+                .append(" != ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
     }
 
     @Override
     public <T1, T2, F> Condition orNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName))
+                .append(" != ").append(SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName));
+        return this;
     }
 
     @Override

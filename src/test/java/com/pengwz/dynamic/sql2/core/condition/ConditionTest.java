@@ -51,6 +51,17 @@ class ConditionTest extends InitializingContext {
     }
 
     @Test
+    void andNotEqualTo2() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition -> whereCondition.andNotEqualTo(User::getName, User::getEmail))
+                .fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
+    }
+
+    @Test
     void andLengthEquals() {
         List<Map<String, Object>> mapList = sqlContext.select()
                 .allColumn()
@@ -62,25 +73,6 @@ class ConditionTest extends InitializingContext {
         mapList.forEach(System.out::println);
     }
 
-    @Test
-    void orLengthEquals() {
-    }
-
-    @Test
-    void andLengthGreaterThan() {
-    }
-
-    @Test
-    void orLengthGreaterThan() {
-    }
-
-    @Test
-    void andLengthLessThan() {
-    }
-
-    @Test
-    void orLengthLessThan() {
-    }
 
     @Test
     void andIsEmpty() {
