@@ -20,6 +20,10 @@ public abstract class ColumnFunctionDecorator
     protected Integer value;
     protected ParameterBinder parameterBinder = new ParameterBinder();
 
+    public ColumnFunctionDecorator() {
+        delegateFunction = new AnonymousFunction();
+    }
+
     public ColumnFunctionDecorator(ColumFunction delegateFunction) {
         this.delegateFunction = delegateFunction;
     }
