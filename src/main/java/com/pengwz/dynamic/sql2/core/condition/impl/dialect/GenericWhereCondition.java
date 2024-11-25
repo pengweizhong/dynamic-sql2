@@ -26,12 +26,12 @@ import static com.pengwz.dynamic.sql2.enums.LogicalOperatorType.OR;
 import static com.pengwz.dynamic.sql2.utils.SqlUtils.registerValueWithKey;
 
 public class GenericWhereCondition extends WhereCondition {
-    private final Version version;
-    private final Map<String, String> aliasTableMap;
-    private final StringBuilder condition = new StringBuilder();
-    private final ParameterBinder parameterBinder = new ParameterBinder();
+    protected final Version version;
+    protected final Map<String, String> aliasTableMap;
+    protected final StringBuilder condition = new StringBuilder();
+    protected final ParameterBinder parameterBinder = new ParameterBinder();
     protected String dataSourceName;
-    private boolean isFirstBuild;
+    protected boolean isFirstBuild;
 
     public GenericWhereCondition(Version version, Map<String, String> aliasTableMap, String dataSourceName) {
         this.version = version;
@@ -176,12 +176,12 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T, F> FunctionCondition andMatches(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T, F> FunctionCondition orMatches(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -773,12 +773,12 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T, F> Condition andMatches(Fn<T, F> fn, String regex) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T, F> Condition orMatches(Fn<T, F> fn, String regex) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -874,7 +874,7 @@ public class GenericWhereCondition extends WhereCondition {
         return parameterBinder;
     }
 
-    private String logicalOperatorType(LogicalOperatorType logicalOperatorType) {
+    protected String logicalOperatorType(LogicalOperatorType logicalOperatorType) {
         return logicalOperatorType(logicalOperatorType, matchSqlDialect());
     }
 

@@ -1,6 +1,8 @@
 package com.pengwz.dynamic.sql2.core.condition;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
+import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Length;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.SubString;
@@ -162,19 +164,32 @@ class ConditionTest extends InitializingContext {
     }
 
     @Test
-    void orLike() {
-    }
-
-    @Test
-    void andNotLike() {
-    }
-
-    @Test
-    void orNotLike() {
-    }
-
-    @Test
     void andMatches() {
+        //匹配以 "J" 开头
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition ->
+                        whereCondition.andMatches(User::getName, "^J[a-zA-Z]")
+                ).fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
+    }
+
+    @Test
+    void andMatches2() {
+        SchemaProperties dataSource = SchemaContextHolder.getSchemaProperties("dataSource");
+        dataSource.setDatabaseProductVersion("5.7");
+        //匹配以 "J" 开头
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition ->
+                        whereCondition.andMatches(User::getName, "^J[a-zA-Z]")
+                ).fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
+        dataSource.setDatabaseProductVersion("8.1.0");
     }
 
     @Test
