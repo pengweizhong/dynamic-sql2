@@ -463,36 +463,6 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
-    public <T, F> Condition andLengthEquals(Fn<T, F> fn, int length) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition orLengthEquals(Fn<T, F> fn, int length) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition andLengthGreaterThan(Fn<T, F> fn, int length) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition orLengthGreaterThan(Fn<T, F> fn, int length) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition andLengthLessThan(Fn<T, F> fn, int length) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition orLengthLessThan(Fn<T, F> fn, int length) {
-        return null;
-    }
-
-    @Override
     public <T, F> Condition andIsEmpty(Fn<T, F> fn) {
         return null;
     }
