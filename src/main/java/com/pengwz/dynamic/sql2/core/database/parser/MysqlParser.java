@@ -9,6 +9,7 @@ import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper.BatchType;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
+import com.pengwz.dynamic.sql2.table.FieldMeta;
 import com.pengwz.dynamic.sql2.utils.ConverterUtils;
 import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
@@ -178,7 +179,7 @@ public class MysqlParser extends AbstractDialectParser {
         while (entitiesIterator.hasNext()) {
             ParameterBinder parameterBinder = new ParameterBinder();
             Object entity = entitiesIterator.next();
-            for (ColumnMeta column : tableMeta.getColumnMetas()) {
+            for (FieldMeta column : tableMeta.getColumnMetas()) {
                 Object fieldValue = ReflectUtils.getFieldValue(entity, column.getField());
                 //原值为null且没有强制更新null就忽略
                 if (fieldValue != null || !isIgnoreNull || forcedFieldNames.contains(column.getField().getName())) {

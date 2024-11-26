@@ -4,7 +4,7 @@ import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverterModel;
 import com.pengwz.dynamic.sql2.plugins.conversion.attribute.BigDecimalAttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.attribute.LocalDateAttributeConverter;
-import com.pengwz.dynamic.sql2.table.ColumnMeta;
+import com.pengwz.dynamic.sql2.table.FieldMeta;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -34,7 +34,7 @@ public class ConverterUtils {
         return instance;
     }
 
-    public static Object convertToDatabaseColumn(ColumnMeta columnMeta, Object value) {
+    public static Object convertToDatabaseColumn(FieldMeta fieldMeta, Object value) {
         if (value == null) {
             return null;
         }
@@ -43,10 +43,10 @@ public class ConverterUtils {
             AttributeConverter attributeConverter = (AttributeConverter) value;
             return attributeConverter.convertToDatabaseColumn(value);
         }
-        if (columnMeta.getConverter() != null) {
-            return loadCustomConverter(columnMeta.getConverter()).convertToDatabaseColumn(value);
+        if (fieldMeta.getConverter() != null) {
+            return loadCustomConverter(fieldMeta.getConverter()).convertToDatabaseColumn(value);
         }
-        AttributeConverter<Object, Object> attributeConverter = GENERAL_ATTRIBUTE_CONVERTER_MODEL.get(columnMeta.getField().getType());
+        AttributeConverter<Object, Object> attributeConverter = GENERAL_ATTRIBUTE_CONVERTER_MODEL.get(fieldMeta.getField().getType());
         if (attributeConverter != null) {
             return attributeConverter.convertToDatabaseColumn(value);
         }

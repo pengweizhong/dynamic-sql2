@@ -48,9 +48,9 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition innerJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
-//        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.INNER, tableFunction, alias, onCondition));
-//        return this;
-        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
+        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.INNER, tableFunction, alias, onCondition));
+        return this;
+//        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override

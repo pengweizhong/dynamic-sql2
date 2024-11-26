@@ -12,7 +12,6 @@ public class SqlContextHelper {
     public static SqlContext createSqlContext(SqlContextProperties sqlContextProperties) {
         SqlContextConfigurer sqlContextConfigurer = createSqlContextConfigurer(sqlContextProperties);
         sqlContextConfigurer.initializeContext();
-        addSchemaProperties(sqlContextConfigurer.getSqlContextProperties());
         sqlContextProperties.getInterceptors().forEach(SqlInterceptorChain.getInstance()::addInterceptor);
         return sqlContextConfigurer.getSqlContext();
     }

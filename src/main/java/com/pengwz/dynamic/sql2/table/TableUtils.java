@@ -3,12 +3,17 @@ package com.pengwz.dynamic.sql2.table;
 import com.pengwz.dynamic.sql2.anno.Column;
 import com.pengwz.dynamic.sql2.anno.GeneratedValue;
 import com.pengwz.dynamic.sql2.anno.Id;
+import com.pengwz.dynamic.sql2.anno.View;
+import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
+import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.enums.GenerationType;
+import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.DefaultAttributeConverter;
 import com.pengwz.dynamic.sql2.table.cte.CTEColumnMeta;
 import com.pengwz.dynamic.sql2.table.cte.CTEEntityMapping;
 import com.pengwz.dynamic.sql2.table.cte.CTEMeta;
+import com.pengwz.dynamic.sql2.table.view.ViewColumnMeta;
 import com.pengwz.dynamic.sql2.table.view.ViewMeta;
 import com.pengwz.dynamic.sql2.utils.*;
 import org.slf4j.Logger;
@@ -84,13 +89,39 @@ public class TableUtils {
         return parseTableClass(tableEntityMapping).get(tableClazz);
     }
 
-    public static List<ColumnMeta> parseViewClass(Class<?> clazz) {
-
+    public static ViewMeta parseViewClass(Class<?> clazz) {
         List<Field> fields = ReflectUtils.getAllFields(clazz, filterFieldTypeRules());
-        List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(clazz, f))
+        View view = clazz.getDeclaredAnnotation(View.class);
+        if (null == view) {
+            throw new IllegalArgumentException("The class " + clazz.getName() + " has no @View annotation");
+        }
+        if (view.isCache()) {
+            ViewMeta viewMeta = TableProvider.getViewMeta(clazz);
+            if (viewMeta != null) {
+                return viewMeta;
+            }
+        }
+        String dataSourceName = view.dataSourceName();
+        if (StringUtils.isEmpty(dataSourceName)) {
+            throw new IllegalArgumentException("The class " + clazz.getName() + " has no data source name");
+        }
+        List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(dataSourceName, clazz, f))
                 .filter(Objects::nonNull).collect(Collectors.toList());
         //检查列声明标识是否合规
-        return assertAndFilterColumn(columnMetaSymbols, clazz.getSimpleName());
+        List<ColumnMeta> columnMetas = assertAndFilterColumn(columnMetaSymbols, clazz.getSimpleName());
+        ViewMeta viewMeta = new ViewMeta();
+        List<ViewColumnMeta> viewColumnMetas = columnMetas.stream().map(cm -> {
+            ViewColumnMeta viewColumnMeta = new ViewColumnMeta();
+            viewColumnMeta.setColumnName(cm.getColumnName());
+            viewColumnMeta.setField(cm.getField());
+            viewColumnMeta.setConverter(cm.getConverter());
+            return viewColumnMeta;
+        }).collect(Collectors.toList());
+        viewMeta.setViewColumnMetas(viewColumnMetas);
+        if (view.isCache()) {
+            TableProvider.saveViewMeta(clazz, viewMeta);
+        }
+        return viewMeta;
     }
 
     private static Map<Class<?>, TableMeta> parseTableClass(TableEntityMapping tableEntity) {
@@ -108,7 +139,7 @@ public class TableUtils {
         }
         tableMeta.setBindDataSourceName(tableEntity.getBindDataSourceName());
         List<ColumnMetaSymbol> columnMetaSymbols = fields.stream()
-                .map(f -> parseTableColumn(entityClass, f))
+                .map(f -> parseTableColumn(tableEntity.getBindDataSourceName(), entityClass, f))
                 .filter(Objects::nonNull).collect(Collectors.toList());
         //检查列声明标识是否合规
         List<ColumnMeta> columnMetas = assertAndFilterColumn(columnMetaSymbols, tableMeta.getTableName());
@@ -169,7 +200,7 @@ public class TableUtils {
         return columnMetas;
     }
 
-    private static ColumnMetaSymbol parseTableColumn(Class<?> entityClass, Field field) {
+    private static ColumnMetaSymbol parseTableColumn(String dataSourceName, Class<?> entityClass, Field field) {
         ColumnMetaSymbol columnMetaSymbol = new ColumnMetaSymbol();
         ColumnMeta columnMeta = new ColumnMeta();
         columnMetaSymbol.setColumnMeta(columnMeta);
@@ -186,7 +217,18 @@ public class TableUtils {
             primary = column.primary();
         }
         columnMetaSymbol.setPrimary(primary);
-        String columnName = NamingUtils.camelToSnakeCase(StringUtils.isBlank(value) ? field.getName() : value);
+        String columnName;
+        if (StringUtils.isBlank(value)) {
+            columnName = NamingUtils.camelToSnakeCase(field.getName());
+            //如果是Oracle 就转为大写。先写死逻辑，后面有需求在配置化
+            SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
+            if (schemaProperties.getSqlDialect() == SqlDialect.ORACLE) {
+                columnName = columnName.toUpperCase();
+            }
+        } else {
+            //如果是用户指定的，就保留原样 不做任何处置
+            columnName = value;
+        }
         columnMeta.setColumnName(columnName);
         columnMeta.setPrimary(field.getDeclaredAnnotation(Id.class) != null);
         if (columnMeta.isPrimary()) {

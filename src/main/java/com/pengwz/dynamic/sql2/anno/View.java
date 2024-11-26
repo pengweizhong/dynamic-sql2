@@ -3,7 +3,7 @@ package com.pengwz.dynamic.sql2.anno;
 import java.lang.annotation.*;
 
 /**
- * （可选注解，不强制）视图注解，作用在实体类类名上
+ * 视图注解，作用在查询结果对象
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -16,5 +16,12 @@ public @interface View {
      * @return 是否缓存实体
      */
     boolean isCache() default true;
+
+    /**
+     * 数据源唯一名称，此选项优先级最高
+     *
+     * @return 数据源名称
+     */
+    String dataSourceName();
 
 }

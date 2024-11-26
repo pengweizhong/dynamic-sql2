@@ -13,7 +13,7 @@ public class SchemaContextHolder {
     }
 
     protected static void addSchemaProperties(SchemaProperties schemaProperties) {
-        SCHEMA_PROPERTIES_MAP.put(schemaProperties.getDataSourceName(), schemaProperties);
+        SCHEMA_PROPERTIES_MAP.putIfAbsent(schemaProperties.getDataSourceName(), schemaProperties);
     }
 
     public static SchemaProperties getSchemaProperties(String dataSourceName) {

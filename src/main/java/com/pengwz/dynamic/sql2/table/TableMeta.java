@@ -30,8 +30,8 @@ public class TableMeta {
         this.bindDataSourceName = bindDataSourceName;
     }
 
-    public List<ColumnMeta> getColumnMetas() {
-        return columnMetas;
+    public <T extends FieldMeta> List<T> getColumnMetas() {
+        return (List<T>) columnMetas;
     }
 
     public void setColumnMetas(List<ColumnMeta> columnMetas) {

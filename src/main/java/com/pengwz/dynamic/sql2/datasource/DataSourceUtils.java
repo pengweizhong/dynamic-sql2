@@ -1,5 +1,7 @@
 package com.pengwz.dynamic.sql2.datasource;
 
+import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
+import com.pengwz.dynamic.sql2.context.SqlContextHelper;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.datasource.connection.ConnectionHolder;
@@ -92,6 +94,7 @@ public class DataSourceUtils {
                     dataSourceMapping.isGlobalDefault(),
                     version,
                     dataSourceMapping.getBindBasePackages());
+            SqlContextHelper.addSchemaProperties(sqlContextProperties);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to read meta information", e);
         } finally {

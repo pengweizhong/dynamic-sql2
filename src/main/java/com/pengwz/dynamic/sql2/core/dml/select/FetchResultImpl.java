@@ -1,7 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
-import com.pengwz.dynamic.sql2.table.ColumnMeta;
+import com.pengwz.dynamic.sql2.table.FieldMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
 import com.pengwz.dynamic.sql2.table.TableUtils;
@@ -67,7 +67,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         if (CollectionUtils.isEmpty(wrapperList)) {
             return collection;
         }
-        List<ColumnMeta> columnMetas;
+        List<FieldMeta> fieldMetas;
         TableMeta tableMeta = TableProvider.getTableMeta(resultClass);
         if (tableMeta == null) {
             if (resultClass == Object.class || resultClass == Map.class || resultClass == Collection.class) {
@@ -76,12 +76,12 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             if (resultClass.getClassLoader() == null) {
                 return convertToSystemClass(collection);
             }
-            columnMetas = TableUtils.parseViewClass(resultClass);
+            fieldMetas = TableUtils.parseViewClass(resultClass).getViewColumnMetas();
         } else {
-            columnMetas = tableMeta.getColumnMetas();
+            fieldMetas = tableMeta.getColumnMetas();
         }
-        Map<String, ColumnMeta> columnNameMap = columnMetas.stream().collect(Collectors.toMap(ColumnMeta::getColumnName, v -> v));
-        Map<String, ColumnMeta> fieldNameMap = columnMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
+        Map<String, FieldMeta> columnNameMap = fieldMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
+        Map<String, FieldMeta> fieldNameMap = fieldMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
         for (Map<String, Object> columnObjectMap : wrapperList) {
             collection.add(reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap));
         }
@@ -129,10 +129,10 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         return collection;
     }
 
-    private ColumnMeta getColumnMeta(String columnName,
-                                     Map<String, ColumnMeta> columnNameMap,
-                                     Map<String, ColumnMeta> fieldNameMap) {
-        ColumnMeta columnMeta = columnNameMap.get(columnName);
+    private FieldMeta getColumnMeta(String columnName,
+                                    Map<String, FieldMeta> columnNameMap,
+                                    Map<String, FieldMeta> fieldNameMap) {
+        FieldMeta columnMeta = columnNameMap.get(columnName);
         if (columnMeta == null) {
             columnMeta = fieldNameMap.get(columnName);
         }
@@ -144,11 +144,11 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
     }
 
     R reflectionInstance(Map<String, Object> columnObjectMap,
-                         Map<String, ColumnMeta> columnNameMap,
-                         Map<String, ColumnMeta> fieldNameMap) {
+                         Map<String, FieldMeta> columnNameMap,
+                         Map<String, FieldMeta> fieldNameMap) {
         R instance = ReflectUtils.instance(resultClass);
         columnObjectMap.forEach((columnName, columnValue) -> {
-            ColumnMeta columnMeta = getColumnMeta(columnName, columnNameMap, fieldNameMap);
+            FieldMeta columnMeta = getColumnMeta(columnName, columnNameMap, fieldNameMap);
             if (columnMeta == null) {
                 return;
             }
@@ -172,18 +172,18 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         if (CollectionUtils.isEmpty(wrapperList)) {
             return m;
         }
-        List<ColumnMeta> columnMetas;
+        List<FieldMeta> fieldMetas;
         TableMeta tableMeta = TableProvider.getTableMeta(resultClass);
         if (tableMeta == null) {
             if (resultClass.getClassLoader() == null) {
                 throw new IllegalStateException(resultClass.getCanonicalName() + " cannot be mapped to Map");
             }
-            columnMetas = TableUtils.parseViewClass(resultClass);
+            fieldMetas = TableUtils.parseViewClass(resultClass).getViewColumnMetas();
         } else {
-            columnMetas = tableMeta.getColumnMetas();
+            fieldMetas = tableMeta.getColumnMetas();
         }
-        Map<String, ColumnMeta> columnNameMap = columnMetas.stream().collect(Collectors.toMap(ColumnMeta::getColumnName, v -> v));
-        Map<String, ColumnMeta> fieldNameMap = columnMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
+        Map<String, FieldMeta> columnNameMap = fieldMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
+        Map<String, FieldMeta> fieldNameMap = fieldMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
         for (Map<String, Object> columnObjectMap : wrapperList) {
             operator.apply(m, columnObjectMap, columnNameMap, fieldNameMap);
         }
@@ -193,6 +193,6 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
     interface Operator {
         @SuppressWarnings("all")
         void apply(Map m, Map<String, Object> columnObjectMap,
-                   Map<String, ColumnMeta> columnNameMap, Map<String, ColumnMeta> fieldNameMap);
+                   Map<String, FieldMeta> columnNameMap, Map<String, FieldMeta> fieldNameMap);
     }
 }
