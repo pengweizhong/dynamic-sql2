@@ -218,59 +218,11 @@ class ConditionTest extends InitializingContext {
     }
 
     @Test
-    void testAndFindInSet() {
-    }
-
-    @Test
-    void orFindInSet() {
-    }
-
-    @Test
-    void testOrFindInSet() {
-    }
-
-    @Test
-    void andContains() {
-    }
-
-    @Test
-    void orContains() {
-    }
-
-    @Test
-    void andAnyIn() {
-    }
-
-    @Test
-    void orAnyIn() {
-    }
-
-    @Test
-    void andAllIn() {
-    }
-
-    @Test
-    void orAllIn() {
-    }
-
-    @Test
-    void andIsPositive() {
-    }
-
-    @Test
-    void orIsPositive() {
-    }
-
-    @Test
-    void andIsNegative() {
-    }
-
-    @Test
-    void orIsNegative() {
-    }
-
-    @Test
     void limit() {
+        Map<String, Object> one = sqlContext.select()
+                .allColumn()
+                .from(Product.class).where(whereCondition -> whereCondition.limit(1)).fetchOriginalMap().toOne();
+        System.out.println(one);
     }
 
     @Test

@@ -119,7 +119,6 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     @Override
     public <T, F> FunctionCondition andFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
         parameterBinder.addParameterBinder(columFunction.getParameterBinder());
-        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn,
                         columFunction.getFunctionToString(sqlDialect(), version)))
@@ -130,7 +129,6 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     @Override
     public <T, F> FunctionCondition orFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
         parameterBinder.addParameterBinder(columFunction.getParameterBinder());
-        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn,
                         columFunction.getFunctionToString(sqlDialect(), version)))
@@ -138,5 +136,17 @@ public class MysqlWhereCondition extends GenericWhereCondition {
         return this;
     }
 
+    @Override
+    public Condition limit(int limit) {
+        return limit(0, limit);
+    }
+
+    @Override
+    public Condition limit(int offset, int limit) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" limit ").append(registerValueWithKey(parameterBinder, null, offset))
+                .append(", ").append(registerValueWithKey(parameterBinder, null, limit));
+        return this;
+    }
 
 }

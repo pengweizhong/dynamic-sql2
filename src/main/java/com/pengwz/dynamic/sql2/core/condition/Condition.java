@@ -607,111 +607,6 @@ public interface Condition {
      */
     <T, F> Condition orFindInSet(Fn<T, F> fn, Object item, String separator);
 
-    /**
-     * 添加字段包含指定子串条件，并且运算。
-     *
-     * @param fn        用于获取字段值的函数
-     * @param substring 指定的子串
-     * @param <T>       实体类类型
-     * @param <F>       字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition andContains(Fn<T, F> fn, String substring);
-
-    /**
-     * 添加字段包含指定子串条件，或运算。
-     *
-     * @param fn        用于获取字段值的函数
-     * @param substring 指定的子串
-     * @param <T>       实体类类型
-     * @param <F>       字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition orContains(Fn<T, F> fn, String substring);
-
-    /**
-     * 添加字段在指定值集合中有任意值条件，并且运算。
-     *
-     * @param fn     用于获取字段值的函数
-     * @param values 匹配的值集合
-     * @param <T>    实体类类型
-     * @param <F>    字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition andAnyIn(Fn<T, F> fn, Iterable<?> values);
-
-    /**
-     * 添加字段在指定值集合中有任意值条件，或运算。
-     *
-     * @param fn     用于获取字段值的函数
-     * @param values 匹配的值集合
-     * @param <T>    实体类类型
-     * @param <F>    字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition orAnyIn(Fn<T, F> fn, Iterable<?> values);
-
-    /**
-     * 添加字段在指定值集合中包含所有值条件，并且运算。
-     *
-     * @param fn     用于获取字段值的函数
-     * @param values 匹配的值集合
-     * @param <T>    实体类类型
-     * @param <F>    字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition andAllIn(Fn<T, F> fn, Iterable<?> values);
-
-    /**
-     * 添加字段在指定值集合中包含所有值条件，或运算。
-     *
-     * @param fn     用于获取字段值的函数
-     * @param values 匹配的值集合
-     * @param <T>    实体类类型
-     * @param <F>    字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition orAllIn(Fn<T, F> fn, Iterable<?> values);
-
-    /**
-     * 添加字段为正值条件，并且运算。
-     *
-     * @param fn  用于获取字段值的函数
-     * @param <T> 实体类类型
-     * @param <F> 字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition andIsPositive(Fn<T, F> fn);
-
-    /**
-     * 添加字段为正值条件，或运算。
-     *
-     * @param fn  用于获取字段值的函数
-     * @param <T> 实体类类型
-     * @param <F> 字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition orIsPositive(Fn<T, F> fn);
-
-    /**
-     * 添加字段为负值条件，并且运算。
-     *
-     * @param fn  用于获取字段值的函数
-     * @param <T> 实体类类型
-     * @param <F> 字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition andIsNegative(Fn<T, F> fn);
-
-    /**
-     * 添加字段为负值条件，或运算。
-     *
-     * @param fn  用于获取字段值的函数
-     * @param <T> 实体类类型
-     * @param <F> 字段类型
-     * @return 当前 Condition 实例
-     */
-    <T, F> Condition orIsNegative(Fn<T, F> fn);
 
     /**
      * 限制查询结果的返回行数
@@ -768,19 +663,19 @@ public interface Condition {
         return this;
     }
 
-    /**
-     * 添加自定义 SQL 条件子句到查询中。
-     * <p>
-     * 使用此方法可以添加任何不在接口预定义方法中的 SQL 条件。适用于复杂的查询条件，或者数据库特定的 SQL 语法。
-     * <p>
-     * 例如，如果需要添加类似 `AND column BETWEEN ? AND ?` 这样的条件，
-     * 可以使用此方法来指定自定义的 SQL 子句和对应的参数。
-     *
-     * @param customClause 自定义的 SQL 条件子句，这里应包含一个有效的 SQL 片段，通常是一个条件表达式
-     * @param params       条件子句中占位符的参数，按照自定义条件子句中占位符的顺序提供
-     * @return 当前 Condition 实例，以便进行链式调用
-     * @throws IllegalArgumentException 如果提供的 SQL 条件子句不合法或者参数与子句中的占位符数量不匹配
-     */
-    Condition customCondition(String customClause, Object... params);
+//    /**
+//     * 添加自定义 SQL 条件子句到查询中。
+//     * <p>
+//     * 使用此方法可以添加任何不在接口预定义方法中的 SQL 条件。适用于复杂的查询条件，或者数据库特定的 SQL 语法。
+//     * <p>
+//     * 例如，如果需要添加类似 `AND column BETWEEN ? AND ?` 这样的条件，
+//     * 可以使用此方法来指定自定义的 SQL 子句和对应的参数。
+//     *
+//     * @param customClause 自定义的 SQL 条件子句，这里应包含一个有效的 SQL 片段，通常是一个条件表达式
+//     * @param params       条件子句中占位符的参数，按照自定义条件子句中占位符的顺序提供
+//     * @return 当前 Condition 实例，以便进行链式调用
+//     * @throws IllegalArgumentException 如果提供的 SQL 条件子句不合法或者参数与子句中的占位符数量不匹配
+//     */
+//    Condition customCondition(String customClause, Object... params);
 
 }

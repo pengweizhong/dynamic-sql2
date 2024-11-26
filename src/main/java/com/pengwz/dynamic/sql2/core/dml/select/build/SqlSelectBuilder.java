@@ -165,8 +165,11 @@ public abstract class SqlSelectBuilder {
     private void parseWhere(Consumer<WhereCondition> whereConditionConsumer) {
         GenericWhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
         whereConditionConsumer.accept(whereCondition);
-        sqlBuilder.append(" ").append(SqlUtils.getSyntaxWhere(sqlDialect))
-                .append(" ").append(whereCondition.getWhereConditionSyntax());
+        String whereConditionSyntax = whereCondition.getWhereConditionSyntax();
+        if (!whereConditionSyntax.trim().startsWith("limit")) {
+            sqlBuilder.append(" ").append(SqlUtils.getSyntaxWhere(sqlDialect));
+        }
+        sqlBuilder.append(" ").append(whereCondition.getWhereConditionSyntax());
         ParameterBinder whereParameterBinder = whereCondition.getParameterBinder();
         parameterBinder.addParameterBinder(whereParameterBinder);
     }

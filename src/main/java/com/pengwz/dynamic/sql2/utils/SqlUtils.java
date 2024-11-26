@@ -458,6 +458,10 @@ public class SqlUtils {
 
     public static String registerValueWithKey(ParameterBinder parameters, Fn<?, ?> fn, Object value) {
         String key = generateBindingKey();
+        if (fn == null) {
+            parameters.add(key, value);
+            return key;
+        }
         if (fn instanceof AbstractAliasHelper) {
             parameters.add(key, value);
             return key;

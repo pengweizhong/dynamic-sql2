@@ -793,68 +793,13 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
-    public <T, F> Condition andContains(Fn<T, F> fn, String substring) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition orContains(Fn<T, F> fn, String substring) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition andAnyIn(Fn<T, F> fn, Iterable<?> values) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition orAnyIn(Fn<T, F> fn, Iterable<?> values) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition andAllIn(Fn<T, F> fn, Iterable<?> values) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition orAllIn(Fn<T, F> fn, Iterable<?> values) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition andIsPositive(Fn<T, F> fn) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition orIsPositive(Fn<T, F> fn) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition andIsNegative(Fn<T, F> fn) {
-        return null;
-    }
-
-    @Override
-    public <T, F> Condition orIsNegative(Fn<T, F> fn) {
-        return null;
-    }
-
-    @Override
     public Condition limit(int offset, int limit) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Condition limit(int limit) {
-        return null;
-    }
-
-    @Override
-    public Condition customCondition(String customClause, Object... params) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public String getWhereConditionSyntax() {
