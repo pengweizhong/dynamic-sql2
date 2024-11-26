@@ -829,185 +829,299 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public HavingCondition andEqualTo(AggregateFunction function, Object value) {
-        String functionToString = executeFunctionToString(function);
-        condition.append(" ").append(functionToString).append(" = ").append(registerValueWithKey(parameterBinder, value));
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" = ")
+                .append(registerValueWithKey(parameterBinder, value));
         return this;
     }
 
 
     @Override
     public HavingCondition andEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" = ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition orEqualTo(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" = ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition orEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" = ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition andNotEqualTo(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" != ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition andNotEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" != ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition orNotEqualTo(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" != ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition orNotEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" != ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition andGreaterThan(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" > ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition andGreaterThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" > ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition orGreaterThan(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" > ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition orGreaterThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" > ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition andGreaterThanOrEqualTo(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" >= ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition andGreaterThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" >= ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition orGreaterThanOrEqualTo(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" >= ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition orGreaterThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" >= ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition andLessThan(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" < ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition andLessThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" < ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition orLessThan(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" < ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition orLessThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" < ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition andLessThanOrEqualTo(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" <= ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition andLessThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" ").append(executeFunctionToString(function)).append(" <= ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition orLessThanOrEqualTo(AggregateFunction function, Object value) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" <= ")
+                .append(registerValueWithKey(parameterBinder, value));
+        return this;
     }
 
     @Override
     public HavingCondition orLessThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" ").append(executeFunctionToString(function)).append(" <= ")
+                .append(nestedSelectSql(nestedSelect));
+        return this;
     }
 
     @Override
     public HavingCondition andIn(AggregateFunction function, Iterable<?> values) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(executeFunctionToString(function))
+                .append(" in");
+        iteratingCollection(null, values.iterator());
+        return this;
     }
 
     @Override
     public HavingCondition andIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(executeFunctionToString(function))
+                .append(" in (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public HavingCondition orIn(AggregateFunction function, Iterable<?> values) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(executeFunctionToString(function))
+                .append(" in");
+        iteratingCollection(null, values.iterator());
+        return this;
     }
 
     @Override
     public HavingCondition orIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(executeFunctionToString(function))
+                .append(" in (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public HavingCondition andNotIn(AggregateFunction function, Iterable<?> values) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(executeFunctionToString(function))
+                .append(" not in");
+        iteratingCollection(null, values.iterator());
+        return this;
     }
 
     @Override
     public HavingCondition andNotIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(executeFunctionToString(function))
+                .append(" not in (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public HavingCondition orNotIn(AggregateFunction function, Iterable<?> values) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(executeFunctionToString(function))
+                .append(" not in");
+        iteratingCollection(null, values.iterator());
+        return this;
     }
 
     @Override
     public HavingCondition orNotIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(executeFunctionToString(function))
+                .append(" not in (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public HavingCondition andBetween(AggregateFunction function, Object start, Object end) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(executeFunctionToString(function))
+                .append(" between ").append(registerValueWithKey(parameterBinder, start))
+                .append(" and ").append(registerValueWithKey(parameterBinder, end));
+        return this;
     }
 
     @Override
     public HavingCondition orBetween(AggregateFunction function, Object start, Object end) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(executeFunctionToString(function))
+                .append(" between ").append(registerValueWithKey(parameterBinder, start))
+                .append(" and ").append(registerValueWithKey(parameterBinder, end));
+        return this;
     }
 
     @Override
     public HavingCondition andNotBetween(AggregateFunction function, Object start, Object end) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(executeFunctionToString(function))
+                .append(" not between ").append(registerValueWithKey(parameterBinder, start))
+                .append(" and ").append(registerValueWithKey(parameterBinder, end));
+        return this;
     }
 
     @Override
     public HavingCondition orNotBetween(AggregateFunction function, Object start, Object end) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(executeFunctionToString(function))
+                .append(" not between ").append(registerValueWithKey(parameterBinder, start))
+                .append(" and ").append(registerValueWithKey(parameterBinder, end));
+        return this;
     }
 
     protected String executeFunctionToString(AggregateFunction function) {
