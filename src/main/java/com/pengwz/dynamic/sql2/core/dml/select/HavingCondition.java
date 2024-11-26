@@ -79,12 +79,4 @@ public interface HavingCondition extends Condition {
 
     HavingCondition orNotBetween(AggregateFunction function, Object start, Object end);
 
-    HavingCondition andIsPositive(AggregateFunction function);
-
-    HavingCondition orIsPositive(AggregateFunction function);
-
-    HavingCondition andIsNegative(AggregateFunction function);
-
-    HavingCondition orIsNegative(AggregateFunction function);
-
 }

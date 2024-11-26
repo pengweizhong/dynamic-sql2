@@ -18,17 +18,4 @@ class HavingConditionTest extends InitializingContext {
         System.out.println(one);
     }
 
-    @Test
-    void andEqualTo2() {
-        User one = sqlContext.select().allColumn()
-                .from(User.class)
-                .groupBy(User::getUserId)
-                .where(whereCondition -> whereCondition.andEqualTo(User::getUserId,
-                        select -> {
-                            select.column(new Max(User::getUserId)).from(User.class);
-                        }))
-                .fetch()
-                .toOne();
-        System.out.println(one);
-    }
 }

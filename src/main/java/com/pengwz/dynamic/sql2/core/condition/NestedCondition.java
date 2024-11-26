@@ -39,18 +39,6 @@ public interface NestedCondition extends Condition {
 
     <T, F> NestedCondition orNotIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
 
-    <T, F> NestedCondition andContains(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-
-    <T, F> NestedCondition orContains(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-
-    <T, F> NestedCondition andAnyIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-
-    <T, F> NestedCondition orAnyIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-
-    <T, F> NestedCondition andAllIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-
-    <T, F> NestedCondition orAllIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-
     NestedCondition andExists(Consumer<AbstractColumnReference> nestedSelect);
 
     NestedCondition orExists(Consumer<AbstractColumnReference> nestedSelect);

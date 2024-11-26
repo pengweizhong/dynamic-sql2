@@ -224,143 +224,170 @@ public class GenericWhereCondition extends WhereCondition {
         return null;
     }
 
+    private StringBuilder nestedSelectSql(Consumer<AbstractColumnReference> nestedSelect) {
+        SqlStatementSelectWrapper sqlStatementSelectWrapper = SqlUtils.executeNestedSelect(nestedSelect);
+        parameterBinder.addParameterBinder(sqlStatementSelectWrapper.getParameterBinder());
+        return sqlStatementSelectWrapper.getRawSql();
+    }
+
     @Override
     public <T, F> NestedCondition andEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
-        SqlStatementSelectWrapper sqlStatementSelectWrapper = SqlUtils.executeNestedSelect(nestedSelect);
-        parameterBinder.addParameterBinder(sqlStatementSelectWrapper.getParameterBinder());
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
-                .append(" = (").append(sqlStatementSelectWrapper.getRawSql()).append(")");
+                .append(" = (").append(nestedSelectSql(nestedSelect)).append(")");
         return this;
     }
 
     @Override
     public <T, F> NestedCondition orEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" = (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition andNotEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" != (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition orNotEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" != (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition andGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" > (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition orGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" > (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition andGreaterThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" >= (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition orGreaterThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" >= (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition andLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" < (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition orLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" < (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition andLessThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" <= (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition orLessThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" <= (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition andIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" in (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition orIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" in (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition andNotIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" not in (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public <T, F> NestedCondition orNotIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition andContains(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition orContains(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition andAnyIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition orAnyIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition andAllIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
-    }
-
-    @Override
-    public <T, F> NestedCondition orAllIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR)).append(column)
+                .append(" not in (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public NestedCondition andExists(Consumer<AbstractColumnReference> nestedSelect) {
-        condition.append(" ").append(logicalOperatorType(AND)).append(SqlUtils.getSyntaxExists(matchSqlDialect()));
-        SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
-        condition.append(" (").append(sqlStatementWrapper.getRawSql()).append(")");
-        parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(AND))
+                .append(SqlUtils.getSyntaxExists(matchSqlDialect()))
+                .append(" (").append(nestedSelectSql(nestedSelect)).append(")");
         return this;
     }
 
     @Override
     public NestedCondition orExists(Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR))
+                .append(SqlUtils.getSyntaxExists(matchSqlDialect()))
+                .append(" (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public NestedCondition andNotExists(Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(AND)).append(" not ")
+                .append(SqlUtils.getSyntaxExists(matchSqlDialect()))
+                .append(" (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
     public NestedCondition orNotExists(Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        condition.append(" ").append(logicalOperatorType(OR)).append(" not ")
+                .append(SqlUtils.getSyntaxExists(matchSqlDialect()))
+                .append(" (").append(nestedSelectSql(nestedSelect)).append(")");
+        return this;
     }
 
     @Override
@@ -1010,26 +1037,6 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public HavingCondition orNotBetween(AggregateFunction function, Object start, Object end) {
-        return null;
-    }
-
-    @Override
-    public HavingCondition andIsPositive(AggregateFunction function) {
-        return null;
-    }
-
-    @Override
-    public HavingCondition orIsPositive(AggregateFunction function) {
-        return null;
-    }
-
-    @Override
-    public HavingCondition andIsNegative(AggregateFunction function) {
-        return null;
-    }
-
-    @Override
-    public HavingCondition orIsNegative(AggregateFunction function) {
         return null;
     }
 
