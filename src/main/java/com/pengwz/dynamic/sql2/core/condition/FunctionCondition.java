@@ -57,16 +57,4 @@ public interface FunctionCondition extends Condition {
 
     <T, F> FunctionCondition orFindInSet(Fn<T, F> fn, ColumFunction columFunction);
 
-    <T, F> FunctionCondition andContains(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition orContains(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition andAnyIn(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition orAnyIn(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition andAllIn(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition orAllIn(Fn<T, F> fn, ColumFunction columFunction);
-
 }

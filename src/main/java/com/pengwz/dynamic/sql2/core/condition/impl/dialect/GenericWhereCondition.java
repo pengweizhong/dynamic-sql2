@@ -194,36 +194,6 @@ public class GenericWhereCondition extends WhereCondition {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public <T, F> FunctionCondition andContains(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition orContains(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition andAnyIn(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition orAnyIn(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition andAllIn(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition orAllIn(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
     private StringBuilder nestedSelectSql(Consumer<AbstractColumnReference> nestedSelect) {
         SqlStatementSelectWrapper sqlStatementSelectWrapper = SqlUtils.executeNestedSelect(nestedSelect);
         parameterBinder.addParameterBinder(sqlStatementSelectWrapper.getParameterBinder());
