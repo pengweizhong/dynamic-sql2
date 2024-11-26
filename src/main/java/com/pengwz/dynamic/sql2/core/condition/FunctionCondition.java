@@ -55,11 +55,7 @@ public interface FunctionCondition extends Condition {
 
     <T, F> FunctionCondition andFindInSet(Fn<T, F> fn, ColumFunction columFunction);
 
-    <T, F> FunctionCondition andFindInSet(Fn<T, F> fn, ColumFunction columFunction, String separator);
-
     <T, F> FunctionCondition orFindInSet(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition orFindInSet(Fn<T, F> fn, ColumFunction columFunction, String separator);
 
     <T, F> FunctionCondition andContains(Fn<T, F> fn, ColumFunction columFunction);
 

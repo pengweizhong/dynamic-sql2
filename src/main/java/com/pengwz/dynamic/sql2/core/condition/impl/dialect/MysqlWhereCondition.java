@@ -38,7 +38,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
 
     public <T, F> Condition matches(LogicalOperatorType logicalOperatorType, Fn<T, F> fn, String regex) {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
-        condition.append(" ").append(logicalOperatorType);
+        condition.append(" ").append(logicalOperatorType(logicalOperatorType));
         //使用 REGEXP_LIKE (MySQL 8.0+)
         if (version.isGreaterThanOrEqual(new Version(8, 0, 0))) {
             condition.append(" regexp_like(").append(column).append(", ")
@@ -63,7 +63,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     public <T, F> FunctionCondition matchesFunction(LogicalOperatorType logicalOperatorType, Fn<T, F> fn, ColumFunction columFunction) {
         parameterBinder.addParameterBinder(columFunction.getParameterBinder());
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
-        condition.append(" ").append(logicalOperatorType);
+        condition.append(" ").append(logicalOperatorType(logicalOperatorType));
         //使用 REGEXP_LIKE (MySQL 8.0+)
         if (version.isGreaterThanOrEqual(new Version(8, 0, 0))) {
             condition.append(" regexp_like(").append(column).append(", ")
@@ -77,4 +77,66 @@ public class MysqlWhereCondition extends GenericWhereCondition {
 
         return this;
     }
+
+    @Override
+    public <T, F> Condition andFindInSet(Fn<T, F> fn, Object item) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
+                .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
+        return this;
+    }
+
+    @Override
+    public <T, F> Condition andFindInSet(Fn<T, F> fn, Object item, String separator) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        //REPLACE(str, from_str, to_str)
+        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
+                .append(", ").append("replace(").append(column).append(", ").append(registerValueWithKey(parameterBinder, fn, separator))
+                .append(", ',')").append(")");
+        return this;
+    }
+
+    @Override
+    public <T, F> Condition orFindInSet(Fn<T, F> fn, Object item) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
+                .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
+        return this;
+    }
+
+    @Override
+    public <T, F> Condition orFindInSet(Fn<T, F> fn, Object item, String separator) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        //REPLACE(str, from_str, to_str)
+        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
+                .append(", ").append("replace(").append(column).append(", ").append(registerValueWithKey(parameterBinder, fn, separator))
+                .append(", ',')").append(")");
+        return this;
+    }
+
+    @Override
+    public <T, F> FunctionCondition andFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn,
+                        columFunction.getFunctionToString(sqlDialect(), version)))
+                .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
+        return this;
+    }
+
+    @Override
+    public <T, F> FunctionCondition orFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn,
+                        columFunction.getFunctionToString(sqlDialect(), version)))
+                .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
+        return this;
+    }
+
+
 }

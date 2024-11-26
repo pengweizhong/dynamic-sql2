@@ -186,22 +186,12 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T, F> FunctionCondition andFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition andFindInSet(Fn<T, F> fn, ColumFunction columFunction, String separator) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T, F> FunctionCondition orFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
-        return null;
-    }
-
-    @Override
-    public <T, F> FunctionCondition orFindInSet(Fn<T, F> fn, ColumFunction columFunction, String separator) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -781,24 +771,25 @@ public class GenericWhereCondition extends WhereCondition {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public <T, F> Condition andFindInSet(Fn<T, F> fn, Object item) {
-        return null;
-    }
 
     @Override
-    public <T, F> Condition andFindInSet(Fn<T, F> fn, Object item, String separator) {
-        return null;
+    public <T, F> Condition andFindInSet(Fn<T, F> fn, Object item) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T, F> Condition orFindInSet(Fn<T, F> fn, Object item) {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T, F> Condition andFindInSet(Fn<T, F> fn, Object item, String separator) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T, F> Condition orFindInSet(Fn<T, F> fn, Object item, String separator) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

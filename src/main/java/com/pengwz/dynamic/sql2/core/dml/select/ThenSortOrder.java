@@ -44,7 +44,7 @@ public class ThenSortOrder<R> implements Fetchable {
         return this;
     }
 
-    public ThenSortOrder<R> henOrderBy(String orderingFragmentSql) {
+    public ThenSortOrder<R> thenOrderBy(String orderingFragmentSql) {
         tableRelation.getSelectSpecification().getOrderBys().add(new CustomOrderBy(orderingFragmentSql));
         return this;
     }

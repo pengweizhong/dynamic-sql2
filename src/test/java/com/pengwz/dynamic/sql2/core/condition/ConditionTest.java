@@ -7,6 +7,7 @@ import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Length;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Md5;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.SubString;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Upper;
+import com.pengwz.dynamic.sql2.entites.Product;
 import com.pengwz.dynamic.sql2.entites.User;
 import org.junit.jupiter.api.Test;
 
@@ -193,11 +194,27 @@ class ConditionTest extends InitializingContext {
     }
 
     @Test
-    void orMatches() {
+    void andFindInSet() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(Product.class)
+                .where(whereCondition ->
+                        whereCondition.andFindInSet(Product::getProductName, "14")
+                ).fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
     @Test
-    void andFindInSet() {
+    void andFindInSet2() {
+        List<Map<String, Object>> mapList = sqlContext.select()
+                .allColumn()
+                .from(Product.class)
+                .where(whereCondition ->
+                        whereCondition.andFindInSet(Product::getProductName, "14", " ")
+                ).fetchOriginalMap()
+                .toList();
+        mapList.forEach(System.out::println);
     }
 
     @Test
