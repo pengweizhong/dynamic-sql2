@@ -15,18 +15,6 @@ public interface NestedCondition extends Condition {
 
     <T, F> NestedCondition orNotEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
 
-//    <T, F> NestedCondition andLengthEquals(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-//
-//    <T, F> NestedCondition orLengthEquals(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-//
-//    <T, F> NestedCondition andLengthGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-//
-//    <T, F> NestedCondition orLengthGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-
-//    <T, F> NestedCondition andLengthLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-//
-//    <T, F> NestedCondition orLengthLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
-
     <T, F> NestedCondition andGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);
 
     <T, F> NestedCondition orGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect);

@@ -226,7 +226,12 @@ public class GenericWhereCondition extends WhereCondition {
 
     @Override
     public <T, F> NestedCondition andEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
-        return null;
+        String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        SqlStatementSelectWrapper sqlStatementSelectWrapper = SqlUtils.executeNestedSelect(nestedSelect);
+        parameterBinder.addParameterBinder(sqlStatementSelectWrapper.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(AND)).append(column)
+                .append(" = (").append(sqlStatementSelectWrapper.getRawSql()).append(")");
+        return this;
     }
 
     @Override
