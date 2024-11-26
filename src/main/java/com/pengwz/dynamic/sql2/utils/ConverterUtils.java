@@ -101,13 +101,15 @@ public class ConverterUtils {
             //枚举对象
             Object[] enumConstants = fieldType.getEnumConstants();
             for (Object enumObj : enumConstants) {
-                if (enumObj.toString().equalsIgnoreCase(valueType.toString().trim())) {
+                //应该精确比较，要不然查询时大小写问题会带来困扰
+                if (enumObj.toString().equals(value.toString())) {
                     return (T) enumObj;
                 }
             }
         }
         // 如果没有找到适合的转换器，抛出异常或者返回默认值
-        throw new IllegalArgumentException("Cannot convert value of type " + valueType + " to field type " + fieldType);
+        throw new IllegalArgumentException("Cannot convert value of type " + valueType
+                + " to field type " + fieldType + ", Value is [" + value + "]");
     }
 
     public static void putAttributeConverterModel(Class<?> fieldType, AttributeConverterModel attributeConverter) {
