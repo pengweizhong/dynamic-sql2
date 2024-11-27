@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
+import com.pengwz.dynamic.sql2.plugins.conversion.FetchResultConverter;
 import com.pengwz.dynamic.sql2.table.FieldMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
@@ -67,19 +68,14 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         if (CollectionUtils.isEmpty(wrapperList)) {
             return collection;
         }
-        List<FieldMeta> fieldMetas;
-        TableMeta tableMeta = TableProvider.getTableMeta(resultClass);
-        if (tableMeta == null) {
-            if (resultClass == Object.class || resultClass == Map.class || resultClass == Collection.class) {
-                return (Collection<R>) wrapperList;
+        FetchResultConverter fetchResultConverter = ConverterUtils.getFetchResultConverter(resultClass);
+        if (fetchResultConverter != null) {
+            for (Map<String, Object> stringObjectMap : wrapperList) {
+                collection.add((R) fetchResultConverter.convertValueTo(stringObjectMap));
             }
-            if (resultClass.getClassLoader() == null) {
-                return convertToSystemClass(collection);
-            }
-            fieldMetas = TableUtils.parseViewClass(resultClass).getViewColumnMetas();
-        } else {
-            fieldMetas = tableMeta.getColumnMetas();
+            return collection;
         }
+        List<FieldMeta> fieldMetas = getFieldMetas("Collection");
         Map<String, FieldMeta> columnNameMap = fieldMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
         Map<String, FieldMeta> fieldNameMap = fieldMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
         for (Map<String, Object> columnObjectMap : wrapperList) {
@@ -172,22 +168,27 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         if (CollectionUtils.isEmpty(wrapperList)) {
             return m;
         }
-        List<FieldMeta> fieldMetas;
-        TableMeta tableMeta = TableProvider.getTableMeta(resultClass);
-        if (tableMeta == null) {
-            if (resultClass.getClassLoader() == null) {
-                throw new IllegalStateException(resultClass.getCanonicalName() + " cannot be mapped to Map");
-            }
-            fieldMetas = TableUtils.parseViewClass(resultClass).getViewColumnMetas();
-        } else {
-            fieldMetas = tableMeta.getColumnMetas();
-        }
+        List<FieldMeta> fieldMetas = getFieldMetas("Map");
         Map<String, FieldMeta> columnNameMap = fieldMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
         Map<String, FieldMeta> fieldNameMap = fieldMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
         for (Map<String, Object> columnObjectMap : wrapperList) {
             operator.apply(m, columnObjectMap, columnNameMap, fieldNameMap);
         }
         return m;
+    }
+
+    private List<FieldMeta> getFieldMetas(String converterTips) {
+        List<FieldMeta> fieldMetas;
+        TableMeta tableMeta = TableProvider.getTableMeta(resultClass);
+        if (tableMeta == null) {
+            if (resultClass.getClassLoader() == null) {
+                throw new IllegalStateException(resultClass.getCanonicalName() + " cannot be mapped to " + converterTips);
+            }
+            fieldMetas = TableUtils.parseViewClass(resultClass).getViewColumnMetas();
+        } else {
+            fieldMetas = tableMeta.getColumnMetas();
+        }
+        return fieldMetas;
     }
 
     interface Operator {

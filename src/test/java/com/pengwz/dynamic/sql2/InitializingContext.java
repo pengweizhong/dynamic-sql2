@@ -1,14 +1,16 @@
 package com.pengwz.dynamic.sql2;
 
+import com.google.gson.JsonObject;
 import com.pengwz.dynamic.sql2.context.SqlContextHelper;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties.PrintSqlProperties;
 import com.pengwz.dynamic.sql2.context.properties.SqlContextProperties;
 import com.pengwz.dynamic.sql2.core.SqlContext;
-import com.pengwz.dynamic.sql2.datasource.connection.ConnectionHandle;
 import com.pengwz.dynamic.sql2.datasource.connection.ConnectionHolder;
 import com.pengwz.dynamic.sql2.datasource.connection.SimpleConnectionHandle;
+import com.pengwz.dynamic.sql2.plugins.conversion.impl.FetchJsonObjectConverter;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageInterceptorPlugin;
+import com.pengwz.dynamic.sql2.utils.ConverterUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,7 @@ public class InitializingContext {
         sqlContextProperties.addInterceptor(new PageInterceptorPlugin());
 //        LogProperties.setInstance(new DefaultSqlLoggerTest());
         ConnectionHolder.setConnectionHandle(new SimpleConnectionHandle());
+        ConverterUtils.putFetchResultConverter(JsonObject.class, new FetchJsonObjectConverter());
         sqlContext = SqlContextHelper.createSqlContext(sqlContextProperties);
     }
 

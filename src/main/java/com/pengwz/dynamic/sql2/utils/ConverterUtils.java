@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.utils;
 
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverterModel;
+import com.pengwz.dynamic.sql2.plugins.conversion.FetchResultConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.attribute.BigDecimalAttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.attribute.LocalDateAttributeConverter;
 import com.pengwz.dynamic.sql2.table.FieldMeta;
@@ -17,6 +18,7 @@ public class ConverterUtils {
     //自定义转换器 搭配@Column注解使用
     private static final Map<Class<? extends AttributeConverter>, AttributeConverter> CUSTOM_ATTRIBUTE_CONVERTERS = new LinkedHashMap<>();
     private static final Map<Class<?>, AttributeConverterModel> GENERAL_ATTRIBUTE_CONVERTER_MODEL = new LinkedHashMap<>();
+    private static final Map<Class<?>, FetchResultConverter> FETCH_RESULT_CONVERTER_MAP = new LinkedHashMap<>();
 
     private ConverterUtils() {
     }
@@ -34,6 +36,10 @@ public class ConverterUtils {
         AttributeConverter instance = ReflectUtils.instance(converterClass);
         CUSTOM_ATTRIBUTE_CONVERTERS.put(converterClass, instance);
         return instance;
+    }
+
+    public static <R> R convertValueTo(Object value, Class<R> targetClass) {
+        return null;
     }
 
     public static Object convertToDatabaseColumn(FieldMeta fieldMeta, Object value) {
@@ -128,11 +134,20 @@ public class ConverterUtils {
         GENERAL_ATTRIBUTE_CONVERTER_MODEL.put(fieldType, attributeConverter);
     }
 
+    public static void putFetchResultConverter(Class<?> targetType, FetchResultConverter fetchResultConverter) {
+        //多次调用应该覆盖 这样符合实际应用场景
+        FETCH_RESULT_CONVERTER_MAP.put(targetType, fetchResultConverter);
+    }
+
     public static Object ifBooleanToNumber(Object value) {
         if (value instanceof Boolean) {
             // true -> 1, false -> 0
             return Boolean.compare((Boolean) value, false);
         }
         return value;
+    }
+
+    public static <R> FetchResultConverter<R> getFetchResultConverter(Class<R> resultClass) {
+        return FETCH_RESULT_CONVERTER_MAP.get(resultClass);
     }
 }
