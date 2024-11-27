@@ -370,6 +370,8 @@ public interface Condition {
      */
     <T, F> Condition andIn(Fn<T, F> fn, Iterable<?> values);
 
+    Condition andIn(Column column, Iterable<?> values);
+
     /**
      * 添加字段在指定值集合中条件，或运算。
      *

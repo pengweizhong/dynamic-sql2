@@ -647,6 +647,24 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
+    public Condition andIn(Column column, Iterable<?> values) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version);
+        condition.append(functionToString).append(" in");
+        condition.append(" (");
+        Iterator<?> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            Object value = iterator.next();
+            condition.append(registerValueWithKey(parameterBinder, value));
+            if (iterator.hasNext()) {
+                condition.append(", ");
+            }
+        }
+        condition.append(")");
+        return this;
+    }
+
+    @Override
     public <T, F> Condition orIn(Fn<T, F> fn, Iterable<?> values) {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)

@@ -16,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -298,6 +295,12 @@ public class SelectTest extends InitializingContext {
         System.out.println(product);
         Product product2 = sqlContext.selectByPrimaryKey(Product.class, 7);
         System.out.println(product2);
+    }
+
+    @Test
+    void test8() {
+        List<Product> products = sqlContext.selectByPrimaryKey(Product.class, Arrays.asList(1, 2, 3, 4, 5));
+        products.forEach(System.out::println);
     }
 }
 
