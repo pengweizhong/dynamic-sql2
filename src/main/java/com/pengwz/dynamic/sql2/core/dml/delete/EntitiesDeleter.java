@@ -27,7 +27,7 @@ public class EntitiesDeleter {
         this.entityClass = entityClass;
     }
 
-    private AbstractDialectParser getDialectParser(Collection<Object> params) {
+    private AbstractDialectParser getDialectParser(Collection<?> params) {
         TableMeta tableMeta = TableProvider.getTableMeta(entityClass);
         if (tableMeta == null) {
             throw new IllegalStateException("Class `" + entityClass.getCanonicalName()
@@ -35,7 +35,7 @@ public class EntitiesDeleter {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        return SqlExecutionFactory.chosenDialectParser(schemaProperties, entityClass, params);
+        return SqlExecutionFactory.chosenDialectParser(schemaProperties, entityClass, (Collection<Object>) params);
     }
 
     public int deleteByPrimaryKey(Object pkValue, Function<SqlExecutor, Integer> doSqlExecutor) {
@@ -44,7 +44,7 @@ public class EntitiesDeleter {
         return SqlExecutionFactory.executorSql(DMLType.DELETE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
     }
 
-    public int deleteByPrimaryKey(Collection<Object> pkValues, Function<SqlExecutor, Integer> doSqlExecutor) {
+    public int deleteByPrimaryKey(Collection<?> pkValues, Function<SqlExecutor, Integer> doSqlExecutor) {
         AbstractDialectParser dialectParser = getDialectParser(pkValues);
         dialectParser.deleteByPrimaryKey();
         return SqlExecutionFactory.executorSql(DMLType.DELETE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
