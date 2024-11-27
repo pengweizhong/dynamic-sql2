@@ -31,7 +31,7 @@ public class DefaultSelectHandler implements SelectHandler {
     }
 
     @Override
-    public <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues) {
+    public <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<?> pkValues) {
         TableMeta tableMeta = TableProvider.getTableMeta(entityClass);
         if (tableMeta == null) {
             return null;

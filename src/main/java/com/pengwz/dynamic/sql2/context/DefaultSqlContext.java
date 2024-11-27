@@ -43,7 +43,7 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues) {
+    public <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<?> pkValues) {
         if (entityClass == null) {
             return Collections.emptyList();
         }

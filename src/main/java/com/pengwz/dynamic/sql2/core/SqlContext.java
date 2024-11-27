@@ -37,7 +37,7 @@ public interface SqlContext {
      * @param pkValues    主键值集合
      * @return 查询到的实体对象。如果没有匹配的记录，则返回空集合。
      */
-    <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues);
+    <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<?> pkValues);
 
     /**
      * 插入一个实体到数据库，选择性插入非空字段。
