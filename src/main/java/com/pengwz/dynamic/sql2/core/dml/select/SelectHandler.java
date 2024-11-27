@@ -10,5 +10,5 @@ public interface SelectHandler {
 
     <T> T selectByPrimaryKey(Class<T> entityClass, Object pkValue);
 
-    <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues);
+    <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<?> pkValues);
 }
