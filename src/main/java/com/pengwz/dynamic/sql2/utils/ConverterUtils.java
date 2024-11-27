@@ -7,7 +7,9 @@ import com.pengwz.dynamic.sql2.plugins.conversion.attribute.LocalDateAttributeCo
 import com.pengwz.dynamic.sql2.table.FieldMeta;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -100,6 +102,12 @@ public class ConverterUtils {
         }
         if (fieldType == Float.class || fieldType == float.class) {
             return (T) Float.valueOf(ifBooleanToNumber(value).toString());
+        }
+        if (fieldType == LocalDateTime.class) {
+            if (value instanceof Timestamp) {
+                Timestamp timestamp = (Timestamp) value;
+                return (T) timestamp.toLocalDateTime();
+            }
         }
         if (fieldType.isEnum()) {
             //枚举对象
