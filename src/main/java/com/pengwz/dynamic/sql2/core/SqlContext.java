@@ -4,6 +4,7 @@ import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -27,6 +28,16 @@ public interface SqlContext {
      * @return 查询到的实体对象。如果没有匹配的记录，则返回 {@code null}。
      */
     <T> T selectByPrimaryKey(Class<T> entityClass, Object pkValue);
+
+    /**
+     * 根据多个主键查询实体对象集合。
+     *
+     * @param <T>         实体类的类型。
+     * @param entityClass 实体类的 {@link Class} 对象，用于指定查询结果的映射类型。
+     * @param pkValues    主键值集合
+     * @return 查询到的实体对象。如果没有匹配的记录，则返回空集合。
+     */
+    <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues);
 
     /**
      * 插入一个实体到数据库，选择性插入非空字段。

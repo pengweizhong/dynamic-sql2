@@ -17,6 +17,7 @@ import com.pengwz.dynamic.sql2.utils.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 
 
@@ -39,6 +40,17 @@ public class DefaultSqlContext implements SqlContext {
             throw new IllegalArgumentException("pkValue can not be null");
         }
         return new DefaultSelectHandler().selectByPrimaryKey(entityClass, pkValue);
+    }
+
+    @Override
+    public <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues) {
+        if (entityClass == null) {
+            return Collections.emptyList();
+        }
+        if (CollectionUtils.isEmpty(pkValues)) {
+            throw new IllegalArgumentException("pkValues can not be empty");
+        }
+        return new DefaultSelectHandler().selectByPrimaryKey(entityClass, pkValues);
     }
 
     @Override
