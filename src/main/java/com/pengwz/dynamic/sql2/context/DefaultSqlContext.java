@@ -104,7 +104,7 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> int deleteByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues) {
+    public <T> int deleteByPrimaryKey(Class<T> entityClass, Collection<?> pkValues) {
         if (CollectionUtils.isEmpty(pkValues)) {
             throw new IllegalArgumentException("pkValues can not be null");
         }
