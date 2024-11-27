@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.column.function.scalar.string;
 
 import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -12,7 +13,7 @@ import static com.pengwz.dynamic.sql2.utils.SqlUtils.registerValueWithKey;
 public class Length extends ColumnFunctionDecorator {
     String string;
 
-    public Length(ColumFunction delegateFunction) {
+    public Length(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }
 

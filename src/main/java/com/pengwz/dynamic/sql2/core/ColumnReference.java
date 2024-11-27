@@ -2,7 +2,7 @@ package com.pengwz.dynamic.sql2.core;
 
 import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
-import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
@@ -58,14 +58,13 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
-    public ColumnReference column(ColumFunction iColumFunction) {
+    public ColumnReference column(AbstractColumFunction iColumFunction) {
         column(iColumFunction, null);
         return this;
     }
 
-
     @Override
-    public AbstractColumnReference column(ColumFunction iColumFunction, String columnAlias) {
+    public AbstractColumnReference column(AbstractColumFunction iColumFunction, String columnAlias) {
         selectSpecification.getColumFunctions().add(new FunctionColumn(iColumFunction, null, columnAlias));
         return this;
     }

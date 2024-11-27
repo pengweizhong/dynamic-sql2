@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.column.function.scalar.string;
 
 import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -13,7 +14,7 @@ import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedSq
 public class Md5 extends ColumnFunctionDecorator {
     String string;
 
-    public Md5(ColumFunction delegateFunction) {
+    public Md5(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }
 

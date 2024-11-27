@@ -4,6 +4,7 @@ import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
 import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
+import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
@@ -14,6 +15,7 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.*;
+import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
@@ -55,16 +57,29 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     parseAllColumn((AllColumn) columFunction, selectSpecification.getColumFunctions().size() - 1 > i);
                     continue;
                 }
+                StringBuilder arithmeticSql = null;
+                ParameterBinder arithmeticParameterBinder = null;
+                if (columFunction instanceof AbstractColumFunction) {
+                    AbstractColumFunction abstractColumFunction = (AbstractColumFunction) columFunction;
+                    abstractColumFunction.setAliasTableMap(aliasTableMap);
+                    abstractColumFunction.setDataSourceName(dataSourceName);
+                    arithmeticSql = abstractColumFunction.getArithmeticSql();
+                    arithmeticParameterBinder = abstractColumFunction.getArithmeticParameterBinder();
+                } else {
+                    arithmeticSql = new StringBuilder();
+                }
                 //数字列不需要关心别名问题
                 if (columFunction instanceof NumberColumn || columFunction instanceof Count) {
-                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version));
+                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version)).append(arithmeticSql);
+                    parameterBinder.addParameterBinder(arithmeticParameterBinder);
                     String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
                     sqlBuilder.append(columnAlias).append(columnSeparator);
                     continue;
                 }
                 Fn<?, ?> fn = columFunction.getOriginColumnFn();
                 if (columFunction instanceof AbstractAliasHelper) {
-                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version));
+                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version)).append(arithmeticSql);
+                    parameterBinder.addParameterBinder(arithmeticParameterBinder);
                     if (StringUtils.isNotBlank(columnQuery.getAlias())) {
                         sqlBuilder.append(syntaxAs()).append(columnQuery.getAlias());
                     }
@@ -79,8 +94,9 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
                 //拼接别名，
                 String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
-                sqlBuilder.append(functionToString).append(columnAlias).append(columnSeparator);
+                sqlBuilder.append(functionToString).append(arithmeticSql).append(columnAlias).append(columnSeparator);
                 parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+                parameterBinder.addParameterBinder(arithmeticParameterBinder);
             }
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;

@@ -1,6 +1,7 @@
 package com.pengwz.dynamic.sql2.core.condition;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Max;
 import com.pengwz.dynamic.sql2.entites.User;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,12 @@ class NestedConditionTest extends InitializingContext {
 
     @Test
     void orNotEqualTo() {
+        List<User> list = sqlContext.select()
+                .column(new Column(User::getUserId).multiply(100),"userId")
+                .from(User.class)
+                .fetch()
+                .toList();
+        list.forEach(System.out::println);
     }
 
     @Test

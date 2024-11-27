@@ -2,7 +2,7 @@ package com.pengwz.dynamic.sql2.core.column.conventional;
 
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
-import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
@@ -13,11 +13,17 @@ import com.pengwz.dynamic.sql2.utils.ReflectUtils;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 
-public final class Column implements ColumFunction, TableFunction {
+public final class Column extends AbstractColumFunction implements TableFunction {
 
     private final Fn<?, ?> columnFn;
     private final String columnName;
     private String tableAlias;
+
+    public <T, F> Column(Fn<T, F> fn) {
+        this.columnFn = fn;
+        this.tableAlias = null;
+        this.columnName = null;
+    }
 
     public <T, F> Column(String tableAlias, Fn<T, F> fn) {
         this.columnFn = fn;
@@ -65,4 +71,5 @@ public final class Column implements ColumFunction, TableFunction {
     public void setTableAlias(String tableAlias) {
         this.tableAlias = tableAlias;
     }
+
 }

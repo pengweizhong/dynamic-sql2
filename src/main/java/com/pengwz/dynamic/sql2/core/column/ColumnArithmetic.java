@@ -1,7 +1,7 @@
 package com.pengwz.dynamic.sql2.core.column;
 
 import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.dml.select.NestedSelect;
+import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 
 import java.util.function.Consumer;
 
@@ -35,7 +35,7 @@ public interface ColumnArithmetic {
      * @param nestedSelect 嵌套查询的表达式
      * @return 当前算术运算接口对象，用于链式调用
      */
-    ColumnArithmetic add(Consumer<NestedSelect> nestedSelect);
+    ColumnArithmetic add(Consumer<AbstractColumnReference> nestedSelect);
 
     /**
      * 将指定列的值从当前列中减去。
@@ -61,7 +61,7 @@ public interface ColumnArithmetic {
      * @param nestedSelect 嵌套查询的表达式
      * @return 当前算术运算接口对象，用于链式调用
      */
-    ColumnArithmetic subtract(Consumer<NestedSelect> nestedSelect);
+    ColumnArithmetic subtract(Consumer<AbstractColumnReference> nestedSelect);
 
     /**
      * 将当前列的值与指定列相乘。
@@ -87,7 +87,7 @@ public interface ColumnArithmetic {
      * @param nestedSelect 嵌套查询的表达式
      * @return 当前算术运算接口对象，用于链式调用
      */
-    ColumnArithmetic multiply(Consumer<NestedSelect> nestedSelect);
+    ColumnArithmetic multiply(Consumer<AbstractColumnReference> nestedSelect);
 
     /**
      * 将当前列的值与指定列相除。
@@ -113,5 +113,5 @@ public interface ColumnArithmetic {
      * @param nestedSelect 嵌套查询的表达式
      * @return 当前算术运算接口对象，用于链式调用
      */
-    ColumnArithmetic divide(Consumer<NestedSelect> nestedSelect);
+    ColumnArithmetic divide(Consumer<AbstractColumnReference> nestedSelect);
 }

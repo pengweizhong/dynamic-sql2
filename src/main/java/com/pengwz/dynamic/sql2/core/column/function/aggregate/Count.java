@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.column.function.aggregate;
 
 import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
@@ -12,7 +13,7 @@ import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedSq
 
 public class Count extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
 
-    public Count(ColumFunction delegateFunction) {
+    public Count(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }
 

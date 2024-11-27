@@ -2,6 +2,8 @@ package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Fn;
+import com.pengwz.dynamic.sql2.core.column.ColumnArithmetic;
+import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
@@ -33,9 +35,9 @@ public abstract class AbstractColumnReference {
 
     public abstract AbstractColumnReference column(String tableAlias, String columnName, String columnAlias);
 
-    public abstract AbstractColumnReference column(ColumFunction iColumFunction);
+    public abstract AbstractColumnReference column(AbstractColumFunction iColumFunction);
 
-    public abstract AbstractColumnReference column(ColumFunction iColumFunction, String columnAlias);
+    public abstract AbstractColumnReference column(AbstractColumFunction iColumFunction, String columnAlias);
 
     public abstract AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String columnAlias);
 

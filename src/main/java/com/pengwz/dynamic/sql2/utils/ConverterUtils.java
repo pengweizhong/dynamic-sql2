@@ -78,6 +78,10 @@ public class ConverterUtils {
             return (T) value.toString();
         }
         if (fieldType == Integer.class || fieldType == int.class) {
+            if (value instanceof Double) {
+                Integer intValue = ((Double) value).intValue();
+                return (T) intValue;
+            }
             return (T) Integer.valueOf(ifBooleanToNumber(value).toString());
         }
         if (fieldType == Long.class || fieldType == long.class) {

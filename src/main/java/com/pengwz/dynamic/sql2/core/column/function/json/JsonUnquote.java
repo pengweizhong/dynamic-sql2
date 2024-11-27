@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core.column.function.json;
 import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
@@ -15,7 +16,7 @@ import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedSq
  */
 public class JsonUnquote extends ColumnFunctionDecorator implements TableFunction {
 
-    public JsonUnquote(ColumFunction delegateFunction) {
+    public JsonUnquote(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }
 
