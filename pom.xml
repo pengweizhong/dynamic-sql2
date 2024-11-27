@@ -13,7 +13,6 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <java.version>8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -85,97 +84,27 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <url>http://192.168.1.52:8081/repository/maven-snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>releases</id>
-            <url>http://192.168.1.52:8081/repository/maven-releases/</url>
-        </repository>
-    </distributionManagement>
-
-    <profiles>
-        <profile>
-            <id>disable-javadoc-doclint</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <properties>
-                <javadoc.opts>-Xdoclint:none</javadoc.opts>
-            </properties>
-        </profile>
-        <!-- mvn repository;-->
-        <profile>
-            <id>ossrh</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-    </profiles>
     <build>
-        <finalName>${project.artifactId}</finalName>
-        <resources>
-            <resource>
-                <directory>${project.basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
-                <configuration>
-                    <skip>true</skip>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-
+            <!-- skipTests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M4</version>
                 <configuration>
-                    <skip>true</skip>
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
+            <!-- Generate source code JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
                         <phase>verify</phase>
                         <goals>
-                            <goal>jar-no-fork</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
