@@ -109,7 +109,7 @@ public interface SqlContext {
      * @param pkValues    主键值集合，指定要删除的多条记录。
      * @return 返回删除的记录条数
      */
-    <T> int deleteByPrimaryKey(Class<T> entityClass, Collection<Object> pkValues);
+    <T> int deleteByPrimaryKey(Class<T> entityClass, Collection<?> pkValues);
 
     /**
      * 根据指定的条件删除数据库中的记录。
