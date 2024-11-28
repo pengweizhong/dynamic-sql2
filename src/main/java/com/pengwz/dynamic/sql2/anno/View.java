@@ -22,6 +22,6 @@ public @interface View {
      *
      * @return 数据源名称
      */
-    String dataSourceName();
+    String dataSourceName() default "";
 
 }

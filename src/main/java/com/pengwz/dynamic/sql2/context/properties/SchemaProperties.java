@@ -7,7 +7,7 @@ public class SchemaProperties {
     private String dataSourceName;
     // 以指定的数据库方言启动，默认为当前数据库方言
     private SqlDialect sqlDialect;
-    // 默认绑定的实体类路径
+    // 默认绑定的实体类、视图路径
     private String[] bindBasePackages;
     // 是否开启兼容版本模式，开启后动态SQL以最终结果为目的尝试解决版本不兼容的问题
     // 该方案主要是为了解决因版本降低或迁移数据库的场景，尽可能降低迁移成本

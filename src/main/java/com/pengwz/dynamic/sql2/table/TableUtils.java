@@ -28,6 +28,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.pengwz.dynamic.sql2.table.SchemaStructureScanner.matchBestDataSourceName;
+
 public class TableUtils {
     private static final Logger log = LoggerFactory.getLogger(TableUtils.class);
 
@@ -92,20 +94,20 @@ public class TableUtils {
     public static ViewMeta parseViewClass(Class<?> clazz) {
         List<Field> fields = ReflectUtils.getAllFields(clazz, filterFieldTypeRules());
         View view = clazz.getDeclaredAnnotation(View.class);
-        if (null == view) {
-            throw new IllegalArgumentException("The class " + clazz.getName() + " has no @View annotation");
+        boolean cache = false;
+        String dataSourceName = null;
+        if (null != view) {
+            cache = view.isCache();
+            dataSourceName = view.dataSourceName();
         }
-        if (view.isCache()) {
+        if (cache) {
             ViewMeta viewMeta = TableProvider.getViewMeta(clazz);
             if (viewMeta != null) {
                 return viewMeta;
             }
         }
-        String dataSourceName = view.dataSourceName();
-        if (StringUtils.isEmpty(dataSourceName)) {
-            throw new IllegalArgumentException("The class " + clazz.getName() + " has no data source name");
-        }
-        List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(dataSourceName, clazz, f))
+        final String finalDataSourceName = matchBestDataSourceName(clazz, dataSourceName);
+        List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(finalDataSourceName, clazz, f))
                 .filter(Objects::nonNull).collect(Collectors.toList());
         //检查列声明标识是否合规
         List<ColumnMeta> columnMetas = assertAndFilterColumn(columnMetaSymbols, clazz.getSimpleName());
@@ -118,7 +120,7 @@ public class TableUtils {
             return viewColumnMeta;
         }).collect(Collectors.toList());
         viewMeta.setViewColumnMetas(viewColumnMetas);
-        if (view.isCache()) {
+        if (cache) {
             TableProvider.saveViewMeta(clazz, viewMeta);
         }
         return viewMeta;

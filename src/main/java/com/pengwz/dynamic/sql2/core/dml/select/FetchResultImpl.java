@@ -75,6 +75,10 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             }
             return collection;
         }
+        //判断是否为原始对象
+        if (resultClass.getClassLoader() == null) {
+            return convertToSystemClass(collection);
+        }
         List<FieldMeta> fieldMetas = getFieldMetas("Collection");
         Map<String, FieldMeta> columnNameMap = fieldMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
         Map<String, FieldMeta> fieldNameMap = fieldMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
