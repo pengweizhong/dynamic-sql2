@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
+import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.GroupFn;

@@ -1,6 +1,6 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build.column;
 
-import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
+import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 
 import java.util.function.Consumer;
 

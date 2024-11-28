@@ -13,7 +13,7 @@ import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
 import com.pengwz.dynamic.sql2.core.database.PreparedSql;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper.BatchType;
-import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
+import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 import com.pengwz.dynamic.sql2.core.dml.select.build.*;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;

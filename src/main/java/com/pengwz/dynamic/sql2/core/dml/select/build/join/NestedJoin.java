@@ -1,7 +1,7 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build.join;
 
 import com.pengwz.dynamic.sql2.core.condition.Condition;
-import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
+import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementSelectWrapper;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.enums.JoinTableType;

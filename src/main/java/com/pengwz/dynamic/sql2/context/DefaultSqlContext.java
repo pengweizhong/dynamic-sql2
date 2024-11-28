@@ -7,7 +7,7 @@ import com.pengwz.dynamic.sql2.core.dml.delete.DeleteHandler;
 import com.pengwz.dynamic.sql2.core.dml.delete.EntitiesDeleter;
 import com.pengwz.dynamic.sql2.core.dml.insert.EntitiesInserter;
 import com.pengwz.dynamic.sql2.core.dml.insert.InsertHandler;
-import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
+import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.DefaultSelectHandler;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 import com.pengwz.dynamic.sql2.core.dml.update.EntitiesUpdater;

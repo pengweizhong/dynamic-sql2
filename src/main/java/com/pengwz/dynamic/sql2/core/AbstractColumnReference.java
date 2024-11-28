@@ -1,12 +1,9 @@
-package com.pengwz.dynamic.sql2.core.dml.select;
+package com.pengwz.dynamic.sql2.core;
 
-import com.pengwz.dynamic.sql2.core.FieldFn;
-import com.pengwz.dynamic.sql2.core.Fn;
-import com.pengwz.dynamic.sql2.core.column.ColumnArithmetic;
 import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
-import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
+import com.pengwz.dynamic.sql2.core.dml.select.TableRelation;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 
@@ -43,6 +40,8 @@ public abstract class AbstractColumnReference {
 
     public abstract AbstractColumnReference column(Consumer<AbstractColumnReference> nestedSelect, String columnAlias);
 
+    public abstract AbstractColumnReference columnReference(AbstractColumnReference columnReference);
+
     public abstract AbstractColumnReference allColumn();
 
     public abstract AbstractColumnReference allColumn(Class<?> tableClass);
@@ -57,4 +56,7 @@ public abstract class AbstractColumnReference {
 
     public abstract TableRelation<?> from(Consumer<AbstractColumnReference> nestedSelect, String selectAlias);
 
+    protected SelectSpecification getSelectSpecification() {
+        return selectSpecification;
+    }
 }

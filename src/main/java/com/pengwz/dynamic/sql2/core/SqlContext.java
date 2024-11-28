@@ -1,7 +1,6 @@
 package com.pengwz.dynamic.sql2.core;
 
 import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
-import com.pengwz.dynamic.sql2.core.dml.select.AbstractColumnReference;
 
 import java.util.Collection;
 import java.util.List;

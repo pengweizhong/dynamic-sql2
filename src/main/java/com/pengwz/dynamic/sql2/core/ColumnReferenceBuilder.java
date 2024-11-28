@@ -10,59 +10,36 @@ import com.pengwz.dynamic.sql2.core.dml.select.build.SelectSpecification;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromJoin;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;
-import com.pengwz.dynamic.sql2.core.dml.select.build.join.NestedJoin;
 import com.pengwz.dynamic.sql2.core.dml.select.cte.CteTable;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ColumnReference extends AbstractColumnReference {
+public class ColumnReferenceBuilder extends AbstractColumnReference {
 
-    public ColumnReference(SelectSpecification selectSpecification) {
+    protected ColumnReferenceBuilder(SelectSpecification selectSpecification) {
         super(selectSpecification);
     }
 
-    /**
-     * 构建一个查询列的引用集合，用于定义查询中的多个列。
-     * <p>
-     * 此方法创建并返回一个 `AbstractColumnReference` 实例，
-     * 允许通过链式调用添加列或嵌套的列引用。
-     * <p>
-     * 示例：
-     * <pre>
-     * AbstractColumnReference columnReference = ColumnReference.withColumns()
-     *         .column(Product::getProductId)
-     *         .column(Product::getProductName)
-     *         .columnReference(nestedColumnReference());
-     * </pre>
-     *
-     * @return 一个用于构建列集合的 {@link AbstractColumnReference} 对象
-     */
-    public static AbstractColumnReference withColumns() {
-        return new ColumnReferenceBuilder(new SelectSpecification());
-    }
-
     @Override
-    public <T, F> ColumnReference column(Fn<T, F> fn) {
+    public <T, F> ColumnReferenceBuilder column(Fn<T, F> fn) {
         selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(null, fn), null, null));
         return this;
     }
 
     @Override
-    public <T, F> ColumnReference column(String tableAlias, FieldFn<T, F> fn) {
+    public <T, F> ColumnReferenceBuilder column(String tableAlias, FieldFn<T, F> fn) {
         return this.column(tableAlias, fn, null);
     }
 
     @Override
-    public <T, F> ColumnReference column(FieldFn<T, F> fn, String columnAlias) {
+    public <T, F> ColumnReferenceBuilder column(FieldFn<T, F> fn, String columnAlias) {
         return this.column(null, fn, columnAlias);
     }
 
     @Override
-    public <T, F> ColumnReference column(String tableAlias, FieldFn<T, F> fn, String columnAlias) {
+    public <T, F> ColumnReferenceBuilder column(String tableAlias, FieldFn<T, F> fn, String columnAlias) {
         selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(tableAlias, fn), null, columnAlias));
         return this;
     }
@@ -79,7 +56,7 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
-    public ColumnReference column(AbstractColumFunction iColumFunction) {
+    public ColumnReferenceBuilder column(AbstractColumFunction iColumFunction) {
         column(iColumFunction, null);
         return this;
     }
@@ -106,6 +83,7 @@ public class ColumnReference extends AbstractColumnReference {
         return this;
     }
 
+
     @Override
     public AbstractColumnReference columnReference(AbstractColumnReference columnReference) {
         List<ColumnQuery> columFunctions = columnReference.getSelectSpecification().getColumFunctions();
@@ -130,26 +108,24 @@ public class ColumnReference extends AbstractColumnReference {
         return this;
     }
 
+
     @Override
     public <T> TableRelation<T> from(Class<T> tableClass) {
-        return from(tableClass, null);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T> TableRelation<T> from(Class<T> tableClass, String alias) {
-        selectSpecification.getJoinTables().add(new FromJoin(tableClass, alias));
-        return new TableRelation<>(selectSpecification);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public TableRelation<?> from(CteTable cteTable) {
-        selectSpecification.getJoinTables().add(new FromJoin(cteTable));
-        return new TableRelation<>(selectSpecification);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public TableRelation<?> from(Consumer<AbstractColumnReference> nestedSelect, String selectAlias) {
-        selectSpecification.getJoinTables().add(new FromNestedJoin(new NestedJoin(nestedSelect, selectAlias)));
-        return new TableRelation<>(selectSpecification);
+        throw new UnsupportedOperationException();
     }
 }

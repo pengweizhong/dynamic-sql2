@@ -1,6 +1,8 @@
 package com.pengwz.dynamic.sql2.core.dml.select;
 
 import com.pengwz.dynamic.sql2.InitializingContext;
+import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
+import com.pengwz.dynamic.sql2.core.ColumnReference;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Sum;
 import com.pengwz.dynamic.sql2.core.column.function.table.JsonTable;
@@ -289,7 +291,9 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void test7() {
-        Product product = sqlContext.select().allColumn().from(Product.class)
+        Product product = sqlContext.select()
+                .allColumn()
+                .from(Product.class)
                 .where(whereCondition -> whereCondition.andEqualTo(Product::getProductId, 7))
                 .fetch().toOne();
         System.out.println(product);
@@ -307,6 +311,30 @@ public class SelectTest extends InitializingContext {
         arrayList.add(5);
         List<Product> products = sqlContext.selectByPrimaryKey(Product.class, arrayList);
         products.forEach(System.out::println);
+    }
+
+    @Test
+    void test9() {
+        List<Product> list = sqlContext.select()
+                .column(Product::getProductId)
+                .columnReference(columnReference())
+                .from(Product.class)
+                .fetch()
+                .toList();
+        list.forEach(System.out::println);
+    }
+
+    AbstractColumnReference columnReference() {
+        return ColumnReference.withColumns()
+                .column(Product::getProductId)
+                .columnReference(columnReference2())
+                .column(Product::getProductName);
+    }
+
+    AbstractColumnReference columnReference2() {
+        return ColumnReference.withColumns()
+                .column(Product::getAttributes)
+                .column(Product::getCreatedAt);
     }
 }
 
