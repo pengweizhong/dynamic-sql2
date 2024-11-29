@@ -38,7 +38,7 @@ public class InitializingContext {
         schemaProperties.setUseAsInQuery(true);
         PrintSqlProperties printSqlProperties = new PrintSqlProperties();
         printSqlProperties.setPrintSql(true);
-        printSqlProperties.setPrintDataSourceName(false);
+        printSqlProperties.setPrintDataSourceName(true);
         schemaProperties.setPrintSqlProperties(printSqlProperties);
         sqlContextProperties.addSchemaProperties(schemaProperties);
         sqlContextProperties.addInterceptor(new PageInterceptorPlugin());

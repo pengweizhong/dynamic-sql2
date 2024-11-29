@@ -77,7 +77,7 @@ public class DataSourceUtils {
             DbType dbType = matchDbType(metaData.getURL());
             String schema = matchSchema(sqlContextProperties.getSchemaMatchers(), dbType, metaData.getURL());
             String version = metaData.getDatabaseProductVersion();
-            schemaProperties.setDatabaseProductVersion(StringUtils.isEmpty(schemaProperties.getDatabaseProductVersion())
+            schemaProperties.setDatabaseProductVersion(dbType,StringUtils.isEmpty(schemaProperties.getDatabaseProductVersion())
                     ? version : schemaProperties.getDatabaseProductVersion());
             SqlDialect sqlDialect = schemaProperties.getSqlDialect();
             if (sqlDialect == null && dbType.equals(DbType.OTHER)) {

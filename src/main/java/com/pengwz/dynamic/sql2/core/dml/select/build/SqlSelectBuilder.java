@@ -52,7 +52,7 @@ public abstract class SqlSelectBuilder {
             TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
             schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
         }
-        this.version = matchVersion(schemaProperties);
+        this.version = getVersion(schemaProperties);
         this.sqlDialect = schemaProperties.getSqlDialect();
         this.dataSourceName = schemaProperties.getDataSourceName();
     }
@@ -188,15 +188,15 @@ public abstract class SqlSelectBuilder {
 //        }
 //    }
 
-    private Version matchVersion(SchemaProperties schemaProperties) {
-        if (StringUtils.isBlank(schemaProperties.getDatabaseProductVersion())) {
-            DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(schemaProperties.getDataSourceName());
-            return new Version(dataSourceMeta.getMajorVersionNumber(),
-                    dataSourceMeta.getMinorVersionNumber(), dataSourceMeta.getPatchVersionNumber());
-        } else {
-            return new Version(schemaProperties.getMajorVersionNumber(),
-                    schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
-        }
+    private Version getVersion(SchemaProperties schemaProperties) {
+//        if (StringUtils.isBlank(schemaProperties.getDatabaseProductVersion())) {
+//            DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(schemaProperties.getDataSourceName());
+//            return new Version(dataSourceMeta.getMajorVersionNumber(),
+//                    dataSourceMeta.getMinorVersionNumber(), dataSourceMeta.getPatchVersionNumber());
+//        } else {
+        return new Version(schemaProperties.getMajorVersionNumber(),
+                schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
+//        }
     }
 
 
@@ -213,6 +213,14 @@ public abstract class SqlSelectBuilder {
     protected String syntaxAs() {
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
         return schemaProperties.isUseAsInQuery() ? " " + SqlUtils.getSyntaxAs(sqlDialect) + " " : " ";
+    }
+
+    protected String syntaxColumnAlias(String columnAlias) {
+        //Oracle要加限定名  oracle默认模式会将查询结果自动转为大写，导致无法映射字段
+        if (sqlDialect == SqlDialect.ORACLE) {
+            return "\"" + columnAlias + "\"";
+        }
+        return columnAlias;
     }
 
     public String getDataSourceName() {

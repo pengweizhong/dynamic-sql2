@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.utils;
 
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
+import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.GroupFn;
 import com.pengwz.dynamic.sql2.core.Version;
@@ -13,7 +14,6 @@ import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
 import com.pengwz.dynamic.sql2.core.database.PreparedSql;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper.BatchType;
-import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.Select;
 import com.pengwz.dynamic.sql2.core.dml.select.build.*;
 import com.pengwz.dynamic.sql2.core.dml.select.build.join.FromNestedJoin;
@@ -204,6 +204,9 @@ public class SqlUtils {
             case MYSQL:
             case MARIADB:
                 return "as";
+            //在 Oracle 中，表别名不支持 AS 关键字，只能直接指定别名。
+            case ORACLE:
+                return "";
             default:
                 return "AS";
         }

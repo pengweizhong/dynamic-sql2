@@ -136,7 +136,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         if (columnMeta == null) {
             columnMeta = fieldNameMap.get(columnName);
         }
-        //将来实现自动移除未使用的列（自动优化查询）？？？
+        //TODO 将来实现自动移除未使用的列（自动优化查询）？？？
         if (columnMeta == null) {
             log.trace("Column '{}' was queried but not used.", columnName);
         }

@@ -1,5 +1,6 @@
 package com.pengwz.dynamic.sql2.context.properties;
 
+import com.pengwz.dynamic.sql2.enums.DbType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 
 public class SchemaProperties {
@@ -65,8 +66,13 @@ public class SchemaProperties {
         return databaseProductVersion;
     }
 
-    public void setDatabaseProductVersion(String databaseProductVersion) {
+    public void setDatabaseProductVersion(DbType dbType, String databaseProductVersion) {
         this.databaseProductVersion = databaseProductVersion;
+        //Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production\nVersion 19.19.0.0.0
+        if (dbType == DbType.ORACLE) {
+            int i = databaseProductVersion.indexOf("Version");
+            databaseProductVersion = databaseProductVersion.substring(i + "Version".length()).trim();
+        }
         String[] split = databaseProductVersion.split("\\.");
         if (split.length >= 1) {
             this.majorVersionNumber = Integer.parseInt(split[0]);

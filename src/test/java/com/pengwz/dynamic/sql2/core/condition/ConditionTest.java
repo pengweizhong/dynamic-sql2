@@ -9,6 +9,7 @@ import com.pengwz.dynamic.sql2.core.column.function.scalar.string.SubString;
 import com.pengwz.dynamic.sql2.core.column.function.scalar.string.Upper;
 import com.pengwz.dynamic.sql2.entites.Product;
 import com.pengwz.dynamic.sql2.entites.User;
+import com.pengwz.dynamic.sql2.enums.DbType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -180,7 +181,7 @@ class ConditionTest extends InitializingContext {
     @Test
     void andMatches2() {
         SchemaProperties dataSource = SchemaContextHolder.getSchemaProperties("dataSource");
-        dataSource.setDatabaseProductVersion("5.7");
+        dataSource.setDatabaseProductVersion(DbType.MYSQL, "5.7");
         //匹配以 "J" 开头
         List<Map<String, Object>> mapList = sqlContext.select()
                 .allColumn()
@@ -190,7 +191,7 @@ class ConditionTest extends InitializingContext {
                 ).fetchOriginalMap()
                 .toList();
         mapList.forEach(System.out::println);
-        dataSource.setDatabaseProductVersion("8.1.0");
+        dataSource.setDatabaseProductVersion(DbType.MYSQL, "8.1.0");
     }
 
     @Test

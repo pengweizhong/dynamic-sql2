@@ -1,7 +1,6 @@
 package com.pengwz.dynamic.sql2.datasource;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.mysql.cj.jdbc.MysqlDataSource;
 import com.pengwz.dynamic.sql2.anno.DBSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
-public class MysqlCustomDataSource {
+public class MysqlDataSource {
     private static final Logger log = LoggerFactory.getLogger(MysqlDataSource.class);
 
     @DBSource(defaultDB = true)

@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.core.database.impl;
 
 import com.pengwz.dynamic.sql2.core.database.AbstractSqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.PreparedSql;
+import com.pengwz.dynamic.sql2.core.database.RootExecutor;
 
 import java.sql.Connection;
 import java.util.List;
@@ -16,7 +17,7 @@ public class OracleSqlExecutor extends AbstractSqlExecutor {
 
     @Override
     public List<Map<String, Object>> executeQuery() {
-        return null;
+        return RootExecutor.executeQuery(connection, preparedSql);
     }
 
     @Override
