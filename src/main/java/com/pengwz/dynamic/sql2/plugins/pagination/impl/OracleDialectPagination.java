@@ -2,7 +2,10 @@ package com.pengwz.dynamic.sql2.plugins.pagination.impl;
 
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
+import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.plugins.pagination.DialectPagination;
+
+import static com.pengwz.dynamic.sql2.utils.SqlUtils.registerValueWithKey;
 
 public class OracleDialectPagination implements DialectPagination {
     @Override
@@ -14,18 +17,24 @@ public class OracleDialectPagination implements DialectPagination {
     }
 
     @Override
-    public void modifyPagingSql(Version version, SqlStatementWrapper sqlStatementWrapper, String offsetKey, String pageSizeKey) {
-        //修改原来的SQL，加上limit分页
-        StringBuilder selectPageSql = sqlStatementWrapper.getRawSql();
-        selectPageSql.insert(0, "select * from (");
-        // 最后加上分页的 LIMIT 子句
-        selectPageSql.append(") _page_temp limit ");
-        selectPageSql.append(offsetKey);
-        selectPageSql.append(", ");
-        selectPageSql.append(pageSizeKey);
+    public void modifyPagingSql(Version version, SqlStatementWrapper sqlStatementWrapper, int pageIndex, int pageSize) {
+        rowNumPage(sqlStatementWrapper, pageIndex, pageSize);
     }
 
-    private void rowNumPage() {
-
+    private void rowNumPage(SqlStatementWrapper sqlStatementWrapper, int pageIndex, int pageSize) {
+        //内部ROWNUM  页码 * 每页行数
+        int rowNum = pageIndex * pageSize;
+        //外部限制范围 (页码 - 1) * 每页行数
+        int rn = (pageIndex - 1) * pageSize;
+        ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
+        String offsetKey = registerValueWithKey(parameterBinder, rowNum);
+        String pageSizeKey = registerValueWithKey(parameterBinder, rn);
+        //将原始SQL包装成子查询
+        // 插入分页逻辑
+        StringBuilder pagingSql = sqlStatementWrapper.getRawSql();
+        pagingSql.insert(0, "SELECT * FROM (SELECT PAGE_TEMP.*, ROWNUM RN FROM (");
+        pagingSql.append(") PAGE_TEMP ");
+        pagingSql.append("WHERE ROWNUM <= ").append(offsetKey);
+        pagingSql.append(") WHERE RN > ").append(pageSizeKey);
     }
 }
