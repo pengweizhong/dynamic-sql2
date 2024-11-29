@@ -336,6 +336,13 @@ public class SelectTest extends InitializingContext {
                 .column(Product::getAttributes)
                 .column(Product::getCreatedAt);
     }
+
+    @Test
+    void testSelectPage() {
+        PageInfo<List<User>> pageInfo = PageHelper.of(1, 3)
+                .selectPage(() -> sqlContext.select().allColumn().from(User.class).fetch().toList());
+        pageInfo.getRecords().forEach(System.out::println);
+    }
 }
 
 

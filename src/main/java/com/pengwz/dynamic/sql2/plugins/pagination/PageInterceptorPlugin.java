@@ -2,6 +2,7 @@ package com.pengwz.dynamic.sql2.plugins.pagination;
 
 import com.pengwz.dynamic.sql2.context.SchemaContextHolder;
 import com.pengwz.dynamic.sql2.context.properties.SchemaProperties;
+import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.database.PreparedSql;
 import com.pengwz.dynamic.sql2.core.database.SqlExecutionFactory;
 import com.pengwz.dynamic.sql2.core.database.SqlExecutor;
@@ -11,6 +12,8 @@ import com.pengwz.dynamic.sql2.enums.DMLType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.interceptor.ExecutionControl;
 import com.pengwz.dynamic.sql2.interceptor.SqlInterceptor;
+import com.pengwz.dynamic.sql2.plugins.pagination.impl.MySQLDialectPagination;
+import com.pengwz.dynamic.sql2.plugins.pagination.impl.OracleDialectPagination;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
 
 import java.sql.Connection;
@@ -30,7 +33,21 @@ public class PageInterceptorPlugin implements SqlInterceptor {
             return ExecutionControl.PROCEED;
         }
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName());
+        Version version = new Version(schemaProperties.getMajorVersionNumber(),
+                schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
         SqlDialect sqlDialect = schemaProperties.getSqlDialect();
+        DialectPagination dialectPagination;
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                dialectPagination = new MySQLDialectPagination();
+                break;
+            case ORACLE:
+                dialectPagination = new OracleDialectPagination();
+                break;
+            default:
+                throw new UnsupportedOperationException("Unsupported sql dialect: " + sqlDialect);
+        }
         AbstractPage abstractPage = LocalPage.getCurrentPage();
         ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
         // 计算分页的偏移量 (pageIndex - 1) * pageSize
@@ -39,7 +56,8 @@ public class PageInterceptorPlugin implements SqlInterceptor {
         String pageSizeKey = registerValueWithKey(parameterBinder, abstractPage.getPageSize());
         Long total = abstractPage.getCacheTotal();
         if (total == null) {
-            total = selectTotal(sqlStatementWrapper, connection);
+            total = executeCountSql(sqlStatementWrapper, connection,
+                    dialectPagination.selectCountSql(version, sqlStatementWrapper));
             currentPage.setTotal(total);
             currentPage.initTotalPage();
         }
@@ -51,17 +69,7 @@ public class PageInterceptorPlugin implements SqlInterceptor {
         if (abstractPage.getPageIndex() > abstractPage.getTotalPage()) {
             return ExecutionControl.SKIP;
         }
-        switch (sqlDialect) {
-            case MYSQL:
-            case MARIADB:
-                executeMysqlPaging(sqlStatementWrapper, offsetKey, pageSizeKey);
-                break;
-            case ORACLE:
-                executeOraclePaging(sqlStatementWrapper, offsetKey, pageSizeKey);
-                break;
-            default:
-                throw new UnsupportedOperationException("Unsupported sql dialect: " + sqlDialect);
-        }
+        dialectPagination.modifyPagingSql(version, sqlStatementWrapper, offsetKey, pageSizeKey);
         return ExecutionControl.PROCEED;
     }
 
@@ -90,8 +98,20 @@ public class PageInterceptorPlugin implements SqlInterceptor {
 
     }
 
-    private long selectTotal(SqlStatementWrapper sqlStatementWrapper,
-                             Connection connection
+    private long executeCountSql(SqlStatementWrapper sqlStatementWrapper, Connection connection, StringBuilder countSql) {
+        PreparedSql preparedSql = SqlUtils.parsePreparedObject(countSql, sqlStatementWrapper.getParameterBinder());
+        List<Map<String, Object>> resultCountList = SqlExecutionFactory.applySql(DMLType.SELECT,
+                sqlStatementWrapper.getDataSourceName(), connection,
+                preparedSql, true, SqlExecutor::executeQuery);
+        if (resultCountList.isEmpty()) {
+            return 0;
+        }
+        Map.Entry<String, Object> countMap = resultCountList.get(0).entrySet().iterator().next();
+        return Long.parseLong(countMap.getValue().toString());
+    }
+
+    private long executeCountSql(SqlStatementWrapper sqlStatementWrapper,
+                                 Connection connection
                              /*String offsetKey,
                              String pageSizeKey*/) {
         StringBuilder selectCountSql = new StringBuilder(sqlStatementWrapper.getRawSql());
