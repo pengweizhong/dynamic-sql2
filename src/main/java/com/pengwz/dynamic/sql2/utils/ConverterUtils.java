@@ -8,6 +8,7 @@ import com.pengwz.dynamic.sql2.plugins.conversion.attribute.LocalDateAttributeCo
 import com.pengwz.dynamic.sql2.table.FieldMeta;
 
 import java.math.BigDecimal;
+import java.sql.Clob;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -83,6 +84,16 @@ public class ConverterUtils {
         }
         //处理一下特别常见的类型
         if (fieldType == String.class) {
+            //大字段需要特殊处理
+            if (value instanceof Clob) {
+                Clob clob = (Clob) value;
+                // 使用 getSubString 方法一次性读取内容
+                try {
+                    return (T) clob.getSubString(1, ((Long) clob.length()).intValue());
+                } catch (Exception e) {
+                    throw new IllegalStateException("Clob cannot be written to String", e);
+                }
+            }
             return (T) value.toString();
         }
         if (fieldType == Integer.class || fieldType == int.class) {

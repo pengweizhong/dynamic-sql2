@@ -6,7 +6,8 @@ import com.pengwz.dynamic.sql2.core.condition.WhereCondition;
 import com.pengwz.dynamic.sql2.core.database.impl.MysqlSqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.impl.OracleSqlExecutor;
 import com.pengwz.dynamic.sql2.core.database.parser.AbstractDialectParser;
-import com.pengwz.dynamic.sql2.core.database.parser.MysqlParser;
+import com.pengwz.dynamic.sql2.core.database.parser.dialect.MysqlParser;
+import com.pengwz.dynamic.sql2.core.database.parser.dialect.OracleParser;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.datasource.DataSourceMeta;
 import com.pengwz.dynamic.sql2.datasource.DataSourceProvider;
@@ -40,6 +41,8 @@ public class SqlExecutionFactory {
             case MYSQL:
             case MARIADB:
                 return new MysqlParser(entityClass, schemaProperties, param, whereCondition);
+            case ORACLE:
+                return new OracleParser(entityClass, schemaProperties, param, whereCondition);
             default:
                 throw new UnsupportedOperationException("Unsupported dialect: " + sqlDialect);
         }
