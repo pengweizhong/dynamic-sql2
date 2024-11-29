@@ -12,9 +12,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.BufferedReader;
-import java.io.Reader;
-import java.sql.Clob;
 import java.util.Date;
 
 @Data
@@ -28,12 +25,12 @@ public class User {
     private Long userId;  // 用户 ID
     private String name;  // 用户姓名
     private Gender gender;  // 性别
-    @Column("REGISTRATION_DATE")
+    @Column(value = "REGISTRATION_DATE", format = "yyyy-MM-dd")
     private Date registrationDate;  // 注册日期
     private String email;  // 邮箱
     private String phoneNumber;  // 电话号码
     private double accountBalance;  // 账户余额
-//    @Column(converter = ClobAttributeConverter.class)
+    //    @Column(converter = ClobAttributeConverter.class)
     private String details;  // JSON 格式的额外信息
     private UserStatus status;  // 用户状态
 

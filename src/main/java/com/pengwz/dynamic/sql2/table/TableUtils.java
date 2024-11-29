@@ -217,6 +217,10 @@ public class TableUtils {
             }
             value = column.value().trim();
             primary = column.primary();
+            //格式化
+            if (StringUtils.isNotBlank(column.format())) {
+                columnMeta.setFormat(column.format());
+            }
         }
         columnMetaSymbol.setPrimary(primary);
         String columnName;

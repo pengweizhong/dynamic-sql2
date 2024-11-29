@@ -9,6 +9,7 @@ import com.pengwz.dynamic.sql2.core.database.parser.AbstractDialectParser;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper;
 import com.pengwz.dynamic.sql2.core.dml.SqlStatementWrapper.BatchType;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
+import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.FieldMeta;
 import com.pengwz.dynamic.sql2.utils.ConverterUtils;
@@ -187,7 +188,7 @@ public class OracleParser extends AbstractDialectParser {
                     if (isRetrieveColumnNames) {
                         columns.add(column.getColumnName());
                     }
-                    registerValueWithKey(parameterBinder, ConverterUtils.convertToDatabaseColumn(column, fieldValue));
+                    registerValueWithKey(parameterBinder, ConverterUtils.convertToDatabaseColumn(SqlDialect.ORACLE, column, fieldValue));
                 }
             }
             isRetrieveColumnNames = false;
@@ -268,7 +269,7 @@ public class OracleParser extends AbstractDialectParser {
             if (fieldValue != null || !isIgnoreNull || forcedFieldNames.contains(column.getField().getName())) {
                 sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), column.getColumnName()));
                 sql.append(" = ");
-                Object param = ConverterUtils.convertToDatabaseColumn(column, fieldValue);
+                Object param = ConverterUtils.convertToDatabaseColumn(SqlDialect.ORACLE, column, fieldValue);
                 sql.append(registerValueWithKey(parameterBinder, param));
                 sql.append(", ");
             }
@@ -314,7 +315,7 @@ public class OracleParser extends AbstractDialectParser {
             if (fieldValue != null || !isIgnoreNull || forcedFieldNames.contains(column.getField().getName())) {
                 sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), column.getColumnName()));
                 sql.append(" = ");
-                Object param = ConverterUtils.convertToDatabaseColumn(column, fieldValue);
+                Object param = ConverterUtils.convertToDatabaseColumn(SqlDialect.ORACLE, column, fieldValue);
                 sql.append(registerValueWithKey(parameterBinder, param));
                 sql.append(", ");
             }
@@ -327,7 +328,7 @@ public class OracleParser extends AbstractDialectParser {
         sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnPrimaryKey.getColumnName()));
         sql.append(" = ");
         Object fieldValue = ReflectUtils.getFieldValue(entity, columnPrimaryKey.getField());
-        Object param = ConverterUtils.convertToDatabaseColumn(columnPrimaryKey, fieldValue);
+        Object param = ConverterUtils.convertToDatabaseColumn(SqlDialect.ORACLE, columnPrimaryKey, fieldValue);
         sql.append(registerValueWithKey(parameterBinder, param));
         sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, parameterBinder);
     }
@@ -352,7 +353,7 @@ public class OracleParser extends AbstractDialectParser {
             if (fieldValue != null || insertType == InsertType.INSERT
                     || forcedFieldNames.contains(columnMeta.getColumnName())) {
                 insertColumns.add(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnMeta.getColumnName()));
-                values.add(ConverterUtils.convertToDatabaseColumn(columnMeta, fieldValue));
+                values.add(ConverterUtils.convertToDatabaseColumn(SqlDialect.ORACLE, columnMeta, fieldValue));
             }
         }
         if (values.isEmpty()) {
@@ -394,7 +395,7 @@ public class OracleParser extends AbstractDialectParser {
             ParameterBinder parameterBinder = new ParameterBinder();
             for (ColumnMeta columnMeta : columnMetas) {
                 Object fieldValue = ReflectUtils.getFieldValue(entity, columnMeta.getField());
-                registerValueWithKey(parameterBinder, ConverterUtils.convertToDatabaseColumn(columnMeta, fieldValue));
+                registerValueWithKey(parameterBinder, ConverterUtils.convertToDatabaseColumn(SqlDialect.ORACLE, columnMeta, fieldValue));
             }
             sqlStatementWrapper.addBatchParameterBinder(parameterBinder);
         }

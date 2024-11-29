@@ -32,8 +32,6 @@ public @interface Column {
      * @return 将当前字段设置为唯一项
      */
     boolean primary() default false;
-// TODO 后续支持格式化
-//    String pattern() default "";
 
     /**
      * 定义数据库值和实体类值的转换器，该转换器必须允许空的构造函数
@@ -41,4 +39,20 @@ public @interface Column {
      * @return 转换器
      */
     Class<? extends AttributeConverter> converter() default DefaultAttributeConverter.class;
+
+    /**
+     * 格式化日期和数字类型的字段。
+     * <p>
+     * 该注解可以应用于日期（Date 类型）和数字（如 Double、Integer 等类型）字段，
+     * 用于指定字段值在存储到数据库之前的格式化方式。
+     * <p>
+     * 对于日期字段，格式应遵循 `SimpleDateFormat` 支持的日期模式（例如：yyyy-MM-dd）。
+     * 对于数字字段，格式化方式可以参考 `DecimalFormat` 的模式（例如：#,###.##）。
+     * <p>
+     * 在框架处理中，字段值会根据该格式化方式进行格式化，并插入到数据库中。
+     *
+     * @return 格式化的模式或模式字符串
+     */
+    String format() default "";
+
 }

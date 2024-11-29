@@ -11,6 +11,8 @@ public class FieldMeta {
     private Field field;
     //转换策略
     private Class<? extends AttributeConverter> converter;
+    //写库字段格式化
+    private String format;
 
     public String getColumnName() {
         return columnName;
@@ -34,5 +36,13 @@ public class FieldMeta {
 
     public void setConverter(Class<? extends AttributeConverter> converter) {
         this.converter = converter;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
     }
 }

@@ -8,6 +8,7 @@ import com.pengwz.dynamic.sql2.core.GroupFn;
 import com.pengwz.dynamic.sql2.core.Version;
 import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
 import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper.TableAliasImpl;
+import com.pengwz.dynamic.sql2.core.column.function.AnonymousFunction;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.MysqlWhereCondition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.OracleWhereCondition;
@@ -47,6 +48,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class SqlUtils {
     private SqlUtils() {
@@ -183,9 +185,13 @@ public class SqlUtils {
     }
 
     public static Object formattedParameter(/*SqlDialect sqlDialect,*/ Object value) {
-        if (value instanceof String) {
-            return "'" + value + "'";
-        }
+//        if (value instanceof String) {
+//            return "'" + value + "'";
+//        }
+//        if (value instanceof AnonymousFunction) {
+//            AnonymousFunction anonymousFunction = (AnonymousFunction) value;
+//            return anonymousFunction.getFunctionToString();
+//        }
         return value;
     }
 
@@ -418,7 +424,8 @@ public class SqlUtils {
         if (batchType == BatchType.BATCH) {
             List<ParameterBinder> batchParameterBinders = sqlStatementWrapper.getBatchParameterBinders();
             for (ParameterBinder batchParameterBinder : batchParameterBinders) {
-                List<Object> param = new ArrayList<>(batchParameterBinder.getValues());
+                List<Object> param = batchParameterBinder.getValues().stream()
+                        .map(SqlUtils::formattedParameter).collect(Collectors.toList());
                 preparedSql.addBatchParams(param);
             }
             return preparedSql;
@@ -427,7 +434,9 @@ public class SqlUtils {
         List<ParameterBinder> batchParameterBinders = sqlStatementWrapper.getBatchParameterBinders();
         ArrayList<Object> params = new ArrayList<>();
         for (ParameterBinder batchParameterBinder : batchParameterBinders) {
-            params.addAll(batchParameterBinder.getValues());
+            List<Object> param = batchParameterBinder.getValues().stream()
+                    .map(SqlUtils::formattedParameter).collect(Collectors.toList());
+            params.addAll(param);
         }
         preparedSql.addBatchParams(params);
         return preparedSql;
@@ -442,11 +451,21 @@ public class SqlUtils {
         while (matcher.find()) {
             String placeholder = matcher.group();
             if (parameterBinder.contains(placeholder)) {
-                params.add(parameterBinder.getValue(placeholder));
-                // 替换占位符为对应的值
                 int start = matcher.start();
                 int end = matcher.end();
-                modifiedSql.replace(start, end, "?");
+                // 替换占位符为对应的值
+                Object formattedParameter = SqlUtils.formattedParameter(parameterBinder.getValue(placeholder));
+                if (formattedParameter instanceof AnonymousFunction) {
+                    AnonymousFunction anonymousFunction = (AnonymousFunction) formattedParameter;
+                    PreparedSql functionPreparedSql = parsePreparedObject(new StringBuilder(anonymousFunction.getFunctionToString()),
+                            anonymousFunction.getParameterBinder());
+                    params.addAll(functionPreparedSql.getParams());
+                    modifiedSql.replace(start, end, functionPreparedSql.getSql());
+                } else {
+                    params.add(formattedParameter);
+                    modifiedSql.replace(start, end, "?");
+                }
+                // 在修改 SQL 后，重新设置 matcher
                 matcher = uuidPattern.matcher(modifiedSql);
             }
         }
@@ -460,15 +479,17 @@ public class SqlUtils {
     @SuppressWarnings("all")
     public static String registerValueWithKey(ParameterBinder parameters, Fn<?, ?> fn, Object value) {
         String key = generateBindingKey();
+        //如果value继承了转换器
+        if (value instanceof AttributeConverter) {
+            AttributeConverter attributeConverter = (AttributeConverter) value;
+            parameters.add(key, attributeConverter.convertToDatabaseColumn(value));
+        }
+        //不需要任何特殊处理
         if (fn == null) {
-            if (value instanceof AttributeConverter) {
-                AttributeConverter attributeConverter = (AttributeConverter) value;
-                parameters.add(key, attributeConverter.convertToDatabaseColumn(value));
-            } else {
-                parameters.add(key, value);
-            }
+            parameters.add(key, value);
             return key;
         }
+        //纯字符串入参
         if (fn instanceof AbstractAliasHelper) {
             parameters.add(key, value);
             return key;
@@ -477,7 +498,8 @@ public class SqlUtils {
         String fieldName = ReflectUtils.fnToFieldName(fn);
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
         ColumnMeta columnMeta = tableMeta.getColumnMeta(fieldName);
-        parameters.add(key, ConverterUtils.convertToDatabaseColumn(columnMeta, value));
+        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
+        parameters.add(key, ConverterUtils.convertToDatabaseColumn(schemaProperties.getSqlDialect(), columnMeta, value));
         return key;
     }
 
@@ -486,24 +508,24 @@ public class SqlUtils {
         return ":" + UUID.randomUUID().toString().replace("-", "");
     }
 
-    public static String replacePlaceholdersWithValues(SqlStatementWrapper sqlStatementWrapper) {
-        StringBuilder modifiedSql = new StringBuilder(sqlStatementWrapper.getRawSql());
-        ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
-        Pattern uuidPattern = Pattern.compile(":[0-9a-f]{32}");
-        Matcher matcher = uuidPattern.matcher(sqlStatementWrapper.getRawSql());
-        while (matcher.find()) {
-            String placeholder = matcher.group();
-            if (parameterBinder.contains(placeholder)) {
-                Object formattedParameter = SqlUtils.formattedParameter(parameterBinder.getValue(placeholder));
-                // 替换占位符为对应的值
-                int start = matcher.start();
-                int end = matcher.end();
-                modifiedSql.replace(start, end, formattedParameter.toString());
-                matcher = uuidPattern.matcher(modifiedSql);
-            }
-        }
-        return modifiedSql.toString();
-    }
+//    public static String replacePlaceholdersWithValues(SqlStatementWrapper sqlStatementWrapper) {
+//        StringBuilder modifiedSql = new StringBuilder(sqlStatementWrapper.getRawSql());
+//        ParameterBinder parameterBinder = sqlStatementWrapper.getParameterBinder();
+//        Pattern uuidPattern = Pattern.compile(":[0-9a-f]{32}");
+//        Matcher matcher = uuidPattern.matcher(sqlStatementWrapper.getRawSql());
+//        while (matcher.find()) {
+//            String placeholder = matcher.group();
+//            if (parameterBinder.contains(placeholder)) {
+//                Object formattedParameter = SqlUtils.formattedParameter(parameterBinder.getValue(placeholder));
+//                // 替换占位符为对应的值
+//                int start = matcher.start();
+//                int end = matcher.end();
+//                modifiedSql.replace(start, end, formattedParameter.toString());
+//                matcher = uuidPattern.matcher(modifiedSql);
+//            }
+//        }
+//        return modifiedSql.toString();
+//    }
 
     public static void close(Connection connection, ResultSet resultSet, Statement statement) {
         if (connection != null) {

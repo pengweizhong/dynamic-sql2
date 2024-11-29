@@ -1,5 +1,8 @@
 package com.pengwz.dynamic.sql2.utils;
 
+import com.pengwz.dynamic.sql2.core.column.function.AnonymousFunction;
+import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
+import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
 import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverterModel;
 import com.pengwz.dynamic.sql2.plugins.conversion.FetchResultConverter;
@@ -12,14 +15,20 @@ import java.sql.Clob;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ConverterUtils {
     //自定义转换器 搭配@Column注解使用
     private static final Map<Class<? extends AttributeConverter>, AttributeConverter> CUSTOM_ATTRIBUTE_CONVERTERS = new LinkedHashMap<>();
     private static final Map<Class<?>, AttributeConverterModel> GENERAL_ATTRIBUTE_CONVERTER_MODEL = new LinkedHashMap<>();
     private static final Map<Class<?>, FetchResultConverter> FETCH_RESULT_CONVERTER_MAP = new LinkedHashMap<>();
+    // 缓存已创建的 DateTimeFormatter 实例  Key 是格式化字符串，如 yyyy-MM-dd
+    private static final Map<String, DateTimeFormatter> FORMATTER_CACHE = new ConcurrentHashMap<>();
 
     private ConverterUtils() {
     }
@@ -39,7 +48,7 @@ public class ConverterUtils {
         return instance;
     }
 
-    public static Object convertToDatabaseColumn(FieldMeta fieldMeta, Object value) {
+    public static Object convertToDatabaseColumn(SqlDialect sqlDialect, FieldMeta fieldMeta, Object value) {
         if (value == null) {
             return null;
         }
@@ -55,8 +64,45 @@ public class ConverterUtils {
         if (attributeConverter != null) {
             return attributeConverter.convertToDatabaseColumn(value);
         }
+        //是否存在格式化
+        String format = fieldMeta.getFormat();
+        if (format != null) {
+            String formattedValue = formatterDateValue(value, format);
+            if (sqlDialect == SqlDialect.ORACLE) {
+                ParameterBinder parameterBinder = new ParameterBinder();
+//                formattedValue = SqlUtils.registerValueWithKey(parameterBinder, formattedValue);
+//                format = SqlUtils.registerValueWithKey(parameterBinder, format);
+                if (value instanceof LocalDate || value instanceof java.sql.Date) {
+                    return new AnonymousFunction("TO_DATE(" + formattedValue + ", " + format + ")", parameterBinder);
+                } else {
+                    return new AnonymousFunction("TO_TIMESTAMP('" + formattedValue + "', '" + format + "')", parameterBinder);
+                }
+            }
+            return formattedValue;
+        }
         // 如果没有找到适合的转换器，抛出异常或者返回默认值
         return value;
+    }
+
+    public static String formatterDateValue(Object dateValue, String pattern) {
+        TemporalAccessor temporal;
+        if (dateValue instanceof TemporalAccessor) {
+            temporal = (TemporalAccessor) dateValue;
+        } else if (dateValue instanceof java.sql.Date) {
+            java.sql.Date date = (java.sql.Date) dateValue;
+            temporal = date.toLocalDate();
+        } else if (dateValue instanceof java.sql.Time) {
+            java.sql.Time time = (java.sql.Time) dateValue;
+            temporal = time.toLocalTime();
+        } else if (dateValue instanceof java.util.Date) {
+            java.util.Date date = (java.util.Date) dateValue;
+            temporal = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        } else {
+            throw new UnsupportedOperationException("Unsupported date type: " + dateValue.getClass());
+        }
+        // 检查缓存中是否已有该格式的 DateTimeFormatter
+        DateTimeFormatter formatter = FORMATTER_CACHE.computeIfAbsent(pattern, DateTimeFormatter::ofPattern);
+        return formatter.format(temporal);
     }
 
     @SuppressWarnings("unchecked")

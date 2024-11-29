@@ -1,8 +1,8 @@
 package com.pengwz.dynamic.sql2.core.column.function;
 
+import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.ColumnArithmetic;
-import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.build.SqlStatementSelectWrapper;
 import com.pengwz.dynamic.sql2.core.placeholder.ParameterBinder;
 import com.pengwz.dynamic.sql2.utils.SqlUtils;
@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class AbstractColumFunction implements ColumFunction, ColumnArithmetic {
-    private final StringBuilder arithmeticSql = new StringBuilder();
-    private final ParameterBinder arithmeticParameterBinder = new ParameterBinder();
-    private Map<String, String> aliasTableMap;
-    private String dataSourceName;
+    protected final StringBuilder arithmeticSql = new StringBuilder();
+    protected final ParameterBinder arithmeticParameterBinder = new ParameterBinder();
+    protected Map<String, String> aliasTableMap;
+    protected String dataSourceName;
 
     @Override
     public AbstractColumFunction subtract(Number value) {
