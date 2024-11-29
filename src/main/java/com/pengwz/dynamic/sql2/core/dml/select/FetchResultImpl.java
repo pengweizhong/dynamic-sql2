@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class FetchResultImpl<R> extends AbstractFetchResult<R> {
 
     private final Class<R> resultClass;
+    private final HashSet<String> notUsedColumnTips = new HashSet<>();
 
     public FetchResultImpl(Class<R> returnClass, List<Map<String, Object>> wrapperList) {
         super(wrapperList);
@@ -137,7 +138,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             columnMeta = fieldNameMap.get(columnName);
         }
         // 将来实现自动移除未使用的列（自动优化查询）？？？
-        if (columnMeta == null) {
+        if (columnMeta == null && log.isTraceEnabled() && !notUsedColumnTips.contains(columnName)) {
             log.trace("Column '{}' was queried but not used.", columnName);
         }
         return columnMeta;
