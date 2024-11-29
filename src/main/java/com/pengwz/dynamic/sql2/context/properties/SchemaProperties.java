@@ -71,7 +71,9 @@ public class SchemaProperties {
         //Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production\nVersion 19.19.0.0.0
         if (dbType == DbType.ORACLE) {
             int i = databaseProductVersion.indexOf("Version");
-            databaseProductVersion = databaseProductVersion.substring(i + "Version".length()).trim();
+            if (i != -1) {
+                databaseProductVersion = databaseProductVersion.substring(i + "Version".length()).trim();
+            }
         }
         String[] split = databaseProductVersion.split("\\.");
         if (split.length >= 1) {

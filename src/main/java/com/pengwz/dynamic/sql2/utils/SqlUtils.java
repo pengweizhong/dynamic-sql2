@@ -173,8 +173,7 @@ public class SqlUtils {
                 if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null) {
                     sqlBuilder.append(quoteIdentifier(sqlDialect, tableMeta.getTableAlias())).append(".");
                 }
-                String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
-                sqlBuilder.append(quoteIdentifier(sqlDialect, column));
+                sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
             } else {
                 sqlBuilder.append(quoteIdentifier(sqlDialect, defaultOrderBy.getColumnName()));
             }
