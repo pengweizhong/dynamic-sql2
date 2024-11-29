@@ -39,10 +39,6 @@ public class ConverterUtils {
         return instance;
     }
 
-    public static <R> R convertValueTo(Object value, Class<R> targetClass) {
-        return null;
-    }
-
     public static Object convertToDatabaseColumn(FieldMeta fieldMeta, Object value) {
         if (value == null) {
             return null;

@@ -8,10 +8,15 @@ public class OracleInsertTest extends InitializingContext {
 
     @Test
     void insert() {
-        User user = sqlContext.selectByPrimaryKey(User.class, 12);
-        user.setName("Hello");
+        User user = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition -> whereCondition.andEqualTo(User::getName, "Jerry"))
+                .fetch()
+                .toOne();
+        user.setName("Hello, Jerry");
         user.setUserId(null);
-        int i = sqlContext.insertSelective(user);
+        int i = sqlContext.insert(user);
         System.out.println(i);
     }
 

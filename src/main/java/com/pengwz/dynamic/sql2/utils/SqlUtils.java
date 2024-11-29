@@ -29,6 +29,7 @@ import com.pengwz.dynamic.sql2.enums.DbType;
 import com.pengwz.dynamic.sql2.enums.JoinTableType;
 import com.pengwz.dynamic.sql2.enums.LogicalOperatorType;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
+import com.pengwz.dynamic.sql2.plugins.conversion.AttributeConverter;
 import com.pengwz.dynamic.sql2.table.ColumnMeta;
 import com.pengwz.dynamic.sql2.table.TableMeta;
 import com.pengwz.dynamic.sql2.table.TableProvider;
@@ -453,15 +454,19 @@ public class SqlUtils {
     }
 
     public static String registerValueWithKey(ParameterBinder parameters, Object value) {
-        String key = generateBindingKey();
-        parameters.add(key, value);
-        return key;
+        return registerValueWithKey(parameters, null, value);
     }
 
+    @SuppressWarnings("all")
     public static String registerValueWithKey(ParameterBinder parameters, Fn<?, ?> fn, Object value) {
         String key = generateBindingKey();
         if (fn == null) {
-            parameters.add(key, value);
+            if (value instanceof AttributeConverter) {
+                AttributeConverter attributeConverter = (AttributeConverter) value;
+                parameters.add(key, attributeConverter.convertToDatabaseColumn(value));
+            } else {
+                parameters.add(key, value);
+            }
             return key;
         }
         if (fn instanceof AbstractAliasHelper) {

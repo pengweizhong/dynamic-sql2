@@ -9,6 +9,7 @@ import com.pengwz.dynamic.sql2.plugins.pagination.PageHelper;
 import com.pengwz.dynamic.sql2.plugins.pagination.PageInfo;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class OracleSelectTest extends InitializingContext {
@@ -41,6 +42,21 @@ public class OracleSelectTest extends InitializingContext {
                         .orderBy(User::getUserId)
                         .fetch().toList());
         pageInfo.getRecords().forEach(System.out::println);
+    }
+
+    @Test
+    void testSelect2() {
+        List<User> jerry = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(whereCondition -> {
+                    whereCondition.andEqualTo(User::getName, "Jerry");
+                    whereCondition.andEqualTo(User::getRegistrationDate, LocalDate.of(2024,2,1));
+                    whereCondition.andLessThan(User::getAccountBalance, 2022);
+                })
+                .fetch()
+                .toList();
+        jerry.forEach(System.out::println);
     }
 
 }

@@ -27,7 +27,7 @@ public class OracleSqlExecutor extends AbstractSqlExecutor {
 
     @Override
     public int insert() {
-        return 0;
+        return RootExecutor.executeInsert(connection, preparedSql);
     }
 
     @Override

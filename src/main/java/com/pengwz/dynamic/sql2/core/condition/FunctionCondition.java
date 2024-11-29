@@ -41,14 +41,6 @@ public interface FunctionCondition extends Condition {
 
     <T, F> FunctionCondition orNotIn(Fn<T, F> fn, ColumFunction columFunction);
 
-    <T, F> FunctionCondition andLike(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition orLike(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition andNotLike(Fn<T, F> fn, ColumFunction columFunction);
-
-    <T, F> FunctionCondition orNotLike(Fn<T, F> fn, ColumFunction columFunction);
-
     <T, F> FunctionCondition andMatches(Fn<T, F> fn, ColumFunction columFunction);
 
     <T, F> FunctionCondition orMatches(Fn<T, F> fn, ColumFunction columFunction);
