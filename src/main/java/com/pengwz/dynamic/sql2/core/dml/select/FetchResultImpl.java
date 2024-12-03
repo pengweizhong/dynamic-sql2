@@ -76,6 +76,12 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             }
             return collection;
         }
+        //不需要进行任何转换
+        if (resultClass == Object.class
+                || Map.class.isAssignableFrom(resultClass)
+                || Collection.class.isAssignableFrom(resultClass)) {
+            return (Collection<R>) wrapperList;
+        }
         //判断是否为原始对象
         if (resultClass.getClassLoader() == null) {
             return convertToSystemClass(collection);
