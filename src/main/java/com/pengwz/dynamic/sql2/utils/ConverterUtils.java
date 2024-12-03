@@ -73,7 +73,7 @@ public class ConverterUtils {
 //                formattedValue = SqlUtils.registerValueWithKey(parameterBinder, formattedValue);
 //                format = SqlUtils.registerValueWithKey(parameterBinder, format);
                 if (value instanceof LocalDate || value instanceof java.sql.Date) {
-                    return new AnonymousFunction("TO_DATE(" + formattedValue + ", " + format + ")", parameterBinder);
+                    return new AnonymousFunction("TO_DATE('" + formattedValue + "', '" + format + "')", parameterBinder);
                 } else {
                     return new AnonymousFunction("TO_TIMESTAMP('" + formattedValue + "', '" + format + "')", parameterBinder);
                 }
