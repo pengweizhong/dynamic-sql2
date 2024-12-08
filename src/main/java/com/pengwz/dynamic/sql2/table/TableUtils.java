@@ -210,6 +210,7 @@ public class TableUtils {
         Column column = field.getDeclaredAnnotation(Column.class);
         String value = null;
         boolean primary = false;
+        Class<? extends AttributeConverter> converter = null;
         if (column != null) {
             if (column.ignore()) {
                 log.trace("Ignore mapping field '{}'", field.getName());
@@ -220,6 +221,27 @@ public class TableUtils {
             //格式化
             if (StringUtils.isNotBlank(column.format())) {
                 columnMeta.setFormat(column.format());
+            }
+            if (!DefaultAttributeConverter.class.equals(column.converter())) {
+                converter = column.converter();
+            }
+        }
+        if (converter == null) {
+            if (AttributeConverter.class.isAssignableFrom(field.getType())) {
+                if (null == ConverterUtils.getCustomAttributeConverter(field.getType())) {
+                    AttributeConverter instance;
+                    if (field.getType().isEnum()) {
+                        Object[] enumConstants = field.getType().getEnumConstants();
+                        if (enumConstants == null || enumConstants.length == 0) {
+                            throw new IllegalArgumentException("No enum constants found for class: " + field.getType().getCanonicalName());
+                        }
+                        instance = (AttributeConverter) enumConstants[0]; // 返回第一个枚举实例
+                    } else {
+                        instance = (AttributeConverter) ReflectUtils.instance(field.getType());
+                    }
+                    converter = instance.getClass();
+                    ConverterUtils.putCustomAttributeConverter(converter, instance);
+                }
             }
         }
         columnMetaSymbol.setPrimary(primary);
@@ -249,10 +271,7 @@ public class TableUtils {
             }
         }
         //是否使用了自定义转换
-        Class<? extends AttributeConverter> converter = column == null ? null : column.converter();
-        if (converter != null && !DefaultAttributeConverter.class.equals(converter)) {
-            columnMeta.setConverter(converter);
-        }
+        columnMeta.setConverter(converter);
         //检测字段是否为基本类型
         if (log.isDebugEnabled() && field.getType().isPrimitive()) {
             log.warn("It is not recommended that the field type be a basic type," +

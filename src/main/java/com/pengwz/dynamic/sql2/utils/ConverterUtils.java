@@ -119,6 +119,11 @@ public class ConverterUtils {
         if (fieldType.isAssignableFrom(valueType)) {
             return (T) value;
         }
+        // 检查是否有自定义的转换器
+        AttributeConverter<Object, V> customAttributeConverter = CUSTOM_ATTRIBUTE_CONVERTERS.get(fieldType);
+        if (customAttributeConverter != null) {
+            return (T) customAttributeConverter.convertToEntityAttribute(value);
+        }
         // 检查是否有通用的转换器
         AttributeConverter<Object, V> attributeConverter = GENERAL_ATTRIBUTE_CONVERTER_MODEL.get(fieldType);
         if (attributeConverter != null) {
@@ -187,6 +192,10 @@ public class ConverterUtils {
         GENERAL_ATTRIBUTE_CONVERTER_MODEL.put(fieldType, attributeConverter);
     }
 
+    public static void putCustomAttributeConverter(Class<? extends AttributeConverter> fieldType, AttributeConverter attributeConverter) {
+        CUSTOM_ATTRIBUTE_CONVERTERS.put(fieldType, attributeConverter);
+    }
+
     public static void putFetchResultConverter(Class<?> targetType, FetchResultConverter fetchResultConverter) {
         //多次调用应该覆盖 这样符合实际应用场景
         FETCH_RESULT_CONVERTER_MAP.put(targetType, fetchResultConverter);
@@ -202,5 +211,9 @@ public class ConverterUtils {
 
     public static <R> FetchResultConverter<R> getFetchResultConverter(Class<R> resultClass) {
         return FETCH_RESULT_CONVERTER_MAP.get(resultClass);
+    }
+
+    public static <R, X, Y> AttributeConverter<X, Y> getCustomAttributeConverter(Class<R> resultClass) {
+        return CUSTOM_ATTRIBUTE_CONVERTERS.get(resultClass);
     }
 }
