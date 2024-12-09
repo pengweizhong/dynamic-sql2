@@ -108,10 +108,20 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>attach-sources-test</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                        <configuration>
+                            <classifier>test-sources</classifier>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
