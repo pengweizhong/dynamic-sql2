@@ -479,11 +479,6 @@ public class SqlUtils {
     @SuppressWarnings("all")
     public static String registerValueWithKey(ParameterBinder parameters, Fn<?, ?> fn, Object value) {
         String key = generateBindingKey();
-        //如果value继承了转换器
-        if (value instanceof AttributeConverter) {
-            AttributeConverter attributeConverter = (AttributeConverter) value;
-            parameters.add(key, attributeConverter.convertToDatabaseColumn(value));
-        }
         //不需要任何特殊处理
         if (fn == null) {
             parameters.add(key, value);
