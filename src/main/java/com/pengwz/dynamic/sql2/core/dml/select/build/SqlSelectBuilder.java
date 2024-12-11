@@ -158,7 +158,10 @@ public abstract class SqlSelectBuilder {
             if (orderBys.size() - 1 != i) {
                 columnSeparator = ",";
             }
-            sqlBuilder.append(SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName)).append(columnSeparator);
+            sqlBuilder.append(SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName))
+                    .append(" ")
+                    .append(orderBy.getSortOrder().toSqlString(sqlDialect))
+                    .append(columnSeparator);
         }
     }
 

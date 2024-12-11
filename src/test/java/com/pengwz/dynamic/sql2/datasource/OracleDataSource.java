@@ -1,7 +1,6 @@
 package com.pengwz.dynamic.sql2.datasource;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.pengwz.dynamic.sql2.anno.DBSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +10,8 @@ public class OracleDataSource {
 
     private static final Logger log = LoggerFactory.getLogger(OracleDataSource.class);
 
-    @DBSource(value = "oracleDataSource", basePackages = "com.pengwz.dynamic.sql2.oracle_entities")
+    //先不管理Oracle 没有注解就不会被扫描到数据源
+    //@DBSource(value = "oracleDataSource", basePackages = "com.pengwz.dynamic.sql2.oracle_entities")
     public DataSource getDataSource() {
         log.info("----------------- oracleDataSource -----------------");
         DruidDataSource ds = new DruidDataSource();

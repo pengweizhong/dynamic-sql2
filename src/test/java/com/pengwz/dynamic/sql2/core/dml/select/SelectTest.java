@@ -343,6 +343,17 @@ public class SelectTest extends InitializingContext {
                 .selectPage(() -> sqlContext.select().allColumn().from(User.class).fetch().toList());
         pageInfo.getRecords().forEach(System.out::println);
     }
+
+    @Test
+    void testOrderBy() {
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .orderBy(User::getRegistrationDate)
+                .thenOrderBy(User::getUserId, SortOrder.DESC)
+                .fetch().toList();
+        list.forEach(System.out::println);
+    }
 }
 
 

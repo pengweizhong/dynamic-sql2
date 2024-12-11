@@ -65,7 +65,7 @@ public class MysqlDataSource {
         return ds;
     }
 
-    @DBSource("testDB2")
+//    @DBSource("testDB2")
     public DataSource getTestDataSource2() {
         log.info("----------------- getTestDataSource2 -----------------");
         DruidDataSource ds = new DruidDataSource();
