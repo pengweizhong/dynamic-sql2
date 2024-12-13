@@ -375,6 +375,9 @@ public class SelectTest extends InitializingContext {
         System.out.println(groupingBy);
     }
 
+    /**
+     * 对查询结果组装为业务需要的对象
+     */
     @Test
     void testtoGroupingBy2() {
         Map<Integer, HashSet<String>> groupingBy = sqlContext.select()

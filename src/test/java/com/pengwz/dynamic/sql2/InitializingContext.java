@@ -16,11 +16,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class InitializingContext {
+    //使用此对象与数据库交互
     protected static SqlContext sqlContext;
     private static final Logger log = LoggerFactory.getLogger(InitializingContext.class);
 
     @BeforeAll
-    synchronized static void setUp() {
+    static synchronized void setUp() {
         if (sqlContext != null) {
             log.info("--------------------- SqlContext 已被初始化 ---------------------");
             return;
@@ -28,24 +29,28 @@ public class InitializingContext {
         SqlContextProperties sqlContextProperties = SqlContextProperties.defaultSqlContextProperties();
         sqlContextProperties.setScanTablePackage("com.pengwz.dynamic.sql2");
         sqlContextProperties.setScanDatabasePackage("com.pengwz.dynamic.sql2");
+        //提供Mapper代理，但是与Mybatis不兼容，因此推荐使用SqlContext
         sqlContextProperties.setScanMapperPackage("com.pengwz.dynamic.sql2.mapper");
         SchemaProperties schemaProperties = new SchemaProperties();
+        //本地数据源名称
         schemaProperties.setDataSourceName("dataSource");
         schemaProperties.setUseSchemaInQuery(false);
-//        schemaProperties.setSqlDialect(SqlDialect.ORACLE);
-//        schemaProperties.setDatabaseProductVersion("11.0.0.1");
-//        schemaProperties.setDatabaseProductVersion("5.6.0");
+        //可以直接指定SQL方言
+        //schemaProperties.setSqlDialect(SqlDialect.ORACLE);
+        //指定特定的版本号，不同的版本号语法可能不同
+        //schemaProperties.setDatabaseProductVersion("11.0.0.1");
         schemaProperties.setUseAsInQuery(true);
+        //打印SQL
         PrintSqlProperties printSqlProperties = new PrintSqlProperties();
         printSqlProperties.setPrintSql(true);
         printSqlProperties.setPrintDataSourceName(true);
         schemaProperties.setPrintSqlProperties(printSqlProperties);
         sqlContextProperties.addSchemaProperties(schemaProperties);
+        //内置分页
         sqlContextProperties.addInterceptor(new PageInterceptorPlugin());
-//        LogProperties.setInstance(new DefaultSqlLoggerTest());
+        //内置JDBC连接
         ConnectionHolder.setConnectionHandle(new SimpleConnectionHandle());
         ConverterUtils.putFetchResultConverter(JsonObject.class, new FetchJsonObjectConverter());
         sqlContext = SqlContextHelper.createSqlContext(sqlContextProperties);
     }
-
 }
