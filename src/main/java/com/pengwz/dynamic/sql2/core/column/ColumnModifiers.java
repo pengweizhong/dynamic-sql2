@@ -1,4 +1,4 @@
-package com.pengwz.dynamic.sql2.core.column.function;
+package com.pengwz.dynamic.sql2.core.column;
 
 /**
  * 查询修饰符接口，用于标记和处理 SQL 查询的修饰行为。

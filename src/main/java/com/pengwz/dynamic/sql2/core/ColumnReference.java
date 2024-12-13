@@ -3,7 +3,7 @@ package com.pengwz.dynamic.sql2.core;
 import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
-import com.pengwz.dynamic.sql2.core.column.function.aggregate.Distinct;
+import com.pengwz.dynamic.sql2.core.column.function.modifiers.Distinct;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 import com.pengwz.dynamic.sql2.core.dml.select.TableRelation;

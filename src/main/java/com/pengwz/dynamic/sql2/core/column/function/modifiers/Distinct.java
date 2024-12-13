@@ -1,18 +1,16 @@
-package com.pengwz.dynamic.sql2.core.column.function.aggregate;
+package com.pengwz.dynamic.sql2.core.column.function.modifiers;
 
 import com.pengwz.dynamic.sql2.core.FieldFn;
 import com.pengwz.dynamic.sql2.core.Version;
+import com.pengwz.dynamic.sql2.core.column.ColumnModifiers;
 import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumnFunctionDecorator;
-import com.pengwz.dynamic.sql2.core.column.function.ColumnModifiers;
-import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
-import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 import com.pengwz.dynamic.sql2.enums.SqlDialect;
 import com.pengwz.dynamic.sql2.utils.StringUtils;
 
 import static com.pengwz.dynamic.sql2.asserts.FunctionAssert.throwNotSupportedSqlDialectException;
 
-public class Distinct extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction, ColumnModifiers {
+public class Distinct extends ColumnFunctionDecorator implements ColumnModifiers {
     Boolean shouldAppendDelimiter = null;
 
     public Distinct(AbstractColumFunction delegateFunction) {
@@ -29,11 +27,6 @@ public class Distinct extends ColumnFunctionDecorator implements AggregateFuncti
 
     public Distinct() {
         super();
-    }
-
-    @Override
-    public String apply(Over over) {
-        return "";
     }
 
     @Override

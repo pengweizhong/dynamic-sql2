@@ -7,7 +7,7 @@ import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
-import com.pengwz.dynamic.sql2.core.column.function.ColumnModifiers;
+import com.pengwz.dynamic.sql2.core.column.ColumnModifiers;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
