@@ -154,30 +154,6 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
-    public JoinCondition selfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
-//        selectSpecification.getJoinTables().add(new SelfJoin(clazz, alias, onCondition));
-        return innerJoin(clazz, alias, onCondition);
-    }
-
-    @Override
-    public JoinCondition leftSelfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
-        return leftJoin(clazz, alias, onCondition);
-    }
-
-    @Override
-    public JoinCondition rightSelfJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
-        return rightJoin(clazz, alias, onCondition);
-    }
-
-    @Override
-    public JoinCondition selfJoin(CteTable cte, Consumer<Condition> onCondition) {
-//        selectSpecification.getJoinTables().add(new SelfJoin(cte, onCondition));
-//        return this;
-        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
-    }
-
-
-    @Override
     public TableRelation<R> where(Consumer<WhereCondition> condition) {
         selectSpecification.setWhereCondition(condition);
         return this;

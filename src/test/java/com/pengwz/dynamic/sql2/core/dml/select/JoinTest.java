@@ -223,7 +223,7 @@ class JoinTest extends InitializingContext {
         List<Map<String, Object>> list = sqlContext.select()
                 .allColumn(User.class)
                 .from(User.class, "a")
-                .selfJoin(User.class, "b",
+                .innerJoin(User.class, "b",
                         on -> on.orEqualTo(bindAlias("a", User::getUserId), bindAlias("b", User::getUserId)))
                 .fetchOriginalMap().toList();
         list.forEach(System.out::println);

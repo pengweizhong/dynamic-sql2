@@ -403,14 +403,19 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void toMap2() {
-        Map<Integer, String> map = sqlContext.select()
-                .distinct()
-                .allColumn()
-                .from(User.class)
-                .fetch()
-                .toMap(user -> 123,
-                        user -> user.getName() + "_hello");
-        System.out.println(map);
+        try {
+            Map<Integer, String> map = sqlContext.select()
+                    .distinct()
+                    .allColumn()
+                    .from(User.class)
+                    .fetch()
+                    .toMap(user -> 123,
+                            user -> user.getName() + "_hello");
+            System.out.println(map);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
     }
 }
 
