@@ -51,17 +51,20 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
     }
 
     @Override
-    public <T, K, V, M extends Map<K, V>> Map<K, V> toMap(Function<T, ? extends K> keyMapper,
-                                                          Function<T, ? extends V> valueMapper,
-                                                          BinaryOperator<V> mergeFunction,
-                                                          Supplier<M> mapSupplier) {
+    public <K, V, M extends Map<K, V>> Map<K, V> toMap(Function<R, ? extends K> keyMapper,
+                                                       Function<R, ? extends V> valueMapper,
+                                                       BinaryOperator<V> mergeFunction,
+                                                       Supplier<M> mapSupplier) {
         return convertToMap(keyMapper, valueMapper, mergeFunction, mapSupplier);
     }
 
     @Override
-    public <T, K, C extends Collection<T>, M extends Map<K, C>> Map<K, C> toGroupingBy(
-            Function<T, ? extends K> keyMapper, Supplier<C> collectionSupplier, Supplier<M> mapSupplier) {
-        return convertToGroupingBy(keyMapper, collectionSupplier, mapSupplier);
+    public <K, V, C extends Collection<V>, M extends Map<K, C>> Map<K, C> toGroupingBy(
+            Function<R, ? extends K> keyMapper,
+            Function<R, ? extends V> valueMapper,
+            Supplier<C> collectionSupplier,
+            Supplier<M> mapSupplier) {
+        return convertToGroupingBy(keyMapper, valueMapper, collectionSupplier, mapSupplier);
     }
 
     private Collection<R> convertToCollection(Supplier<? extends Collection<R>> listSupplier) {
@@ -108,11 +111,15 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         });
     }
 
-    public <T, K, C extends Collection<T>, M extends Map<K, C>> Map<K, C> convertToGroupingBy(
-            Function<T, ? extends K> keyMapper, Supplier<C> collectionSupplier, Supplier<M> mapSupplier) {
+    public <K, V, C extends Collection<V>, M extends Map<K, C>> Map<K, C> convertToGroupingBy(
+            Function<R, ? extends K> keyMapper,
+            Function<R, ? extends V> valueMapper,
+            Supplier<C> collectionSupplier,
+            Supplier<M> mapSupplier) {
         return convertTo(mapSupplier, (m, columnObjectMap, columnNameMap, fieldNameMap) -> {
-            T value = (T) reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap);
-            K key = keyMapper.apply(value);
+            R result = reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap);
+            K key = keyMapper.apply(result);
+            V value = valueMapper.apply(result);
             // 获取或创建对应键的集合
             C groupedCollection = (C) m.computeIfAbsent(key, k -> collectionSupplier.get());
             // 将当前值添加到集合中
@@ -204,7 +211,9 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
 
     interface Operator {
         @SuppressWarnings("all")
-        void apply(Map m, Map<String, Object> columnObjectMap,
-                   Map<String, FieldMeta> columnNameMap, Map<String, FieldMeta> fieldNameMap);
+        void apply(Map map,
+                   Map<String, Object> columnObjectMap,
+                   Map<String, FieldMeta> columnNameMap,
+                   Map<String, FieldMeta> fieldNameMap);
     }
 }

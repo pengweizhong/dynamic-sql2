@@ -28,30 +28,34 @@ public abstract class AbstractFetchResult<R> implements FetchResult<R> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T, K, V> Map<K, V> toMap(Function<T, ? extends K> keyMapper, Function<T, ? extends V> valueMapper) {
-        return toMap(keyMapper, valueMapper, (u, v) -> {
-            throw new IllegalStateException("Duplicate key: " + keyMapper.apply((T) u) +
-                    "\nValue1: " + u +
-                    "\nValue2: " + v);
+    public <K, V> Map<K, V> toMap(Function<R, ? extends K> keyMapper, Function<R, ? extends V> valueMapper) {
+        return toMap(keyMapper, valueMapper, (u1, u2) -> {
+            throw new IllegalStateException("Duplicate values encountered for the same key: value1=" + u1 + ", value2=" + u2);
         });
     }
 
     @Override
-    public <T, K, V> Map<K, V> toMap(Function<T, ? extends K> keyMapper,
-                                     Function<T, ? extends V> valueMapper, BinaryOperator<V> mergeFunction) {
+    public <K, V> Map<K, V> toMap(Function<R, ? extends K> keyMapper,
+                                  Function<R, ? extends V> valueMapper, BinaryOperator<V> mergeFunction) {
         return toMap(keyMapper, valueMapper, mergeFunction, HashMap::new);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T, K, C extends List<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper) {
-        return toGroupingBy(keyMapper, () -> (C) new ArrayList<T>());
+    public <K> Map<K, List<R>> toGroupingBy(Function<R, ? extends K> keyMapper) {
+        return toGroupingBy(keyMapper, ArrayList::new);
     }
 
     @Override
-    public <T, K, C extends Collection<T>> Map<K, C> toGroupingBy(Function<T, ? extends K> keyMapper,
-                                                                  Supplier<C> collectionSupplier) {
+    public <K, C extends Collection<R>> Map<K, C> toGroupingBy(Function<R, ? extends K> keyMapper,
+                                                               Supplier<C> collectionSupplier) {
         return toGroupingBy(keyMapper, collectionSupplier, HashMap::new);
     }
+
+    @Override
+    public <K, C extends Collection<R>, M extends Map<K, C>> Map<K, C> toGroupingBy(Function<R, ? extends K> keyMapper,
+                                                                                    Supplier<C> collectionSupplier,
+                                                                                    Supplier<M> mapSupplier) {
+        return toGroupingBy(keyMapper, v -> v, collectionSupplier, HashMap::new);
+    }
+
 }

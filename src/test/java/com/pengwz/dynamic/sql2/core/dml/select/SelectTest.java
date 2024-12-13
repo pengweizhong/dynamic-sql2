@@ -363,6 +363,55 @@ public class SelectTest extends InitializingContext {
                 .from(User.class).fetch().toList();
         list.forEach(System.out::println);
     }
+
+    @Test
+    void testtoGroupingBy() {
+        Map<Integer, List<User>> groupingBy = sqlContext.select()
+                .distinct()
+                .allColumn()
+                .from(User.class)
+                .fetch()
+                .toGroupingBy(User::getUserId);
+        System.out.println(groupingBy);
+    }
+
+    @Test
+    void testtoGroupingBy2() {
+        Map<Integer, HashSet<String>> groupingBy = sqlContext.select()
+                .distinct()
+                .allColumn()
+                .from(User.class)
+                .fetch()
+                .toGroupingBy(User::getUserId,
+                        user -> user.getName() + "_hello",
+                        HashSet::new,
+                        ConcurrentHashMap::new);
+        System.out.println(groupingBy);
+    }
+
+    @Test
+    void toMap() {
+        Map<Integer, String> map = sqlContext.select()
+                .distinct()
+                .allColumn()
+                .from(User.class)
+                .fetch()
+                .toMap(User::getUserId,
+                        user -> user.getName() + "_hello");
+        System.out.println(map);
+    }
+
+    @Test
+    void toMap2() {
+        Map<Integer, String> map = sqlContext.select()
+                .distinct()
+                .allColumn()
+                .from(User.class)
+                .fetch()
+                .toMap(user -> 123,
+                        user -> user.getName() + "_hello");
+        System.out.println(map);
+    }
 }
 
 
