@@ -354,6 +354,15 @@ public class SelectTest extends InitializingContext {
                 .fetch().toList();
         list.forEach(System.out::println);
     }
+
+    @Test
+    void testDistinct() {
+        List<User> list = sqlContext.select()
+                .distinct()
+                .allColumn()
+                .from(User.class).fetch().toList();
+        list.forEach(System.out::println);
+    }
 }
 
 

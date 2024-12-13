@@ -20,6 +20,8 @@ public abstract class AbstractColumnReference {
         this.selectSpecification = selectSpecification;
     }
 
+    public abstract AbstractColumnReference distinct();
+
     public abstract <T, F> AbstractColumnReference column(Fn<T, F> fn);
 
     public abstract <T, F> AbstractColumnReference column(String tableAlias, FieldFn<T, F> fn);
@@ -59,4 +61,5 @@ public abstract class AbstractColumnReference {
     protected SelectSpecification getSelectSpecification() {
         return selectSpecification;
     }
+
 }

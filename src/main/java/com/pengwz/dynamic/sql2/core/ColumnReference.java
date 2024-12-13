@@ -3,6 +3,7 @@ package com.pengwz.dynamic.sql2.core;
 import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.Column;
 import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.aggregate.Distinct;
 import com.pengwz.dynamic.sql2.core.column.function.windows.Over;
 import com.pengwz.dynamic.sql2.core.column.function.windows.WindowsFunction;
 import com.pengwz.dynamic.sql2.core.dml.select.TableRelation;
@@ -25,6 +26,12 @@ public class ColumnReference extends AbstractColumnReference {
         super(selectSpecification);
     }
 
+    @Override
+    public AbstractColumnReference distinct() {
+        selectSpecification.getColumFunctions().add(new FunctionColumn(new Distinct(), null, null));
+        return this;
+    }
+
     /**
      * 构建一个查询列的引用集合，用于定义查询中的多个列。
      * <p>
@@ -42,7 +49,7 @@ public class ColumnReference extends AbstractColumnReference {
      * @return 一个用于构建列集合的 {@link AbstractColumnReference} 对象
      */
     public static AbstractColumnReference withColumns() {
-        return new ColumnReferenceBuilder(new SelectSpecification());
+        return new ColumnReference(new SelectSpecification());
     }
 
     @Override

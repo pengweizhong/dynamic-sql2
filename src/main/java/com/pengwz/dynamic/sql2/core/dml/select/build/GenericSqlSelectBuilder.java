@@ -1,16 +1,17 @@
 package com.pengwz.dynamic.sql2.core.dml.select.build;
 
+import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.Fn;
 import com.pengwz.dynamic.sql2.core.column.AbstractAliasHelper;
 import com.pengwz.dynamic.sql2.core.column.conventional.AllColumn;
 import com.pengwz.dynamic.sql2.core.column.conventional.NumberColumn;
 import com.pengwz.dynamic.sql2.core.column.function.AbstractColumFunction;
 import com.pengwz.dynamic.sql2.core.column.function.ColumFunction;
+import com.pengwz.dynamic.sql2.core.column.function.ColumnModifiers;
 import com.pengwz.dynamic.sql2.core.column.function.TableFunction;
 import com.pengwz.dynamic.sql2.core.column.function.aggregate.Count;
 import com.pengwz.dynamic.sql2.core.condition.Condition;
 import com.pengwz.dynamic.sql2.core.condition.impl.dialect.GenericWhereCondition;
-import com.pengwz.dynamic.sql2.core.AbstractColumnReference;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.ColumnQuery;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.FunctionColumn;
 import com.pengwz.dynamic.sql2.core.dml.select.build.column.NestedColumn;
@@ -38,7 +39,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
 
     protected void parseColumnFunction() {
         sqlBuilder.append(SqlUtils.getSyntaxSelect(sqlDialect)).append(" ");
-        for (int i = 0; i < selectSpecification.getColumFunctions().size(); i++) {
+        for (int i = 0; i < selectSpecification.getColumFunctions().size(); i++) {//NOSONAR
             ColumnQuery columnQuery = selectSpecification.getColumFunctions().get(i);
             String columnSeparator = "";
             //最后一个列后面不追加逗号
@@ -51,7 +52,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 //是否查询的全部列
                 if (columFunction instanceof AllColumn) {
                     //除了第一个后续元素都要追加`,`
-                    if (i != 0) {
+                    if (i != 0 && !sqlBuilder.toString().endsWith(columnSeparator)) {
                         sqlBuilder.append(", ");
                     }
                     parseAllColumn((AllColumn) columFunction, selectSpecification.getColumFunctions().size() - 1 > i);
@@ -94,7 +95,18 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
                 //拼接别名，
                 String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
-                sqlBuilder.append(functionToString).append(arithmeticSql).append(syntaxColumnAlias(columnAlias)).append(columnSeparator);
+                sqlBuilder.append(functionToString).append(arithmeticSql).append(syntaxColumnAlias(columnAlias));
+                //判断是否需要追加分隔逗号
+                if (columFunction instanceof ColumnModifiers) {
+                    ColumnModifiers columnModifiers = (ColumnModifiers) columFunction;
+                    if (columnModifiers.shouldAppendDelimiter()) {
+                        sqlBuilder.append(columnSeparator);
+                    } else {
+                        sqlBuilder.append(" ");
+                    }
+                } else {
+                    sqlBuilder.append(columnSeparator);
+                }
                 parameterBinder.addParameterBinder(columFunction.getParameterBinder());
                 parameterBinder.addParameterBinder(arithmeticParameterBinder);
             }
