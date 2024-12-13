@@ -4,12 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.pengwz</groupId>
-    <artifactId>dynamic-sql2</artifactId>
+    <groupId>com.dynamic-sql</groupId>
+    <artifactId>dynamic-sql</artifactId>
     <version>1.0.0</version>
     <description>动态 SQL 框架，支持安全且灵活的 SQL 构建，使用 Java API 提供简洁的 DSL 风格接口。</description>
     <inceptionYear>2024</inceptionYear>
     <url>https://github.com/pengweizhong/dynamic-sql2</url>
+
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
@@ -37,6 +38,17 @@
         <url>https://github.com/pengweizhong/dynamic-sql2</url>
         <connection>https://github.com/pengweizhong/dynamic-sql2.git</connection>
     </scm>
+
+    <organization>
+        <name>Dynamic-SQL</name>
+        <url>https://www.dynamic-sql.com</url>
+    </organization>
+
+    <distributionManagement>
+        <site>
+            <url>https://www.dynamic-sql.com</url>
+        </site>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
