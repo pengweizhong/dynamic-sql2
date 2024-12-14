@@ -6,7 +6,7 @@
 
     <groupId>com.dynamic-sql</groupId>
     <artifactId>dynamic-sql2</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.1-SNAPSHOT</version>
     <description>动态 SQL 框架，支持安全且灵活的 SQL 构建，使用 Java API 提供简洁的 DSL 风格接口。</description>
     <inceptionYear>2024</inceptionYear>
     <url>https://github.com/pengweizhong/dynamic-sql2</url>
