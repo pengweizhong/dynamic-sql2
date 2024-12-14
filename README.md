@@ -1,9 +1,9 @@
 #
 
-<div style="text-align: center;">
+<p align="center">
     <img src="assets/Dynamic-SQL.webp" width="300" />
-<div>安全 • 灵活 • 动态SQL构建框架</div>
-</div>
+</p>
+<div align="center">安全 • 灵活 • 动态SQL构建框架</div>
 
 # Dynamic-SQL2
 
@@ -69,9 +69,9 @@ https://github.com/pengweizhong/dynamic-sql2-spring-boot-starter
 ```xml
 
 <dependency>
-    <groupId>com.pengwz</groupId>
+    <groupId>com.dynamic-sql</groupId>
     <artifactId>dynamic-sql2</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.1</version>
 </dependency>
 ```
 
@@ -90,10 +90,10 @@ public class InitializingContext {
             return;
         }
         SqlContextProperties sqlContextProperties = SqlContextProperties.defaultSqlContextProperties();
-        sqlContextProperties.setScanTablePackage("com.pengwz.dynamic.sql2");
-        sqlContextProperties.setScanDatabasePackage("com.pengwz.dynamic.sql2");
+        sqlContextProperties.setScanTablePackage("com.dynamic.sql");
+        sqlContextProperties.setScanDatabasePackage("com.dynamic.sql");
         //提供Mapper代理，但是与Mybatis不兼容，因此推荐使用SqlContext
-        sqlContextProperties.setScanMapperPackage("com.pengwz.dynamic.sql2.mapper");
+        sqlContextProperties.setScanMapperPackage("com.dynamic.sql.mapper");
         SchemaProperties schemaProperties = new SchemaProperties();
         //本地数据源名称
         schemaProperties.setDataSourceName("dataSource");
