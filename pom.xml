@@ -34,9 +34,10 @@
     </licenses>
 
     <scm>
-        <tag>${version}</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/pengweizhong/dynamic-sql2</url>
-        <connection>https://github.com/pengweizhong/dynamic-sql2.git</connection>
+        <connection>scm:git:https://github.com/pengweizhong/dynamic-sql2.git</connection>
+        <developerConnection>scm:git:git@github.com:pengweizhong/dynamic-sql2.git</developerConnection>
     </scm>
 
     <organization>
@@ -48,6 +49,14 @@
         <site>
             <url>https://www.dynamic-sql.com</url>
         </site>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>releases</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
     </distributionManagement>
 
     <dependencies>
@@ -112,6 +121,17 @@
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
             <!-- Generate source code JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -134,6 +154,36 @@
                         <configuration>
                             <classifier>test-sources</classifier>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
