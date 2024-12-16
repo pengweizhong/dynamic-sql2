@@ -154,6 +154,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         // 将来实现自动移除未使用的列（自动优化查询）？？？
         if (columnMeta == null && log.isTraceEnabled() && !notUsedColumnTips.contains(columnName)) {
             log.trace("Column '{}' was queried but not used.", columnName);
+            notUsedColumnTips.add(columnName);
         }
         return columnMeta;
     }
