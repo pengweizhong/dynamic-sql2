@@ -265,4 +265,17 @@ public class ReflectUtils {
             throw new RuntimeException(ex);//NOSONAR
         }
     }
+
+    public static Class<?> loadClass(String classCanonicalName) {
+        try {
+            return Class.forName(classCanonicalName);
+        } catch (ClassNotFoundException e) {
+            try {
+                ClassLoader.getSystemClassLoader().loadClass(classCanonicalName);
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        throw new RuntimeException(new ClassNotFoundException(classCanonicalName));
+    }
 }

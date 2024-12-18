@@ -54,7 +54,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 //是否查询的全部列
                 if (columFunction instanceof AllColumn) {
                     //除了第一个后续元素都要追加`,`
-                    if (i != 0 && !sqlBuilder.toString().endsWith(columnSeparator)) {
+                    if (i != 0 && !sqlBuilder.toString().endsWith(", ")) {
                         sqlBuilder.append(", ");
                     }
                     parseAllColumn((AllColumn) columFunction, selectSpecification.getColumFunctions().size() - 1 > i);

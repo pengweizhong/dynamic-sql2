@@ -2,10 +2,10 @@ package com.dynamic.sql.table;
 
 import com.dynamic.sql.table.cte.CTEMeta;
 import com.dynamic.sql.table.view.ViewMeta;
+import com.dynamic.sql.utils.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,16 +41,13 @@ public class TableProvider {//NOSONAR
     }
 
     public static TableMeta getTableMeta(String classCanonicalName) {
-        Iterator<Map.Entry<Class<?>, TableMeta>> iterator = TABLE_META_MAP.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Class<?>, TableMeta> entry = iterator.next();
+        for (Map.Entry<Class<?>, TableMeta> entry : TABLE_META_MAP.entrySet()) {
             if (entry.getKey().getCanonicalName().equals(classCanonicalName)) {
                 return entry.getValue();
             }
         }
-//        log.error("This is for real tables. If you are doing nested queries or other operations, you should specify a table alias.");
-//        throw new IllegalArgumentException("Can not find table class or alias: '" + classCanonicalName + "'");
-        return null;
+        Class<?> loadClass = ReflectUtils.loadClass(classCanonicalName);
+        return getTableMeta(loadClass);
     }
 
     protected static void saveCTEMeta(Class<?> cteClass, CTEMeta cteMeta) {
