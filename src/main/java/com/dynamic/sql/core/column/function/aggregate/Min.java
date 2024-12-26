@@ -11,22 +11,18 @@ import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
 
 
-public class Count extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
+public class Min extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
 
-    public Count(AbstractColumFunction delegateFunction) {
+    public Min(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }
 
-    public <T, F> Count(FieldFn<T, F> fn) {
+    public <T, F> Min(FieldFn<T, F> fn) {
         super(fn);
     }
 
-    public Count(String tableAlias, String columnName) {
-        super(tableAlias, columnName);
-    }
-
-    public Count(int value) {
-        super(value);
+    public <T, F> Min(String tableAlias, FieldFn<T, F> fn) {
+        super(tableAlias, fn);
     }
 
     @Override
@@ -37,17 +33,11 @@ public class Count extends ColumnFunctionDecorator implements AggregateFunction,
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            if (value != null) {
-                return "COUNT(" + value + ")";
-            }
-            return "COUNT(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "MIN(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            if (value != null) {
-                return "count(" + value + ")";
-            }
-            return "count(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "min(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
-        throw FunctionException.unsupportedFunctionException("count", sqlDialect);
+        throw FunctionException.unsupportedFunctionException("min", sqlDialect);
     }
 }

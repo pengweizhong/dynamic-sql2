@@ -6,8 +6,7 @@ import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
-
-import static com.dynamic.sql.asserts.FunctionAssert.throwNotSupportedSqlDialectException;
+import com.dynamic.sql.exception.FunctionException;
 
 public class Upper extends ColumnFunctionDecorator {
 
@@ -27,7 +26,6 @@ public class Upper extends ColumnFunctionDecorator {
         if (sqlDialect == SqlDialect.ORACLE) {
             return "UPPER(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
-        throwNotSupportedSqlDialectException("upper", sqlDialect);
-        return null;
+        throw FunctionException.unsupportedFunctionException("upper", sqlDialect);
     }
 }

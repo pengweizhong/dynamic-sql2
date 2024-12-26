@@ -22,6 +22,9 @@ import java.time.temporal.TemporalAccessor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ConverterUtils {
     //自定义转换器 搭配@Column注解使用
@@ -145,28 +148,28 @@ public class ConverterUtils {
             return (T) value.toString();
         }
         if (fieldType == Integer.class || fieldType == int.class) {
-            if (value instanceof Double) {
-                Integer intValue = ((Double) value).intValue();
-                return (T) intValue;
-            }
-            return (T) Integer.valueOf(ifBooleanToNumber(value).toString());
+            return (T) toInteger(value);
         }
         if (fieldType == Long.class || fieldType == long.class) {
-            return (T) Long.valueOf(ifBooleanToNumber(value).toString());
+            return (T) toLong(value);
         }
         if (fieldType == Boolean.class || fieldType == boolean.class) {
-            if (value instanceof Number) {
-                Number number = (Number) value;
-                Boolean b = number.intValue() == 1;
-                return (T) (b);
-            }
-            return (T) Boolean.valueOf(value.toString());
+            return (T) toBoolean(value);
         }
         if (fieldType == Double.class || fieldType == double.class) {
             return (T) Double.valueOf(ifBooleanToNumber(value).toString());
         }
         if (fieldType == Float.class || fieldType == float.class) {
             return (T) Float.valueOf(ifBooleanToNumber(value).toString());
+        }
+        if (fieldType == AtomicInteger.class) {
+            return (T) new AtomicInteger(toInteger(value));
+        }
+        if (fieldType == AtomicBoolean.class) {
+            return (T) new AtomicBoolean(toBoolean(value));
+        }
+        if (fieldType == AtomicLong.class) {
+            return (T) new AtomicLong(toLong(value));
         }
         if (fieldType == LocalDateTime.class) {
             if (value instanceof Timestamp) {
@@ -187,6 +190,27 @@ public class ConverterUtils {
         // 如果没有找到适合的转换器，抛出异常或者返回默认值
         throw new IllegalArgumentException("Cannot convert value of type " + valueType
                 + " to field type " + fieldType + ", Value is [" + value + "]");
+    }
+
+    public static Integer toInteger(Object value) {
+        if (value instanceof Double) {
+            Integer intValue = ((Double) value).intValue();
+            return intValue;
+        }
+        return Integer.valueOf(ifBooleanToNumber(value).toString());
+    }
+
+    public static Boolean toBoolean(Object value) {
+        if (value instanceof Number) {
+            Number number = (Number) value;
+            Boolean b = number.intValue() == 1;
+            return (b);
+        }
+        return Boolean.valueOf(value.toString());
+    }
+
+    public static Long toLong(Object value) {
+        return Long.valueOf(ifBooleanToNumber(value).toString());
     }
 
     public static void putAttributeConverterModel(Class<?> fieldType, AttributeConverterModel attributeConverter) {

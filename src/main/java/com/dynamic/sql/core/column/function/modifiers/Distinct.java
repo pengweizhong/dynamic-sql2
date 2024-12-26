@@ -7,9 +7,8 @@ import com.dynamic.sql.core.column.ColumnModifiers;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.exception.FunctionException;
 import com.dynamic.sql.utils.StringUtils;
-
-import static com.dynamic.sql.asserts.FunctionAssert.throwNotSupportedSqlDialectException;
 
 
 public class Distinct extends ColumnFunctionDecorator implements ColumnModifiers {
@@ -52,9 +51,7 @@ public class Distinct extends ColumnFunctionDecorator implements ColumnModifiers
             }
 
         }
-
-        throwNotSupportedSqlDialectException("DISTINCT", sqlDialect);
-        return null;
+        throw FunctionException.unsupportedFunctionException("distinct", sqlDialect);
     }
 
     @Override

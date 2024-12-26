@@ -7,9 +7,7 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.enums.SqlDialect;
-
-import static com.dynamic.sql.asserts.FunctionAssert.throwNotSupportedFunctionException;
-import static com.dynamic.sql.asserts.FunctionAssert.throwNotSupportedSqlDialectException;
+import com.dynamic.sql.exception.FunctionException;
 
 /**
  * 提取 JSON 数据中的值
@@ -34,12 +32,11 @@ public class JsonExtract extends ColumnFunctionDecorator implements TableFunctio
         }
         if (sqlDialect == SqlDialect.MYSQL) {
             if (version.getMajorVersion() < 5 && version.getMinorVersion() < 7) {
-                throwNotSupportedFunctionException("json_extract", version, sqlDialect);
+                throw FunctionException.unsupportedFunctionException("json_extract", version, sqlDialect);
             }
             return "json_extract(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + jsonPath + ")";
         }
-        throwNotSupportedSqlDialectException("json_extract", sqlDialect);
-        return null;
+        throw FunctionException.unsupportedFunctionException("json_extract", sqlDialect);
     }
 
 }

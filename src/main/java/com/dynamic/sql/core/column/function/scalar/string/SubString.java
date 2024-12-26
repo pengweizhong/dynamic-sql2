@@ -6,8 +6,8 @@ import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.exception.FunctionException;
 
-import static com.dynamic.sql.asserts.FunctionAssert.throwNotSupportedSqlDialectException;
 import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
 
 
@@ -53,7 +53,6 @@ public class SubString extends ColumnFunctionDecorator {
                     + registerValueWithKey(parameterBinder, start) + ", "
                     + registerValueWithKey(parameterBinder, length) + ")";
         }
-        throwNotSupportedSqlDialectException("substring", sqlDialect);
-        return null;
+        throw FunctionException.unsupportedFunctionException("substring", sqlDialect);
     }
 }

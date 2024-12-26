@@ -8,8 +8,7 @@ import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.enums.SqlDialect;
-
-import static com.dynamic.sql.asserts.FunctionAssert.throwNotSupportedSqlDialectException;
+import com.dynamic.sql.exception.FunctionException;
 
 public class Sum extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
 
@@ -33,8 +32,7 @@ public class Sum extends ColumnFunctionDecorator implements AggregateFunction, W
         if (sqlDialect == SqlDialect.MYSQL) {
             return "sum(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
-        throwNotSupportedSqlDialectException("sum", sqlDialect);
-        return null;
+        throw FunctionException.unsupportedFunctionException("sum", sqlDialect);
     }
 
     @Override

@@ -7,8 +7,7 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.enums.SqlDialect;
-
-import static com.dynamic.sql.asserts.FunctionAssert.throwNotSupportedSqlDialectException;
+import com.dynamic.sql.exception.FunctionException;
 
 /**
  * 去掉 JSON 值的引号
@@ -32,7 +31,6 @@ public class JsonUnquote extends ColumnFunctionDecorator implements TableFunctio
         if (sqlDialect == SqlDialect.MYSQL) {
             return "json_unquote(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
-        throwNotSupportedSqlDialectException("json_unquote", sqlDialect);
-        return null;
+        throw FunctionException.unsupportedFunctionException("json_unquote", sqlDialect);
     }
 }
