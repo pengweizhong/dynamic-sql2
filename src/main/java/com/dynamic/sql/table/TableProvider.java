@@ -69,6 +69,11 @@ public class TableProvider {//NOSONAR
     }
 
     public static ViewMeta getViewMeta(Class<?> viewClass) {
-        return VIEW_META_MAP.get(viewClass);
+        ViewMeta viewMeta = VIEW_META_MAP.get(viewClass);
+        if (viewMeta == null) {
+            viewMeta = TableUtils.parseViewClass(viewClass);
+            saveViewMeta(viewClass, viewMeta);
+        }
+        return viewMeta;
     }
 }

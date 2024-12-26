@@ -4,8 +4,7 @@ package com.dynamic.sql.datasource;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DataSourceProvider {//NOSONAR
@@ -22,6 +21,13 @@ public class DataSourceProvider {//NOSONAR
             return null;
         }
         return DATA_SOURCE_META_MAP.get(dataSourceName);
+    }
+
+    public static List<DataSourceMeta> getDataSourceMetaList() {
+        if (DATA_SOURCE_META_MAP.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(DATA_SOURCE_META_MAP.values());
     }
 
     public static String getDataSourceName(DataSourceMeta dataSourceMeta) {
