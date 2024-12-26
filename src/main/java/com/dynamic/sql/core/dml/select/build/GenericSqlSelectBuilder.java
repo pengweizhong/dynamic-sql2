@@ -43,10 +43,10 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         sqlBuilder.append(SqlUtils.getSyntaxSelect(sqlDialect)).append(" ");
         for (int i = 0; i < selectSpecification.getColumFunctions().size(); i++) {//NOSONAR
             ColumnQuery columnQuery = selectSpecification.getColumFunctions().get(i);
-            String columnSeparator = "";
+            String columnSeparator = ", ";
             //最后一个列后面不追加逗号
-            if (selectSpecification.getColumFunctions().size() - 1 != i) {
-                columnSeparator = ", ";
+            if (selectSpecification.getColumFunctions().size() - 1 == i) {
+                columnSeparator = "";
             }
             if (columnQuery instanceof FunctionColumn) {
                 FunctionColumn functionColumn = (FunctionColumn) columnQuery;
@@ -54,10 +54,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 //是否查询的全部列
                 if (columFunction instanceof AllColumn) {
                     //除了第一个后续元素都要追加`,`
-                    if (i != 0 && !sqlBuilder.toString().endsWith(", ")) {
-                        sqlBuilder.append(", ");
-                    }
-                    parseAllColumn((AllColumn) columFunction, selectSpecification.getColumFunctions().size() - 1 > i);
+                    parseAllColumn((AllColumn) columFunction);
+                    sqlBuilder.append(columnSeparator);
                     continue;
                 }
                 StringBuilder arithmeticSql = null;
@@ -215,7 +213,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         sqlBuilder.append(registerValueWithKey(parameterBinder, limitInfo.getLimit()));
     }
 
-    private void parseAllColumn(AllColumn allColumn, boolean isAppendComma) {
+    private void parseAllColumn(AllColumn allColumn) {
         //判断列查询的引用模式
         //别名引用
         String tableAlias = allColumn.getTableAlias();
@@ -236,9 +234,6 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             //兼容内嵌
             if (clazz[0].equals(tableAlias)) {
                 sqlBuilder.append(tableAlias).append(".*");
-                if (isAppendComma) {
-                    sqlBuilder.append(", ");
-                }
                 return;
             }
             List<ColumnMeta> columnMetas = TableProvider.getTableMeta(clazz[0]).getColumnMetas();
