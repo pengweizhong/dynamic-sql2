@@ -124,4 +124,37 @@ class AggregateFunctionTest extends InitializingContext {
         System.out.println(sum);
     }
 
+    @Test
+    void avg() {
+        BigDecimal sum = sqlContext.select()
+                .column(new Avg(User::getUserId))
+                .from(User.class)
+                .join(Order.class, on -> on.andEqualTo(User::getUserId, Order::getUserId))
+                .fetch(BigDecimal.class)
+                .toOne();
+        System.out.println(sum);
+    }
+
+    @Test
+    void variance() {
+        BigDecimal sum = sqlContext.select()
+                .column(new Variance(User::getUserId))
+                .from(User.class)
+                .join(Order.class, on -> on.andEqualTo(User::getUserId, Order::getUserId))
+                .fetch(BigDecimal.class)
+                .toOne();
+        System.out.println(sum);
+    }
+
+    @Test
+    void stdDev() {
+        BigDecimal sum = sqlContext.select()
+                .column(new StdDev(User::getUserId))
+                .from(User.class)
+                .join(Order.class, on -> on.andEqualTo(User::getUserId, Order::getUserId))
+                .fetch(BigDecimal.class)
+                .toOne();
+        System.out.println(sum);
+    }
+
 }
