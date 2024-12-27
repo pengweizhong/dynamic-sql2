@@ -53,5 +53,19 @@ class WindowsFunctionTest extends InitializingContext {
         list.forEach(System.out::println);
     }
 
+    @Test
+    void rank() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .column(new Rank(), over -> over.orderBy("aaa", "sumTotalAmount"), "rank1")
+                .allColumn()
+                .from(
+                        select -> select.column(Order::getUserId, "userId")
+                                .column(new Sum(Order::getTotalAmount), "sumTotalAmount")
+                                .from(Order.class)
+                                .groupBy(Order::getUserId), "aaa")
+                .fetchOriginalMap()
+                .toList();
+        list.forEach(System.out::println);
+    }
 
 }
