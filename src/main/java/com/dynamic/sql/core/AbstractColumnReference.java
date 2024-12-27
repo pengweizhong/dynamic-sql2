@@ -6,8 +6,10 @@ import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.core.dml.select.TableRelation;
 import com.dynamic.sql.core.dml.select.build.SelectSpecification;
+import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -137,7 +139,7 @@ public abstract class AbstractColumnReference {
      * @param columnAlias     列的别名
      * @return 当前列引用的实例
      */
-    public abstract AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String columnAlias);
+    public abstract AbstractColumnReference column(WindowsFunction windowsFunction, Consumer<Over> over, String columnAlias);
 
     /**
      * 添加一个嵌套查询列到当前查询中。
@@ -150,11 +152,28 @@ public abstract class AbstractColumnReference {
 
     /**
      * 添加另一个列引用到当前查询中。
+     * <p>
+     * 已过时，将在未来版本删除
      *
      * @param columnReference 另一个列引用实例
      * @return 当前列引用的实例
+     * @see this#includeColumns(AbstractColumnReference)
      */
+    @Deprecated
     public abstract AbstractColumnReference columnReference(AbstractColumnReference columnReference);
+
+    /**
+     * 将指定的列添加到当前查询中。
+     *
+     * @param columnReference 另一个列引用实例
+     * @return 当前列引用的实例
+     * @see ColumnReference#withColumns()
+     */
+    public AbstractColumnReference includeColumns(AbstractColumnReference columnReference) {
+        List<ColumnQuery> columFunctions = columnReference.getSelectSpecification().getColumFunctions();
+        selectSpecification.getColumFunctions().addAll(columFunctions);
+        return this;
+    }
 
     /**
      * 选择所有列。

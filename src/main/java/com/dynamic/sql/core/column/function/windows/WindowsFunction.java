@@ -35,6 +35,6 @@ import com.dynamic.sql.core.column.function.ColumFunction;
  */
 public interface WindowsFunction extends ColumFunction {
 
-    String apply(Over over);
+//    String apply(Over over);
 //    Over over;
 }

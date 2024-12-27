@@ -1,4 +1,4 @@
-package com.dynamic.sql.core.column.function.aggregate;
+package com.dynamic.sql.core.column.function.windows.aggregate;
 
 
 import com.dynamic.sql.core.FieldFn;
@@ -27,11 +27,6 @@ public class Variance extends ColumnFunctionDecorator implements AggregateFuncti
 
     public <T, F> Variance(String tableAlias, FieldFn<T, F> fn) {
         super(tableAlias, fn);
-    }
-
-    @Override
-    public String apply(Over over) {
-        return "";
     }
 
     @Override

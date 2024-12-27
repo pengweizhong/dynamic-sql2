@@ -2,9 +2,8 @@ package com.dynamic.sql.core.column;
 
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.Fn;
 
-public abstract class AbstractAliasHelper<T, F> implements Fn<T, F> {
+public abstract class AbstractAliasHelper<T, F> implements FieldFn<T, F> {
     private String tableAlias;
 
     public static <T, F> AbstractAliasHelper<T, F> bindAlias(String tableAlias, FieldFn<T, F> fnColumn) {

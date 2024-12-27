@@ -1,4 +1,4 @@
-package com.dynamic.sql.core.column.function.aggregate;
+package com.dynamic.sql.core.column.function.windows.aggregate;
 
 
 import com.dynamic.sql.core.FieldFn;
@@ -10,33 +10,33 @@ import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
 
-public class Sum extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
+/**
+ * 计算指定列的标准差。
+ * <p>
+ * 例如：STDDEV(salary) 返回薪资列的标准差。
+ */
+public class StdDev extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
 
-    public Sum(AbstractColumFunction delegateFunction) {
+    public StdDev(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }
 
-    public <T, F> Sum(FieldFn<T, F> fn) {
+    public <T, F> StdDev(FieldFn<T, F> fn) {
         super(fn);
     }
 
-    public Sum(String tableAlias, String columnName) {
-        super(tableAlias, columnName);
+    public <T, F> StdDev(String tableAlias, FieldFn<T, F> fn) {
+        super(tableAlias, fn);
     }
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "SUM(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "STDDEV(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "sum(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "stddev(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
-        throw FunctionException.unsupportedFunctionException("sum", sqlDialect);
-    }
-
-    @Override
-    public String apply(Over over) {
-        return "";
+        throw FunctionException.unsupportedFunctionException("stddev", sqlDialect);
     }
 }

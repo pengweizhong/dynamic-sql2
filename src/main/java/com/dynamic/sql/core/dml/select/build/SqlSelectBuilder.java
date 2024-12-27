@@ -126,7 +126,7 @@ public abstract class SqlSelectBuilder {
         }
         //step6 解析order by
         if (CollectionUtils.isNotEmpty(selectSpecification.getOrderBys())) {
-            parseOrderBy(selectSpecification.getOrderBys());
+            sqlBuilder.append(parseOrderBy(selectSpecification.getOrderBys()));
         }
         //step7 解析limit
         if (selectSpecification.getLimitInfo() != null) {
@@ -150,8 +150,9 @@ public abstract class SqlSelectBuilder {
         parameterBinder.addParameterBinder(whereParameterBinder);
     }
 
-    private void parseOrderBy(List<OrderBy> orderBys) {
-        sqlBuilder.append(" ").append(SqlUtils.getSyntaxOrderBy(sqlDialect));
+    protected String parseOrderBy(List<OrderBy> orderBys) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(" ").append(SqlUtils.getSyntaxOrderBy(sqlDialect));
         for (int i = 0; i < orderBys.size(); i++) {
             OrderBy orderBy = orderBys.get(i);
             String columnSeparator = "";
@@ -159,11 +160,12 @@ public abstract class SqlSelectBuilder {
             if (orderBys.size() - 1 != i) {
                 columnSeparator = ",";
             }
-            sqlBuilder.append(SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName))
+            stringBuilder.append(SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName))
                     .append(" ")
                     .append(orderBy.getSortOrder().toSqlString(sqlDialect))
                     .append(columnSeparator);
         }
+        return stringBuilder.toString();
     }
 
     private void parseWhere(Consumer<WhereCondition> whereConditionConsumer) {

@@ -1,4 +1,4 @@
-package com.dynamic.sql.core.column.function.aggregate;
+package com.dynamic.sql.core.column.function.windows.aggregate;
 
 
 import com.dynamic.sql.core.FieldFn;
@@ -23,11 +23,6 @@ public class Max extends ColumnFunctionDecorator implements AggregateFunction, W
 
     public <T, F> Max(String tableAlias, FieldFn<T, F> fn) {
         super(tableAlias, fn);
-    }
-
-    @Override
-    public String apply(Over over) {
-        return "";
     }
 
     @Override

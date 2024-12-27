@@ -6,7 +6,7 @@ import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.ColumFunction;
-import com.dynamic.sql.core.column.function.aggregate.AggregateFunction;
+import com.dynamic.sql.core.column.function.windows.aggregate.AggregateFunction;
 import com.dynamic.sql.core.condition.Condition;
 import com.dynamic.sql.core.condition.FunctionCondition;
 import com.dynamic.sql.core.condition.NestedCondition;

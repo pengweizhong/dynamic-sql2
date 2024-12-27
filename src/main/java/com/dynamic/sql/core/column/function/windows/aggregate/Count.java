@@ -1,4 +1,4 @@
-package com.dynamic.sql.core.column.function.aggregate;
+package com.dynamic.sql.core.column.function.windows.aggregate;
 
 
 import com.dynamic.sql.core.FieldFn;
@@ -27,11 +27,6 @@ public class Count extends ColumnFunctionDecorator implements AggregateFunction,
 
     public Count(int value) {
         super(value);
-    }
-
-    @Override
-    public String apply(Over over) {
-        return "";
     }
 
     @Override

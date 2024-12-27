@@ -10,7 +10,8 @@ import com.dynamic.sql.core.column.conventional.NumberColumn;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.column.function.TableFunction;
-import com.dynamic.sql.core.column.function.aggregate.Count;
+import com.dynamic.sql.core.column.function.windows.Over;
+import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.condition.Condition;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
@@ -58,7 +59,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     sqlBuilder.append(columnSeparator);
                     continue;
                 }
-                StringBuilder arithmeticSql = null;
+                StringBuilder arithmeticSql;
                 ParameterBinder arithmeticParameterBinder = null;
                 if (columFunction instanceof AbstractColumFunction) {
                     AbstractColumFunction abstractColumFunction = (AbstractColumFunction) columFunction;
@@ -95,7 +96,18 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
                 //拼接别名，
                 String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
-                sqlBuilder.append(functionToString).append(arithmeticSql).append(syntaxColumnAlias(columnAlias));
+                sqlBuilder.append(functionToString).append(arithmeticSql);
+                //追加over
+                Consumer<Over> overConsumer = functionColumn.getOver();
+                if (overConsumer != null) {
+                    Over over = new Over();
+                    //初始化over块
+                    overConsumer.accept(over);
+                    String parseOrderBy = parseOrderBy(over.getOrderByList());
+                    over.setOverClause(parseOrderBy);
+                    sqlBuilder.append(" ").append(over.toOverString(sqlDialect));
+                }
+                sqlBuilder.append(syntaxColumnAlias(columnAlias));
                 //判断是否需要追加分隔逗号
                 if (columFunction instanceof ColumnModifiers) {
                     ColumnModifiers columnModifiers = (ColumnModifiers) columFunction;
@@ -109,6 +121,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 }
                 parameterBinder.addParameterBinder(columFunction.getParameterBinder());
                 parameterBinder.addParameterBinder(arithmeticParameterBinder);
+
+
             }
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
@@ -261,7 +275,16 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
     }
 
     private void appendQueryAllColumnForClass(String canonicalName) {
-        TableMeta tableMeta = TableProvider.getTableMeta(canonicalName);
+        TableMeta tableMeta;
+        try {
+            tableMeta = TableProvider.getTableMeta(canonicalName);
+        } catch (RuntimeException e) {
+            tableMeta = null;
+//            if (e.getCause() instanceof ClassNotFoundException) {
+//                throw new IllegalArgumentException("Alias not found: " + canonicalName);
+//            }
+//            throw e;
+        }
         if (tableMeta == null) {
             sqlBuilder.append(canonicalName).append(".*");
             return;

@@ -2,7 +2,7 @@ package com.dynamic.sql.core.condition;
 
 import com.dynamic.sql.InitializingContext;
 import com.dynamic.sql.core.column.conventional.Column;
-import com.dynamic.sql.core.column.function.aggregate.Max;
+import com.dynamic.sql.core.column.function.windows.aggregate.Max;
 import com.dynamic.sql.entites.User;
 import org.junit.jupiter.api.Test;
 

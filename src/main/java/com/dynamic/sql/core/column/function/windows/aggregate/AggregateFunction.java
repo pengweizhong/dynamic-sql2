@@ -1,4 +1,4 @@
-package com.dynamic.sql.core.column.function.aggregate;
+package com.dynamic.sql.core.column.function.windows.aggregate;
 
 
 import com.dynamic.sql.core.column.function.ColumFunction;

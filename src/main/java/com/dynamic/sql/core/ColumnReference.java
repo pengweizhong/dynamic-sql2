@@ -99,7 +99,7 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
-    public AbstractColumnReference column(WindowsFunction windowsFunction, Over over, String columnAlias) {
+    public AbstractColumnReference column(WindowsFunction windowsFunction, Consumer<Over> over, String columnAlias) {
         selectSpecification.getColumFunctions().add(new FunctionColumn(windowsFunction, over, columnAlias));
         return this;
     }
@@ -115,6 +115,7 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
+    @Deprecated
     public AbstractColumnReference columnReference(AbstractColumnReference columnReference) {
         List<ColumnQuery> columFunctions = columnReference.getSelectSpecification().getColumFunctions();
         selectSpecification.getColumFunctions().addAll(columFunctions);

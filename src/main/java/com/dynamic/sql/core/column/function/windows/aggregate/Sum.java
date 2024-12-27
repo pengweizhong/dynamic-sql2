@@ -1,4 +1,4 @@
-package com.dynamic.sql.core.column.function.aggregate;
+package com.dynamic.sql.core.column.function.windows.aggregate;
 
 
 import com.dynamic.sql.core.FieldFn;
@@ -10,34 +10,29 @@ import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
 
+public class Sum extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
 
-public class Avg extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
-
-    public Avg(AbstractColumFunction delegateFunction) {
+    public Sum(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }
 
-    public <T, F> Avg(FieldFn<T, F> fn) {
+    public <T, F> Sum(FieldFn<T, F> fn) {
         super(fn);
     }
 
-    public <T, F> Avg(String tableAlias, FieldFn<T, F> fn) {
-        super(tableAlias, fn);
-    }
-
-    @Override
-    public String apply(Over over) {
-        return "";
+    public Sum(String tableAlias, String columnName) {
+        super(tableAlias, columnName);
     }
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "AVG(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "SUM(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "avg(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "sum(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
-        throw FunctionException.unsupportedFunctionException("avg", sqlDialect);
+        throw FunctionException.unsupportedFunctionException("sum", sqlDialect);
     }
+
 }
