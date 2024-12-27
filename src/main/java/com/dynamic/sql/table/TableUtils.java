@@ -75,13 +75,13 @@ public class TableUtils {
     }
 
     public static void scanAndInitViewInfo(String... packagePath) {
-        if (packagePath == null || packagePath.length == 0) {
-            throw new IllegalArgumentException("The package path to search must be provided");
-        }
-        for (String path : packagePath) {
-            Map<Class<?>, ViewMeta> viewEntities = SchemaStructureScanner.findViewEntities(path);
-            viewEntities.forEach(TableProvider::saveViewMeta);
-        }
+//        if (packagePath == null || packagePath.length == 0) {
+//            throw new IllegalArgumentException("The package path to search must be provided");
+//        }
+//        for (String path : packagePath) {
+//            Map<Class<?>, ViewMeta> viewEntities = SchemaStructureScanner.findViewEntities(path);
+//            viewEntities.forEach(TableProvider::saveViewMeta);
+//        }
     }
 
     public static TableMeta parseTableClass(Class<?> tableClazz) {
@@ -89,7 +89,11 @@ public class TableUtils {
         if (tableEntityMapping == null) {
             return null;
         }
-        return parseTableClass(tableEntityMapping).get(tableClazz);
+        TableMeta tableMeta = parseTableClass(tableEntityMapping).get(tableClazz);
+        if (tableEntityMapping.isCache()) {
+            TableProvider.saveTableMeta(tableClazz, tableMeta);
+        }
+        return tableMeta;
     }
 
     public static ViewMeta parseViewClass(Class<?> clazz) {
@@ -100,12 +104,6 @@ public class TableUtils {
         if (null != view) {
             cache = view.isCache();
             dataSourceName = view.dataSourceName();
-        }
-        if (cache) {
-            ViewMeta viewMeta = TableProvider.getViewMeta(clazz);
-            if (viewMeta != null) {
-                return viewMeta;
-            }
         }
         final String finalDataSourceName = matchBestDataSourceName(clazz, dataSourceName);
         List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(finalDataSourceName, clazz, f))
