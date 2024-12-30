@@ -1,13 +1,14 @@
 package com.dynamic.sql.core.dml.select;
 
 import com.dynamic.sql.InitializingContext;
-import com.dynamic.sql.entites.*;
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.ColumnReference;
-import com.dynamic.sql.core.column.function.windows.aggregate.Count;
-import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
+import com.dynamic.sql.core.column.function.modifiers.Distinct;
 import com.dynamic.sql.core.column.function.table.JsonTable;
 import com.dynamic.sql.core.column.function.table.JsonTable.JsonColumn;
+import com.dynamic.sql.core.column.function.windows.aggregate.Count;
+import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
+import com.dynamic.sql.entites.*;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.plugins.pagination.CollectionPage;
 import com.dynamic.sql.plugins.pagination.MapPage;
@@ -361,6 +362,14 @@ public class SelectTest extends InitializingContext {
                 .distinct()
                 .allColumn()
                 .from(User.class).fetch().toList();
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void testDistinct2() {
+        List<String> list = sqlContext.select()
+                .column(new Distinct(User::getName),"name")
+                .from(User.class).fetch(String.class).toList();
         list.forEach(System.out::println);
     }
 
