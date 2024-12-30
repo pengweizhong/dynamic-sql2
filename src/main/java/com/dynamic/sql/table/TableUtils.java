@@ -111,6 +111,7 @@ public class TableUtils {
         //检查列声明标识是否合规
         List<ColumnMeta> columnMetas = assertAndFilterColumn(columnMetaSymbols, clazz.getSimpleName());
         ViewMeta viewMeta = new ViewMeta();
+        viewMeta.setBindDataSourceName(finalDataSourceName);
         List<ViewColumnMeta> viewColumnMetas = columnMetas.stream().map(cm -> {
             ViewColumnMeta viewColumnMeta = new ViewColumnMeta();
             viewColumnMeta.setColumnName(cm.getColumnName());

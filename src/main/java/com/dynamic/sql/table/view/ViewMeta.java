@@ -6,6 +6,8 @@ import com.dynamic.sql.table.FieldMeta;
 import java.util.List;
 
 public class ViewMeta {
+    //绑定到数据源名称
+    private String bindDataSourceName;
     //列成员
     private List<ViewColumnMeta> viewColumnMetas;
 
@@ -15,5 +17,13 @@ public class ViewMeta {
 
     public void setViewColumnMetas(List<ViewColumnMeta> viewColumnMetas) {
         this.viewColumnMetas = viewColumnMetas;
+    }
+
+    public String getBindDataSourceName() {
+        return bindDataSourceName;
+    }
+
+    public void setBindDataSourceName(String bindDataSourceName) {
+        this.bindDataSourceName = bindDataSourceName;
     }
 }

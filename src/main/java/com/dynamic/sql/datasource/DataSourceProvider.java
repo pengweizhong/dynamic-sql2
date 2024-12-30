@@ -23,6 +23,13 @@ public class DataSourceProvider {//NOSONAR
         return DATA_SOURCE_META_MAP.get(dataSourceName);
     }
 
+    public static List<String> getDataSourceNameList() {
+        if (DATA_SOURCE_META_MAP.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(DATA_SOURCE_META_MAP.keySet());
+    }
+
     public static List<DataSourceMeta> getDataSourceMetaList() {
         if (DATA_SOURCE_META_MAP.isEmpty()) {
             return Collections.emptyList();

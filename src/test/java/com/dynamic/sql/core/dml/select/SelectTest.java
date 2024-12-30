@@ -368,7 +368,7 @@ public class SelectTest extends InitializingContext {
     @Test
     void testDistinct2() {
         List<String> list = sqlContext.select()
-                .column(new Distinct(User::getName),"name")
+                .column(new Distinct(User::getName), "name")
                 .from(User.class).fetch(String.class).toList();
         list.forEach(System.out::println);
     }
@@ -428,6 +428,27 @@ public class SelectTest extends InitializingContext {
             e.printStackTrace();
         }
 
+    }
+
+    @Test
+    void selectList() {
+        String sql = "SELECT x.* FROM dynamic_sql2.users x ";
+        List<User> users = sqlContext.selectList(sql, User.class);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    void selectList2() {
+        String sql = "SELECT x.* FROM dynamic_sql2.users x ";
+        List<User> users = sqlContext.selectList("xxxxx", sql, User.class, null);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    void selectList3() {
+        String sql = "SELECT x.user_id FROM dynamic_sql2.users x ";
+        List<Integer> users = sqlContext.selectList(sql, Integer.class);
+        users.forEach(System.out::println);
     }
 }
 

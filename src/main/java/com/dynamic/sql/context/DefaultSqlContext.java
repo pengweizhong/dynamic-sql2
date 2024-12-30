@@ -5,15 +5,17 @@ import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.dml.delete.DeleteHandler;
 import com.dynamic.sql.core.dml.delete.EntitiesDeleter;
 import com.dynamic.sql.core.dml.insert.EntitiesInserter;
 import com.dynamic.sql.core.dml.insert.InsertHandler;
-import com.dynamic.sql.core.dml.delete.DeleteHandler;
-import com.dynamic.sql.core.dml.update.UpdateHandler;
 import com.dynamic.sql.core.dml.select.DefaultSelectHandler;
 import com.dynamic.sql.core.dml.select.Select;
 import com.dynamic.sql.core.dml.update.EntitiesUpdater;
+import com.dynamic.sql.core.dml.update.UpdateHandler;
+import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.utils.CollectionUtils;
+import com.dynamic.sql.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,6 +54,53 @@ public class DefaultSqlContext implements SqlContext {
             throw new IllegalArgumentException("pkValues can not be empty");
         }
         return new DefaultSelectHandler().selectByPrimaryKey(entityClass, pkValues);
+    }
+
+    @Override
+    public <T> T selectOne(String sql, Class<T> returnType) {
+        return selectOne(sql, returnType, null);
+    }
+
+    @Override
+    public <T> T selectOne(String sql, Class<T> returnType, ParameterBinder parameterBinder) {
+        return selectOne(null, sql, returnType, null);
+    }
+
+    @Override
+    public <T> T selectOne(String dataSourceName, String sql, Class<T> returnType) {
+        return selectOne(dataSourceName, sql, returnType, null);
+    }
+
+    @Override
+    public <T> T selectOne(String dataSourceName, String sql, Class<T> returnType, ParameterBinder parameterBinder) {
+        List<T> ts = selectList(dataSourceName, sql, returnType, parameterBinder);
+        if (CollectionUtils.isEmpty(ts)) {
+            return null;
+        }
+        return ts.get(0);
+    }
+
+    @Override
+    public <T> List<T> selectList(String sql, Class<T> returnType) {
+        return selectList(sql, returnType, null);
+    }
+
+    @Override
+    public <T> List<T> selectList(String sql, Class<T> returnType, ParameterBinder parameterBinder) {
+        return selectList(null, sql, returnType, parameterBinder);
+    }
+
+    @Override
+    public <T> List<T> selectList(String dataSourceName, String sql, Class<T> returnType) {
+        return selectList(dataSourceName, sql, returnType, null);
+    }
+
+    @Override
+    public <T> List<T> selectList(String dataSourceName, String sql, Class<T> returnType, ParameterBinder parameterBinder) {
+        if (StringUtils.isBlank(sql)) {
+            throw new IllegalArgumentException("sql can not be null");
+        }
+        return new DefaultSelectHandler().selectList(dataSourceName, sql, returnType, parameterBinder);
     }
 
     @Override

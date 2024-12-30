@@ -2,12 +2,12 @@ package com.dynamic.sql.core.dml.select;
 
 
 import com.dynamic.sql.core.database.SqlExecutionFactory;
+import com.dynamic.sql.core.database.SqlExecutor;
 import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.SqlSelectBuilder;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.enums.DMLType;
 import com.dynamic.sql.utils.SqlUtils;
-import com.dynamic.sql.core.database.SqlExecutor;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +19,10 @@ public class FetchableImpl implements Fetchable {
     public FetchableImpl(SelectSpecification selectSpecification) {
         SqlSelectBuilder sqlSelectBuilder = SqlUtils.matchSqlSelectBuilder(selectSpecification);
         sqlStatementSelectWrapper = sqlSelectBuilder.build();
+    }
+
+    public FetchableImpl(SqlStatementSelectWrapper sqlStatementSelectWrapper) {
+        this.sqlStatementSelectWrapper = sqlStatementSelectWrapper;
     }
 
     @Override

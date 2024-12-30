@@ -2,6 +2,7 @@ package com.dynamic.sql.core;
 
 
 import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.placeholder.ParameterBinder;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +39,23 @@ public interface SqlContext {
      * @return 查询到的实体对象。如果没有匹配的记录，则返回空集合。
      */
     <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<?> pkValues);
+
+    <T> T selectOne(String sql, Class<T> returnType);
+
+    //使用预编译的方式构建
+    <T> T selectOne(String sql, Class<T> returnType, ParameterBinder parameterBinder);
+
+    <T> T selectOne(String dataSourceName, String sql, Class<T> returnType);
+
+    <T> T selectOne(String dataSourceName, String sql, Class<T> returnType, ParameterBinder parameterBinder);
+
+    <T> List<T> selectList(String sql, Class<T> returnType);
+
+    <T> List<T> selectList(String sql, Class<T> returnType, ParameterBinder parameterBinder);
+
+    <T> List<T> selectList(String dataSourceName, String sql, Class<T> returnType);
+
+    <T> List<T> selectList(String dataSourceName, String sql, Class<T> returnType, ParameterBinder parameterBinder);
 
     /**
      * 插入一个实体到数据库，选择性插入非空字段。
