@@ -211,11 +211,11 @@ public abstract class AbstractColumnReference {
      * 设置带有别名的主表。
      *
      * @param tableClass 表对应的实体类
-     * @param alias      表别名
+     * @param tableAlias 表别名
      * @param <T>        表对应的实体类类型
      * @return 表关系的定义
      */
-    public abstract <T> TableRelation<T> from(Class<T> tableClass, String alias);
+    public abstract <T> TableRelation<T> from(Class<T> tableClass, String tableAlias);
 
     /**
      * 设置一个公共表表达式（CTE）为主表。
@@ -229,10 +229,10 @@ public abstract class AbstractColumnReference {
      * 设置一个嵌套查询作为主表。
      *
      * @param nestedSelect 嵌套查询定义
-     * @param selectAlias  嵌套查询的别名
+     * @param tableAlias   嵌套查询的别名
      * @return 表关系的定义
      */
-    public abstract TableRelation<?> from(Consumer<AbstractColumnReference> nestedSelect, String selectAlias);
+    public abstract TableRelation<?> from(Consumer<AbstractColumnReference> nestedSelect, String tableAlias);
 
     protected SelectSpecification getSelectSpecification() {
         return selectSpecification;
