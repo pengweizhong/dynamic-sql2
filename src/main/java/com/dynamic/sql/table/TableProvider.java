@@ -32,10 +32,6 @@ public class TableProvider {//NOSONAR
         TableMeta tableMeta = TABLE_META_MAP.get(tableClass);
         if (tableMeta == null) {
             tableMeta = TableUtils.parseTableClass(tableClass);
-            if (tableMeta == null) {
-                return null;
-            }
-            saveTableMeta(tableClass, tableMeta);
         }
         return tableMeta;
     }
@@ -73,7 +69,6 @@ public class TableProvider {//NOSONAR
         ViewMeta viewMeta = VIEW_META_MAP.get(viewClass);
         if (viewMeta == null) {
             viewMeta = TableUtils.parseViewClass(viewClass);
-            saveViewMeta(viewClass, viewMeta);
         }
         return viewMeta;
     }

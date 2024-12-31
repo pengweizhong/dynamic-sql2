@@ -131,7 +131,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
     private Collection<R> convertToSystemClass(Collection<R> collection) {
         for (Map<String, Object> stringObjectMap : wrapperList) {
             if (stringObjectMap.size() > 1) {
-                throw new IllegalArgumentException("Multiple columns were queried: "
+                throw new IllegalStateException("Expecting to return one column of results, but querying multiple columns: "
                         + StringUtils.join(", ", stringObjectMap.keySet()));
             }
             if (stringObjectMap.isEmpty()) {

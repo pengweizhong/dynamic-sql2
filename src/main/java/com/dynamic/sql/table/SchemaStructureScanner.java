@@ -134,7 +134,7 @@ public class SchemaStructureScanner {
         if (StringUtils.isNotBlank(defaultDataSourceName)) {
             return defaultDataSourceName;
         }
-        throw new NoSuchElementException("Table entity class '" + annotatedClass.getCanonicalName()
+        throw new NoSuchElementException("Table class '" + annotatedClass.getCanonicalName()
                 + "' cannot be matched to any data source");
     }
 

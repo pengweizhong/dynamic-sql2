@@ -40,21 +40,92 @@ public interface SqlContext {
      */
     <T> List<T> selectByPrimaryKey(Class<T> entityClass, Collection<?> pkValues);
 
+    /**
+     * 执行指定的 SQL 查询，返回映射为指定类型的单个结果。
+     *
+     * @param sql        要执行的 SQL 查询语句。
+     * @param returnType 结果映射的目标类型。
+     * @param <T>        返回值的泛型类型。
+     * @return 类型为 T 的单个结果，如果未查询到结果则返回 {@code null}。
+     */
     <T> T selectOne(String sql, Class<T> returnType);
 
-    //使用预编译的方式构建
+    /**
+     * 使用预编译的方式执行指定的 SQL 查询，返回映射为指定类型的单个结果。
+     *
+     * @param sql             要执行的 SQL 查询语句。
+     * @param returnType      结果映射的目标类型。
+     * @param parameterBinder 参数绑定器，用于绑定查询中的参数。
+     * @param <T>             返回值的泛型类型。
+     * @return 类型为 T 的单个结果，如果未查询到结果则返回 {@code null}。
+     */
     <T> T selectOne(String sql, Class<T> returnType, ParameterBinder parameterBinder);
 
+    /**
+     * 执行指定数据源上的 SQL 查询，返回映射为指定类型的单个结果。
+     *
+     * @param dataSourceName 数据源名称，未指定默认按照优先级匹配最佳数据源
+     * @param sql            要执行的 SQL 查询语句。
+     * @param returnType     结果映射的目标类型。
+     * @param <T>            返回值的泛型类型。
+     * @return 类型为 T 的单个结果，如果未查询到结果则返回 {@code null}。
+     */
     <T> T selectOne(String dataSourceName, String sql, Class<T> returnType);
 
+    /**
+     * 使用预编译的方式在指定数据源上执行 SQL 查询，返回映射为指定类型的单个结果。
+     *
+     * @param dataSourceName  数据源名称，未指定默认按照优先级匹配最佳数据源
+     * @param sql             要执行的 SQL 查询语句。
+     * @param returnType      结果映射的目标类型。
+     * @param parameterBinder 参数绑定器，用于绑定查询中的参数。
+     * @param <T>             返回值的泛型类型。
+     * @return 类型为 T 的单个结果，如果未查询到结果则返回 {@code null}。
+     */
     <T> T selectOne(String dataSourceName, String sql, Class<T> returnType, ParameterBinder parameterBinder);
 
+    /**
+     * 执行指定的 SQL 查询，返回映射为指定类型的结果列表。
+     *
+     * @param sql        要执行的 SQL 查询语句。
+     * @param returnType 结果映射的目标类型。
+     * @param <T>        返回值的泛型类型。
+     * @return 类型为 T 的结果列表，如果未查询到结果则返回空列表。
+     */
     <T> List<T> selectList(String sql, Class<T> returnType);
 
+    /**
+     * 使用预编译的方式执行指定的 SQL 查询，返回映射为指定类型的结果列表。
+     *
+     * @param sql             要执行的 SQL 查询语句。
+     * @param returnType      结果映射的目标类型。
+     * @param parameterBinder 参数绑定器，用于绑定查询中的参数。
+     * @param <T>             返回值的泛型类型。
+     * @return 类型为 T 的结果列表，如果未查询到结果则返回空列表。
+     */
     <T> List<T> selectList(String sql, Class<T> returnType, ParameterBinder parameterBinder);
 
+    /**
+     * 执行指定数据源上的 SQL 查询，返回映射为指定类型的结果列表。
+     *
+     * @param dataSourceName 数据源名称，未指定默认按照优先级匹配最佳数据源
+     * @param sql            要执行的 SQL 查询语句。
+     * @param returnType     结果映射的目标类型。
+     * @param <T>            返回值的泛型类型。
+     * @return 类型为 T 的结果列表，如果未查询到结果则返回空列表。
+     */
     <T> List<T> selectList(String dataSourceName, String sql, Class<T> returnType);
 
+    /**
+     * 使用预编译的方式在指定数据源上执行 SQL 查询，返回映射为指定类型的结果列表。
+     *
+     * @param dataSourceName  数据源名称，未指定默认按照优先级匹配最佳数据源
+     * @param sql             要执行的 SQL 查询语句。
+     * @param returnType      结果映射的目标类型。
+     * @param parameterBinder 参数绑定器，用于绑定查询中的参数。
+     * @param <T>             返回值的泛型类型。
+     * @return 类型为 T 的结果列表，如果未查询到结果则返回空列表。
+     */
     <T> List<T> selectList(String dataSourceName, String sql, Class<T> returnType, ParameterBinder parameterBinder);
 
     /**

@@ -2,7 +2,7 @@ package com.dynamic.sql;
 
 import org.junit.jupiter.api.Test;
 
-class HelloTest {
+public class HelloTest {
 
     @Test
     void test() {

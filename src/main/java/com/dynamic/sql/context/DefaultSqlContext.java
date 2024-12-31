@@ -77,6 +77,9 @@ public class DefaultSqlContext implements SqlContext {
         if (CollectionUtils.isEmpty(ts)) {
             return null;
         }
+        if (ts.size() > 1) {
+            throw new IllegalStateException("Expected one result, but found: " + ts.size());
+        }
         return ts.get(0);
     }
 

@@ -12,7 +12,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
 
 //@DBSource("MysqlDataSourceImpl")
-@DBSource
+//@DBSource
 public class MysqlDataSourceImpl implements DataSource {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(MysqlDataSourceImpl.class);
     private static final DataSource dataSource = mysqlDataSourceImpl();

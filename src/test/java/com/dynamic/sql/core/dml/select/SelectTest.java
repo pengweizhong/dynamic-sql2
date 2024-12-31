@@ -1,5 +1,6 @@
 package com.dynamic.sql.core.dml.select;
 
+import com.dynamic.sql.HelloTest;
 import com.dynamic.sql.InitializingContext;
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.ColumnReference;
@@ -8,12 +9,14 @@ import com.dynamic.sql.core.column.function.table.JsonTable;
 import com.dynamic.sql.core.column.function.table.JsonTable.JsonColumn;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
+import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.plugins.pagination.CollectionPage;
 import com.dynamic.sql.plugins.pagination.MapPage;
 import com.dynamic.sql.plugins.pagination.PageHelper;
 import com.dynamic.sql.plugins.pagination.PageInfo;
+import com.dynamic.sql.utils.SqlUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -440,7 +443,7 @@ public class SelectTest extends InitializingContext {
     @Test
     void selectList2() {
         String sql = "SELECT x.* FROM dynamic_sql2.users x ";
-        List<User> users = sqlContext.selectList("xxxxx", sql, User.class, null);
+        List<User> users = sqlContext.selectList(sql, User.class, null);
         users.forEach(System.out::println);
     }
 
@@ -449,6 +452,41 @@ public class SelectTest extends InitializingContext {
         String sql = "SELECT x.user_id FROM dynamic_sql2.users x ";
         List<Integer> users = sqlContext.selectList(sql, Integer.class);
         users.forEach(System.out::println);
+    }
+
+    @Test
+    void selectList3_1() {
+        String sql = "SELECT x.user_id FROM dynamic_sql2.users x ";
+        List<HelloTest> users = sqlContext.selectList(sql, HelloTest.class);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    void selectList4() {
+        ParameterBinder parameterBinder = new ParameterBinder();
+        String value = SqlUtils.registerValueWithKey(parameterBinder, 1);
+        String sql = "SELECT x.user_id FROM .users x where x.user_id = %s";
+        List<Integer> users = sqlContext.selectList("dataSource", String.format(sql, value), Integer.class, parameterBinder);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    void selectList5() {
+        String sql = "SELECT x.* FROM dynamic_sql2.users x where x.user_id = 2";
+        List<Object> users = sqlContext.selectList("dataSource", sql, Object.class);
+        users.forEach(System.out::println);
+    }
+
+    @Test
+    void selectOne() {
+        try {
+            String sql = "SELECT x.* FROM dynamic_sql2.users x where x.user_id in (1,2,3)";
+            Object obj = sqlContext.selectOne("dataSource", sql, Object.class);
+            System.out.println(obj);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
 

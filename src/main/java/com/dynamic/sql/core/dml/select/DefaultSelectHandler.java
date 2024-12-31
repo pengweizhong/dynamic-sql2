@@ -52,29 +52,35 @@ public class DefaultSelectHandler implements SelectHandler {
     }
 
     public <T> List<T> selectList(String dataSourceName, String sql, Class<T> returnType, ParameterBinder parameterBinder) {
-        if (StringUtils.isEmpty(dataSourceName)) {
-            if (returnType.isAnnotationPresent(Table.class)) {
-                TableMeta tableMeta = TableProvider.getTableMeta(returnType);
-                dataSourceName = tableMeta.getBindDataSourceName();
-            } else {
-                //判断是否为原始对象
-                if (returnType.getClassLoader() == null) {
-                    throw new IllegalArgumentException("Unable to match data source according to class: " + returnType.getName()
-                            + ", need to declare data source name");
-                }
-                ViewMeta viewMeta = TableProvider.getViewMeta(returnType);
-                dataSourceName = viewMeta.getBindDataSourceName();
-            }
-        } else {
+        dataSourceName = checkAndReturnDataSourceName(dataSourceName, returnType);
+        SqlStatementSelectWrapper wrapper = new SqlStatementSelectWrapper(
+                dataSourceName, new StringBuilder(sql), parameterBinder, returnType);
+        FetchableImpl fetchable = new FetchableImpl(wrapper);
+        return fetchable.fetch(returnType).toList();
+    }
+
+    private String checkAndReturnDataSourceName(String dataSourceName, Class<?> returnType) {
+        if (StringUtils.isNotEmpty(dataSourceName)) {
             //校验数据源
             List<String> dataSourceNameList = DataSourceProvider.getDataSourceNameList();
             if (!dataSourceNameList.contains(dataSourceName)) {
                 throw new IllegalArgumentException(dataSourceName + " does not exist");
             }
+            return dataSourceName;
         }
-        SqlStatementSelectWrapper wrapper = new SqlStatementSelectWrapper(
-                dataSourceName, new StringBuilder(sql), parameterBinder, returnType);
-        FetchableImpl fetchable = new FetchableImpl(wrapper);
-        return fetchable.fetch(returnType).toList();
+        //匹配默认数据源
+        //如果是单一数据源，就直接使用
+        if (DataSourceProvider.getDataSourceNameList().size() == 1) {
+            String defaultDataSourceName = DataSourceProvider.getDefaultDataSourceName();
+            if (StringUtils.isNotEmpty(defaultDataSourceName)) {
+                return defaultDataSourceName;
+            }
+        }
+        if (returnType.isAnnotationPresent(Table.class)) {
+            TableMeta tableMeta = TableProvider.getTableMeta(returnType);
+            return tableMeta.getBindDataSourceName();
+        }
+        ViewMeta viewMeta = TableProvider.getViewMeta(returnType);
+        return viewMeta.getBindDataSourceName();
     }
 }
