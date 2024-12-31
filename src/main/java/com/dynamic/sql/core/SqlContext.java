@@ -78,7 +78,7 @@ public interface SqlContext {
      * 使用示例：<pre>{@code
      *         ParameterBinder parameterBinder = new ParameterBinder();
      *         String value = SqlUtils.registerValueWithKey(parameterBinder, 1);
-     *         String sql = "SELECT x.user_id FROM .users x where x.user_id = %s";
+     *         String sql = "SELECT x.user_id FROM users x where x.user_id = %s";
      *         sqlContext.selectOne("dataSource", String.format(sql, value), Integer.class, parameterBinder);
      * }</pre>
      *
@@ -129,7 +129,7 @@ public interface SqlContext {
      * 使用示例：<pre>{@code
      *         ParameterBinder parameterBinder = new ParameterBinder();
      *         String value = SqlUtils.registerValueWithKey(parameterBinder, 1);
-     *         String sql = "SELECT x.user_id FROM .users x where x.user_id >= %s";
+     *         String sql = "SELECT x.user_id FROM users x where x.user_id >= %s";
      *         sqlContext.selectList("dataSource", String.format(sql, value), Integer.class, parameterBinder);
      * }</pre>
      *
