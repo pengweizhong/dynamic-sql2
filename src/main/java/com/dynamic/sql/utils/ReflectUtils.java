@@ -185,7 +185,7 @@ public class ReflectUtils {
      * @return 泛型类型的 Class 对象列表
      */
     public static List<Class<?>> getGenericTypes(Class<?> clazz) {
-        return getGenericTypes(clazz, null);
+        return getGenericTypes(clazz, (Class<?>) null);
     }
 
     /**
