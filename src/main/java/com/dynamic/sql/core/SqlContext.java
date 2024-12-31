@@ -74,6 +74,13 @@ public interface SqlContext {
 
     /**
      * 使用预编译的方式在指定数据源上执行 SQL 查询，返回映射为指定类型的单个结果。
+     * <p>
+     * 使用示例：<pre>{@code
+     *         ParameterBinder parameterBinder = new ParameterBinder();
+     *         String value = SqlUtils.registerValueWithKey(parameterBinder, 1);
+     *         String sql = "SELECT x.user_id FROM .users x where x.user_id = %s";
+     *         sqlContext.selectOne("dataSource", String.format(sql, value), Integer.class, parameterBinder);
+     * }</pre>
      *
      * @param dataSourceName  数据源名称，未指定默认按照优先级匹配最佳数据源
      * @param sql             要执行的 SQL 查询语句。
@@ -118,6 +125,13 @@ public interface SqlContext {
 
     /**
      * 使用预编译的方式在指定数据源上执行 SQL 查询，返回映射为指定类型的结果列表。
+     * <p>
+     * 使用示例：<pre>{@code
+     *         ParameterBinder parameterBinder = new ParameterBinder();
+     *         String value = SqlUtils.registerValueWithKey(parameterBinder, 1);
+     *         String sql = "SELECT x.user_id FROM .users x where x.user_id >= %s";
+     *         sqlContext.selectList("dataSource", String.format(sql, value), Integer.class, parameterBinder);
+     * }</pre>
      *
      * @param dataSourceName  数据源名称，未指定默认按照优先级匹配最佳数据源
      * @param sql             要执行的 SQL 查询语句。

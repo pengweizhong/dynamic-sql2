@@ -466,6 +466,7 @@ public class SelectTest extends InitializingContext {
         ParameterBinder parameterBinder = new ParameterBinder();
         String value = SqlUtils.registerValueWithKey(parameterBinder, 1);
         String sql = "SELECT x.user_id FROM .users x where x.user_id = %s";
+        sqlContext.selectList("dataSource", String.format(sql, value), Integer.class, parameterBinder);
         List<Integer> users = sqlContext.selectList("dataSource", String.format(sql, value), Integer.class, parameterBinder);
         users.forEach(System.out::println);
     }
