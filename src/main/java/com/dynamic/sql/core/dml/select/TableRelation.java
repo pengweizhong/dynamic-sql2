@@ -224,33 +224,69 @@ public class TableRelation<R> implements JoinCondition {
 
     //ORDER BY column1 [ASC|DESC], column2 [ASC|DESC];
     public <T, F> ThenSortOrder<R> orderBy(FieldFn<T, F> field) {
-        return orderBy(field, SortOrder.ASC);
+        return orderBy(true, field, SortOrder.ASC);
+    }
+
+    public <T, F> ThenSortOrder<R> orderBy(boolean condition, FieldFn<T, F> field) {
+        return orderBy(condition, field, SortOrder.ASC);
     }
 
     public <T, F> ThenSortOrder<R> orderBy(FieldFn<T, F> field, SortOrder sortOrder) {
-        return new ThenSortOrder<>(this, new DefaultOrderBy(field, sortOrder));
+        return orderBy(true, field, sortOrder);
+    }
+
+    public <T, F> ThenSortOrder<R> orderBy(boolean condition, FieldFn<T, F> field, SortOrder sortOrder) {
+        return orderBy(condition, null, field, sortOrder);
     }
 
     public <T, F> ThenSortOrder<R> orderBy(String tableAlias, FieldFn<T, F> field) {
-        return new ThenSortOrder<>(this, new DefaultOrderBy(tableAlias, field, SortOrder.ASC));
+        return orderBy(true, tableAlias, field, SortOrder.ASC);
+    }
+
+    public <T, F> ThenSortOrder<R> orderBy(boolean condition, String tableAlias, FieldFn<T, F> field) {
+        return orderBy(condition, tableAlias, field, SortOrder.ASC);
     }
 
     public <T, F> ThenSortOrder<R> orderBy(String tableAlias, FieldFn<T, F> field, SortOrder sortOrder) {
-        return new ThenSortOrder<>(this, new DefaultOrderBy(tableAlias, field, sortOrder));
+        return orderBy(true, tableAlias, field, sortOrder);
+    }
+
+    public <T, F> ThenSortOrder<R> orderBy(boolean condition, String tableAlias, FieldFn<T, F> field, SortOrder sortOrder) {
+        return new ThenSortOrder<>(condition, this, new DefaultOrderBy(tableAlias, field, sortOrder));
     }
 
     public ThenSortOrder<R> orderBy(String tableAlias, String columnName) {
-        return orderBy(tableAlias, columnName, SortOrder.ASC);
+        return orderBy(true, tableAlias, columnName, SortOrder.ASC);
+    }
+
+    public ThenSortOrder<R> orderBy(boolean condition, String tableAlias, String columnName) {
+        return orderBy(condition, tableAlias, columnName, SortOrder.ASC);
+    }
+
+    public ThenSortOrder<R> orderBy(String columnName, SortOrder sortOrder) {
+        return orderBy(true, null, columnName, sortOrder);
+    }
+
+    public ThenSortOrder<R> orderBy(boolean condition, String columnName, SortOrder sortOrder) {
+        return orderBy(condition, null, columnName, sortOrder);
     }
 
     public ThenSortOrder<R> orderBy(String tableAlias, String columnName, SortOrder sortOrder) {
-        return new ThenSortOrder<>(this, new DefaultOrderBy(tableAlias, columnName, sortOrder));
+        return orderBy(true, tableAlias, columnName, sortOrder);
+    }
+
+    public ThenSortOrder<R> orderBy(boolean condition, String tableAlias, String columnName, SortOrder sortOrder) {
+        return new ThenSortOrder<>(condition, this, new DefaultOrderBy(tableAlias, columnName, sortOrder));
     }
 
     //order by d is null asc ,d asc;
     //ORDER BY FIELD(profit_range, '>10%', '5~10%', '0~5%', '0%', '0~-5%', '-5~-10%', '<-10%')
     public ThenSortOrder<R> orderBy(String orderingFragment) {
-        return new ThenSortOrder<>(this, new CustomOrderBy(orderingFragment));
+        return new ThenSortOrder<>(true, this, new CustomOrderBy(orderingFragment));
+    }
+
+    public ThenSortOrder<R> orderBy(boolean condition, String orderingFragment) {
+        return new ThenSortOrder<>(condition, this, new CustomOrderBy(orderingFragment));
     }
 
     protected SelectSpecification getSelectSpecification() {

@@ -10,10 +10,14 @@ import com.dynamic.sql.enums.SortOrder;
 public class ThenSortOrder<R> implements Fetchable {
 
     private TableRelation<R> tableRelation;
+    private boolean condition;
 
-    public ThenSortOrder(TableRelation<R> tableRelation, OrderBy orderBy) {
+    public ThenSortOrder(boolean condition, TableRelation<R> tableRelation, OrderBy orderBy) {
         this.tableRelation = tableRelation;
-        tableRelation.getSelectSpecification().getOrderBys().add(orderBy);
+        this.condition = condition;
+        if (condition) {
+            tableRelation.getSelectSpecification().getOrderBys().add(orderBy);
+        }
     }
 
     public <T, F> ThenSortOrder<R> thenOrderBy(FieldFn<T, F> field) {

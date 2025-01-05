@@ -508,7 +508,7 @@ public class SelectTest extends InitializingContext {
     void oderBy2() {
         List<User> list = sqlContext.select()
                 .allColumn()
-                .from(User.class)
+                .from(User.class,"u")
                 .orderBy(User::getRegistrationDate, SortOrder.DESC)
                 .fetch()
                 .toList();
@@ -564,6 +564,49 @@ public class SelectTest extends InitializingContext {
                 .allColumn()
                 .from(User.class, "u")
                 .orderBy(sortField + " desc")
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void oderBy7() {
+        //假设这个排序字段是由前端传入
+        String sortField = "registrationDate";
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class, "u")
+                .orderBy(sortField, SortOrder.ASC)
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void oderBy8() {
+        //假设这个排序字段是由前端传入
+        String sortField = "registrationDate";
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class, "u")
+                .orderBy(1 != 1, sortField, SortOrder.DESC)
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void thenOrderBy() {
+        //假设这个排序字段是由前端传入
+        String sortField = "registrationDate";
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class, "u")
+                .orderBy(1 != 1, sortField, SortOrder.DESC)
+                .thenOrderBy(User::getUserId)
                 .fetch()
                 .toList();
         System.out.println(list.size());
