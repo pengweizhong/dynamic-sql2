@@ -215,76 +215,207 @@ public class TableRelation<R> implements JoinCondition {
         return this;
     }
 
-    //HAVING COUNT(employee_id) > 5 AND AVG(salary) < 60000;
-    //  public abstract AbstractColumnReference column(IColumFunction iColumFunction);
     public TableRelation<R> having(Consumer<HavingCondition> condition) {
         selectSpecification.setHavingCondition(condition);
         return this;
     }
 
-    //ORDER BY column1 [ASC|DESC], column2 [ASC|DESC];
+    /**
+     * 添加一个升序排序的字段。
+     *
+     * @param field 要排序的字段
+     * @param <T>   包含字段的实体类型
+     * @param <F>   字段的类型
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public <T, F> ThenSortOrder<R> orderBy(FieldFn<T, F> field) {
         return orderBy(true, field, SortOrder.ASC);
     }
 
+    /**
+     * 根据条件添加一个升序排序的字段。
+     *
+     * @param condition 条件是否为真，为真时才添加排序
+     * @param field     要排序的字段
+     * @param <T>       包含字段的实体类型
+     * @param <F>       字段的类型
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public <T, F> ThenSortOrder<R> orderBy(boolean condition, FieldFn<T, F> field) {
         return orderBy(condition, field, SortOrder.ASC);
     }
 
+    /**
+     * 添加一个指定排序方式的字段。
+     *
+     * @param field     要排序的字段
+     * @param sortOrder 排序方式（升序或降序）
+     * @param <T>       包含字段的实体类型
+     * @param <F>       字段的类型
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public <T, F> ThenSortOrder<R> orderBy(FieldFn<T, F> field, SortOrder sortOrder) {
         return orderBy(true, field, sortOrder);
     }
 
+    /**
+     * 根据条件添加一个指定排序方式的字段。
+     *
+     * @param condition 条件是否为真，为真时才添加排序
+     * @param field     要排序的字段
+     * @param sortOrder 排序方式（升序或降序）
+     * @param <T>       包含字段的实体类型
+     * @param <F>       字段的类型
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public <T, F> ThenSortOrder<R> orderBy(boolean condition, FieldFn<T, F> field, SortOrder sortOrder) {
         return orderBy(condition, null, field, sortOrder);
     }
 
+    /**
+     * 添加一个带有表别名的升序排序字段。
+     *
+     * @param tableAlias 表别名
+     * @param field      要排序的字段
+     * @param <T>        包含字段的实体类型
+     * @param <F>        字段的类型
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public <T, F> ThenSortOrder<R> orderBy(String tableAlias, FieldFn<T, F> field) {
         return orderBy(true, tableAlias, field, SortOrder.ASC);
     }
 
+    /**
+     * 根据条件添加一个带有表别名的升序排序字段。
+     *
+     * @param condition  条件是否为真，为真时才添加排序
+     * @param tableAlias 表别名
+     * @param field      要排序的字段
+     * @param <T>        包含字段的实体类型
+     * @param <F>        字段的类型
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public <T, F> ThenSortOrder<R> orderBy(boolean condition, String tableAlias, FieldFn<T, F> field) {
         return orderBy(condition, tableAlias, field, SortOrder.ASC);
     }
 
+    /**
+     * 添加一个带有表别名和指定排序方式的字段。
+     *
+     * @param tableAlias 表别名
+     * @param field      要排序的字段
+     * @param sortOrder  排序方式（升序或降序）
+     * @param <T>        包含字段的实体类型
+     * @param <F>        字段的类型
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public <T, F> ThenSortOrder<R> orderBy(String tableAlias, FieldFn<T, F> field, SortOrder sortOrder) {
         return orderBy(true, tableAlias, field, sortOrder);
     }
 
+    /**
+     * 根据条件添加一个带有表别名和指定排序方式的字段。
+     *
+     * @param condition  条件是否为真，为真时才添加排序
+     * @param tableAlias 表别名
+     * @param field      要排序的字段
+     * @param sortOrder  排序方式（升序或降序）
+     * @param <T>        包含字段的实体类型
+     * @param <F>        字段的类型
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public <T, F> ThenSortOrder<R> orderBy(boolean condition, String tableAlias, FieldFn<T, F> field, SortOrder sortOrder) {
         return new ThenSortOrder<>(condition, this, new DefaultOrderBy(tableAlias, field, sortOrder));
     }
 
+    /**
+     * 添加一个带有表别名的列名升序排序。
+     *
+     * @param tableAlias 表别名
+     * @param columnName 列名
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public ThenSortOrder<R> orderBy(String tableAlias, String columnName) {
         return orderBy(true, tableAlias, columnName, SortOrder.ASC);
     }
 
+    /**
+     * 根据条件添加一个带有表别名的列名升序排序。
+     *
+     * @param condition  条件是否为真，为真时才添加排序
+     * @param tableAlias 表别名，可以为 null 表示不指定表别名
+     * @param columnName 列名
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public ThenSortOrder<R> orderBy(boolean condition, String tableAlias, String columnName) {
         return orderBy(condition, tableAlias, columnName, SortOrder.ASC);
     }
 
+    /**
+     * 添加一个指定列名和排序方式的排序。
+     *
+     * @param columnName 列名
+     * @param sortOrder  排序方式（升序或降序）
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public ThenSortOrder<R> orderBy(String columnName, SortOrder sortOrder) {
         return orderBy(true, null, columnName, sortOrder);
     }
 
+    /**
+     * 根据条件添加一个指定列名和排序方式的排序。
+     *
+     * @param condition  条件是否为真，为真时才添加排序
+     * @param columnName 列名
+     * @param sortOrder  排序方式（升序或降序）
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public ThenSortOrder<R> orderBy(boolean condition, String columnName, SortOrder sortOrder) {
         return orderBy(condition, null, columnName, sortOrder);
     }
 
+    /**
+     * 添加一个带有表别名和指定排序方式的列名排序。
+     *
+     * @param tableAlias 表别名，可以为 null 表示不指定表别名
+     * @param columnName 列名
+     * @param sortOrder  排序方式（升序或降序）
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public ThenSortOrder<R> orderBy(String tableAlias, String columnName, SortOrder sortOrder) {
         return orderBy(true, tableAlias, columnName, sortOrder);
     }
 
+    /**
+     * 根据条件添加一个带有表别名和指定排序方式的列名排序。
+     *
+     * @param condition  条件是否为真，为真时才添加排序
+     * @param tableAlias 表别名，可以为 null 表示不指定表别名
+     * @param columnName 列名
+     * @param sortOrder  排序方式（升序或降序）
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public ThenSortOrder<R> orderBy(boolean condition, String tableAlias, String columnName, SortOrder sortOrder) {
         return new ThenSortOrder<>(condition, this, new DefaultOrderBy(tableAlias, columnName, sortOrder));
     }
 
-    //order by d is null asc ,d asc;
-    //ORDER BY FIELD(profit_range, '>10%', '5~10%', '0~5%', '0%', '0~-5%', '-5~-10%', '<-10%')
+    /**
+     * 添加一个自定义排序片段。
+     *
+     * @param orderingFragment 自定义排序片段（SQL 字符串）
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public ThenSortOrder<R> orderBy(String orderingFragment) {
-        return new ThenSortOrder<>(true, this, new CustomOrderBy(orderingFragment));
+        return orderBy(true, orderingFragment);
     }
 
+    /**
+     * 根据条件添加一个自定义排序片段。
+     *
+     * @param condition        条件是否为真，为真时才添加排序
+     * @param orderingFragment 自定义排序片段（SQL 字符串）
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
     public ThenSortOrder<R> orderBy(boolean condition, String orderingFragment) {
         return new ThenSortOrder<>(condition, this, new CustomOrderBy(orderingFragment));
     }

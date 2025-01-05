@@ -17,7 +17,6 @@ import com.dynamic.sql.plugins.pagination.MapPage;
 import com.dynamic.sql.plugins.pagination.PageHelper;
 import com.dynamic.sql.plugins.pagination.PageInfo;
 import com.dynamic.sql.utils.SqlUtils;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -508,7 +507,7 @@ public class SelectTest extends InitializingContext {
     void oderBy2() {
         List<User> list = sqlContext.select()
                 .allColumn()
-                .from(User.class,"u")
+                .from(User.class, "u")
                 .orderBy(User::getRegistrationDate, SortOrder.DESC)
                 .fetch()
                 .toList();
@@ -607,6 +606,25 @@ public class SelectTest extends InitializingContext {
                 .from(User.class, "u")
                 .orderBy(1 != 1, sortField, SortOrder.DESC)
                 .thenOrderBy(User::getUserId)
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void thenOrderBy2() {
+        //假设这个排序字段是由前端传入
+        String sortField = "registrationDate";
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class, "u")
+                .orderBy(true, sortField, SortOrder.DESC)
+                .thenOrderBy(false, User::getUserId)
+                .thenOrderBy(true, User::getName)
+                .thenOrderBy(false, User::getEmail)
+                .thenOrderBy(true, User::getGender)
+                .thenOrderBy(true, User::getPhoneNumber)
                 .fetch()
                 .toList();
         System.out.println(list.size());
