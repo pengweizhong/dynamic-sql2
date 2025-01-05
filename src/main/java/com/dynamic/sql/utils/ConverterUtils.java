@@ -84,6 +84,11 @@ public class ConverterUtils {
             }
             return formattedValue;
         }
+        //如果是枚举字段
+        if (value instanceof Enum) {
+            Enum<?> enumValue = (Enum<?>) value;
+            return enumValue.name();
+        }
         // 如果没有找到适合的转换器，抛出异常或者返回默认值
         return value;
     }
