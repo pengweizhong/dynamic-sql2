@@ -17,6 +17,7 @@ import com.dynamic.sql.plugins.pagination.MapPage;
 import com.dynamic.sql.plugins.pagination.PageHelper;
 import com.dynamic.sql.plugins.pagination.PageInfo;
 import com.dynamic.sql.utils.SqlUtils;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -489,6 +490,84 @@ public class SelectTest extends InitializingContext {
             e.printStackTrace();
         }
 
+    }
+
+    @Test
+    void oderBy() {
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .orderBy(User::getRegistrationDate)
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void oderBy2() {
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .orderBy(User::getRegistrationDate, SortOrder.DESC)
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void oderBy3() {
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .orderBy("users", User::getRegistrationDate)
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void oderBy4() {
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class, "u")
+                .orderBy("u", User::getRegistrationDate, SortOrder.DESC)
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void oderBy5() {
+        //假设这个排序字段是由前端传入
+        String sortField = "registrationDate";
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(select -> select.allColumn()
+                                .from(User.class)
+                        , "u")
+                .orderBy("u", sortField, SortOrder.DESC)
+                .fetch(User.class)
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void oderBy6() {
+        //假设这个排序字段是由前端传入
+        String sortField = "registrationDate";
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class, "u")
+                .orderBy(sortField + " desc")
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
     }
 }
 

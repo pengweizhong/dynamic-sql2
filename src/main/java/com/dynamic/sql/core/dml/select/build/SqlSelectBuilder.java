@@ -160,9 +160,10 @@ public abstract class SqlSelectBuilder {
             if (orderBys.size() - 1 != i) {
                 columnSeparator = ",";
             }
+            String sort = orderBy.getSortOrder() != null ? orderBy.getSortOrder().toSqlString(sqlDialect) : "";
             stringBuilder.append(SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName))
                     .append(" ")
-                    .append(orderBy.getSortOrder().toSqlString(sqlDialect))
+                    .append(sort)
                     .append(columnSeparator);
         }
         return stringBuilder.toString();

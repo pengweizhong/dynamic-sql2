@@ -223,7 +223,6 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     //ORDER BY column1 [ASC|DESC], column2 [ASC|DESC];
-    //TODO 需要构建更为复杂的order By
     public <T, F> ThenSortOrder<R> orderBy(FieldFn<T, F> field) {
         return orderBy(field, SortOrder.ASC);
     }
