@@ -71,7 +71,7 @@ https://github.com/pengweizhong/dynamic-sql2-spring-boot-starter
 <dependency>
     <groupId>com.dynamic-sql</groupId>
     <artifactId>dynamic-sql2</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
 </dependency>
 ```
 
