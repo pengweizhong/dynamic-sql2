@@ -7,12 +7,7 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.table.ColumnMeta;
-import com.dynamic.sql.table.TableMeta;
-import com.dynamic.sql.table.TableProvider;
-import com.dynamic.sql.utils.ReflectUtils;
 import com.dynamic.sql.utils.SqlUtils;
-import com.dynamic.sql.utils.StringUtils;
 
 public final class Column extends AbstractColumFunction implements TableFunction {
 
@@ -44,13 +39,14 @@ public final class Column extends AbstractColumFunction implements TableFunction
             return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." +
                     SqlUtils.quoteIdentifier(sqlDialect, columnName);
         }
-        String filedName = ReflectUtils.fnToFieldName(columnFn);
-        String classCanonicalName = ReflectUtils.getOriginalClassCanonicalName(columnFn);
-        TableMeta tableMeta = TableProvider.getTableMeta(classCanonicalName);
-        ColumnMeta columnMeta = tableMeta.getColumnMeta(filedName);
-        String tableAliasName = StringUtils.isEmpty(tableAlias) ? tableMeta.getTableAlias() : tableAlias;
-        return SqlUtils.quoteIdentifier(sqlDialect, tableAliasName) + "." +
-                SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
+        return SqlUtils.extractQualifiedAlias(tableAlias, columnFn, aliasTableMap, dataSourceName);
+//        String filedName = ReflectUtils.fnToFieldName(columnFn);
+//        String classCanonicalName = ReflectUtils.getOriginalClassCanonicalName(columnFn);
+//        TableMeta tableMeta = TableProvider.getTableMeta(classCanonicalName);
+//        ColumnMeta columnMeta = tableMeta.getColumnMeta(filedName);
+//        String tableAliasName = StringUtils.isEmpty(tableAlias) ? tableMeta.getTableAlias() : tableAlias;
+//        return SqlUtils.quoteIdentifier(sqlDialect, tableAliasName) + "." +
+//                SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
     }
 
     @Override

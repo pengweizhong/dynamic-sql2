@@ -121,38 +121,41 @@ public class SqlUtils {
         return tableMeta.getTableAlias();
     }
 
-    /**
-     * 按照当前SQL语义匹配最佳表别名
-     */
     public static <T, F> String extractQualifiedAlias(Fn<T, F> field, Map<String, String> aliasTableMap, String dataSourceName) {
-        String tableAlias = null;
+        return extractQualifiedAlias(null, field, aliasTableMap, dataSourceName);
+    }
+
+    /**
+     * 按照当前SQL语义匹配最佳表别名, 之后拼接列名
+     */
+    public static <T, F> String extractQualifiedAlias(String tableAlias, Fn<T, F> field, Map<String, String> aliasTableMap, String dataSourceName) {
         Fn fn = field;
         //如果内嵌了表别名，则此处的表别名优先级最高
         if (field instanceof AbstractAliasHelper) {
             AbstractAliasHelper abstractAlias = (AbstractAliasHelper) field;
             if (abstractAlias instanceof TableAliasImpl) {
-                tableAlias = abstractAlias.getTableAlias();
+                tableAlias = ifAbsentAlias(tableAlias, abstractAlias.getTableAlias());
                 if (abstractAlias.getFnColumn() != null) {
                     fn = abstractAlias.getFnColumn();
                 } else {
                     DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
                     DbType dbType = dataSourceMeta.getDbType();
                     SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
-                    tableAlias = StringUtils.isBlank(tableAlias) ? "" : SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
+                    tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
                     return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, abstractAlias.getColumnName());
                 }
             }
         }
         if (field instanceof GroupFn) {
             GroupFn groupFn = (GroupFn) field;
-            tableAlias = groupFn.getTableAlias();
+            tableAlias = ifAbsentAlias(tableAlias, groupFn.getTableAlias());
             if (groupFn.getFn() != null) {
                 fn = groupFn.getFn();
             } else {
                 DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
                 DbType dbType = dataSourceMeta.getDbType();
                 SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
-                tableAlias = StringUtils.isBlank(tableAlias) ? "" : SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
+                tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
                 return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, groupFn.getColumnName());
             }
         }
@@ -166,15 +169,21 @@ public class SqlUtils {
         DbType dbType = dataSourceMeta.getDbType();
         SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
         //最后匹配全局的表别名，通常默认别名就是表名
-        if (tableAlias == null) {
-            tableAlias = tableMeta.getTableAlias();
-        }
+        tableAlias = ifAbsentAlias(tableAlias, tableMeta.getTableAlias());
         ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(fn));
         String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
         return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." + column;
     }
 
-    public static String extractQualifiedAliasOrderBy(OrderBy orderBy, Map<String, String> aliasTableMap, String dataSourceName) {
+    private static String ifAbsentAlias(String oriAlias, String newAlias) {
+        if (oriAlias == null) {
+            return newAlias;
+        }
+        return oriAlias;
+    }
+
+    public static String extractQualifiedAliasOrderBy(OrderBy orderBy, Map<String, String> aliasTableMap, String
+            dataSourceName) {
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
         DbType dbType = dataSourceMeta.getDbType();
         SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
@@ -418,7 +427,8 @@ public class SqlUtils {
         }
     }
 
-    public static SqlStatementSelectWrapper executeNestedSelect(Consumer<AbstractColumnReference> nestedSelectConsumer) {
+    public static SqlStatementSelectWrapper executeNestedSelect
+            (Consumer<AbstractColumnReference> nestedSelectConsumer) {
         Select select = new Select();
         AbstractColumnReference columnReference = select.loadColumReference();
         nestedSelectConsumer.accept(columnReference);
