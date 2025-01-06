@@ -24,6 +24,10 @@ public class Sum extends ColumnFunctionDecorator implements AggregateFunction, W
         super(tableAlias, columnName);
     }
 
+    public <T, F> Sum(String tableAlias, FieldFn<T, F> fn) {
+        super(tableAlias, fn);
+    }
+
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {

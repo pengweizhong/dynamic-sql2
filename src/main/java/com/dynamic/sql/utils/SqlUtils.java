@@ -103,6 +103,27 @@ public class SqlUtils {
         return quotes + identifier + quotes;
     }
 
+    /**
+     * 按照当前SQL语义匹配最佳表别名
+     *
+     * @param originalClassCanonicalName 查询表类全称
+     * @param aliasTableMap              当前会话匹配到的别名
+     * @param tableMeta                  原始表meta
+     */
+    public static String extractQualifiedAlias(String originalClassCanonicalName, Map<String, String> aliasTableMap, TableMeta tableMeta) {
+        if (aliasTableMap == null) {
+            return tableMeta.getTableAlias();
+        }
+        String alias = aliasTableMap.get(originalClassCanonicalName);
+        if (alias != null) {
+            return alias;
+        }
+        return tableMeta.getTableAlias();
+    }
+
+    /**
+     * 按照当前SQL语义匹配最佳表别名
+     */
     public static <T, F> String extractQualifiedAlias(Fn<T, F> field, Map<String, String> aliasTableMap, String dataSourceName) {
         String tableAlias = null;
         Fn fn = field;
@@ -172,7 +193,7 @@ public class SqlUtils {
                 String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(defaultOrderBy.getFieldFn());
                 TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
                 ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(defaultOrderBy.getFieldFn()));
-                String tableAlias = matchTheBestTableAlias(originalClassCanonicalName, aliasTableMap, tableMeta);
+                String tableAlias = extractQualifiedAlias(originalClassCanonicalName, aliasTableMap, tableMeta);
                 if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null) {
                     sqlBuilder.append(quoteIdentifier(sqlDialect, tableAlias)).append(".");
                 }
@@ -193,24 +214,6 @@ public class SqlUtils {
 //            return anonymousFunction.getFunctionToString();
 //        }
         return value;
-    }
-
-    /**
-     * 按照当前SQL语义匹配最佳表别名
-     *
-     * @param originalClassCanonicalName 查询表类全称
-     * @param aliasTableMap              当前会话匹配到的别名
-     * @param tableMeta                  原始表meta
-     */
-    public static String matchTheBestTableAlias(String originalClassCanonicalName, Map<String, String> aliasTableMap, TableMeta tableMeta) {
-        if (aliasTableMap == null) {
-            return tableMeta.getTableAlias();
-        }
-        String alias = aliasTableMap.get(originalClassCanonicalName);
-        if (alias != null) {
-            return alias;
-        }
-        return tableMeta.getTableAlias();
     }
 
     public static String getSyntaxSelect(SqlDialect sqlDialect) {
