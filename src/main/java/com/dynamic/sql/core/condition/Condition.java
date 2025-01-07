@@ -17,24 +17,6 @@ import java.util.function.Consumer;
  * <p>
  * 每个方法都支持链式调用，使得构建复杂的查询条件变得更加简洁和直观。方法前缀（如 `and`, `or`）
  * 表示条件的逻辑关系，用以准确地描述查询的逻辑。
- * <p>
- * 具体方法的使用说明如下：
- * <ul>
- *     <li>{@code andEqualTo(Fn<T, F> fn, Object value)}：添加一个“等于”条件，并且将其与之前的条件通过 AND 逻辑连接。</li>
- *     <li>{@code orEqualTo(Fn<T, F> fn, Object value)}：添加一个“等于”条件，并且将其与之前的条件通过 OR 逻辑连接。</li>
- *     <li>{@code customCondition(String customClause, Object... params)}：允许添加自定义的 SQL 条件子句，以支持特殊的 SQL 语法和逻辑。</li>
- * </ul>
- * <p>
- * 使用此接口时，可以快速创建一个实现类或通过依赖注入使用实现类来进行查询条件的构建。
- * <p>
- * 示例：
- * <pre>
- * Condition condition = new SqlConditionBuilder()
- *     .andEqualTo(User::getName, "John")
- *     .orGreaterThan(User::getAge, 30)
- *     .andCustomCondition("custom_column BETWEEN ? AND ?", 10, 20);
- * </pre>
- * 以上代码将构建一个包含“姓名等于 John”或者“年龄大于 30”并且“custom_column 在 10 到 20 之间”的查询条件。
  */
 public interface Condition {
 
