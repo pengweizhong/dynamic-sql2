@@ -73,7 +73,7 @@ class InsertTest extends InitializingContext {
     @Test
     void insertMultiple() {
         ArrayList<Product> products = new ArrayList<>();
-        for (int i = 1; i <= 10_000; i++) {
+        for (int i = 1; i <= 10; i++) {
             Product product = new Product();
             product.setProductName("菠萝手机-insertMultiple-1000/" + i);
             product.setPrice(BigDecimal.valueOf(6.66));

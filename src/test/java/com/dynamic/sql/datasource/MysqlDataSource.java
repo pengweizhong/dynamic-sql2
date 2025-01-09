@@ -17,7 +17,7 @@ public class MysqlDataSource {
         DruidDataSource ds = new DruidDataSource();
         ds.setUrl("jdbc:mysql://127.0.0.1:3306/dynamic_sql2?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
         ds.setUsername("root");
-        ds.setPassword("root");
+        ds.setPassword("Pwz_123456789");
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
         ds.setInitialSize(10);
         ds.setMaxActive(50);
@@ -41,7 +41,7 @@ public class MysqlDataSource {
         DruidDataSource ds = new DruidDataSource();
         ds.setUrl("jdbc:mysql://127.0.0.1:3306/test?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
         ds.setUsername("root");
-        ds.setPassword("root");
+        ds.setPassword("Pwz_123456789");
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
         ds.setInitialSize(10);
         ds.setMaxActive(50);
