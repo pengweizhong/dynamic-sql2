@@ -15,6 +15,7 @@ import com.dynamic.sql.core.condition.impl.dialect.OracleWhereCondition;
 import com.dynamic.sql.core.database.PreparedSql;
 import com.dynamic.sql.core.dml.SqlStatementWrapper;
 import com.dynamic.sql.core.dml.SqlStatementWrapper.BatchType;
+import com.dynamic.sql.core.dml.select.NestedMeta;
 import com.dynamic.sql.core.dml.select.Select;
 import com.dynamic.sql.core.dml.select.build.*;
 import com.dynamic.sql.core.dml.select.build.join.FromNestedJoin;
@@ -402,19 +403,22 @@ public class SqlUtils {
     }
 
     public static SqlSelectBuilder matchSqlSelectBuilder(SelectSpecification selectSpecification) {
-        JoinTable joinTable = selectSpecification.getJoinTables().get(0);
-        SqlDialect sqlDialect = null;
-        if (joinTable instanceof FromNestedJoin) {
-            FromNestedJoin fromNestedJoin = (FromNestedJoin) joinTable;
-            NestedJoin nestedJoin = fromNestedJoin.getNestedJoin();
-            sqlDialect = nestedJoinSqlDialect(nestedJoin);
-        }
-        if (joinTable instanceof NestedJoin) {
-            NestedJoin nestedJoin = (NestedJoin) joinTable;
-            sqlDialect = nestedJoinSqlDialect(nestedJoin);
-        }
-        if (sqlDialect == null) {
-            sqlDialect = SqlUtils.getSqlDialect(joinTable.getTableClass());
+        NestedMeta nestedMeta = selectSpecification.getNestedMeta();
+        SqlDialect sqlDialect = nestedMeta == null ? null : nestedMeta.getSqlDialect();
+        if(sqlDialect == null){
+            JoinTable joinTable = selectSpecification.getJoinTables().get(0);
+            if (joinTable instanceof FromNestedJoin) {
+                FromNestedJoin fromNestedJoin = (FromNestedJoin) joinTable;
+                NestedJoin nestedJoin = fromNestedJoin.getNestedJoin();
+                sqlDialect = nestedJoinSqlDialect(nestedJoin);
+            }
+            if (joinTable instanceof NestedJoin) {
+                NestedJoin nestedJoin = (NestedJoin) joinTable;
+                sqlDialect = nestedJoinSqlDialect(nestedJoin);
+            }
+            if (sqlDialect == null) {
+                sqlDialect = SqlUtils.getSqlDialect(joinTable.getTableClass());
+            }
         }
         switch (sqlDialect) {
             case MYSQL:
@@ -429,7 +433,12 @@ public class SqlUtils {
 
     public static SqlStatementSelectWrapper executeNestedSelect
             (Consumer<AbstractColumnReference> nestedSelectConsumer) {
-        Select select = new Select();
+        return executeNestedSelect(null, nestedSelectConsumer);
+    }
+
+    public static SqlStatementSelectWrapper executeNestedSelect
+            (NestedMeta nestedMeta, Consumer<AbstractColumnReference> nestedSelectConsumer) {
+        Select select = new Select(nestedMeta);
         AbstractColumnReference columnReference = select.loadColumReference();
         nestedSelectConsumer.accept(columnReference);
         SqlSelectBuilder nestedSqlBuilder = matchSqlSelectBuilder(select.getSelectSpecification());

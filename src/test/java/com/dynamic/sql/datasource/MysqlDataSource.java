@@ -10,6 +10,7 @@ import java.sql.SQLException;
 
 public class MysqlDataSource {
     private static final Logger log = LoggerFactory.getLogger(MysqlDataSource.class);
+    private static final String OS = System.getProperty("os.name").toLowerCase();
 
     @DBSource(defaultDB = true)
     public DataSource getDataSource() {
@@ -17,7 +18,11 @@ public class MysqlDataSource {
         DruidDataSource ds = new DruidDataSource();
         ds.setUrl("jdbc:mysql://127.0.0.1:3306/dynamic_sql2?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
         ds.setUsername("root");
-        ds.setPassword("Pwz_123456789");
+        if (OS.contains("linux")) {
+            ds.setPassword("root");
+        } else {
+            ds.setPassword("Pwz_123456789");
+        }
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
         ds.setInitialSize(10);
         ds.setMaxActive(50);
@@ -41,7 +46,11 @@ public class MysqlDataSource {
         DruidDataSource ds = new DruidDataSource();
         ds.setUrl("jdbc:mysql://127.0.0.1:3306/test?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
         ds.setUsername("root");
-        ds.setPassword("Pwz_123456789");
+        if (OS.contains("linux")) {
+            ds.setPassword("root");
+        } else {
+            ds.setPassword("Pwz_123456789");
+        }
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
         ds.setInitialSize(10);
         ds.setMaxActive(50);
@@ -65,13 +74,17 @@ public class MysqlDataSource {
         return ds;
     }
 
-//    @DBSource("testDB2")
+    //    @DBSource("testDB2")
     public DataSource getTestDataSource2() {
         log.info("----------------- getTestDataSource2 -----------------");
         DruidDataSource ds = new DruidDataSource();
         ds.setUrl("jdbc:mysql://127.0.0.1:3306/test?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
         ds.setUsername("root");
-        ds.setPassword("root");
+        if (OS.contains("linux")) {
+            ds.setPassword("root");
+        } else {
+            ds.setPassword("Pwz_123456789");
+        }
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
         ds.setInitialSize(10);
         ds.setMaxActive(50);

@@ -3,7 +3,9 @@ package com.dynamic.sql.core;
 
 import com.dynamic.sql.core.column.conventional.AllColumn;
 import com.dynamic.sql.core.column.conventional.Column;
+import com.dynamic.sql.core.column.conventional.NumberColumn;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.column.function.modifiers.Distinct;
 import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
@@ -15,11 +17,14 @@ import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
 import com.dynamic.sql.core.dml.select.build.join.FromJoin;
 import com.dynamic.sql.core.dml.select.build.join.FromNestedJoin;
 import com.dynamic.sql.core.dml.select.build.join.NestedJoin;
+import com.dynamic.sql.core.dml.select.build.join.TableFunctionJoin;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
+import com.dynamic.sql.enums.JoinTableType;
 import com.dynamic.sql.utils.StringUtils;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ColumnReference extends AbstractColumnReference {
 
@@ -99,6 +104,12 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
+    public AbstractColumnReference column(NumberColumn numberColumn) {
+        selectSpecification.getColumFunctions().add(numberColumn);
+        return this;
+    }
+
+    @Override
     public AbstractColumnReference column(WindowsFunction windowsFunction, Consumer<Over> over, String columnAlias) {
         selectSpecification.getColumFunctions().add(new FunctionColumn(windowsFunction, over, columnAlias));
         return this;
@@ -147,6 +158,12 @@ public class ColumnReference extends AbstractColumnReference {
     @Override
     public <T> TableRelation<T> from(Class<T> tableClass, String alias) {
         selectSpecification.getJoinTables().add(new FromJoin(tableClass, alias));
+        return new TableRelation<>(selectSpecification);
+    }
+
+    @Override
+    public <T> TableRelation<T> from(Supplier<TableFunction> tableFunction, String tableAlias) {
+        selectSpecification.getJoinTables().add(new FromJoin(tableFunction, tableAlias));
         return new TableRelation<>(selectSpecification);
     }
 

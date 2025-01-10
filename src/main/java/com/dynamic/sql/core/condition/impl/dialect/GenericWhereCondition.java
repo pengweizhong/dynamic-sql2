@@ -12,6 +12,7 @@ import com.dynamic.sql.core.condition.FunctionCondition;
 import com.dynamic.sql.core.condition.NestedCondition;
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.dml.select.HavingCondition;
+import com.dynamic.sql.core.dml.select.NestedMeta;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.LogicalOperatorType;
@@ -224,7 +225,11 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     private StringBuilder nestedSelectSql(Consumer<AbstractColumnReference> nestedSelect) {
-        SqlStatementSelectWrapper sqlStatementSelectWrapper = SqlUtils.executeNestedSelect(nestedSelect);
+        NestedMeta nestedMeta = new NestedMeta();
+        nestedMeta.setSqlDialect(sqlDialect());
+        nestedMeta.setVersion(version);
+        nestedMeta.setDataSourceName(dataSourceName);
+        SqlStatementSelectWrapper sqlStatementSelectWrapper = SqlUtils.executeNestedSelect(nestedMeta, nestedSelect);
         parameterBinder.addParameterBinder(sqlStatementSelectWrapper.getParameterBinder());
         return sqlStatementSelectWrapper.getRawSql();
     }

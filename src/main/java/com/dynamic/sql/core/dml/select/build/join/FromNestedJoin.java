@@ -5,7 +5,7 @@ public class FromNestedJoin extends FromJoin {
     private final NestedJoin nestedJoin;
 
     public FromNestedJoin(NestedJoin nestedJoin) {
-        super(null, nestedJoin.getTableAlias());
+        super((Class<?>) null, nestedJoin.getTableAlias());
         this.nestedJoin = nestedJoin;
     }
 

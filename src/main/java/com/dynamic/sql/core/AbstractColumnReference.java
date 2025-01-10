@@ -1,7 +1,9 @@
 package com.dynamic.sql.core;
 
 
+import com.dynamic.sql.core.column.conventional.NumberColumn;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.core.dml.select.TableRelation;
@@ -11,6 +13,7 @@ import com.dynamic.sql.core.dml.select.cte.CteTable;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * 该抽象类提供了 SQL 查询列的引用及其相关操作的基础实现。
@@ -131,6 +134,8 @@ public abstract class AbstractColumnReference {
      */
     public abstract AbstractColumnReference column(AbstractColumFunction iColumFunction, String columnAlias);
 
+    public abstract AbstractColumnReference column(NumberColumn numberColumn);
+
     /**
      * 添加一个窗口函数列到查询中。
      *
@@ -216,6 +221,8 @@ public abstract class AbstractColumnReference {
      * @return 表关系的定义
      */
     public abstract <T> TableRelation<T> from(Class<T> tableClass, String tableAlias);
+
+    public abstract <T> TableRelation<T> from(Supplier<TableFunction> tableFunction, String tableAlias);
 
     /**
      * 设置一个公共表表达式（CTE）为主表。

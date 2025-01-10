@@ -4,6 +4,7 @@ import com.dynamic.sql.HelloTest;
 import com.dynamic.sql.InitializingContext;
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.ColumnReference;
+import com.dynamic.sql.core.column.conventional.NumberColumn;
 import com.dynamic.sql.core.column.function.modifiers.Distinct;
 import com.dynamic.sql.core.column.function.table.JsonTable;
 import com.dynamic.sql.core.column.function.table.JsonTable.JsonColumn;
@@ -135,6 +136,22 @@ public class SelectTest extends InitializingContext {
                 .orderBy("user_total", "total_spent", SortOrder.DESC)
                 .limit(0, 100)
                 .fetch(UserAndOrderView.class).toList();
+        System.out.println(list);
+    }
+
+    @Test
+    void select1_1() {
+        List<UserAndOrderView> list = sqlContext.select()
+                .column(User::getUserId)
+                .column(User::getName, "user_name")
+                .from(User.class)
+                .where(whereCondition -> {
+                    whereCondition.andExists(select -> select
+                            .column(new NumberColumn(1))
+                            .from(() -> new JsonTable(User::getName, "$.items[*]",
+                                    JsonTable.JsonColumn.builder().column("value").dataType("VARCHAR(50)").jsonPath("$").build()
+                            ), "jt"));
+                }).fetch(UserAndOrderView.class).toList();
         System.out.println(list);
     }
 

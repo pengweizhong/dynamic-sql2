@@ -49,6 +49,13 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             if (selectSpecification.getColumFunctions().size() - 1 == i) {
                 columnSeparator = "";
             }
+            //TODO 这里类名需要修改以下，太容易引起混淆 ColumFunction、FunctionColumn
+            if (columnQuery instanceof ColumFunction) {
+                ColumFunction columFunction = (ColumFunction) columnQuery;
+                String functionToString = columFunction.getFunctionToString(sqlDialect, version);
+                sqlBuilder.append(functionToString);
+                continue;
+            }
             if (columnQuery instanceof FunctionColumn) {
                 FunctionColumn functionColumn = (FunctionColumn) columnQuery;
                 ColumFunction columFunction = functionColumn.getColumFunction();
@@ -166,6 +173,13 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             return;
         }
         if (joinTable instanceof FromJoin) {
+            //如果是直接查询的函数表
+            if (joinTable.getTableFunction() != null) {
+                TableFunction tableFunction = joinTable.getTableFunction().get();
+                sqlBuilder.append(tableFunction.getFunctionToString(sqlDialect, version))
+                        .append(syntaxAs()).append(joinTable.getTableAlias());
+                return;
+            }
             sqlBuilder.append(automaticallySelectAliases(joinTable));
             return;
         }
