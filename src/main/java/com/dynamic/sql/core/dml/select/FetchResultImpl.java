@@ -138,7 +138,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
                 collection.add(null);
             }
             Map.Entry<String, Object> entry = stringObjectMap.entrySet().iterator().next();
-            R value = ConverterUtils.convertToEntityAttribute(resultClass, entry.getValue());
+            R value = ConverterUtils.convertToEntityAttribute(null, resultClass, entry.getValue());
             collection.add(value);
         }
         return collection;
@@ -168,14 +168,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             if (columnMeta == null) {
                 return;
             }
-            Object value;
-            if (null != columnMeta.getConverter()) {
-                AttributeConverter<Object, Object> objectObjectAttributeConverter =
-                        ConverterUtils.loadCustomConverter(columnMeta.getConverter());
-                value = objectObjectAttributeConverter.convertToEntityAttribute(columnValue);
-            } else {
-                value = ConverterUtils.convertToEntityAttribute(columnMeta.getField().getType(), columnValue);
-            }
+            Object value = ConverterUtils.convertToEntityAttribute(columnMeta, columnMeta.getField().getType(), columnValue);
             if (value != null) {
                 ReflectUtils.setFieldValue(instance, columnMeta.getField(), value);
             }

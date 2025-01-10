@@ -160,7 +160,7 @@ public class RootExecutor {
             }
             Long generatedKey = resultSet.getLong(1);
             // 设置自增ID值到实体对应字段
-            Object o = ConverterUtils.convertToEntityAttribute(columnMeta.getField().getType(), generatedKey);
+            Object o = ConverterUtils.convertToEntityAttribute(columnMeta, columnMeta.getField().getType(), generatedKey);
             ReflectUtils.setFieldValue(obj, columnMeta.getField(), o);
         }
     }

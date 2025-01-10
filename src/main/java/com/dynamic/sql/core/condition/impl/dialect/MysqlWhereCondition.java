@@ -94,7 +94,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         //REPLACE(str, from_str, to_str)
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
-                .append(", ").append("replace(").append(column).append(", ").append(registerValueWithKey(parameterBinder, fn, separator))
+                .append(", ").append("replace(").append(column).append(", ").append(registerValueWithKey(parameterBinder, null, separator))
                 .append(", ',')").append(")");
         return this;
     }
@@ -113,7 +113,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         //REPLACE(str, from_str, to_str)
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
-                .append(", ").append("replace(").append(column).append(", ").append(registerValueWithKey(parameterBinder, fn, separator))
+                .append(", ").append("replace(").append(column).append(", ").append(registerValueWithKey(parameterBinder, null, separator))
                 .append(", ',')").append(")");
         return this;
     }

@@ -11,6 +11,7 @@ import com.dynamic.sql.plugins.conversion.attribute.BigDecimalAttributeConverter
 import com.dynamic.sql.plugins.conversion.attribute.LocalDateAttributeConverter;
 import com.dynamic.sql.table.FieldMeta;
 
+import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.sql.Clob;
 import java.sql.Timestamp;
@@ -115,7 +116,7 @@ public class ConverterUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, V> T convertToEntityAttribute(Class<T> fieldType, V value) {
+    public static <T, V> T convertToEntityAttribute(FieldMeta fieldMeta, @Nonnull Class<T> fieldType, V value) {
         if (value == null) {
             return null;
         }
@@ -130,6 +131,10 @@ public class ConverterUtils {
         }
         // 检查是否有自定义的转换器
         AttributeConverter<Object, V> customAttributeConverter = CUSTOM_ATTRIBUTE_CONVERTERS.get(fieldType);
+        // 再次判断是否传入了自定义转换器
+        if (customAttributeConverter == null && fieldMeta != null && fieldMeta.getConverter() != null) {
+            customAttributeConverter = loadCustomConverter(fieldMeta.getConverter());
+        }
         if (customAttributeConverter != null) {
             return (T) customAttributeConverter.convertToEntityAttribute(value);
         }
