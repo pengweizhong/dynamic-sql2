@@ -59,15 +59,22 @@ public class ConverterUtils {
         }
         //如果该字段直接实现了转换器
         if (value instanceof AttributeConverter) {
-            AttributeConverter attributeConverter = (AttributeConverter) value;
-            return attributeConverter.convertToDatabaseColumn(value);
+            AttributeConverter<Object, Object> attributeConverter = (AttributeConverter) value;
+            if (!attributeConverter.isSkipConvertToDatabaseColumn(value)) {
+                return attributeConverter.convertToDatabaseColumn(value);
+            }
         }
         if (fieldMeta.getConverter() != null) {
-            return loadCustomConverter(fieldMeta.getConverter()).convertToDatabaseColumn(value);
+            AttributeConverter<Object, Object> attributeConverter = loadCustomConverter(fieldMeta.getConverter());
+            if (!attributeConverter.isSkipConvertToDatabaseColumn(value)) {
+                return attributeConverter.convertToDatabaseColumn(value);
+            }
         }
         AttributeConverter<Object, Object> attributeConverter = GENERAL_ATTRIBUTE_CONVERTER_MODEL.get(fieldMeta.getField().getType());
         if (attributeConverter != null) {
-            return attributeConverter.convertToDatabaseColumn(value);
+            if (!attributeConverter.isSkipConvertToDatabaseColumn(value)) {
+                return attributeConverter.convertToDatabaseColumn(value);
+            }
         }
         //是否存在格式化
         String format = fieldMeta.getFormat();
@@ -123,7 +130,9 @@ public class ConverterUtils {
         //如果是字段本身实现了AttributeConverter
         if (value instanceof AttributeConverter) {
             AttributeConverter attributeConverter = (AttributeConverter) value;
-            return (T) attributeConverter.convertToEntityAttribute(value);
+            if (!attributeConverter.isSkipConvertToEntityAttribute(value)) {
+                return (T) attributeConverter.convertToEntityAttribute(value);
+            }
         }
         Class<?> valueType = value.getClass();
         if (fieldType.isAssignableFrom(valueType)) {
@@ -135,13 +144,16 @@ public class ConverterUtils {
         if (customAttributeConverter == null && fieldMeta != null && fieldMeta.getConverter() != null) {
             customAttributeConverter = loadCustomConverter(fieldMeta.getConverter());
         }
-        if (customAttributeConverter != null) {
+        if (customAttributeConverter != null && !customAttributeConverter.isSkipConvertToEntityAttribute(value)) {
             return (T) customAttributeConverter.convertToEntityAttribute(value);
         }
+
         // 检查是否有通用的转换器
         AttributeConverter<Object, V> attributeConverter = GENERAL_ATTRIBUTE_CONVERTER_MODEL.get(fieldType);
         if (attributeConverter != null) {
-            return (T) attributeConverter.convertToEntityAttribute(value);
+            if (!attributeConverter.isSkipConvertToEntityAttribute(value)) {
+                return (T) attributeConverter.convertToEntityAttribute(value);
+            }
         }
         //处理一下特别常见的类型
         if (fieldType == String.class) {
