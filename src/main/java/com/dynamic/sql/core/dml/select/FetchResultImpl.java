@@ -1,7 +1,6 @@
 package com.dynamic.sql.core.dml.select;
 
 
-import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.plugins.conversion.FetchResultConverter;
 import com.dynamic.sql.table.FieldMeta;
 import com.dynamic.sql.table.TableMeta;
@@ -87,7 +86,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             return (Collection<R>) wrapperList;
         }
         //判断是否为原始对象
-        if (resultClass.getClassLoader() == null) {
+        if (resultClass.getClassLoader() == null || resultClass.isEnum()) {
             return convertToSystemClass(collection);
         }
         List<FieldMeta> fieldMetas = getFieldMetas("Collection");

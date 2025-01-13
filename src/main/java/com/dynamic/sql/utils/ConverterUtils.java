@@ -202,6 +202,16 @@ public class ConverterUtils {
         if (fieldType.isEnum()) {
             //枚举对象
             Object[] enumConstants = fieldType.getEnumConstants();
+            //没有声明任何常量直接返回null
+            if (enumConstants == null) {
+                return null;
+            }
+            //再次检查该枚举是否继承了转换接口，这种情况主要出现在在实体类中未定义枚举接收，但是在外部使用了枚举进行引用
+            if (AttributeConverter.class.isAssignableFrom(fieldType)) {
+                AttributeConverter attributeConverterEnum = (AttributeConverter) enumConstants[0];
+                return (T) attributeConverterEnum.convertToEntityAttribute(value);
+            }
+            //AttributeConverter
             for (Object enumObj : enumConstants) {
                 //应该精确比较，要不然查询时大小写问题会带来困扰
                 if (enumObj.toString().equals(value.toString())) {
