@@ -106,8 +106,14 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             T value = (T) reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap);
             K key = keyMapper.apply(value); // 计算键
             V val = valueMapper.apply(value); // 计算值
-            // 如果 map 中已存在该键，使用 mergeFunction 处理值冲突
-            m.merge(key, val, mergeFunction);
+            //对于null元素额外处理，以防止merge空值针，这样做更贴近业务场景
+            if (val == null) {
+                m.put(key, val);
+            } else {
+                // 如果 map 中已存在该键，使用 mergeFunction 处理值冲突
+                m.merge(key, val, mergeFunction);
+            }
+
         });
     }
 
