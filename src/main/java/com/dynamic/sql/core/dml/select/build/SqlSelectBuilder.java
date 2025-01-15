@@ -148,8 +148,15 @@ public abstract class SqlSelectBuilder {
 
     private void parseGroupBy(List<Fn<?, ?>> groupByFields) {
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxGroupBy(sqlDialect));
-        for (Fn<?, ?> groupByField : groupByFields) {
-            sqlBuilder.append(" ").append(SqlUtils.extractQualifiedAlias(groupByField, aliasTableMap, dataSourceName));
+        for (int i = 0; i < groupByFields.size(); i++) {
+            Fn<?, ?> fn = groupByFields.get(i);
+            if (i == 0) {
+                sqlBuilder.append(" ");
+            }
+            sqlBuilder.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName));
+            if (i < groupByFields.size() - 1) {
+                sqlBuilder.append(", ");
+            }
         }
     }
 
