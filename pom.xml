@@ -176,8 +176,11 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <!-- 引用 settings.xml 中的配置 -->
-                    <passphrase>${gpg.passphrase}</passphrase>
+                    <useAgent>true</useAgent>
+                    <gpgArguments>
+                        <arg>--pinentry-mode</arg>
+                        <arg>loopback</arg>
+                    </gpgArguments>
                 </configuration>
             </plugin>
             <plugin>
