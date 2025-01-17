@@ -22,13 +22,14 @@ MySQL、Oracle、DB2 等数据库的无缝集成，支持子查询、窗口函�
 - **分页功能**：现代化的分页功能，高效处理查询结果。
 - **Spring 集成**：与 Spring兼容，通过 Spring JDBC 提供 Starter 集成，简化配置和使用。
 
-## 为什么需要 dynamic-sql2？
+## 为什么需要 Dynamic-SQL2 ？
 
 在开发应用时，特别是在处理数据库交互时，很多场景下需要根据不同的条件动态构建 SQL 查询。  
 为了更加敏捷开发，dynamic-sql2 应运而生，解决了以下几个主要问题：
 
 1. **减少硬编码 SQL 的重复性**  
-   在传统的开发过程中，每个查询都需要手动编写 SQL 语句，这不仅增加了开发的复杂度，也导致了 SQL 语句的重复性。dynamic-sql2 提供了简洁的
+   在传统的开发过程中，每个查询都需要手动编写 SQL 语句，这不仅增加了开发的复杂度，也导致了 SQL 语句的重复性。dynamic-sql2
+   提供了简洁的
    DSL（领域特定语言）风格接口，使得动态构建 SQL 查询变得更加高效，减少了冗余代码，提升了开发效率。
 2. **提升 SQL 生成的灵活性和可维护性**  
    动态构建 SQL 查询时，通常会面临不同条件、排序、分页等需求的变化，手动编写 SQL 会导致查询逻辑的分散和代码的复杂化。dynamic-sql2
@@ -48,14 +49,16 @@ MySQL、Oracle、DB2 等数据库的无缝集成，支持子查询、窗口函�
 7. **支持灵活的扩展和定制**  
    dynamic-sql2 具有很好的扩展性，支持自定义函数、条件生成器等，能够根据项目的不同需求进行定制，适应复杂的业务场景。
 8. **提高代码的测试性和可调试性**  
-   由于 SQL 查询是通过 Java API 构建的，开发者可以轻松进行单元测试，验证 SQL 语句的正确性。dynamic-sql2 提供的日志记录和调试支持也使得开发者能够更容易追踪
+   由于 SQL 查询是通过 Java API 构建的，开发者可以轻松进行单元测试，验证 SQL 语句的正确性。dynamic-sql2
+   提供的日志记录和调试支持也使得开发者能够更容易追踪
    SQL 查询的执行过程和调试问题。
 
-### 根本原因：
+### Dynamic-SQL2 不是什么 ？
 
-**实际生产需求驱动，因为系统需要部署到不同的甲方客户。** 有些甲方使用 Oracle 数据库，而有些甲方使用 MySQL。  
-为了尽量减少业务代码的修改和重复工作，从而推动了 dynamic-sql2 框架的重新迭代和优化。
-
+动态SQL的定位是面向企业级`SAAS`系统开发，它的设计思想是专注于简化 `SQL` 构建和敏捷开发的轻量级的`ORM`框架，  
+它补充了`Mybatis-plus`和`TK-Mybatis`不能多表连接的空白，并额外添加了许多实际应用场景的API，但仍不如像 `Mybatis` 或 `Hibernate` 那样提供全面的数据库操作。  
+所以它不太适用于复杂的数据分析，即使有时`Dynamic-SQL2`支持特别复杂的SQL，但由于Java臃肿的语法，又想要保持低侵入的编码状态，这是无法避免的；  
+过长的SQL构建语句会比较难以阅读，因此不建议在代码中构建特别复杂的`SQL`。
 ## 快速开始
 
 https://github.com/pengweizhong/dynamic-sql2-spring-boot-starter
@@ -71,7 +74,7 @@ https://github.com/pengweizhong/dynamic-sql2-spring-boot-starter
 <dependency>
     <groupId>com.dynamic-sql</groupId>
     <artifactId>dynamic-sql2</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
 </dependency>
 ```
 
