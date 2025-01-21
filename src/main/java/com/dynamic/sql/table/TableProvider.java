@@ -21,7 +21,7 @@ public class TableProvider {//NOSONAR
 
     protected static void saveTableMeta(Class<?> tableClass, TableMeta tableMeta) {
         if (TABLE_META_MAP.containsKey(tableClass)) {
-            log.info("Data source '{}' has already added table '{}', skip adding this time",
+            log.debug("Data source '{}' has already added table '{}', skip adding this time",
                     tableMeta.getBindDataSourceName(), tableMeta.getTableName());
             return;
         }
@@ -59,7 +59,7 @@ public class TableProvider {//NOSONAR
 
     protected static void saveViewMeta(Class<?> viewClass, ViewMeta viewMeta) {
         if (VIEW_META_MAP.containsKey(viewClass)) {
-            log.info("Already added view '{}', skip adding this time", viewClass.getCanonicalName());
+            log.trace("Already added view '{}', skip adding this time", viewClass.getCanonicalName());
             return;
         }
         VIEW_META_MAP.put(viewClass, viewMeta);
