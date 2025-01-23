@@ -15,9 +15,7 @@ import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.sql.Clob;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.LinkedHashMap;
@@ -198,6 +196,12 @@ public class ConverterUtils {
                 Timestamp timestamp = (Timestamp) value;
                 return (T) timestamp.toLocalDateTime();
             }
+        }
+        if (fieldType == YearMonth.class) {
+            return (T) YearMonth.parse(value.toString());
+        }
+        if (fieldType == Year.class) {
+            return (T) Year.parse(value.toString());
         }
         if (fieldType.isEnum()) {
             //枚举对象
