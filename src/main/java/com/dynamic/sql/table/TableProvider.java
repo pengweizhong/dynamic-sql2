@@ -21,7 +21,7 @@ public class TableProvider {//NOSONAR
 
     protected static void saveTableMeta(Class<?> tableClass, TableMeta tableMeta) {
         if (TABLE_META_MAP.containsKey(tableClass)) {
-            log.debug("Data source '{}' has already added table '{}', skip adding this time",
+            log.trace("Data source '{}' has already added table '{}', skip adding this time",
                     tableMeta.getBindDataSourceName(), tableMeta.getTableName());
             return;
         }
