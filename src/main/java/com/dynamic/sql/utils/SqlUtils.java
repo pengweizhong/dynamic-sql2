@@ -135,7 +135,7 @@ public class SqlUtils {
         if (field instanceof AbstractAliasHelper) {
             AbstractAliasHelper abstractAlias = (AbstractAliasHelper) field;
             if (abstractAlias instanceof TableAliasImpl) {
-                tableAlias = ifAbsentAlias(tableAlias, abstractAlias.getTableAlias());
+                tableAlias = ifAbsentAlias(tableAlias, abstractAlias.getTableAlias(), aliasTableMap);
                 if (abstractAlias.getFnColumn() != null) {
                     fn = abstractAlias.getFnColumn();
                 } else {
@@ -149,7 +149,7 @@ public class SqlUtils {
         }
         if (field instanceof GroupFn) {
             GroupFn groupFn = (GroupFn) field;
-            tableAlias = ifAbsentAlias(tableAlias, groupFn.getTableAlias());
+            tableAlias = ifAbsentAlias(tableAlias, groupFn.getTableAlias(), aliasTableMap);
             if (groupFn.getFn() != null) {
                 fn = groupFn.getFn();
             } else {
@@ -170,15 +170,21 @@ public class SqlUtils {
         DbType dbType = dataSourceMeta.getDbType();
         SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
         //最后匹配全局的表别名，通常默认别名就是表名
-        tableAlias = ifAbsentAlias(tableAlias, tableMeta.getTableAlias());
+        tableAlias = ifAbsentAlias(tableAlias, tableMeta.getTableAlias(), aliasTableMap);
         ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(fn));
         String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
         return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." + column;
     }
 
-    private static String ifAbsentAlias(String oriAlias, String newAlias) {
-        if (oriAlias == null) {
+    private static String ifAbsentAlias(String oriAlias, String newAlias, Map<String, String> aliasTableMap) {
+        if (oriAlias == null && newAlias != null) {
             return newAlias;
+        }
+        //如果有通用别名
+        if (oriAlias == null && aliasTableMap != null) {
+            if (aliasTableMap.get("**") != null) {
+                return aliasTableMap.get("**");
+            }
         }
         return oriAlias;
     }
@@ -405,7 +411,7 @@ public class SqlUtils {
     public static SqlSelectBuilder matchSqlSelectBuilder(SelectSpecification selectSpecification) {
         NestedMeta nestedMeta = selectSpecification.getNestedMeta();
         SqlDialect sqlDialect = nestedMeta == null ? null : nestedMeta.getSqlDialect();
-        if(sqlDialect == null){
+        if (sqlDialect == null) {
             JoinTable joinTable = selectSpecification.getJoinTables().get(0);
             if (joinTable instanceof FromNestedJoin) {
                 FromNestedJoin fromNestedJoin = (FromNestedJoin) joinTable;

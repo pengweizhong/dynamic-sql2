@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.dynamic.sql.core.column.AbstractAliasHelper.bindAlias;
+import static com.dynamic.sql.core.column.AbstractAliasHelper.bindName;
 
 public class SelectTest extends InitializingContext {
     private static final Logger log = LoggerFactory.getLogger(SelectTest.class);
@@ -361,9 +362,21 @@ public class SelectTest extends InitializingContext {
     @Test
     void testSelectPage() {
         PageInfo<List<User>> pageInfo = PageHelper.of(1, 3)
-                .selectPage(() -> sqlContext.select().allColumn().from(User.class).fetch().toList());
+                .selectPage(() -> sqlContext.select().allColumn().from(User.class).where().fetch().toList());
         pageInfo.getRecords().forEach(System.out::println);
     }
+
+    @Test
+    void testSelectPageAppendWhere() {
+        PageInfo<List<User>> pageInfo = PageHelper.of(1, 3)
+                .applyWhere(whereCondition -> whereCondition.andGreaterThanOrEqualTo(bindName("userId"), 3))
+                .selectPage(() -> sqlContext.select().allColumn().from(User.class).fetch().toList());
+        pageInfo.getRecords().forEach(System.out::println);
+        System.out.println("\n");
+        PageInfo<List<User>> listPageInfo = pageInfo.selectNextPage(() -> sqlContext.select().allColumn().from(User.class).fetch().toList());
+        listPageInfo.getRecords().forEach(System.out::println);
+    }
+
 
     @Test
     void testOrderBy() {

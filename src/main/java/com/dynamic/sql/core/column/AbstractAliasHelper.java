@@ -18,6 +18,10 @@ public abstract class AbstractAliasHelper<T, F> implements FieldFn<T, F> {
         return tfAlias;
     }
 
+    public static <T, F> AbstractAliasHelper<T, F> bindName(String columnName) {
+        return new TableAliasImpl<>(columnName);
+    }
+
     public abstract FieldFn<T, F> getFnColumn();
 
     public abstract String getColumnName();

@@ -4,13 +4,14 @@ package com.dynamic.sql.plugins.pagination.impl;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.dml.SqlStatementWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.plugins.pagination.AbstractPage;
 import com.dynamic.sql.plugins.pagination.DialectPagination;
 
 import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
 
 public class OracleDialectPagination implements DialectPagination {
     @Override
-    public StringBuilder selectCountSql(Version version, SqlStatementWrapper sqlStatementWrapper) {
+    public StringBuilder selectCountSql(Version version, SqlStatementWrapper sqlStatementWrapper, AbstractPage abstractPage) {
         StringBuilder selectCountSql = new StringBuilder(sqlStatementWrapper.getRawSql());
         selectCountSql.insert(0, "SELECT COUNT(1) FROM (");
         selectCountSql.append(") COUNT_PAGE_TEMP ");
@@ -18,13 +19,13 @@ public class OracleDialectPagination implements DialectPagination {
     }
 
     @Override
-    public void modifyPagingSql(Version version, SqlStatementWrapper sqlStatementWrapper, int pageIndex, int pageSize) {
+    public void modifyPagingSql(Version version, SqlStatementWrapper sqlStatementWrapper, AbstractPage abstractPage) {
         //在 Oracle 12c 及以上版本，分页的逻辑得到了显著简化，新增了 SQL 标准中的 FETCH FIRST 和 OFFSET 子句，可以更优雅地实现分页
         if (version.isGreaterThanOrEqual(new Version(12, 0, 0))) {
-            offsetAndFetch(sqlStatementWrapper, pageIndex, pageSize);
+            offsetAndFetch(sqlStatementWrapper, abstractPage.getPageIndex(), abstractPage.getPageSize());
             return;
         }
-        rowNumPage(sqlStatementWrapper, pageIndex, pageSize);
+        rowNumPage(sqlStatementWrapper, abstractPage.getPageIndex(), abstractPage.getPageSize());
     }
 
     private void offsetAndFetch(SqlStatementWrapper sqlStatementWrapper, int pageIndex, int pageSize) {

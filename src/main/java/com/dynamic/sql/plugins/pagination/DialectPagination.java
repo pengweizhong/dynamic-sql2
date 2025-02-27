@@ -15,9 +15,12 @@ public interface DialectPagination {
      *
      * @param version             数据库版本信息，用于支持针对不同版本的 SQL 优化。
      * @param sqlStatementWrapper 原始 SQL 语句的包装对象，包含查询的核心 SQL 和元数据信息。
+     * @param abstractPage        分页信息。
      * @return 构建的统计总记录数的 SQL 字符串（StringBuilder）。
      */
-    StringBuilder selectCountSql(Version version, SqlStatementWrapper sqlStatementWrapper);
+    StringBuilder selectCountSql(Version version,
+                                 SqlStatementWrapper sqlStatementWrapper,
+                                 AbstractPage abstractPage);
 
     /**
      * 修改原始 SQL 为分页查询的 SQL。
@@ -27,10 +30,9 @@ public interface DialectPagination {
      *
      * @param version             数据库版本信息，用于支持针对不同版本的分页实现。
      * @param sqlStatementWrapper 原始 SQL 语句的包装对象，包含查询的核心 SQL 和元数据信息。
-     * @param pageIndex           当前页索引（从 1 开始）。
-     * @param pageSize            每页显示的记录数。
+     * @param abstractPage        分页信息。
      */
     void modifyPagingSql(Version version,
                          SqlStatementWrapper sqlStatementWrapper,
-                         int pageIndex, int pageSize);
+                         AbstractPage abstractPage);
 }

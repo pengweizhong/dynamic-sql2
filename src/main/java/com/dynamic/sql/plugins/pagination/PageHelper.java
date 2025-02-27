@@ -1,10 +1,12 @@
 package com.dynamic.sql.plugins.pagination;
 
+import com.dynamic.sql.core.condition.WhereCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.dynamic.sql.plugins.pagination.LocalPage.clearCurrentPage;
@@ -144,28 +146,45 @@ public class PageHelper {
 
     @SuppressWarnings("unchecked")
     public static class GeneralPageHelper {
-        private int pageIndex;
-        private int pageSize;
-        private PageInfo<?> cachePageInfo;
+        private PageInfo<?> pageInfo;
 
         private GeneralPageHelper(int pageIndex, int pageSize) {
-            this.pageIndex = pageIndex;
-            this.pageSize = pageSize;
+            pageInfo = new PageInfo<>(pageIndex, pageSize);
         }
 
         private <T> GeneralPageHelper(PageInfo<T> pageInfo) {
-            this.cachePageInfo = pageInfo;
+            this.pageInfo = pageInfo;
         }
 
         public <T> PageInfo<T> selectPage(Supplier<T> selectSupplier) {
-            PageInfo<T> pageInfo;
-            if (cachePageInfo == null) {
-                pageInfo = new PageInfo<>(pageIndex, pageSize);
-            } else {
-                pageInfo = (PageInfo<T>) cachePageInfo;
-            }
             executeQuery(pageInfo, selectSupplier);
-            return pageInfo;
+            return (PageInfo<T>) pageInfo;
+        }
+
+        /**
+         * 将查询条件应用到当前的分页查询中
+         * <p>
+         * 示例：
+         * <pre>{@code
+         *         PageInfo<List<User>> pageInfo = PageHelper.of(1, 3)
+         *                 .applyWhere(whereCondition -> whereCondition.andGreaterThanOrEqualTo(bindName("userId"), 3))
+         *                 .selectPage(() -> sqlContext.select().allColumn().from(User.class).fetch().toList());
+         *         pageInfo.getRecords().forEach(System.out::println);
+         * }</pre>
+         * <p>注意：此方法不会支持链式调用，调用该方法时会将条件与现有分页信息合并。，为避免数据污染，多次调用仅最后一次生效。</p>
+         *
+         * @param condition 需要应用的查询条件，使用 {@link WhereCondition} 来构建具体的查询条件。该参数是一个 Consumer 类型，
+         *                  用于接收条件并进行操作。如果传入的 condition 为 {@code null}，则不会进行任何条件应用操作。
+         * @return 返回当前的 {@link GeneralPageHelper} 实例
+         */
+        public GeneralPageHelper applyWhere(Consumer<WhereCondition> condition) {
+            if (condition != null) {
+                pageInfo = new ConditionPageInfo<>(pageInfo, condition);
+                return this;
+            }
+            //reset
+            pageInfo = new PageInfo<>(pageInfo.getPageIndex(), pageInfo.getPageSize());
+            return this;
         }
     }
 

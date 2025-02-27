@@ -50,7 +50,7 @@ public class PageInterceptorPlugin implements SqlInterceptor {
         Long total = abstractPage.getCacheTotal();
         if (total == null) {
             total = executeCountSql(sqlStatementWrapper, connection,
-                    dialectPagination.selectCountSql(version, sqlStatementWrapper));
+                    dialectPagination.selectCountSql(version, sqlStatementWrapper, abstractPage));
             currentPage.setTotal(total);
             currentPage.initTotalPage();
         }
@@ -62,7 +62,7 @@ public class PageInterceptorPlugin implements SqlInterceptor {
         if (abstractPage.getPageIndex() > abstractPage.getTotalPage()) {
             return ExecutionControl.SKIP;
         }
-        dialectPagination.modifyPagingSql(version, sqlStatementWrapper, abstractPage.getPageIndex(), abstractPage.getPageSize());
+        dialectPagination.modifyPagingSql(version, sqlStatementWrapper, abstractPage);
         return ExecutionControl.PROCEED;
     }
 
