@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * 此接口提供了执行 SQL 操作的上下文环境。
+ * SQL 操作上下文，提供构建和执行 SQL 语句的方法。
+ * <p>
+ * 该接口定义了一系列方法，用于构建 SQL 查询、插入、更新、删除等操作。
+ * </p>
  */
 public interface SqlContext {
     /**

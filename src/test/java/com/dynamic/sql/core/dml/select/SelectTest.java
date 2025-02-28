@@ -217,6 +217,32 @@ public class SelectTest extends InitializingContext {
         }
     }
 
+    List<ProductView> selectProductViewList() {
+        return sqlContext.select()
+                .allColumn()
+                .from(Product.class)
+                .fetch(ProductView.class).toList();
+    }
+
+    @Test
+    void selectNextPage() {
+        PageInfo<List<ProductView>> pageInfo = PageHelper.of(1, 3).selectPage(this::selectProductViewList);
+        System.out.println("pageInfo: " + pageInfo);
+        PageInfo<List<ProductView>> nextPage = pageInfo.selectNextPage(this::selectProductViewList);
+        System.out.println("nextPage: " + nextPage);
+        System.out.println("pageInfo: " + pageInfo);
+    }
+
+    @Test
+    void selectNextPage2() {
+        PageInfo<List<ProductView>> pageInfo = PageHelper.of(1, 3).selectPage(this::selectProductViewList);
+        System.out.println("pageInfo: " + pageInfo);
+        while (pageInfo.hasNextPage()) {
+            pageInfo.selectNextPage();
+            System.out.println("pageInfo: " + pageInfo);
+        }
+    }
+
     @Test
     void select4() {
         List<ProductView> list = sqlContext.select()

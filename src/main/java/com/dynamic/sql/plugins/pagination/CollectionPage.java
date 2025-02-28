@@ -6,6 +6,7 @@ import com.dynamic.sql.core.SqlContext;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+@Deprecated
 public class CollectionPage<C extends Collection<T>, T> extends AbstractPage {
     //分页结果
     private C records;

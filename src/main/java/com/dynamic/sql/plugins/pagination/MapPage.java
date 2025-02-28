@@ -6,6 +6,7 @@ import com.dynamic.sql.core.SqlContext;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@Deprecated
 public class MapPage<K, V, M extends Map<K, V>> extends AbstractPage {
     //分页结果
     private M records;
