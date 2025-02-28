@@ -1,5 +1,6 @@
 package com.dynamic.sql.plugins.pagination;
 
+import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.core.condition.WhereCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,6 +157,31 @@ public class PageHelper {
             this.pageInfo = pageInfo;
         }
 
+        /**
+         * 执行分页查询并返回分页结果 {@link PageInfo} 对象。
+         * <p>
+         * 此方法作为分页操作的入口，使用提供的 {@code selectSupplier} 来执行分页查询并返回查询结果。
+         * 它将查询结果封装在 {@code PageInfo<T>} 对象中，该对象包含查询数据和分页信息（如当前页、总页数等）。
+         * </p>
+         *
+         * <p><strong>分页逻辑：</strong></p>
+         * <ul>
+         *     <li>使用 {@code selectSupplier} 执行查询</li>
+         *     <li>根据提供的页码和页大小进行分页</li>
+         *     <li>返回的 {@code PageInfo} 对象包含分页数据及分页相关信息</li>
+         * </ul>
+         *
+         * <p><strong>示例：</strong></p>
+         * <pre>{@code
+         * PageInfo<List<ProductView>> pageInfo = PageHelper.of(1, 3).selectPage(this::selectProductViewList);
+         * }</pre>
+         * 在上述示例中，调用 {@code selectPage} 方法执行查询，并返回第一页的 3 条数据。
+         *
+         * @param selectSupplier 查询数据的 {@link Supplier}
+         * @param <T>            查询结果的类型。
+         * @return 返回包含查询结果和分页信息的 {@link PageInfo} 对象。
+         * @see SqlContext#select()
+         */
         public <T> PageInfo<T> selectPage(Supplier<T> selectSupplier) {
             executeQuery(pageInfo, selectSupplier);
             return (PageInfo<T>) pageInfo;

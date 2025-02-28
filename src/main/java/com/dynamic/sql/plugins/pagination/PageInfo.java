@@ -68,8 +68,6 @@ public class PageInfo<T> extends AbstractPage {
      * </p>
      *
      * <p><strong>注意：</strong>调用此方法后，当前对象的数据会被更新，调用者无需重新赋值。</p>
-     *
-     * @see SqlContext#select()
      */
     public void selectNextPage() {
         pageIndex++;
