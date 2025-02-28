@@ -1,6 +1,8 @@
 package com.dynamic.sql.core.database;
 
+import com.dynamic.sql.context.SqlContextHelper;
 import com.dynamic.sql.context.properties.SchemaProperties.PrintSqlProperties;
+import com.dynamic.sql.context.properties.SqlLogConfig;
 import com.dynamic.sql.enums.DMLType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,13 @@ public class SqlDebugger {
 
     public static void debug(PrintSqlProperties printSqlProperties,
                              PreparedSql preparedSql, String dataSourceName, boolean isIntercepted) {
+        //如果log未开启
         if (!log.isDebugEnabled() || !printSqlProperties.isPrintSql()) {
+            return;
+        }
+        SqlLogConfig sqlLogConfig = SqlContextHelper.getSqlLogConfig();
+        //如果强制抑制SQL输出
+        if (sqlLogConfig != null && sqlLogConfig.isSuppressSqlLog()) {
             return;
         }
         if (!printSqlProperties.isPrintDataSourceName()) {
