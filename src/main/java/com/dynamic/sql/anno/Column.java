@@ -56,4 +56,21 @@ public @interface Column {
      */
     String format() default "";
 
+    /**
+     * 指定空间参考系统的 SRID（Spatial Reference System Identifier）。
+     * <p>
+     * SRID（空间参考系统标识符）用于定义地理空间数据的坐标系统。
+     * 在数据库中，SRID 决定了点、线、面等几何数据的地理投影方式。
+     * <p>
+     * 例如：
+     * <ul>
+     *   <li>WGS 84（GPS 常用坐标系）的 SRID 为 4326。</li>
+     *   <li>Web 墨卡托投影（用于 Web 地图）的 SRID 为 3857。</li>
+     * </ul>
+     * <p>
+     * 当 SRID 设置为 <b>0</b>（默认值）时，表示未指定 SRID，数据库使用默认的坐标系。
+     *
+     * @return 空间参考系统的 SRID
+     */
+    int srid() default 0;
 }

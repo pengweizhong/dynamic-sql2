@@ -7,6 +7,7 @@ import com.dynamic.sql.context.properties.SqlContextProperties;
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.datasource.connection.ConnectionHolder;
 import com.dynamic.sql.datasource.connection.SimpleConnectionHandle;
+import com.dynamic.sql.model.Point;
 import com.dynamic.sql.plugins.conversion.impl.FetchJsonObjectConverter;
 import com.dynamic.sql.plugins.pagination.PageInterceptorPlugin;
 import com.dynamic.sql.utils.ConverterUtils;

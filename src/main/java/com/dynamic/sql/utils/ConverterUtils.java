@@ -277,4 +277,13 @@ public class ConverterUtils {
     public static <R, X, Y> AttributeConverter<X, Y> getCustomAttributeConverter(Class<R> resultClass) {
         return CUSTOM_ATTRIBUTE_CONVERTERS.get(resultClass);
     }
+
+    public static <R, X, Y> AttributeConverter<X, Y> getOrSetCustomAttributeConverter(Class<R> resultClass) {
+        AttributeConverter<X, Y> customAttributeConverter = getCustomAttributeConverter(resultClass);
+        if (customAttributeConverter == null) {
+            customAttributeConverter = (AttributeConverter) ReflectUtils.instance(resultClass);
+            putCustomAttributeConverter((Class<? extends AttributeConverter>) resultClass, customAttributeConverter);
+        }
+        return customAttributeConverter;
+    }
 }

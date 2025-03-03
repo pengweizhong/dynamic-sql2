@@ -1,6 +1,7 @@
 package com.dynamic.sql.core.dml.select;
 
 
+import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.plugins.conversion.FetchResultConverter;
 import com.dynamic.sql.table.FieldMeta;
 import com.dynamic.sql.table.TableMeta;
@@ -89,6 +90,19 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         if (resultClass.getClassLoader() == null || resultClass.isEnum()) {
             return convertToSystemClass(collection);
         }
+        //映射单个对象
+        if (AttributeConverter.class.isAssignableFrom(resultClass)) {
+            AttributeConverter<Object, Object> customAttributeConverter = ConverterUtils.getOrSetCustomAttributeConverter(resultClass);
+            for (Map<String, Object> stringObjectMap : wrapperList) {
+                //这种情况下只会存在一种值
+                Object next = stringObjectMap.values().iterator().next();
+                if (!customAttributeConverter.isSkipConvertToEntityAttribute(next)) {
+                    collection.add((R) customAttributeConverter.convertToEntityAttribute(next));
+                }
+            }
+            return collection;
+        }
+        //映射实体类或者视图
         List<FieldMeta> fieldMetas = getFieldMetas("Collection");
         Map<String, FieldMeta> columnNameMap = fieldMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
         Map<String, FieldMeta> fieldNameMap = fieldMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
