@@ -1,10 +1,10 @@
 CREATE TABLE `t_location`
 (
     `id`           int          NOT NULL AUTO_INCREMENT COMMENT '位置ID',
-    `province`     varchar(50)  NOT NULL COMMENT '省份',
-    `city`         varchar(50)  NOT NULL COMMENT '城市',
-    `district`     varchar(50)  NOT NULL COMMENT '区/县',
-    `address`      varchar(255) NOT NULL COMMENT '详细地址',
+    `province`     varchar(50)  NULL COMMENT '省份',
+    `city`         varchar(50)  NULL COMMENT '城市',
+    `district`     varchar(50)  NULL COMMENT '区/县',
+    `address`      varchar(255) NULL COMMENT '详细地址',
     `location4326` point        NOT NULL /*!80003 SRID 4326 */ COMMENT '地理坐标点(4326)',
     `location`     point        NULL COMMENT '地理坐标点(默认)',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

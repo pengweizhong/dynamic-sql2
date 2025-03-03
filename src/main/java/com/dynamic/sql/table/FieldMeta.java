@@ -14,6 +14,8 @@ public class FieldMeta {
     private Class<? extends AttributeConverter> converter;
     //写库字段格式化
     private String format;
+    //SRID
+    private int srid;
 
     public String getColumnName() {
         return columnName;
@@ -45,5 +47,13 @@ public class FieldMeta {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public Integer getSrid() {
+        return srid;
+    }
+
+    public void setSrid(int srid) {
+        this.srid = srid;
     }
 }

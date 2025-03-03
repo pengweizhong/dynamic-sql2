@@ -42,4 +42,15 @@ class PointTest extends InitializingContext {
         list.forEach(System.out::println);
     }
 
+    @Test
+    void insertPoint() {
+        LocationEntity build = LocationEntity.builder()
+                .location4326(new Point(12.3, 25.1234, 4326))
+                .location(new Point(1, 1))
+                .build();
+        int i = sqlContext.insertSelective(build);
+        System.out.println(i);
+        System.out.println(build);
+    }
+
 }

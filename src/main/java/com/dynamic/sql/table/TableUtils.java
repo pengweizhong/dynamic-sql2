@@ -225,6 +225,7 @@ public class TableUtils {
             if (!DefaultAttributeConverter.class.equals(column.converter())) {
                 converter = column.converter();
             }
+            columnMeta.setSrid(column.srid());
         }
         if (converter == null) {
             if (AttributeConverter.class.isAssignableFrom(field.getType())) {

@@ -5,11 +5,17 @@ import com.dynamic.sql.anno.GeneratedValue;
 import com.dynamic.sql.anno.Id;
 import com.dynamic.sql.anno.Table;
 import com.dynamic.sql.model.Point;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table("t_location")
 public class LocationEntity {
     //    `id`            int          NOT NULL AUTO_INCREMENT COMMENT '位置ID',

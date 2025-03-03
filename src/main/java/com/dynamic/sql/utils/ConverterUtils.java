@@ -4,6 +4,7 @@ package com.dynamic.sql.utils;
 import com.dynamic.sql.core.column.function.AnonymousFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.Point;
 import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.plugins.conversion.AttributeConverterModel;
 import com.dynamic.sql.plugins.conversion.FetchResultConverter;
@@ -145,7 +146,6 @@ public class ConverterUtils {
         if (customAttributeConverter != null && !customAttributeConverter.isSkipConvertToEntityAttribute(value)) {
             return (T) customAttributeConverter.convertToEntityAttribute(value);
         }
-
         // 检查是否有通用的转换器
         AttributeConverter<Object, V> attributeConverter = GENERAL_ATTRIBUTE_CONVERTER_MODEL.get(fieldType);
         if (attributeConverter != null) {
