@@ -36,10 +36,8 @@ public class WKBUtils {
      * @return 以 WKB 格式存储的字节数组。
      */
     public static byte[] writeWkbBytesFromPoint(Point point) {
-        // 确定本机字节序是否为大端序
-        boolean isBigEndian = point.getByteOrder() != null && point.getByteOrder() == ByteOrder.BIG_ENDIAN;
         // 根据系统字节序选择 WKB 存储格式（除 SRID 外）
-        ByteOrder order = isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+        ByteOrder order = point.getByteOrder() == null ? ByteOrder.LITTLE_ENDIAN : point.getByteOrder();
         // 分配 25 字节缓冲区，包含 SRID(4) + 字节序标识(1) + 几何类型(4) + 经度(8) + 纬度(8)
         ByteBuffer buffer = ByteBuffer.allocate(25);
         // 1. SRID（始终以小端序存储）
@@ -47,15 +45,14 @@ public class WKBUtils {
         buffer.putInt(point.getSrid());
         // 2. 字节序标识（0 = 大端，1 = 小端）
         buffer.order(order);
-        buffer.put((byte) (isBigEndian ? 0 : 1));
+        buffer.put((byte) (order == ByteOrder.BIG_ENDIAN ? 0 : 1));
         // 3. 几何类型（1 = Point）
         buffer.putInt(1);
         // 4. 坐标数据（X 和 Y 坐标）
-        buffer.putDouble(point.getLongitude()); // 经度 (Longitude)
-        buffer.putDouble(point.getLatitude());  // 纬度 (Latitude)
+        buffer.putDouble(point.getLongitude());
+        buffer.putDouble(point.getLatitude());
         return buffer.array();
     }
-
 
     /**
      * 从 WKB（Well-Known Binary）字节数组中读取坐标数据，返回一个 {@link Point} 对象。
@@ -65,10 +62,10 @@ public class WKBUtils {
      * @return 包含经度和纬度信息的 {@link Point} 对象。
      */
     public static Point readPointFromWkbBytes(byte[] wkbBytes) {
-        // 判断字节顺序
-        boolean isBigEndian = readIsWkbBigEndianByteOrder(wkbBytes[0]);
         // 读取 SRID（前 4 个字节，固定使用小端序）
         int srid = ByteBuffer.wrap(wkbBytes, 0, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        // 判断字节顺序
+        boolean isBigEndian = readIsWkbBigEndianByteOrder(wkbBytes[4]);
         // 读取经度和纬度，分别位于字节数组的 9 和 17 位置
         double x = readDoubleFromBytes(wkbBytes, 9, isBigEndian);
         double y = readDoubleFromBytes(wkbBytes, 17, isBigEndian);

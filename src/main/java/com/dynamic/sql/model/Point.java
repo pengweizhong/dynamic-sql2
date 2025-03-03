@@ -49,41 +49,101 @@ public class Point implements Serializable, AttributeConverter<Point, byte[]> {
         this.byteOrder = point.byteOrder;
     }
 
+    /**
+     * 获取经度（Longitude），表示东西方向的位置，范围是-180到180。
+     *
+     * @return 经度值
+     */
     public double getLongitude() {
         return longitude;
     }
 
+    /**
+     * 设置经度（Longitude），表示东西方向的位置，范围是-180到180。
+     *
+     * @param longitude 经度值
+     */
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
+    /**
+     * 获取纬度（Latitude），表示南北方向的位置，范围是-90到90。
+     *
+     * @return 纬度值
+     */
     public double getLatitude() {
         return latitude;
     }
 
+    /**
+     * 设置纬度（Latitude），表示南北方向的位置，范围是-90到90。
+     *
+     * @param latitude 纬度值
+     */
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
+    /**
+     * 获取SRID（空间参考系统标识符），用于标识空间参考坐标系统。
+     * 默认值为 0，表示没有指定空间参考系统。
+     *
+     * @return SRID值
+     */
     public int getSrid() {
         return srid;
     }
 
+    /**
+     * 设置SRID（空间参考系统标识符），用于标识空间参考坐标系统。
+     *
+     * @param srid SRID值
+     */
     public void setSrid(int srid) {
         this.srid = srid;
     }
 
+    /**
+     * 获取字节序（Byte Order），表示字节的存储顺序。
+     * 可能的值包括大端序（Big Endian）或小端序（Little Endian）。
+     *
+     * @return 字节序（Byte Order）
+     */
     public ByteOrder getByteOrder() {
         return byteOrder;
     }
 
+    /**
+     * 设置字节序（Byte Order），用于指定数据的字节存储顺序。
+     * 可能的值包括大端序（Big Endian）或小端序（Little Endian）。
+     *
+     * @param byteOrder 字节序（Byte Order）
+     */
     public void setByteOrder(ByteOrder byteOrder) {
         this.byteOrder = byteOrder;
     }
 
+    /**
+     * 将当前 Point 对象转换为 JSON 格式字符串（使用字符串拼接）。
+     *
+     * @return JSON 字符串表示
+     */
+    public String toJSONString() {
+        // 使用 StringBuilder 拼接 JSON 字符串
+        StringBuilder json = new StringBuilder();
+        json.append("{");
+        json.append("\"longitude\": ").append(longitude).append(", ");
+        json.append("\"latitude\": ").append(latitude).append(", ");
+        json.append("\"srid\": ").append(srid).append(", ");
+        json.append("\"byteOrder\": \"").append(byteOrder != null ? byteOrder.toString() : "").append("\"");
+        json.append("}");
+        return json.toString();
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(longitude, latitude, srid);
+        return Objects.hash(longitude, latitude, srid, byteOrder);
     }
 
     @Override
@@ -93,7 +153,8 @@ public class Point implements Serializable, AttributeConverter<Point, byte[]> {
         Point other = (Point) obj;
         return Double.compare(other.longitude, longitude) == 0 &&
                 Double.compare(other.latitude, latitude) == 0 &&
-                srid == other.srid;
+                srid == other.srid &&
+                byteOrder == other.byteOrder;
     }
 
     @Override

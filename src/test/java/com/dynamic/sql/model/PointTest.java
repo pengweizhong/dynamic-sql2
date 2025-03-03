@@ -29,6 +29,7 @@ class PointTest extends InitializingContext {
                 .fetch(Point.class)
                 .toOne();
         System.out.println(point);
+        System.out.println(point.toJSONString());
     }
 
     @Test
