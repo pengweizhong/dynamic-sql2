@@ -88,7 +88,6 @@ public class Point implements Serializable, AttributeConverter<Point, byte[]> {
 
     @Override
     public byte[] convertToDatabaseColumn(Point point) {
-        System.out.println("********************************************* convertToEntityAttribute");
         ByteBuffer buffer = ByteBuffer.allocate(16);
         buffer.putDouble(point.getLongitude());
         buffer.putDouble(point.getLatitude());
@@ -97,72 +96,103 @@ public class Point implements Serializable, AttributeConverter<Point, byte[]> {
 
     @Override
     public Point convertToEntityAttribute(byte[] dbData) {
-        System.out.println("Received byte[] data: " + Arrays.toString(dbData)); // 打印原始 byte[] 数据
-        System.out.println("Converted Point: Longitude = " + longitude + ", Latitude = " + latitude);
-        Point point = parsePointData(dbData);
-        System.out.println(point);
-        return point;
+        return readCoordinateFromWkbBytes(dbData);
     }
 
-    private static Point parsePointData(byte[] pointData) {
-        System.out.println("Debug: pointData bytes = " + java.util.Arrays.toString(pointData)); //打印byte数组
-
-        if (pointData.length == 25) {
-            boolean littleEndian = pointData[0] == 1;
-            int wkbType = littleEndianToInt(pointData, 1);
-
-            if (wkbType == 1) {
-                double longitude = bytesToDouble(pointData, 5, littleEndian);
-                double latitude = bytesToDouble(pointData, 13, littleEndian);
-                return new Point(latitude, longitude);
-            } else {
-                System.out.println("Error: WKB type mismatch (no SRID).");
-                return null;
-            }
-        } else if (pointData.length >= 29) {
-            // 包含SRID的情况
-            boolean littleEndian = pointData[0] == 1;
-            int wkbType = littleEndianToInt(pointData, 1);
-            int srid = littleEndianToInt(pointData, 5);
-
-            if (wkbType == 1 && srid == 4326) {
-                double longitude = bytesToDouble(pointData, 9, littleEndian);
-                double latitude = bytesToDouble(pointData, 17, littleEndian);
-                return new Point(latitude, longitude);
-            } else {
-                System.out.println("Error: WKB type or SRID mismatch.");
-                return null;
-            }
-        } else {
-            System.out.println("Error: pointData length is invalid. Length: " + pointData.length);
-            return null;
-        }
+    /**
+     * 从 WKB（Well-Known Binary）字节数组中读取坐标数据，返回一个 {@link Point} 对象。
+     * 该方法根据字节数组的内容反序列化经度和纬度，并将它们封装为 {@link Point} 对象。
+     *
+     * @param wkbBytes 长度为 25 字节的 WKB 数据，包含经纬度信息。
+     * @return 包含经度和纬度信息的 {@link Point} 对象。
+     */
+    public static Point readCoordinateFromWkbBytes(byte[] wkbBytes) {
+        // 判断字节顺序，这里假设是小端字节序
+        boolean isBigEndian = readIsWkbBigEndianByteOrder(wkbBytes[0]);
+        // 读取经度和纬度，分别位于字节数组的 9 和 17 位置
+        double x = readDoubleFromBytes(wkbBytes, 9, isBigEndian);
+        double y = readDoubleFromBytes(wkbBytes, 17, isBigEndian);
+        // 创建 Point 对象并设置经纬度
+        Point coordinate = new Point();
+        coordinate.setLongitude(x);
+        coordinate.setLatitude(y);
+        return coordinate;
     }
 
-    private static int littleEndianToInt(byte[] bytes, int offset) {
-        int result = (bytes[offset] & 0xFF) |
-                ((bytes[offset + 1] & 0xFF) << 8) |
-                ((bytes[offset + 2] & 0xFF) << 16) |
-                ((bytes[offset + 3] & 0xFF) << 24);
-
-        System.out.println("Debug: littleEndianToInt(" + java.util.Arrays.toString(bytes) + ", " + offset + ") = " + result); // 添加调试信息
-        return result;
+    /**
+     * 判断字节是否表示大端字节序。
+     *
+     * @param b 字节值，表示字节序标识。
+     * @return 如果字节值为 0，则为大端字节序；否则为小端字节序。
+     */
+    public static boolean readIsWkbBigEndianByteOrder(byte b) {
+        final byte BIG_ENDIAN = 0;
+        final byte LITTLE_ENDIAN = 1;
+        // 如果字节值为 BIG_ENDIAN（0），表示大端字节序
+        return b == BIG_ENDIAN;
     }
 
-
-    private static double bytesToDouble(byte[] bytes, int offset, boolean littleEndian) {
-        long value = 0;
-        if (littleEndian) {
-            for (int i = 0; i < 8; i++) {
-                value |= ((long) bytes[offset + i] & 0xFF) << (i * 8);
-            }
-        } else {
-            for (int i = 7; i >= 0; i--) {
-                value |= ((long) bytes[offset + i] & 0xFF) << ((7 - i) * 8);
-            }
-        }
-        return Double.longBitsToDouble(value);
+    /**
+     * 从字节数组中读取一个双精度浮点数（double），支持大端和小端字节序。
+     *
+     * @param buf       字节数组，必须至少包含 8 个字节。
+     * @param offset    偏移量，表示从字节数组中的哪个位置开始读取。
+     * @param bigEndian 如果为 true，表示采用大端字节序；如果为 false，表示采用小端字节序。
+     * @return 反序列化后的双精度浮点数（double）。
+     */
+    public static double readDoubleFromBytes(byte[] buf, int offset, boolean bigEndian) {
+        // 从字节数组中获取 8 字节数据并转换为 double 值
+        byte[] bufOf8Bytes = Arrays.copyOfRange(buf, offset, offset + 8);
+        return readDoubleFromBytes(bufOf8Bytes, bigEndian);
     }
 
+    /**
+     * 从字节数组中读取一个双精度浮点数（double），支持大端和小端字节序。
+     *
+     * @param buf       字节数组，必须至少包含 8 个字节。
+     * @param bigEndian 如果为 true，表示采用大端字节序；如果为 false，表示采用小端字节序。
+     * @return 反序列化后的双精度浮点数（double）。
+     */
+    public static double readDoubleFromBytes(byte[] buf, boolean bigEndian) {
+        // 根据字节序读取 8 字节数据并转换为 long 类型
+        long longVal = bigEndian ? readLongFromBytesBigEndian(buf)
+                : readLongFromBytesLittleEndian(buf);
+        // 将 long 值转换为 double 类型
+        return Double.longBitsToDouble(longVal);
+    }
+
+    /**
+     * 从字节数组（大端字节序）中读取一个长整型数值。
+     *
+     * @param buf 字节数组，必须包含 8 个字节。
+     * @return 反序列化后的长整型数值。
+     */
+    public static long readLongFromBytesBigEndian(byte[] buf) {
+        return (long) (buf[0] & 0xff) << 56
+                | (long) (buf[1] & 0xff) << 48
+                | (long) (buf[2] & 0xff) << 40
+                | (long) (buf[3] & 0xff) << 32
+                | (long) (buf[4] & 0xff) << 24
+                | (long) (buf[5] & 0xff) << 16
+                | (long) (buf[6] & 0xff) << 8
+                | (long) (buf[7] & 0xff);
+    }
+
+    /**
+     * 从字节数组（小端字节序）中读取一个长整型数值。
+     *
+     * @param buf 字节数组，必须包含 8 个字节。
+     * @return 反序列化后的长整型数值。
+     */
+    public static long readLongFromBytesLittleEndian(byte[] buf) {
+        return (long) (buf[7] & 0xff) << 56
+                | (long) (buf[6] & 0xff) << 48
+                | (long) (buf[5] & 0xff) << 40
+                | (long) (buf[4] & 0xff) << 32
+                | (long) (buf[3] & 0xff) << 24
+                | (long) (buf[2] & 0xff) << 16
+                | (long) (buf[1] & 0xff) << 8
+                | (long) (buf[0] & 0xff);
+    }
 
 }
