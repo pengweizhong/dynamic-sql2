@@ -48,7 +48,7 @@ public class PageInfo<T> extends AbstractPage {
      *
      * @param selectSupplier 查询方法，来源于{@link SqlContext#select()}
      * @return 返回下一页的 {@code MapPage} 对象，包含更新后的分页信息和查询结果。
-     * @see this#selectNextPage
+     * @see this#selectNextPage()
      * @deprecated 方法设计不合理，不需要重新返回对象，也不需要重复传递查询语句
      */
     @Deprecated
