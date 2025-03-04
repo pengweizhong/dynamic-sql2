@@ -2,6 +2,8 @@ package com.dynamic.sql.model;
 
 import com.dynamic.sql.InitializingContext;
 import com.dynamic.sql.core.column.function.scalar.geometry.AsText;
+import com.dynamic.sql.core.column.function.scalar.geometry.Latitude;
+import com.dynamic.sql.core.column.function.scalar.geometry.Longitude;
 import com.dynamic.sql.core.column.function.scalar.geometry.SRID;
 import com.dynamic.sql.entites.LocationEntity;
 import org.junit.jupiter.api.Test;
@@ -99,4 +101,29 @@ class PointTest extends InitializingContext {
         System.out.println("SIZE() " + list.size());
         list.forEach(System.out::println);
     }
+
+    @Test
+    void Longitude() {
+        //json、logical、modifiers、scalar、table、windows
+        List<String> list = sqlContext.select()
+                .column(new Longitude(LocationEntity::getLocation))
+                .from(LocationEntity.class)
+                .fetch(String.class)
+                .toList();
+        System.out.println("SIZE() " + list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void Latitude() {
+        //json、logical、modifiers、scalar、table、windows
+        List<String> list = sqlContext.select()
+                .column(new Latitude(LocationEntity::getLocation))
+                .from(LocationEntity.class)
+                .fetch(String.class)
+                .toList();
+        System.out.println("SIZE() " + list.size());
+        list.forEach(System.out::println);
+    }
+
 }
