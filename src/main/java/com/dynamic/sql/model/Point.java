@@ -133,7 +133,7 @@ public class Point implements Serializable, AttributeConverter<Point, byte[]> {
      * @return 该点的 WKT 格式字符串表示
      */
     public String toPointString() {
-        return "POINT (" + longitude + " " + latitude + ")";
+        return "POINT(" + longitude + " " + latitude + ")";
     }
 
     @Override

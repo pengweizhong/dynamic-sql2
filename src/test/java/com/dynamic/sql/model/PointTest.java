@@ -1,6 +1,7 @@
 package com.dynamic.sql.model;
 
 import com.dynamic.sql.InitializingContext;
+import com.dynamic.sql.core.column.function.scalar.geometry.AsText;
 import com.dynamic.sql.core.column.function.scalar.geometry.SRID;
 import com.dynamic.sql.entites.LocationEntity;
 import org.junit.jupiter.api.Test;
@@ -76,7 +77,7 @@ class PointTest extends InitializingContext {
     }
 
     @Test
-    void selectPoint2() {
+    void SRID() {
         //json、logical、modifiers、scalar、table、windows
         List<Integer> list = sqlContext.select()
                 .column(new SRID(LocationEntity::getLocation))
@@ -85,6 +86,17 @@ class PointTest extends InitializingContext {
                 .toList();
         System.out.println("SIZE() " + list.size());
         list.forEach(System.out::println);
+    }
 
+    @Test
+    void AsText() {
+        //json、logical、modifiers、scalar、table、windows
+        List<String> list = sqlContext.select()
+                .column(new AsText(LocationEntity::getLocation))
+                .from(LocationEntity.class)
+                .fetch(String.class)
+                .toList();
+        System.out.println("SIZE() " + list.size());
+        list.forEach(System.out::println);
     }
 }
