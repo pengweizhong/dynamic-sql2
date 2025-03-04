@@ -1,9 +1,11 @@
 package com.dynamic.sql.model;
 
 import com.dynamic.sql.InitializingContext;
+import com.dynamic.sql.core.column.function.scalar.geometry.SRID;
 import com.dynamic.sql.entites.LocationEntity;
 import org.junit.jupiter.api.Test;
 
+import java.nio.ByteOrder;
 import java.util.List;
 
 class PointTest extends InitializingContext {
@@ -16,6 +18,16 @@ class PointTest extends InitializingContext {
         System.out.println(point1.equals(point));
         System.out.println(point1 == point);
 //        System.out.println(new Point(null));
+    }
+
+    @Test
+    void toPointString() {
+        Point point = new Point(1, 1);
+        System.out.println(point.toString());
+        System.out.println(point.toPointString());
+        Point point2 = new Point(2, 2, 4236, ByteOrder.LITTLE_ENDIAN);
+        System.out.println(point2.toString());
+        System.out.println(point2.toPointString());
     }
 
     @Test
@@ -39,7 +51,6 @@ class PointTest extends InitializingContext {
                 .fetch(Point.class)
                 .toOne();
         System.out.println(point);
-        System.out.println(point.toJSONString());
     }
 
     @Test
@@ -64,4 +75,16 @@ class PointTest extends InitializingContext {
         System.out.println(build);
     }
 
+    @Test
+    void selectPoint2() {
+        //json、logical、modifiers、scalar、table、windows
+        List<Integer> list = sqlContext.select()
+                .column(new SRID(LocationEntity::getLocation))
+                .from(LocationEntity.class)
+                .fetch(Integer.class)
+                .toList();
+        System.out.println("SIZE() " + list.size());
+        list.forEach(System.out::println);
+
+    }
 }

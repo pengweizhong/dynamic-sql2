@@ -81,7 +81,7 @@ public class WKBUtils {
      */
     private static boolean readIsWkbBigEndianByteOrder(byte b) {
         final byte BIG_ENDIAN = 0;
-        final byte LITTLE_ENDIAN = 1;
+//        final byte LITTLE_ENDIAN = 1;
         // 如果字节值为 BIG_ENDIAN（0），表示大端字节序
         return b == BIG_ENDIAN;
     }

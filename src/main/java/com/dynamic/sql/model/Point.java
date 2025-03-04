@@ -119,20 +119,21 @@ public class Point implements Serializable, AttributeConverter<Point, byte[]> {
     }
 
     /**
-     * 将当前 Point 对象转换为 JSON 格式字符串（使用字符串拼接）。
+     * 以 WKT（Well-Known Text）格式返回点的字符串表示。
+     * <p>
+     * 格式示例：
+     * <pre>
+     * POINT (longitude latitude)
+     * </pre>
+     * 例如：如果经度为 120.1234，纬度为 30.5678，则返回：
+     * <pre>
+     * POINT (120.1234 30.5678)
+     * </pre>
      *
-     * @return JSON 字符串表示
+     * @return 该点的 WKT 格式字符串表示
      */
-    public String toJSONString() {
-        // 使用 StringBuilder 拼接 JSON 字符串
-        StringBuilder json = new StringBuilder();
-        json.append("{");
-        json.append("\"longitude\": ").append(longitude).append(", ");
-        json.append("\"latitude\": ").append(latitude).append(", ");
-        json.append("\"srid\": ").append(srid).append(", ");
-        json.append("\"byteOrder\": \"").append(byteOrder != null ? byteOrder.toString() : "").append("\"");
-        json.append("}");
-        return json.toString();
+    public String toPointString() {
+        return "POINT (" + longitude + " " + latitude + ")";
     }
 
     @Override
@@ -153,7 +154,7 @@ public class Point implements Serializable, AttributeConverter<Point, byte[]> {
 
     @Override
     public String toString() {
-        return "SRID=" + srid + "; POINT (" + longitude + " " + latitude + ")"
+        return "SRID=" + srid + "; " + toPointString()
                 + (byteOrder != null ? "; ByteOrder=" + byteOrder : "");
     }
 
