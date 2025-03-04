@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS t_location;
+
 CREATE TABLE `t_location`
 (
     `id`           int          NOT NULL AUTO_INCREMENT COMMENT '位置ID',
@@ -10,21 +12,25 @@ CREATE TABLE `t_location`
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    SPATIAL KEY `idx_location` (`location4326`)
+    SPATIAL KEY `idx_location` (`location4326`),
+    SPATIAL INDEX idx_location_spatial (location)
 ) ENGINE = InnoDB COMMENT ='位置表';
 
 -- 插入数据
 INSERT INTO t_location
-(id, province, city, district, address, location4326, create_time, update_time)
+(id, province, city, district, address, location4326,location, create_time, update_time)
 VALUES (1, '北京市', '北京市', '海淀区', '西土城路4号',
         ST_SRID(ST_GeomFromText('POINT(116.355762 39.97161)'), 4326),
+        ST_GeomFromText('POINT(116.255243 39.902088)'),
         '2025-02-07 11:24:18',
         '2025-02-07 11:24:18');
 
 INSERT INTO t_location
-(id, province, city, district, address, location4326, create_time, update_time)
+(id, province, city, district, address, location4326,location, create_time, update_time)
 VALUES (2, '北京市', '北京市', '海淀区', '玉泉路66号',
-        ST_SRID(ST_GeomFromText('POINT (116.255243 39.902088)'), 4326), '2025-02-07 11:24:18',
+        ST_SRID(ST_GeomFromText('POINT (116.255243 39.902088)'), 4326),
+            ST_GeomFromText('POINT(116.255243 39.902088)'),
+        '2025-02-07 11:24:18',
         '2025-02-07 11:30:54');
 
 INSERT INTO t_location

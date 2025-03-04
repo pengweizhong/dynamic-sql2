@@ -68,8 +68,8 @@ class PointTest extends InitializingContext {
     @Test
     void insertPoint() {
         LocationEntity build = LocationEntity.builder()
-                .location4326(new Point(12.3, 25.1234, 4326))
-                .location(new Point(1, 1))
+                .location4326(new Point(120.3, 25.1234, 4326))
+                .location(new Point(100, 20))
                 .build();
         int i = sqlContext.insertSelective(build);
         System.out.println(i);
@@ -86,6 +86,13 @@ class PointTest extends InitializingContext {
                 .toList();
         System.out.println("SIZE() " + list.size());
         list.forEach(System.out::println);
+        List<Integer> list2 = sqlContext.select()
+                .column(new SRID(LocationEntity::getLocation4326))
+                .from(LocationEntity.class)
+                .fetch(Integer.class)
+                .toList();
+        System.out.println("SIZE2() " + list2.size());
+        list2.forEach(System.out::println);
     }
 
     @Test
@@ -135,6 +142,21 @@ class PointTest extends InitializingContext {
         list.forEach(System.out::println);
 
         for (byte[] bytes : list) {
+            if (bytes != null) {
+                Point point = WKBUtils.readPointFromWkbBytes(bytes);
+                System.out.println(point);
+            }
+        }
+        System.out.println("================================================");
+        List<byte[]> list2 = sqlContext.select()
+                .column(new AsBinary(LocationEntity::getLocation4326))
+                .from(LocationEntity.class)
+                .fetch(byte[].class)
+                .toList();
+        System.out.println("SIZE2() " + list2.size());
+        list2.forEach(System.out::println);
+
+        for (byte[] bytes : list2) {
             if (bytes != null) {
                 Point point = WKBUtils.readPointFromWkbBytes(bytes);
                 System.out.println(point);

@@ -72,8 +72,8 @@ public class WKBUtils {
             //然而，在某些数据库（如 MySQL 或其他 GIS 扩展）中，可能会出现经度和纬度位置交换的情况。这通常是由于数据库对空间数据类型的内部实现有关，或者特定的实现方式。
             //这可能与数据库的空间参考系统（SRID）相关，例如一些数据库可能对特定空间参考系统（如 WGS84）进行特定的编码。
             //但是截至目前为止，未能发现原因，似乎与执行函数相关
-            double x = readDoubleFromBytes(wkbBytes, 13, byteOrder);
-            double y = readDoubleFromBytes(wkbBytes, 5, byteOrder);
+            double x = readDoubleFromBytes(wkbBytes, 5, byteOrder);
+            double y = readDoubleFromBytes(wkbBytes, 13, byteOrder);
             return new Point(x, y, 0, byteOrder);
         }
         if (wkbBytes.length == 25) {
