@@ -4,7 +4,6 @@ import com.dynamic.sql.model.Point;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 /**
  * WKB 是用于存储几何数据的二进制格式，在地理信息系统（GIS）和数据库（如 PostGIS）中广泛使用。
@@ -62,15 +61,32 @@ public class WKBUtils {
      * @return 包含经度和纬度信息的 {@link Point} 对象。
      */
     public static Point readPointFromWkbBytes(byte[] wkbBytes) {
-        // 读取 SRID（前 4 个字节，固定使用小端序）
-        int srid = ByteBuffer.wrap(wkbBytes, 0, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        // 判断字节顺序
-        boolean isBigEndian = readIsWkbBigEndianByteOrder(wkbBytes[4]);
-        // 读取经度和纬度，分别位于字节数组的 9 和 17 位置
-        double x = readDoubleFromBytes(wkbBytes, 9, isBigEndian);
-        double y = readDoubleFromBytes(wkbBytes, 17, isBigEndian);
-        // 创建 Point 对象并设置经纬度
-        return new Point(x, y, srid, isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
+        if (wkbBytes.length == 21) {
+            //没有 SRID，wkbBytes[0] 是字节序
+            // 判断字节顺序
+            ByteOrder byteOrder = readIsBigOrLittle(wkbBytes[0]);
+            // 读取经度和纬度
+            //经度和纬度的顺序可能取决于字节顺序的设置或者 WKB 序列化时的约定。某些情况下 WKB 会将纬度（Y）放在经度（X）之前
+            //在 WKB标准 中，通常 经度（Longitude） 存储为 X 坐标，纬度（Latitude） 存储为 Y 坐标。
+            //这意味着，正常情况下，WKB数据中的第一个8字节应该代表经度（X），第二个8字节应该代表纬度（Y）。
+            //然而，在某些数据库（如 MySQL 或其他 GIS 扩展）中，可能会出现经度和纬度位置交换的情况。这通常是由于数据库对空间数据类型的内部实现有关，或者特定的实现方式。
+            //这可能与数据库的空间参考系统（SRID）相关，例如一些数据库可能对特定空间参考系统（如 WGS84）进行特定的编码。
+            //但是截至目前为止，未能发现原因，似乎与执行函数相关
+            double x = readDoubleFromBytes(wkbBytes, 13, byteOrder);
+            double y = readDoubleFromBytes(wkbBytes, 5, byteOrder);
+            return new Point(x, y, 0, byteOrder);
+        }
+        if (wkbBytes.length == 25) {
+            // 读取 SRID（前 4 个字节，固定使用小端序）
+            int srid = ByteBuffer.wrap(wkbBytes, 0, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+            // 判断字节顺序
+            ByteOrder byteOrder = readIsBigOrLittle(wkbBytes[4]);
+            // 读取经度和纬度，分别位于字节数组的 9 和 17 位置
+            double x = readDoubleFromBytes(wkbBytes, 9, byteOrder);
+            double y = readDoubleFromBytes(wkbBytes, 17, byteOrder);
+            return new Point(x, y, srid, byteOrder);
+        }
+        throw new IllegalArgumentException("Invalid WKB point length: " + wkbBytes.length);
     }
 
     /**
@@ -79,11 +95,10 @@ public class WKBUtils {
      * @param b 字节值，表示字节序标识。
      * @return 如果字节值为 0，则为大端字节序；否则为小端字节序。
      */
-    private static boolean readIsWkbBigEndianByteOrder(byte b) {
+    private static ByteOrder readIsBigOrLittle(byte b) {
         final byte BIG_ENDIAN = 0;
-//        final byte LITTLE_ENDIAN = 1;
         // 如果字节值为 BIG_ENDIAN（0），表示大端字节序
-        return b == BIG_ENDIAN;
+        return b == BIG_ENDIAN ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
     }
 
     /**
@@ -91,62 +106,14 @@ public class WKBUtils {
      *
      * @param buf       字节数组，必须至少包含 8 个字节。
      * @param offset    偏移量，表示从字节数组中的哪个位置开始读取。
-     * @param bigEndian 如果为 true，表示采用大端字节序；如果为 false，表示采用小端字节序。
+     * @param byteOrder 字节序
      * @return 反序列化后的双精度浮点数（double）。
      */
-    private static double readDoubleFromBytes(byte[] buf, int offset, boolean bigEndian) {
+    private static double readDoubleFromBytes(byte[] buf, int offset, ByteOrder byteOrder) {
         // 从字节数组中获取 8 字节数据并转换为 double 值
-        byte[] bufOf8Bytes = Arrays.copyOfRange(buf, offset, offset + 8);
-        return readDoubleFromBytes(bufOf8Bytes, bigEndian);
-    }
-
-    /**
-     * 从字节数组中读取一个双精度浮点数（double），支持大端和小端字节序。
-     *
-     * @param buf       字节数组，必须至少包含 8 个字节。
-     * @param bigEndian 如果为 true，表示采用大端字节序；如果为 false，表示采用小端字节序。
-     * @return 反序列化后的双精度浮点数（double）。
-     */
-    private static double readDoubleFromBytes(byte[] buf, boolean bigEndian) {
-        // 根据字节序读取 8 字节数据并转换为 long 类型
-        long longVal = bigEndian ? readLongFromBytesBigEndian(buf)
-                : readLongFromBytesLittleEndian(buf);
-        // 将 long 值转换为 double 类型
-        return Double.longBitsToDouble(longVal);
-    }
-
-    /**
-     * 从字节数组（大端字节序）中读取一个长整型数值。
-     *
-     * @param buf 字节数组，必须包含 8 个字节。
-     * @return 反序列化后的长整型数值。
-     */
-    private static long readLongFromBytesBigEndian(byte[] buf) {
-        return (long) (buf[0] & 0xff) << 56
-                | (long) (buf[1] & 0xff) << 48
-                | (long) (buf[2] & 0xff) << 40
-                | (long) (buf[3] & 0xff) << 32
-                | (long) (buf[4] & 0xff) << 24
-                | (long) (buf[5] & 0xff) << 16
-                | (long) (buf[6] & 0xff) << 8
-                | (buf[7] & 0xff);
-    }
-
-    /**
-     * 从字节数组（小端字节序）中读取一个长整型数值。
-     *
-     * @param buf 字节数组，必须包含 8 个字节。
-     * @return 反序列化后的长整型数值。
-     */
-    private static long readLongFromBytesLittleEndian(byte[] buf) {
-        return (long) (buf[7] & 0xff) << 56
-                | (long) (buf[6] & 0xff) << 48
-                | (long) (buf[5] & 0xff) << 40
-                | (long) (buf[4] & 0xff) << 32
-                | (long) (buf[3] & 0xff) << 24
-                | (long) (buf[2] & 0xff) << 16
-                | (long) (buf[1] & 0xff) << 8
-                | (buf[0] & 0xff);
+        ByteBuffer buffer = ByteBuffer.wrap(buf, offset, 8);
+        buffer.order(byteOrder);
+        return buffer.getDouble();
     }
 
 }

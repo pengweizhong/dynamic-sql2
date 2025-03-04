@@ -4,7 +4,6 @@ package com.dynamic.sql.utils;
 import com.dynamic.sql.core.column.function.AnonymousFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.model.Point;
 import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.plugins.conversion.AttributeConverterModel;
 import com.dynamic.sql.plugins.conversion.FetchResultConverter;
@@ -167,6 +166,9 @@ public class ConverterUtils {
             }
             return (T) value.toString();
         }
+//        if (fieldType == Byte.class || fieldType == byte.class || fieldType == Byte[].class || fieldType == byte[].class) {
+//            return toByte(value, fieldType);
+//        }
         if (fieldType == Integer.class || fieldType == int.class) {
             return (T) toInteger(value);
         }
@@ -226,6 +228,20 @@ public class ConverterUtils {
         // 如果没有找到适合的转换器，抛出异常或者返回默认值
         throw new IllegalArgumentException("Cannot convert value of type " + valueType
                 + " to field type " + fieldType + ", Value is [" + value + "]");
+    }
+
+    private static <T, V> T toByte(V value, Class<T> fieldType) {
+        if (Byte[].class.isAssignableFrom(fieldType)) {
+            if (value instanceof byte[]) {
+                byte[] bytes = (byte[]) value;
+                Byte[] byteArrayObject = new Byte[bytes.length];
+                for (int i = 0; i < bytes.length; i++) {
+                    byteArrayObject[i] = Byte.valueOf(bytes[i]);
+                }
+                return (T) byteArrayObject;
+            }
+        }
+        return (T) value;
     }
 
     public static Integer toInteger(Object value) {

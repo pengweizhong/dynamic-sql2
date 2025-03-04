@@ -1,11 +1,9 @@
 package com.dynamic.sql.model;
 
 import com.dynamic.sql.InitializingContext;
-import com.dynamic.sql.core.column.function.scalar.geometry.AsText;
-import com.dynamic.sql.core.column.function.scalar.geometry.Latitude;
-import com.dynamic.sql.core.column.function.scalar.geometry.Longitude;
-import com.dynamic.sql.core.column.function.scalar.geometry.SRID;
+import com.dynamic.sql.core.column.function.scalar.geometry.*;
 import com.dynamic.sql.entites.LocationEntity;
+import com.dynamic.sql.utils.WKBUtils;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteOrder;
@@ -123,6 +121,23 @@ class PointTest extends InitializingContext {
                 .fetch(String.class)
                 .toList();
         System.out.println("SIZE() " + list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void ST_AsBinary() {
+        List<byte[]> list = sqlContext.select()
+                .column(new AsBinary(LocationEntity::getLocation4326))
+                .from(LocationEntity.class)
+                .fetch(byte[].class)
+                .toList();
+        System.out.println("SIZE() " + list.size());
+        for (byte[] bytes : list) {
+            if (bytes != null) {
+                Point point = WKBUtils.readPointFromWkbBytes(bytes);
+                System.out.println(point);
+            }
+        }
         list.forEach(System.out::println);
     }
 
