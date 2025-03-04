@@ -69,6 +69,8 @@ public @interface Column {
      * </ul>
      * <p>
      * 当 SRID 设置为 <b>0</b>（默认值）时，表示未指定 SRID，数据库使用默认的坐标系。
+     * <p>
+     * <b>注意：此方法目前暂未使用，未来版本可能会启用。</b>
      *
      * @return 空间参考系统的 SRID
      */

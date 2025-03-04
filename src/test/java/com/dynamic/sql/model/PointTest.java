@@ -127,18 +127,19 @@ class PointTest extends InitializingContext {
     @Test
     void ST_AsBinary() {
         List<byte[]> list = sqlContext.select()
-                .column(new AsBinary(LocationEntity::getLocation4326))
+                .column(new AsBinary(LocationEntity::getLocation))
                 .from(LocationEntity.class)
                 .fetch(byte[].class)
                 .toList();
         System.out.println("SIZE() " + list.size());
+        list.forEach(System.out::println);
+
         for (byte[] bytes : list) {
             if (bytes != null) {
                 Point point = WKBUtils.readPointFromWkbBytes(bytes);
                 System.out.println(point);
             }
         }
-        list.forEach(System.out::println);
     }
 
 }
