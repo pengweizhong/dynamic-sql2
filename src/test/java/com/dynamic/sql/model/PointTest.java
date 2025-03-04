@@ -7,6 +7,16 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 class PointTest extends InitializingContext {
+    @Test
+    void clonePoint() {
+        Point point = new Point(1, 2, 3);
+        Point point1 = new Point(point);
+        System.out.println(point);
+        System.out.println(point1);
+        System.out.println(point1.equals(point));
+        System.out.println(point1 == point);
+//        System.out.println(new Point(null));
+    }
 
     @Test
     void test1() {

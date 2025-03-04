@@ -3,6 +3,7 @@ package com.dynamic.sql.model;
 import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.utils.WKBUtils;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.nio.ByteOrder;
 import java.util.Objects;
@@ -38,15 +39,8 @@ public class Point implements Serializable, AttributeConverter<Point, byte[]> {
         this.byteOrder = byteOrder;
     }
 
-    // 复制构造方法
-    public Point(Point point) {
-        if (point == null) {
-            throw new IllegalArgumentException("point is null");
-        }
-        this.longitude = point.longitude;
-        this.latitude = point.latitude;
-        this.srid = point.srid;
-        this.byteOrder = point.byteOrder;
+    public Point(@Nonnull Point point) {
+        this(point.getLongitude(), point.getLatitude(), point.getSrid(), point.getByteOrder());
     }
 
     /**
