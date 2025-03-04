@@ -149,6 +149,7 @@ class PointTest extends InitializingContext {
         }
         System.out.println("================================================");
         List<byte[]> list2 = sqlContext.select()
+                //TODO 4326 的顺序是颠倒的，尚不清楚原因
                 .column(new AsBinary(LocationEntity::getLocation4326))
                 .from(LocationEntity.class)
                 .fetch(byte[].class)
@@ -164,4 +165,10 @@ class PointTest extends InitializingContext {
         }
     }
 
+    @Test
+    void ST_Distance_Sphere() {
+        //SELECT id, location
+        //FROM t_location
+        //WHERE ST_Distance_Sphere(location, ST_GeomFromText('POINT (116 39)', 0)) <= 1000000;
+    }
 }
