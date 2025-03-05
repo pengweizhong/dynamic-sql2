@@ -404,6 +404,14 @@ public class GenericWhereCondition extends WhereCondition {
         return nestedCondition(nestedCondition, OR);
     }
 
+    @Override
+    public Condition andFunction(ColumFunction columFunction) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        condition.append(" ").append(logicalOperatorType(AND)).append(functionToString);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        return this;
+    }
+
     private Condition nestedCondition(Consumer<Condition> nestedCondition, LogicalOperatorType logicalOperatorType) {
         MysqlWhereCondition whereCondition = SqlUtils.matchDialectCondition(matchSqlDialect(), version, aliasTableMap, dataSourceName);
         nestedCondition.accept(whereCondition);

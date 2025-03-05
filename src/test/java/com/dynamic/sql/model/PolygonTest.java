@@ -1,10 +1,12 @@
 package com.dynamic.sql.model;
 
 import com.dynamic.sql.InitializingContext;
+import com.dynamic.sql.core.column.function.scalar.geometry.Contains;
 import com.dynamic.sql.entites.LocationEntity;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /*
 1. POLYGON() 语法
@@ -113,5 +115,17 @@ class PolygonTest extends InitializingContext {
         one.setId(null);
         sqlContext.insertSelective(one);
         System.out.println(one);
+    }
+
+    @Test
+    void Contains() {
+        List<LocationEntity> list = sqlContext.select()
+                .allColumn()
+                .from(LocationEntity.class)
+                .where(whereCondition -> whereCondition.andFunction(new Contains(LocationEntity::getArea, new Point(5, 5))))
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
     }
 }

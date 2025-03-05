@@ -651,7 +651,7 @@ public interface Condition {
         return this;
     }
 
-//    /**
+    //    /**
 //     * 添加自定义 SQL 条件子句到查询中。
 //     * <p>
 //     * 使用此方法可以添加任何不在接口预定义方法中的 SQL 条件。适用于复杂的查询条件，或者数据库特定的 SQL 语法。
@@ -665,5 +665,7 @@ public interface Condition {
 //     * @throws IllegalArgumentException 如果提供的 SQL 条件子句不合法或者参数与子句中的占位符数量不匹配
 //     */
 //    Condition customCondition(String customClause, Object... params);
+
+    Condition andFunction(ColumFunction columFunction);
 
 }
