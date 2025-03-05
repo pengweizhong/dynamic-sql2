@@ -5,6 +5,7 @@ import com.dynamic.sql.anno.GeneratedValue;
 import com.dynamic.sql.anno.Id;
 import com.dynamic.sql.anno.Table;
 import com.dynamic.sql.model.Point;
+import com.dynamic.sql.model.Polygon;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +36,7 @@ public class LocationEntity {
     private Point location4326;
     //    `location`      point        NULL COMMENT '地理坐标点(默认)',
     private Point location;
+    private Polygon area;
     //    `create_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     private LocalDateTime createTime;
     //    `update_time`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

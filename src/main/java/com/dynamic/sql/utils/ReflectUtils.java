@@ -220,21 +220,6 @@ public class ReflectUtils {
         return types;
     }
 
-    public static <T> T instance(Class<T> clazz, Object... args) {
-        try {
-            // 获取构造函数参数的类型
-            Class<?>[] argTypes = new Class[args.length];
-            for (int i = 0; i < args.length; i++) {
-                argTypes[i] = args[i].getClass();
-            }
-            Constructor<T> constructor = clazz.getDeclaredConstructor(argTypes);
-            constructor.setAccessible(true);//NOSONAR
-            return constructor.newInstance(args);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to create instance of class: " + clazz.getName(), e);//NOSONAR
-        }
-    }
-
     public static void makeAccessible(Field field) {
         if ((!Modifier.isPublic(field.getModifiers()) ||
                 !Modifier.isPublic(field.getDeclaringClass().getModifiers())
@@ -277,5 +262,135 @@ public class ReflectUtils {
             }
         }
         throw new RuntimeException(new ClassNotFoundException(classCanonicalName));
+    }
+
+//    public static <T> T instance(Class<T> clazz, Object... args) {
+//        try {
+//            // 获取构造函数参数的类型
+//            Class<?>[] argTypes = new Class[args.length];
+//            for (int i = 0; i < args.length; i++) {
+//                argTypes[i] = args[i].getClass();
+//            }
+//            Constructor<T> constructor = clazz.getDeclaredConstructor(argTypes);
+//            constructor.setAccessible(true);//NOSONAR
+//            return constructor.newInstance(args);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Unable to create instance of class: " + clazz.getName(), e);//NOSONAR
+//        }
+//    }
+
+    @SuppressWarnings("all")
+    public static <T> T instance(Class<T> clazz, Object... args) {
+        try {
+            Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+            Constructor<T> matchedConstructor = null;
+            Object[] adjustedArgs = null;
+
+            // 遍历所有构造方法，寻找匹配的
+            for (Constructor<?> constructor : constructors) {
+                Class<?>[] paramTypes = constructor.getParameterTypes();
+                if (isMatchingConstructor(paramTypes, args)) {
+                    matchedConstructor = (Constructor<T>) constructor;
+                    adjustedArgs = adjustArguments(paramTypes, args);
+                    break;
+                }
+            }
+
+            if (matchedConstructor == null) {
+                throw new NoSuchMethodException("No matching constructor found for " + clazz.getName() +
+                        " with args: " + Arrays.toString(args));
+            }
+
+            matchedConstructor.setAccessible(true); // 允许访问私有构造方法
+            return matchedConstructor.newInstance(adjustedArgs);
+
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Constructor not found for class: " + clazz.getName(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to create instance of class: " + clazz.getName(), e);
+        }
+    }
+
+    // 检查构造方法是否匹配传入参数
+    private static boolean isMatchingConstructor(Class<?>[] paramTypes, Object[] args) {
+        if (paramTypes.length == 0 && args.length == 0) {
+            return true; // 无参构造方法
+        }
+        // 处理可变参数的情况
+        boolean isVarArgs = paramTypes.length > 0 && paramTypes[paramTypes.length - 1].isArray();
+        int fixedParamCount = isVarArgs ? paramTypes.length - 1 : paramTypes.length;
+        // 参数数量检查
+        if (!isVarArgs && paramTypes.length != args.length) {
+            return false;
+        }
+        if (isVarArgs && args.length < fixedParamCount) {
+            return false;
+        }
+        // 检查固定参数部分
+        for (int i = 0; i < fixedParamCount; i++) {
+            if (!isAssignable(paramTypes[i], args[i])) {
+                return false;
+            }
+        }
+        // 检查可变参数部分
+        if (isVarArgs) {
+            Class<?> varArgType = paramTypes[paramTypes.length - 1].getComponentType();
+            for (int i = fixedParamCount; i < args.length; i++) {
+                if (!isAssignable(varArgType, args[i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // 调整参数以匹配构造方法（包括打包可变参数）
+    private static Object[] adjustArguments(Class<?>[] paramTypes, Object[] args) {
+        boolean isVarArgs = paramTypes.length > 0 && paramTypes[paramTypes.length - 1].isArray();
+        if (!isVarArgs || args.length <= paramTypes.length) {
+            return args; // 无需调整
+        }
+
+        // 处理可变参数
+        int fixedParamCount = paramTypes.length - 1;
+        Class<?> varArgType = paramTypes[paramTypes.length - 1].getComponentType();
+        Object[] adjustedArgs = new Object[paramTypes.length];
+
+        // 复制固定参数
+        System.arraycopy(args, 0, adjustedArgs, 0, fixedParamCount);
+
+        // 打包可变参数为数组
+        int varArgLength = args.length - fixedParamCount;
+        Object varArgArray = Array.newInstance(varArgType, varArgLength);
+        for (int i = 0; i < varArgLength; i++) {
+            Array.set(varArgArray, i, args[fixedParamCount + i]);
+        }
+        adjustedArgs[fixedParamCount] = varArgArray;
+
+        return adjustedArgs;
+    }
+
+    // 检查类型是否可赋值（考虑基本类型和包装类型）
+    private static boolean isAssignable(Class<?> paramType, Object arg) {
+        if (arg == null) {
+            return !paramType.isPrimitive(); // null 可以赋值给引用类型，但不能给基本类型
+        }
+        Class<?> argType = arg.getClass();
+        // 直接类型匹配
+        if (paramType.isAssignableFrom(argType)) {
+            return true;
+        }
+        // 处理基本类型和包装类型
+        if (paramType.isPrimitive()) {
+            if (paramType == int.class && argType == Integer.class) return true;
+            if (paramType == double.class && argType == Double.class) return true;
+            if (paramType == boolean.class && argType == Boolean.class) return true;
+            if (paramType == long.class && argType == Long.class) return true;
+            if (paramType == float.class && argType == Float.class) return true;
+            if (paramType == short.class && argType == Short.class) return true;
+            if (paramType == byte.class && argType == Byte.class) return true;
+            if (paramType == char.class && argType == Character.class) return true;
+        }
+        return false;
     }
 }

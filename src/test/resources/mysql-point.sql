@@ -9,6 +9,7 @@ CREATE TABLE `t_location`
     `address`      varchar(255) NULL COMMENT '详细地址',
     `location4326` point        NOT NULL /*!80003 SRID 4326 */ COMMENT '地理坐标点(4326)',
     `location`     point        NOT NULL COMMENT '地理坐标点(默认)',
+    `area`         POLYGON      NULL COMMENT '区域',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
@@ -34,16 +35,13 @@ VALUES (2, '北京市', '北京市', '海淀区', '玉泉路66号',
         '2025-02-07 11:30:54');
 
 INSERT INTO t_location
-(province, city, district, address, location4326, location, create_time, update_time)
+(province, city, district, address, location4326, location, area, create_time, update_time)
 VALUES ('New York', 'New York', 'New York', 'New York',
-        ST_SRID(ST_GeomFromText('POINT (116.255243 39.902088)'), 4326)
-           , ST_GeomFromText('POINT(40.7128 -74.0060)'),
+        ST_SRID(ST_GeomFromText('POINT (116.255243 39.902088)'), 4326),
+        ST_GeomFromText('POINT(40.7128 -74.0060)'),
+        ST_GeomFromText('POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))'),
         '2025-02-07 11:24:18',
         '2025-02-07 11:24:18');
 
--- 通过ST_X()和ST_Y()来提取POINT的x和y坐标值
-SELECT province, city, district, address, ST_X(location4326) AS latitude, ST_Y(location4326)
-FROM t_location;
--- 查询POINT类型的字段并以文本格式返回坐标
-SELECT province, city, district, address, ST_AsText(location4326)
-FROM t_location;
+-- 查询点是否在多边形内
+SELECT * FROM t_location WHERE ST_Contains(area, ST_PointFromText('POINT(5 5)'));

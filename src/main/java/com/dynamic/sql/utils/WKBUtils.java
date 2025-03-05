@@ -1,29 +1,14 @@
 package com.dynamic.sql.utils;
 
+import com.dynamic.sql.enums.WKBType;
 import com.dynamic.sql.model.Point;
+import com.dynamic.sql.model.Polygon;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * WKB 是用于存储几何数据的二进制格式，在地理信息系统（GIS）和数据库（如 PostGIS）中广泛使用。
- * <p>
- * WKB 结构：
- * <pre>
- *
- * ┌───────────┬───────────┬───────────┬────────────┬────────────┐
- * │   SRID    │  字节序    │  几何类型  │   X 坐标    │   Y 坐标   │
- * │ (4 字节)   │ (1 字节)  │  (4 字节)  │  (8 字节)   │  (8 字节)  │
- * └───────────┴───────────┴───────────┴────────────┴────────────┘
- * </pre>
- * <p>
- * 具体字段说明：<br>
- * - <b>SRID（4 字节）</b>: 空间参考系统 ID，始终以小端序存储（0xE6100000 对应 SRID 4326）。<br>
- * - <b>字节序标识（1 字节）</b>: 指示几何数据的字节序（0 = 大端，1 = 小端）。<br>
- * - <b>几何类型（4 字节）</b>: 指定 WKB 几何类型（1 = Point）。<br>
- * - <b>X 坐标（8 字节）</b>: 点的经度（Longitude）。<br>
- * - <b>Y 坐标（8 字节）</b>: 点的纬度（Latitude）。<br>
- */
 public class WKBUtils {
     private WKBUtils() {
     }
@@ -46,7 +31,7 @@ public class WKBUtils {
         buffer.order(order);
         buffer.put((byte) (order == ByteOrder.BIG_ENDIAN ? 0 : 1));
         // 3. 几何类型（1 = Point）
-        buffer.putInt(1);
+        buffer.putInt(WKBType.POINT.getType());
         // 4. 坐标数据（X 和 Y 坐标）
         buffer.putDouble(point.getLongitude());
         buffer.putDouble(point.getLatitude());
@@ -54,11 +39,26 @@ public class WKBUtils {
     }
 
     /**
-     * 从 WKB（Well-Known Binary）字节数组中读取坐标数据，返回一个 {@link Point} 对象。
-     * 该方法根据字节数组的内容反序列化经度和纬度，并将它们封装为 {@link Point} 对象。
+     * WKB 是用于存储几何数据的二进制格式，在地理信息系统（GIS）和数据库（如 PostGIS）中广泛使用。
+     * <p>
+     * WKB 结构：
+     * <pre>
      *
-     * @param wkbBytes 长度为 25 字节的 WKB 数据，包含经纬度信息。
-     * @return 包含经度和纬度信息的 {@link Point} 对象。
+     * ┌───────────┬───────────┬───────────┬────────────┬────────────┐
+     * │   SRID    │  字节序    │  几何类型  │   X 坐标    │   Y 坐标   │
+     * │ (4 字节)   │ (1 字节)  │  (4 字节)  │  (8 字节)   │  (8 字节)  │
+     * └───────────┴───────────┴───────────┴────────────┴────────────┘
+     * </pre>
+     * <p>
+     * 具体字段说明：<br>
+     * - <b>SRID（4 字节）</b>: 空间参考系统 ID，始终以小端序存储（0xE6100000 对应 SRID 4326）。<br>
+     * - <b>字节序标识（1 字节）</b>: 指示几何数据的字节序（0 = 大端，1 = 小端）。<br>
+     * - <b>几何类型（4 字节）</b>: 指定 WKB 几何类型（1 = Point）。<br>
+     * - <b>X 坐标（8 字节）</b>: 点的经度（Longitude）。<br>
+     * - <b>Y 坐标（8 字节）</b>: 点的纬度（Latitude）。<br>
+     *
+     * @param wkbBytes WKB字节
+     * @return Point 对象
      */
     public static Point readPointFromWkbBytes(byte[] wkbBytes) {
         if (wkbBytes.length == 21) {
@@ -87,6 +87,84 @@ public class WKBUtils {
             return new Point(x, y, srid, byteOrder);
         }
         throw new IllegalArgumentException("Invalid WKB point length: " + wkbBytes.length);
+    }
+
+    public static byte[] writeWkbBytesFromPolygon(Polygon polygon) {
+        if (polygon == null || polygon.getPoints().isEmpty()) {
+            throw new IllegalArgumentException("Polygon must contain at least four point");
+        }
+        List<Point> points = polygon.getPoints();
+        Point p = points.get(0);
+        int srid =p.getSrid();
+        ByteOrder byteOrder = p.getByteOrder();
+        int numPoints = points.size();
+        // 计算所需的字节数组大小
+        // SRID + 字节序 + 几何类型 + 环数 + 点数 + 点坐标
+        int bufferSize = 4 + 1 + 4 + 4 + 4 + numPoints * 16;
+        ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+        buffer.putInt(srid);
+        buffer.order(byteOrder); // 使用小端字节序
+        buffer.put((byte) (byteOrder == ByteOrder.BIG_ENDIAN ? 0 : 1)); // 字节序
+        buffer.putInt(WKBType.POLYGON.getType()); // 几何类型：POLYGON
+        buffer.putInt(1); // 环数：1（单环）
+        buffer.putInt(numPoints); // 点数
+        for (Point point : points) {
+            buffer.putDouble(point.getLongitude()); // X 坐标（经度）
+            buffer.putDouble(point.getLatitude()); // Y 坐标（纬度）
+        }
+        return buffer.array();
+    }
+
+
+    /**
+     * WKB 是用于存储几何数据的二进制格式，在地理信息系统（GIS）和数据库（如 PostGIS）中广泛使用。
+     * <p>
+     * Polygon 的 WKB 结构：
+     * <pre>
+     * ┌───────────┬───────────┬───────────┬──────────┬───────────┬───────────┬──────────┐
+     * │ SRID      │ 字节序     │ 几何类型    │ 环数量    │ 点数量     │ X 坐标     │ Y 坐标   │
+     * │ (4 字节)   │ (1 字节)  │ (4 字节)   │ (4 字节)  │ (4 字节)   │ (8 字节)  │ (8 字节)  │
+     * └───────────┴───────────┴───────────┴──────────┴───────────┴───────────┴──────────┘
+     * </pre>
+     * <p>
+     * 具体字段说明：<br>
+     * <b>SRID（4 字节）</b>: 空间参考系统 ID，始终以小端序存储（0xE6100000 对应 SRID 4326）。<br>
+     * <b>字节序标识（1 字节）</b>: 指示几何数据的字节序（0 = 大端，1 = 小端）。<br>
+     * <b>几何类型（4 字节）</b>: 指定 WKB 几何类型（3 = Polygon）。<br>
+     * <b>环数量（4 字节）</b>：表示多边形包含的环的数量，通常为 1，多环多边形表示多边形中包含孔洞。<br>
+     * <b>点数量（4 字节）</b>：表示多边形外环包含的点数量。<br>
+     * <b>X 坐标（8 字节）</b>: 点的经度（Longitude）。<br>
+     * <b>Y 坐标（8 字节）</b>: 点的纬度（Latitude）。<br>
+     *
+     * @param wkbBytes WKB字节
+     * @return Polygon 对象
+     */
+    public static Polygon readPolygonFromWkbBytes(byte[] wkbBytes) {
+        if (wkbBytes == null || wkbBytes.length < 5) {
+            throw new IllegalArgumentException("Invalid WKB byte array");
+        }
+        ByteBuffer buffer = ByteBuffer.wrap(wkbBytes);
+        int srid = buffer.getInt();
+        ByteOrder byteOrder = buffer.get() == 1 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+        buffer.order(byteOrder);
+        int geometryType = buffer.getInt();
+        if (geometryType != WKBType.POLYGON.getType()) {
+            throw new IllegalArgumentException("Only POLYGON geometry type is supported");
+        }
+        //检查多边形是否包含的环的数量,只处理包含单个环的多边形
+        //目前还用不到，先不支持处理复杂的、带孔的多边形
+        int numRings = buffer.getInt();
+        if (numRings != 1) {
+            throw new IllegalArgumentException("Only single-ring polygons are supported");
+        }
+        int numPoints = buffer.getInt();
+        List<Point> points = new ArrayList<>(numPoints);
+        for (int i = 0; i < numPoints; i++) {
+            double longitude = buffer.getDouble();
+            double latitude = buffer.getDouble();
+            points.add(new Point(latitude, longitude, srid, byteOrder));
+        }
+        return new Polygon(points);
     }
 
     /**

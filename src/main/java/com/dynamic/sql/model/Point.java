@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.nio.ByteOrder;
 import java.util.Objects;
 
-public class Point implements Serializable, AttributeConverter<Point, byte[]> {
+public class Point implements AttributeConverter<Point, byte[]>, Serializable {
     private static final long serialVersionUID = 4902022702746614570L;
     //经度（Longitude）表示东西方向的位置，范围是-180到180。
     private double longitude;
@@ -20,7 +20,7 @@ public class Point implements Serializable, AttributeConverter<Point, byte[]> {
     private ByteOrder byteOrder;
 
     // 空构造方法（用于反序列化）
-    public Point() {
+    private Point() {
     }
 
     // 带经纬度的构造方法

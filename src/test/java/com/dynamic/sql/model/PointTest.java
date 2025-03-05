@@ -7,6 +7,7 @@ import com.dynamic.sql.utils.WKBUtils;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteOrder;
+import java.sql.Struct;
 import java.util.List;
 
 class PointTest extends InitializingContext {
@@ -226,4 +227,5 @@ class PointTest extends InitializingContext {
         System.out.println(list.size());
         list.forEach(System.out::println);
     }
+
 }
