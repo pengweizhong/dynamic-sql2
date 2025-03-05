@@ -3,6 +3,7 @@ package com.dynamic.sql.core.condition;
 
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.column.conventional.Column;
+import com.dynamic.sql.core.column.function.ColumFunction;
 
 import java.util.function.Consumer;
 
@@ -306,6 +307,8 @@ public interface Condition {
      * @return 当前 Condition 实例
      */
     <T, F> Condition andLessThanOrEqualTo(Fn<T, F> fn, Object value);
+
+    Condition andLessThanOrEqualTo(ColumFunction columFunction, Object value);
 
     /**
      * 添加字段小于或等于连接条件，并且运算。

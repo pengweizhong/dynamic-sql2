@@ -630,6 +630,14 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
+    public Condition andLessThanOrEqualTo(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        condition.append(" ").append(logicalOperatorType(AND)).append(functionToString)
+                .append(" <= ").append(registerValueWithKey(parameterBinder, null, value));
+        return this;
+    }
+
+    @Override
     public <T1, T2, F> Condition andLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
         String name = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName);
         String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);

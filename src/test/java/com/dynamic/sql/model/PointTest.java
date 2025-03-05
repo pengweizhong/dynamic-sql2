@@ -170,5 +170,60 @@ class PointTest extends InitializingContext {
         //SELECT id, location
         //FROM t_location
         //WHERE ST_Distance_Sphere(location, ST_GeomFromText('POINT (116 39)', 0)) <= 1000000;
+        List<LocationEntity> list = sqlContext.select()
+                .allColumn()
+                .from(LocationEntity.class)
+                .where(whereCondition -> whereCondition
+                        .andLessThanOrEqualTo(new DistanceSphere(LocationEntity::getLocation, new Point(116, 39)), 1000000))
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void ST_Distance_Sphere2() {
+        //SELECT id, location
+        //FROM t_location
+        //WHERE ST_Distance_Sphere(location, ST_GeomFromText('POINT (116 39)', 0)) <= 1000000;
+        List<LocationEntity> list = sqlContext.select()
+                .allColumn()
+                .from(LocationEntity.class)
+                .where(whereCondition -> whereCondition
+                        .andLessThanOrEqualTo(new DistanceSphere(new Point(116, 39), new Point(116, 39)), 1000000))
+                .fetch()
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    /**
+     * 查询两点之间的距离
+     */
+    @Test
+    void ST_Distance_Sphere3() {
+        //SELECT ST_Distance_Sphere(POINT(10, 20), POINT(30, 40)) AS distance_m;
+        List<Integer> list = sqlContext.select()
+                .column(new DistanceSphere(LocationEntity::getLocation, new Point(116, 39)))
+                .from(LocationEntity.class)
+                .fetch(Integer.class)
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    /**
+     * 查询两点之间的距离(欧几里得距离（Euclidean Distance）)
+     */
+    @Test
+    void ST_Distance() {
+        //SELECT ST_Distance_Sphere(POINT(10, 20), POINT(30, 40)) AS distance_m;
+        List<Integer> list = sqlContext.select()
+                .column(new Distance(LocationEntity::getLocation, new Point(116, 39)))
+                .from(LocationEntity.class)
+                .fetch(Integer.class)
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
     }
 }

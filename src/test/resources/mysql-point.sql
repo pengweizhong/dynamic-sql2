@@ -8,7 +8,7 @@ CREATE TABLE `t_location`
     `district`     varchar(50)  NULL COMMENT '区/县',
     `address`      varchar(255) NULL COMMENT '详细地址',
     `location4326` point        NOT NULL /*!80003 SRID 4326 */ COMMENT '地理坐标点(4326)',
-    `location`     point        NULL COMMENT '地理坐标点(默认)',
+    `location`     point        NOT NULL COMMENT '地理坐标点(默认)',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
@@ -18,7 +18,7 @@ CREATE TABLE `t_location`
 
 -- 插入数据
 INSERT INTO t_location
-(id, province, city, district, address, location4326,location, create_time, update_time)
+(id, province, city, district, address, location4326, location, create_time, update_time)
 VALUES (1, '北京市', '北京市', '海淀区', '西土城路4号',
         ST_SRID(ST_GeomFromText('POINT(116.355762 39.97161)'), 4326),
         ST_GeomFromText('POINT(116.255243 39.902088)'),
@@ -26,10 +26,10 @@ VALUES (1, '北京市', '北京市', '海淀区', '西土城路4号',
         '2025-02-07 11:24:18');
 
 INSERT INTO t_location
-(id, province, city, district, address, location4326,location, create_time, update_time)
+(id, province, city, district, address, location4326, location, create_time, update_time)
 VALUES (2, '北京市', '北京市', '海淀区', '玉泉路66号',
         ST_SRID(ST_GeomFromText('POINT (116.255243 39.902088)'), 4326),
-            ST_GeomFromText('POINT(116.255243 39.902088)'),
+        ST_GeomFromText('POINT(116.255243 39.902088)'),
         '2025-02-07 11:24:18',
         '2025-02-07 11:30:54');
 
