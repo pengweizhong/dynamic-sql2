@@ -50,6 +50,8 @@ public interface Condition {
      */
     <T1, T2, F> Condition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
+    Condition andEqualTo(ColumFunction columFunction, Object value);
+
     /**
      * 添加等于条件，或运算。
      *
@@ -72,6 +74,8 @@ public interface Condition {
      * @return 当前 {@link Condition} 实例
      */
     <T1, T2, F> Condition orEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    Condition orEqualTo(ColumFunction columFunction, Object value);
 
     /**
      * 添加不等于条件，并且运算。
@@ -96,6 +100,8 @@ public interface Condition {
      */
     <T1, T2, F> Condition andNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
+    Condition andNotEqualTo(ColumFunction columFunction, Object value);
+
     /**
      * 添加不等于条件，或运算。
      *
@@ -119,6 +125,8 @@ public interface Condition {
      */
     <T1, T2, F> Condition orNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
+    Condition orNotEqualTo(ColumFunction columFunction, Object value);
+
     /**
      * 添加字段为空值条件，并且运算。
      *
@@ -128,6 +136,8 @@ public interface Condition {
      * @return 当前 Condition 实例
      */
     <T, F> Condition andIsNull(Fn<T, F> fn);
+
+    Condition andIsNull(ColumFunction columFunction, Object value);
 
     /**
      * 添加字段为空值条件，或运算。
@@ -139,6 +149,8 @@ public interface Condition {
      */
     <T, F> Condition orIsNull(Fn<T, F> fn);
 
+    Condition orIsNull(ColumFunction columFunction, Object value);
+
     /**
      * 添加字段非空值条件，并且运算。
      *
@@ -149,6 +161,8 @@ public interface Condition {
      */
     <T, F> Condition andIsNotNull(Fn<T, F> fn);
 
+    Condition andIsNotNull(ColumFunction columFunction, Object value);
+
     /**
      * 添加字段非空值条件，或运算。
      *
@@ -158,6 +172,8 @@ public interface Condition {
      * @return 当前 Condition 实例
      */
     <T, F> Condition orIsNotNull(Fn<T, F> fn);
+
+    Condition orIsNotNull(ColumFunction columFunction, Object value);
 
     /**
      * 添加字段大于指定值条件，并且运算。
@@ -182,6 +198,8 @@ public interface Condition {
      */
     <T1, T2, F> Condition andGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
+    Condition andGreaterThan(ColumFunction columFunction, Object value);
+
     /**
      * 添加字段大于指定值条件，或运算。
      *
@@ -204,6 +222,8 @@ public interface Condition {
      * @return 当前 {@link Condition} 实例
      */
     <T1, T2, F> Condition orGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    Condition orGreaterThan(ColumFunction columFunction, Object value);
 
     /**
      * 添加字段大于或等于指定值条件，并且运算。
@@ -228,6 +248,8 @@ public interface Condition {
      */
     <T1, T2, F> Condition andGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
+    Condition andGreaterThanOrEqualTo(ColumFunction columFunction, Object value);
+
     /**
      * 添加字段大于或等于指定值条件，或运算。
      *
@@ -250,6 +272,8 @@ public interface Condition {
      * @return 当前 {@link Condition} 实例
      */
     <T1, T2, F> Condition orGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    Condition orGreaterThanOrEqualTo(ColumFunction columFunction, Object value);
 
     /**
      * 添加字段小于指定值条件，并且运算。
@@ -274,6 +298,8 @@ public interface Condition {
      */
     <T1, T2, F> Condition andLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
+    Condition andLessThan(ColumFunction columFunction, Object value);
+
     /**
      * 添加字段小于指定值条件，或运算。
      *
@@ -284,6 +310,7 @@ public interface Condition {
      * @return 当前 Condition 实例
      */
     <T, F> Condition orLessThan(Fn<T, F> fn, Object value);
+
 
     /**
      * 添加字段小于连接条件，或运算。
@@ -297,6 +324,8 @@ public interface Condition {
      */
     <T1, T2, F> Condition orLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
+    Condition orLessThan(ColumFunction columFunction, Object value);
+
     /**
      * 添加字段小于或等于指定值条件，并且运算。
      *
@@ -307,8 +336,6 @@ public interface Condition {
      * @return 当前 Condition 实例
      */
     <T, F> Condition andLessThanOrEqualTo(Fn<T, F> fn, Object value);
-
-    Condition andLessThanOrEqualTo(ColumFunction columFunction, Object value);
 
     /**
      * 添加字段小于或等于连接条件，并且运算。
@@ -321,6 +348,8 @@ public interface Condition {
      * @return 当前 {@link Condition} 实例
      */
     <T1, T2, F> Condition andLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+
+    Condition andLessThanOrEqualTo(ColumFunction columFunction, Object value);
 
     /**
      * 添加字段小于或等于指定值条件，或运算。
@@ -345,6 +374,8 @@ public interface Condition {
      */
     <T1, T2, F> Condition orLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
+    Condition orLessThanOrEqualTo(ColumFunction columFunction, Object value);
+
     /**
      * 添加字段在指定值集合中条件，并且运算。
      *
@@ -358,6 +389,8 @@ public interface Condition {
 
     Condition andIn(Column column, Iterable<?> values);
 
+    Condition andIn(ColumFunction columFunction, Iterable<?> values);
+
     /**
      * 添加字段在指定值集合中条件，或运算。
      *
@@ -368,6 +401,8 @@ public interface Condition {
      * @return 当前 Condition 实例
      */
     <T, F> Condition orIn(Fn<T, F> fn, Iterable<?> values);
+
+    Condition orIn(ColumFunction columFunction, Iterable<?> values);
 
     /**
      * 添加字段不在指定值集合中条件，并且运算。
@@ -380,6 +415,8 @@ public interface Condition {
      */
     <T, F> Condition andNotIn(Fn<T, F> fn, Iterable<?> values);
 
+    Condition andNotIn(ColumFunction columFunction, Iterable<?> values);
+
     /**
      * 添加字段不在指定值集合中条件，或运算。
      *
@@ -390,6 +427,8 @@ public interface Condition {
      * @return 当前 Condition 实例
      */
     <T, F> Condition orNotIn(Fn<T, F> fn, Iterable<?> values);
+
+    Condition orNotIn(ColumFunction columFunction, Iterable<?> values);
 
     /**
      * 添加字段在指定范围内条件，并且运算。
@@ -666,6 +705,43 @@ public interface Condition {
 //     */
 //    Condition customCondition(String customClause, Object... params);
 
+    /**
+     * 使用 AND 逻辑连接一个列函数条件。
+     * <p>
+     * 该方法将指定的列函数条件与当前条件通过 AND 逻辑运算符连接，形成一个新的复合条件。
+     * 适用于需要多个条件同时满足的查询场景。
+     * </p>
+     * 示例：查询指定的点是否包含在其中
+     * <pre>
+     *     {@code
+     *         List<LocationEntity> list = sqlContext.select()
+     *                 .allColumn()
+     *                 .from(LocationEntity.class)
+     *                 .where(whereCondition -> whereCondition.andFunction(new Contains(LocationEntity::getArea, new Point(5, 5))))
+     *                 .fetch()
+     *                 .toList();
+     *         System.out.println(list.size());
+     *     }
+     * </pre>
+     *
+     * @param columFunction 要与当前条件通过 AND 连接的列函数条件，不能为空。
+     *                      该参数通常表示对数据库列的某种操作或计算（例如 SUM、AVG 等）。
+     * @return 当前的 {@link Condition} 实例，以便实现链式调用
+     */
     Condition andFunction(ColumFunction columFunction);
+
+
+    /**
+     * 使用 OR 逻辑连接一个列函数条件。
+     * <p>
+     * 该方法将指定的列函数条件与当前条件通过 OR 逻辑运算符连接，形成一个新的复合条件。
+     * 适用于需要多个条件中至少一个满足的查询场景。
+     * </p>
+     *
+     * @param columFunction 要与当前条件通过 OR 连接的列函数条件，不能为空。
+     *                      该参数通常表示对数据库列的某种操作或计算（例如 MAX、MIN 等）。
+     * @return 当前的 {@link Condition} 实例，以便实现链式调用
+     */
+    Condition orFunction(ColumFunction columFunction);
 
 }

@@ -412,6 +412,14 @@ public class GenericWhereCondition extends WhereCondition {
         return this;
     }
 
+    @Override
+    public Condition orFunction(ColumFunction columFunction) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        condition.append(" ").append(logicalOperatorType(OR)).append(functionToString);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        return this;
+    }
+
     private Condition nestedCondition(Consumer<Condition> nestedCondition, LogicalOperatorType logicalOperatorType) {
         MysqlWhereCondition whereCondition = SqlUtils.matchDialectCondition(matchSqlDialect(), version, aliasTableMap, dataSourceName);
         nestedCondition.accept(whereCondition);
@@ -446,6 +454,15 @@ public class GenericWhereCondition extends WhereCondition {
         return this;
     }
 
+    @Override
+    public Condition andEqualTo(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(AND)).append(functionToString)
+                .append(" = ").append(registerValueWithKey(parameterBinder, null, value));
+        return this;
+    }
+
 
     @Override
     public <T, F> Condition orEqualTo(Fn<T, F> fn, Object value) {
@@ -460,6 +477,15 @@ public class GenericWhereCondition extends WhereCondition {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName))
                 .append(" = ").append(SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName));
+        return this;
+    }
+
+    @Override
+    public Condition orEqualTo(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(OR)).append(functionToString)
+                .append(" = ").append(registerValueWithKey(parameterBinder, null, value));
         return this;
     }
 
@@ -480,6 +506,15 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
+    public Condition andNotEqualTo(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(AND)).append(functionToString)
+                .append(" != ").append(registerValueWithKey(parameterBinder, null, value));
+        return this;
+    }
+
+    @Override
     public <T, F> Condition orNotEqualTo(Fn<T, F> fn, Object value) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
@@ -496,9 +531,28 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
+    public Condition orNotEqualTo(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(OR)).append(functionToString)
+                .append(" != ").append(registerValueWithKey(parameterBinder, null, value));
+        return this;
+    }
+
+    @Override
     public <T, F> Condition andIsNull(Fn<T, F> fn) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
+                .append(" is null");
+        return this;
+    }
+
+    @Override
+    public Condition andIsNull(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        registerValueWithKey(parameterBinder, null, value);
+        condition.append(" ").append(logicalOperatorType(AND)).append(functionToString)
                 .append(" is null");
         return this;
     }
@@ -512,6 +566,16 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
+    public Condition orIsNull(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        registerValueWithKey(parameterBinder, null, value);
+        condition.append(" ").append(logicalOperatorType(OR)).append(functionToString)
+                .append(" is null");
+        return this;
+    }
+
+    @Override
     public <T, F> Condition andIsNotNull(Fn<T, F> fn) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
@@ -520,9 +584,29 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
+    public Condition andIsNotNull(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        registerValueWithKey(parameterBinder, null, value);
+        condition.append(" ").append(logicalOperatorType(AND)).append(functionToString)
+                .append(" is not null");
+        return this;
+    }
+
+    @Override
     public <T, F> Condition orIsNotNull(Fn<T, F> fn) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName))
+                .append(" is not null");
+        return this;
+    }
+
+    @Override
+    public Condition orIsNotNull(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        registerValueWithKey(parameterBinder, null, value);
+        condition.append(" ").append(logicalOperatorType(OR)).append(functionToString)
                 .append(" is not null");
         return this;
     }
@@ -545,6 +629,15 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
+    public Condition andGreaterThan(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(AND)).append(functionToString)
+                .append(" > ").append(registerValueWithKey(parameterBinder, null, value));
+        return this;
+    }
+
+    @Override
     public <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
@@ -558,6 +651,15 @@ public class GenericWhereCondition extends WhereCondition {
         String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR))
                 .append(name).append(" > ").append(name2);
+        return this;
+    }
+
+    @Override
+    public Condition orGreaterThan(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(OR)).append(functionToString)
+                .append(" > ").append(registerValueWithKey(parameterBinder, null, value));
         return this;
     }
 
@@ -579,6 +681,15 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
+    public Condition andGreaterThanOrEqualTo(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(AND)).append(functionToString)
+                .append(" >= ").append(registerValueWithKey(parameterBinder, null, value));
+        return this;
+    }
+
+    @Override
     public <T, F> Condition orGreaterThanOrEqualTo(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
@@ -592,6 +703,15 @@ public class GenericWhereCondition extends WhereCondition {
         String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR))
                 .append(name).append(" >= ").append(name2);
+        return this;
+    }
+
+    @Override
+    public Condition orGreaterThanOrEqualTo(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(OR)).append(functionToString)
+                .append(" >= ").append(registerValueWithKey(parameterBinder, null, value));
         return this;
     }
 
@@ -613,6 +733,15 @@ public class GenericWhereCondition extends WhereCondition {
     }
 
     @Override
+    public Condition andLessThan(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(AND)).append(functionToString)
+                .append(" < ").append(registerValueWithKey(parameterBinder, null, value));
+        return this;
+    }
+
+    @Override
     public <T, F> Condition orLessThan(Fn<T, F> fn, Object value) {
         String name = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
@@ -626,6 +755,15 @@ public class GenericWhereCondition extends WhereCondition {
         String name2 = SqlUtils.extractQualifiedAlias(field2, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR))
                 .append(name).append(" <= ").append(name2);
+        return this;
+    }
+
+    @Override
+    public Condition orLessThan(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(OR)).append(functionToString)
+                .append(" < ").append(registerValueWithKey(parameterBinder, null, value));
         return this;
     }
 
@@ -671,19 +809,13 @@ public class GenericWhereCondition extends WhereCondition {
         return this;
     }
 
-    private <T, F> void iteratingCollection(Fn<T, F> fn, Iterator<?> iterator) {
-        if (iterator == null || !iterator.hasNext()) {
-            throw new IllegalArgumentException("The parameter set cannot be empty");
-        }
-        condition.append(" (");
-        while (iterator.hasNext()) {
-            Object value = iterator.next();
-            condition.append(registerValueWithKey(parameterBinder, fn, value));
-            if (iterator.hasNext()) {
-                condition.append(", ");
-            }
-        }
-        condition.append(")");
+    @Override
+    public Condition orLessThanOrEqualTo(ColumFunction columFunction, Object value) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(OR)).append(functionToString)
+                .append(" <= ").append(registerValueWithKey(parameterBinder, null, value));
+        return this;
     }
 
     @Override
@@ -691,7 +823,7 @@ public class GenericWhereCondition extends WhereCondition {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
                 .append(" in");
-        iteratingCollection(fn, values.iterator());
+        iteratingFnCollection(fn, values.iterator());
         return this;
     }
 
@@ -700,25 +832,37 @@ public class GenericWhereCondition extends WhereCondition {
         condition.append(" ").append(logicalOperatorType(AND));
         String functionToString = column.getFunctionToString(sqlDialect(), version);
         condition.append(functionToString).append(" in");
-        condition.append(" (");
-        Iterator<?> iterator = values.iterator();
-        while (iterator.hasNext()) {
-            Object value = iterator.next();
-            condition.append(registerValueWithKey(parameterBinder, value));
-            if (iterator.hasNext()) {
-                condition.append(", ");
-            }
-        }
-        condition.append(")");
+        iteratingCollection(values);
         return this;
     }
+
+    @Override
+    public Condition andIn(ColumFunction columFunction, Iterable<?> values) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(functionToString).append(" in");
+        iteratingCollection(values);
+        return this;
+    }
+
 
     @Override
     public <T, F> Condition orIn(Fn<T, F> fn, Iterable<?> values) {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" in");
-        iteratingCollection(fn, values.iterator());
+        iteratingFnCollection(fn, values.iterator());
+        return this;
+    }
+
+    @Override
+    public Condition orIn(ColumFunction columFunction, Iterable<?> values) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(functionToString).append(" in");
+        iteratingCollection(values);
         return this;
     }
 
@@ -727,7 +871,17 @@ public class GenericWhereCondition extends WhereCondition {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
                 .append(" not in");
-        iteratingCollection(fn, values.iterator());
+        iteratingFnCollection(fn, values.iterator());
+        return this;
+    }
+
+    @Override
+    public Condition andNotIn(ColumFunction columFunction, Iterable<?> values) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(AND));
+        condition.append(functionToString).append(" not in");
+        iteratingCollection(values);
         return this;
     }
 
@@ -736,7 +890,17 @@ public class GenericWhereCondition extends WhereCondition {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" not in");
-        iteratingCollection(fn, values.iterator());
+        iteratingFnCollection(fn, values.iterator());
+        return this;
+    }
+
+    @Override
+    public Condition orNotIn(ColumFunction columFunction, Iterable<?> values) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect(), version);
+        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        condition.append(" ").append(logicalOperatorType(OR));
+        condition.append(functionToString).append(" not in");
+        iteratingCollection(values);
         return this;
     }
 
@@ -839,7 +1003,6 @@ public class GenericWhereCondition extends WhereCondition {
     public <T, F> Condition orMatches(Fn<T, F> fn, String regex) {
         throw new UnsupportedOperationException();
     }
-
 
     @Override
     public <T, F> Condition andFindInSet(Fn<T, F> fn, Object item) {
@@ -1092,7 +1255,7 @@ public class GenericWhereCondition extends WhereCondition {
         condition.append(" ").append(logicalOperatorType(AND))
                 .append(executeFunctionToString(function))
                 .append(" in");
-        iteratingCollection(null, values.iterator());
+        iteratingFnCollection(null, values.iterator());
         return this;
     }
 
@@ -1109,7 +1272,7 @@ public class GenericWhereCondition extends WhereCondition {
         condition.append(" ").append(logicalOperatorType(OR))
                 .append(executeFunctionToString(function))
                 .append(" in");
-        iteratingCollection(null, values.iterator());
+        iteratingFnCollection(null, values.iterator());
         return this;
     }
 
@@ -1126,7 +1289,7 @@ public class GenericWhereCondition extends WhereCondition {
         condition.append(" ").append(logicalOperatorType(AND))
                 .append(executeFunctionToString(function))
                 .append(" not in");
-        iteratingCollection(null, values.iterator());
+        iteratingFnCollection(null, values.iterator());
         return this;
     }
 
@@ -1143,7 +1306,7 @@ public class GenericWhereCondition extends WhereCondition {
         condition.append(" ").append(logicalOperatorType(OR))
                 .append(executeFunctionToString(function))
                 .append(" not in");
-        iteratingCollection(null, values.iterator());
+        iteratingFnCollection(null, values.iterator());
         return this;
     }
 
@@ -1203,6 +1366,34 @@ public class GenericWhereCondition extends WhereCondition {
             return SqlDialect.ORACLE;
         }
         return SqlDialect.MYSQL;
+    }
+
+    private void iteratingCollection(Iterable<?> values) {
+        condition.append(" (");
+        Iterator<?> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            Object value = iterator.next();
+            condition.append(registerValueWithKey(parameterBinder, value));
+            if (iterator.hasNext()) {
+                condition.append(", ");
+            }
+        }
+        condition.append(")");
+    }
+
+    private <T, F> void iteratingFnCollection(Fn<T, F> fn, Iterator<?> iterator) {
+        if (iterator == null || !iterator.hasNext()) {
+            throw new IllegalArgumentException("The parameter set cannot be empty");
+        }
+        condition.append(" (");
+        while (iterator.hasNext()) {
+            Object value = iterator.next();
+            condition.append(registerValueWithKey(parameterBinder, fn, value));
+            if (iterator.hasNext()) {
+                condition.append(", ");
+            }
+        }
+        condition.append(")");
     }
 
     protected SqlDialect sqlDialect() {
