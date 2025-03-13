@@ -17,9 +17,9 @@ import static com.dynamic.sql.plugins.pagination.LocalPage.setCurrentPage;
 /**
  * PageHelper 用于处理不同类型的数据分页逻辑的辅助类。
  * <p>
- * {@link this#of(int, int)}：通用分页逻辑<br>
- * {@link this#ofCollection(int, int)}：集合类型分页逻辑<br>
- * {@link this#ofMap(int, int)}：Map类型分页逻辑
+ * {@link PageHelper#of(int, int)}：通用分页逻辑<br>
+ * {@link PageHelper#ofCollection(int, int)}：集合类型分页逻辑<br>
+ * {@link PageHelper#ofMap(int, int)}：Map类型分页逻辑
  */
 public class PageHelper {
     private static final Logger log = LoggerFactory.getLogger(PageHelper.class);
