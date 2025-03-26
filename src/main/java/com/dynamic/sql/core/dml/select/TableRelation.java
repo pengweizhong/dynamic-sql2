@@ -200,9 +200,18 @@ public class TableRelation<R> implements JoinCondition {
         return this;
     }
 
+    @SafeVarargs
+    public final <T> TableRelation<R> groupBy(boolean isEffective, FieldFn<T, ?>... fnKey) {
+        return isEffective ? groupBy(fnKey) : this;
+    }
+
     public final TableRelation<R> groupBy(String tableAlias, String columnName) {
         selectSpecification.getGroupByFields().add(new GroupFn(tableAlias, columnName));
         return this;
+    }
+
+    public final TableRelation<R> groupBy(boolean isEffective, String tableAlias, String columnName) {
+        return isEffective ? groupBy(tableAlias, columnName) : this;
     }
 
     public final <T> TableRelation<R> groupBy(String tableAlias, FieldFn<T, ?> fn) {
@@ -210,14 +219,26 @@ public class TableRelation<R> implements JoinCondition {
         return this;
     }
 
+    public final <T> TableRelation<R> groupBy(boolean isEffective, String tableAlias, FieldFn<T, ?> fn) {
+        return isEffective ? groupBy(tableAlias, fn) : this;
+    }
+
     public final TableRelation<R> groupBy(GroupFn... groupByFn) {
         selectSpecification.getGroupByFields().addAll(Arrays.asList(groupByFn));
         return this;
     }
 
+    public final TableRelation<R> groupBy(boolean isEffective, GroupFn... groupByFn) {
+        return isEffective ? groupBy(groupByFn) : this;
+    }
+
     public TableRelation<R> having(Consumer<HavingCondition> condition) {
         selectSpecification.setHavingCondition(condition);
         return this;
+    }
+
+    public TableRelation<R> having(boolean isEffective, Consumer<HavingCondition> condition) {
+        return isEffective ? having(condition) : this;
     }
 
     /**
