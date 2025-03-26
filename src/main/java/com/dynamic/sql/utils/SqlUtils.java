@@ -526,12 +526,13 @@ public class SqlUtils {
     @SuppressWarnings("all")
     public static String registerValueWithKey(ParameterBinder parameters, Fn<?, ?> fn, Object value) {
         String key = generateBindingKey();
+        //JDBC 规范没有直接支持 YearMonth 定义标准映射。因此这里直接转为字符串
+        if (value.getClass() == YearMonth.class) {
+            parameters.add(key, value.toString());
+            return key;
+        }
         //不需要任何特殊处理
         if (fn == null) {
-            //JDBC 规范没有直接支持 YearMonth 定义标准映射。因此这里直接转为字符串
-            if (value.getClass() == YearMonth.class) {
-                value = value.toString();
-            }
             parameters.add(key, value);
             return key;
         }
