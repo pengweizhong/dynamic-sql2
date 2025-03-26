@@ -20,6 +20,7 @@ import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
 import com.dynamic.sql.core.dml.select.build.join.*;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.Dual;
 import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
@@ -148,6 +149,10 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
     protected String automaticallySelectAliases(JoinTable joinTable) {
         Class<?> tableClass = joinTable.getTableClass();
         TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
+        //DUAL 虚拟表不需要限定符号  也不需要别名
+        if(tableClass == Dual.class){
+            return tableMeta.getTableName();
+        }
         String alias = StringUtils.isEmpty(joinTable.getTableAlias()) ? tableMeta.getTableAlias() : joinTable.getTableAlias();
         String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, alias);
         return getSchemaName(tableMeta).concat(syntaxAs()).concat(tableAlias);

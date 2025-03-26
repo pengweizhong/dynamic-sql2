@@ -6,6 +6,8 @@ import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.ColumnReference;
 import com.dynamic.sql.core.column.conventional.NumberColumn;
 import com.dynamic.sql.core.column.function.modifiers.Distinct;
+import com.dynamic.sql.core.column.function.scalar.datetime.DateFormat;
+import com.dynamic.sql.core.column.function.scalar.datetime.Now;
 import com.dynamic.sql.core.column.function.table.JsonTable;
 import com.dynamic.sql.core.column.function.table.JsonTable.JsonColumn;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
@@ -13,6 +15,7 @@ import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
 import com.dynamic.sql.enums.SortOrder;
+import com.dynamic.sql.model.Dual;
 import com.dynamic.sql.plugins.pagination.CollectionPage;
 import com.dynamic.sql.plugins.pagination.MapPage;
 import com.dynamic.sql.plugins.pagination.PageHelper;
@@ -23,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -685,6 +689,25 @@ public class SelectTest extends InitializingContext {
                 .toList();
         System.out.println(list.size());
         list.forEach(System.out::println);
+    }
+
+    @Test
+    void testDateFormat() {
+        Dual dual = sqlContext.select()
+                .column(new DateFormat(new Now(), "%Y-%m"))
+                .from(Dual.class)
+                .fetch()
+                .toOne();
+        System.out.println(dual);
+    }
+    @Test
+    void testDateFormat2() {
+        YearMonth yearMonth = sqlContext.select()
+                .column(new DateFormat(new Now(), "%Y-%m"))
+                .from(Dual.class)
+                .fetch(YearMonth.class)
+                .toOne();
+        System.out.println(yearMonth);
     }
 }
 
