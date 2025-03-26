@@ -41,6 +41,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -527,6 +528,10 @@ public class SqlUtils {
         String key = generateBindingKey();
         //不需要任何特殊处理
         if (fn == null) {
+            //JDBC 规范没有直接支持 YearMonth 定义标准映射。因此这里直接转为字符串
+            if (value.getClass() == YearMonth.class) {
+                value = value.toString();
+            }
             parameters.add(key, value);
             return key;
         }
