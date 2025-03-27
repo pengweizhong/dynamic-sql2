@@ -238,7 +238,7 @@ public class TableRelation<R> implements JoinCondition {
         return this;
     }
 
-    public final TableRelation<R> groupBy(boolean isEffective, ColumFunction columFunction) {
+    public final TableRelation<R> groupBy(boolean isEffective, ColumFunction... columFunction) {
         return isEffective ? groupBy(columFunction) : this;
     }
 
