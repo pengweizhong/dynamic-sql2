@@ -5,7 +5,7 @@ import com.dynamic.sql.context.SchemaContextHolder;
 import com.dynamic.sql.context.properties.SchemaProperties;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
-import com.dynamic.sql.core.column.function.TableFunction;
+import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.HavingCondition;
@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public abstract class SqlSelectBuilder {
     protected final StringBuilder sqlBuilder = new StringBuilder();
@@ -129,8 +128,8 @@ public abstract class SqlSelectBuilder {
             parseWhere(selectSpecification.getWhereCondition());
         }
         //step4 解析group by
-        if (CollectionUtils.isNotEmpty(selectSpecification.getGroupByFields())) {
-            parseGroupBy(selectSpecification.getGroupByFields());
+        if (CollectionUtils.isNotEmpty(selectSpecification.getGroupByObject().getGroupByList())) {
+            parseGroupBy(selectSpecification.getGroupByObject().getGroupByList());
         }
         //step5 解析聚合函数
         if (selectSpecification.getHavingCondition() != null) {
@@ -146,14 +145,24 @@ public abstract class SqlSelectBuilder {
         }
     }
 
-    private void parseGroupBy(List<Fn<?, ?>> groupByFields) {
+    private void parseGroupBy(List<Object> groupByFields) {
+        //List<Fn<?, ?>> groupByFields
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxGroupBy(sqlDialect));
         for (int i = 0; i < groupByFields.size(); i++) {
-            Fn<?, ?> fn = groupByFields.get(i);
             if (i == 0) {
                 sqlBuilder.append(" ");
             }
-            sqlBuilder.append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName));
+            //Fn<?, ?> fn = groupByFields.get(i);
+            Object group = groupByFields.get(i);
+            if (group instanceof Fn) {
+                sqlBuilder.append(SqlUtils.extractQualifiedAlias((Fn) group, aliasTableMap, dataSourceName));
+            }
+            if (group instanceof ColumFunction) {
+                ColumFunction columFunction = (ColumFunction) group;
+                sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version));
+                ParameterBinder whereParameterBinder = columFunction.getParameterBinder();
+                parameterBinder.addParameterBinder(whereParameterBinder);
+            }
             if (i < groupByFields.size() - 1) {
                 sqlBuilder.append(", ");
             }

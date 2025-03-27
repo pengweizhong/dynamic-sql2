@@ -17,9 +17,7 @@ import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
 import com.dynamic.sql.core.dml.select.build.join.FromJoin;
 import com.dynamic.sql.core.dml.select.build.join.FromNestedJoin;
 import com.dynamic.sql.core.dml.select.build.join.NestedJoin;
-import com.dynamic.sql.core.dml.select.build.join.TableFunctionJoin;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
-import com.dynamic.sql.enums.JoinTableType;
 import com.dynamic.sql.utils.StringUtils;
 
 import java.util.List;

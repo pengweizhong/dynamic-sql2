@@ -5,6 +5,7 @@ import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.GroupFn;
+import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.condition.Condition;
 import com.dynamic.sql.core.condition.WhereCondition;
@@ -195,7 +196,7 @@ public class TableRelation<R> implements JoinCondition {
             return this;
         }
         for (Fn<T, ?> tkFn : fnKey) {
-            selectSpecification.getGroupByFields().add(tkFn);
+            selectSpecification.getGroupByObject().getGroupByList().add(tkFn);
         }
         return this;
     }
@@ -206,7 +207,7 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     public final TableRelation<R> groupBy(String tableAlias, String columnName) {
-        selectSpecification.getGroupByFields().add(new GroupFn(tableAlias, columnName));
+        selectSpecification.getGroupByObject().getGroupByList().add(new GroupFn(tableAlias, columnName));
         return this;
     }
 
@@ -215,7 +216,7 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     public final <T> TableRelation<R> groupBy(String tableAlias, FieldFn<T, ?> fn) {
-        selectSpecification.getGroupByFields().add(new GroupFn(tableAlias, fn));
+        selectSpecification.getGroupByObject().getGroupByList().add(new GroupFn(tableAlias, fn));
         return this;
     }
 
@@ -224,12 +225,21 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     public final TableRelation<R> groupBy(GroupFn... groupByFn) {
-        selectSpecification.getGroupByFields().addAll(Arrays.asList(groupByFn));
+        selectSpecification.getGroupByObject().getGroupByList().addAll(Arrays.asList(groupByFn));
         return this;
     }
 
     public final TableRelation<R> groupBy(boolean isEffective, GroupFn... groupByFn) {
         return isEffective ? groupBy(groupByFn) : this;
+    }
+
+    public final TableRelation<R> groupBy(ColumFunction... columFunction) {
+        selectSpecification.getGroupByObject().getGroupByList().addAll(Arrays.asList(columFunction));
+        return this;
+    }
+
+    public final TableRelation<R> groupBy(boolean isEffective, ColumFunction columFunction) {
+        return isEffective ? groupBy(columFunction) : this;
     }
 
     public TableRelation<R> having(Consumer<HavingCondition> condition) {

@@ -700,6 +700,7 @@ public class SelectTest extends InitializingContext {
                 .toOne();
         System.out.println(dual);
     }
+
     @Test
     void testDateFormat2() {
         YearMonth yearMonth = sqlContext.select()
@@ -708,6 +709,22 @@ public class SelectTest extends InitializingContext {
                 .fetch(YearMonth.class)
                 .toOne();
         System.out.println(yearMonth);
+    }
+
+    @Test
+    void testDateFormat3() {
+        //假设这个排序字段是由前端传入
+        List<User> list = sqlContext.select()
+                .column(User::getUserId)
+                .column(new DateFormat(User::getRegistrationDate, "%Y-%m"))
+                .from(User.class)
+                .groupBy(User::getUserId)
+                .groupBy(new DateFormat(User::getRegistrationDate, "%Y-%m"))
+                .limit(10)
+                .fetch(User.class)
+                .toList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
     }
 }
 

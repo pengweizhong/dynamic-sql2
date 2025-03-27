@@ -8,6 +8,7 @@ import com.dynamic.sql.core.dml.select.NestedMeta;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import com.dynamic.sql.core.dml.select.build.join.JoinTable;
 import com.dynamic.sql.core.dml.select.order.OrderBy;
+import com.dynamic.sql.model.GroupByObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,8 @@ public class SelectSpecification {
     private List<ColumnQuery> columFunctions = new ArrayList<>();
     private List<JoinTable> joinTables = new ArrayList<>();
     private Consumer<WhereCondition> whereCondition;
-    private List<Fn<?, ?>> groupByFields;
+//    private List<Fn<?, ?>> groupByFields;
+    private GroupByObject groupByObject;
     private Consumer<HavingCondition> havingCondition;
     private List<OrderBy> orderBys;
     private LimitInfo limitInfo;
@@ -31,11 +33,18 @@ public class SelectSpecification {
         return joinTables;
     }
 
-    public List<Fn<?, ?>> getGroupByFields() {
-        if (groupByFields == null) {
-            groupByFields = new ArrayList<>();
+//    public List<Fn<?, ?>> getGroupByFields() {
+//        if (groupByFields == null) {
+//            groupByFields = new ArrayList<>();
+//        }
+//        return groupByFields;
+//    }
+
+    public GroupByObject getGroupByObject() {
+        if (groupByObject == null) {
+            groupByObject = new GroupByObject();
         }
-        return groupByFields;
+        return groupByObject;
     }
 
     public Consumer<WhereCondition> getWhereCondition() {
