@@ -9,31 +9,26 @@ import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
 
 /**
- * 指定小数位，四舍五入
+ * 绝对值
  */
-public class Round extends ColumnFunctionDecorator implements NumberFunction {
+public class Abs extends ColumnFunctionDecorator implements NumberFunction {
 
-    //保留小数位数
-    private int scale;
-
-    public Round(AbstractColumFunction delegateFunction, int scale) {
+    public Abs(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
-        this.scale = scale;
     }
 
-    public <T, F> Round(FieldFn<T, F> fn, int scale) {
+    public <T, F> Abs(FieldFn<T, F> fn) {
         super(fn);
-        this.scale = scale;
     }
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "ROUND(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
+            return "ABS(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "round(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
+            return "abs(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
-        throw FunctionException.unsupportedFunctionException("ROUND", sqlDialect);
+        throw FunctionException.unsupportedFunctionException("ABS", sqlDialect);
     }
 }

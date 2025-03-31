@@ -3,6 +3,7 @@ package com.dynamic.sql.core.column;
 
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
+import com.dynamic.sql.core.column.function.ColumFunction;
 
 import java.util.function.Consumer;
 
@@ -30,6 +31,8 @@ public interface ColumnArithmetic {
      */
     ColumnArithmetic add(Number value);
 
+    ColumnArithmetic add(ColumFunction columFunction);
+
     /**
      * 使用嵌套查询的结果与当前列相加。
      *
@@ -37,6 +40,7 @@ public interface ColumnArithmetic {
      * @return 当前算术运算接口对象，用于链式调用
      */
     ColumnArithmetic add(Consumer<AbstractColumnReference> nestedSelect);
+
 
     /**
      * 将指定列的值从当前列中减去。
@@ -55,6 +59,8 @@ public interface ColumnArithmetic {
      * @return 当前算术运算接口对象，用于链式调用
      */
     ColumnArithmetic subtract(Number value);
+
+    ColumnArithmetic subtract(ColumFunction columFunction);
 
     /**
      * 使用嵌套查询的结果从当前列中减去。
@@ -82,6 +88,8 @@ public interface ColumnArithmetic {
      */
     ColumnArithmetic multiply(Number value);
 
+    ColumnArithmetic multiply(ColumFunction columFunction);
+
     /**
      * 使用嵌套查询的结果与当前列相乘。
      *
@@ -107,6 +115,8 @@ public interface ColumnArithmetic {
      * @return 当前算术运算接口对象，用于链式调用
      */
     ColumnArithmetic divide(Number value);
+
+    ColumnArithmetic divide(ColumFunction columFunction);
 
     /**
      * 使用嵌套查询的结果与当前列相除。

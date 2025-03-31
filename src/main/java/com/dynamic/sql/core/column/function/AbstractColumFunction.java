@@ -3,9 +3,11 @@ package com.dynamic.sql.core.column.function;
 
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
+import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.ColumnArithmetic;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.Map;
@@ -16,6 +18,8 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     protected final ParameterBinder arithmeticParameterBinder = new ParameterBinder();
     protected Map<String, String> aliasTableMap;
     protected String dataSourceName;
+    protected SqlDialect sqlDialect;
+    protected Version version;
 
     @Override
     public AbstractColumFunction subtract(Number value) {
@@ -35,6 +39,14 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     public <T, F> AbstractColumFunction subtract(Fn<T, F> column) {
         String name = SqlUtils.extractQualifiedAlias(column, aliasTableMap, dataSourceName);
         arithmeticSql.append(" - ").append(name);
+        return this;
+    }
+
+    @Override
+    public AbstractColumFunction subtract(ColumFunction columFunction) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect, version);
+        arithmeticSql.append(" - ").append(functionToString);
+        arithmeticParameterBinder.addParameterBinder(columFunction.getParameterBinder());
         return this;
     }
 
@@ -60,6 +72,14 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     }
 
     @Override
+    public AbstractColumFunction multiply(ColumFunction columFunction) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect, version);
+        arithmeticSql.append(" * ").append(functionToString);
+        arithmeticParameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        return this;
+    }
+
+    @Override
     public AbstractColumFunction divide(Number value) {
         arithmeticSql.append(" / ").append(SqlUtils.registerValueWithKey(arithmeticParameterBinder, value));
         return this;
@@ -81,6 +101,14 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     }
 
     @Override
+    public AbstractColumFunction divide(ColumFunction columFunction) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect, version);
+        arithmeticSql.append(" / ").append(functionToString);
+        arithmeticParameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        return this;
+    }
+
+    @Override
     public AbstractColumFunction add(Number value) {
         arithmeticSql.append(" + ").append(SqlUtils.registerValueWithKey(arithmeticParameterBinder, value));
         return this;
@@ -98,6 +126,14 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     public <T, F> AbstractColumFunction add(Fn<T, F> column) {
         String name = SqlUtils.extractQualifiedAlias(column, aliasTableMap, dataSourceName);
         arithmeticSql.append(" + ").append(name);
+        return this;
+    }
+
+    @Override
+    public AbstractColumFunction add(ColumFunction columFunction) {
+        String functionToString = columFunction.getFunctionToString(sqlDialect, version);
+        arithmeticSql.append(" + ").append(functionToString);
+        arithmeticParameterBinder.addParameterBinder(columFunction.getParameterBinder());
         return this;
     }
 
@@ -129,5 +165,13 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
 
     public void setDataSourceName(String dataSourceName) {
         this.dataSourceName = dataSourceName;
+    }
+
+    public void setSqlDialect(SqlDialect sqlDialect) {
+        this.sqlDialect = sqlDialect;
+    }
+
+    public void setVersion(Version version) {
+        this.version = version;
     }
 }

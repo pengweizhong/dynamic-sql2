@@ -45,17 +45,15 @@
         <url>https://www.dynamic-sql.com</url>
     </organization>
 
+
     <distributionManagement>
-        <site>
-            <url>https://www.dynamic-sql.com</url>
-        </site>
         <snapshotRepository>
             <id>snapshots</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <url>http://192.168.1.52:8081/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>releases</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <url>http://192.168.1.52:8081/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
@@ -162,38 +160,27 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.2.7</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <useAgent>true</useAgent>
-                    <gpgArguments>
-                        <arg>--pinentry-mode</arg>
-                        <arg>loopback</arg>
-                    </gpgArguments>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.central</groupId>
-                <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.6.0</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <publishingServerId>central</publishingServerId>
-                    <autoPublish>true</autoPublish>
-                    <waitUntil>published</waitUntil>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-gpg-plugin</artifactId>-->
+<!--                <version>3.2.7</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>sign-artifacts</id>-->
+<!--                        <phase>verify</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>sign</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <useAgent>true</useAgent>-->
+<!--                    <gpgArguments>-->
+<!--                        <arg>&#45;&#45;pinentry-mode</arg>-->
+<!--                        <arg>loopback</arg>-->
+<!--                    </gpgArguments>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 </project>

@@ -9,31 +9,30 @@ import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
 
 /**
- * 指定小数位，四舍五入
+ * 取模
  */
-public class Round extends ColumnFunctionDecorator implements NumberFunction {
+public class Mod extends ColumnFunctionDecorator implements NumberFunction {
 
-    //保留小数位数
-    private int scale;
+    private int divisor;
 
-    public Round(AbstractColumFunction delegateFunction, int scale) {
+    public Mod(AbstractColumFunction delegateFunction, int divisor) {
         super(delegateFunction);
-        this.scale = scale;
+        this.divisor = divisor;
     }
 
-    public <T, F> Round(FieldFn<T, F> fn, int scale) {
+    public <T, F> Mod(FieldFn<T, F> fn, int divisor) {
         super(fn);
-        this.scale = scale;
+        this.divisor = divisor;
     }
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "ROUND(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
+            return "MOD(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + divisor + ")";
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "round(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
+            return "mod(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + divisor + ")";
         }
-        throw FunctionException.unsupportedFunctionException("ROUND", sqlDialect);
+        throw FunctionException.unsupportedFunctionException("MOD", sqlDialect);
     }
 }

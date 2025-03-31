@@ -9,19 +9,19 @@ import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
 
 /**
- * 指定小数位，四舍五入
+ * 截断数字到指定小数位，不进行四舍五入。
  */
-public class Round extends ColumnFunctionDecorator implements NumberFunction {
+public class Truncate extends ColumnFunctionDecorator implements NumberFunction {
 
     //保留小数位数
     private int scale;
 
-    public Round(AbstractColumFunction delegateFunction, int scale) {
+    public Truncate(AbstractColumFunction delegateFunction, int scale) {
         super(delegateFunction);
         this.scale = scale;
     }
 
-    public <T, F> Round(FieldFn<T, F> fn, int scale) {
+    public <T, F> Truncate(FieldFn<T, F> fn, int scale) {
         super(fn);
         this.scale = scale;
     }
@@ -29,11 +29,11 @@ public class Round extends ColumnFunctionDecorator implements NumberFunction {
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "ROUND(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
+            return "TRUNCATE(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "round(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
+            return "truncate(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
         }
-        throw FunctionException.unsupportedFunctionException("ROUND", sqlDialect);
+        throw FunctionException.unsupportedFunctionException("TRUNCATE", sqlDialect);
     }
 }

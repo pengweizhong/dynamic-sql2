@@ -9,31 +9,26 @@ import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
 
 /**
- * 指定小数位，四舍五入
+ * 向上取整，返回不小于该列的最小整数。
  */
-public class Round extends ColumnFunctionDecorator implements NumberFunction {
+public class Ceiling extends ColumnFunctionDecorator implements NumberFunction {
 
-    //保留小数位数
-    private int scale;
-
-    public Round(AbstractColumFunction delegateFunction, int scale) {
+    public Ceiling(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
-        this.scale = scale;
     }
 
-    public <T, F> Round(FieldFn<T, F> fn, int scale) {
+    public <T, F> Ceiling(FieldFn<T, F> fn) {
         super(fn);
-        this.scale = scale;
     }
 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "ROUND(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
+            return "CEILING(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "round(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
+            return "ceiling(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
         }
-        throw FunctionException.unsupportedFunctionException("ROUND", sqlDialect);
+        throw FunctionException.unsupportedFunctionException("CEILING", sqlDialect);
     }
 }

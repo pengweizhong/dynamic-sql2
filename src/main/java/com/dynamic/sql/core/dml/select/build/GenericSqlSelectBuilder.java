@@ -73,6 +73,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     AbstractColumFunction abstractColumFunction = (AbstractColumFunction) columFunction;
                     abstractColumFunction.setAliasTableMap(aliasTableMap);
                     abstractColumFunction.setDataSourceName(dataSourceName);
+                    abstractColumFunction.setSqlDialect(sqlDialect);
+                    abstractColumFunction.setVersion(version);
                     arithmeticSql = abstractColumFunction.getArithmeticSql();
                     arithmeticParameterBinder = abstractColumFunction.getArithmeticParameterBinder();
                 } else {
@@ -150,7 +152,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         Class<?> tableClass = joinTable.getTableClass();
         TableMeta tableMeta = TableProvider.getTableMeta(tableClass);
         //DUAL 虚拟表不需要限定符号  也不需要别名
-        if(tableClass == Dual.class){
+        if (tableClass == Dual.class) {
             return tableMeta.getTableName();
         }
         String alias = StringUtils.isEmpty(joinTable.getTableAlias()) ? tableMeta.getTableAlias() : joinTable.getTableAlias();
