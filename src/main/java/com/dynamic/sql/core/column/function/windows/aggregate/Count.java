@@ -36,15 +36,15 @@ public class Count extends ColumnFunctionDecorator implements AggregateFunction,
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
             if (value != null) {
-                return "COUNT(" + value + ")";
+                return "COUNT(" + value + ")".concat(appendArithmeticSql(sqlDialect, version));
             }
-            return "COUNT(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "COUNT(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
             if (value != null) {
-                return "count(" + value + ")";
+                return "count(" + value + ")".concat(appendArithmeticSql(sqlDialect, version));
             }
-            return "count(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "count(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("count", sqlDialect);
     }

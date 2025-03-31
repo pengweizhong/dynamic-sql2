@@ -29,10 +29,10 @@ public class Truncate extends ColumnFunctionDecorator implements NumberFunction 
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "TRUNCATE(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
+            return "TRUNCATE(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "truncate(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")";
+            return "truncate(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("TRUNCATE", sqlDialect);
     }

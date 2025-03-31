@@ -24,10 +24,10 @@ public class Ceiling extends ColumnFunctionDecorator implements NumberFunction {
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "CEILING(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "CEILING(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "ceiling(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "ceiling(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("CEILING", sqlDialect);
     }

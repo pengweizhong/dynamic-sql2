@@ -27,10 +27,10 @@ public class Avg extends ColumnFunctionDecorator implements AggregateFunction, W
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "AVG(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "AVG(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "avg(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "avg(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("avg", sqlDialect);
     }

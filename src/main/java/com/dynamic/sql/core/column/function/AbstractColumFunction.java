@@ -8,142 +8,168 @@ import com.dynamic.sql.core.column.ColumnArithmetic;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.Arithmetic;
 import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class AbstractColumFunction implements ColumFunction, ColumnArithmetic {
-    protected final StringBuilder arithmeticSql = new StringBuilder();
-    protected final ParameterBinder arithmeticParameterBinder = new ParameterBinder();
+    //函数嵌套引用
+    protected AbstractColumFunction delegateFunction;
+    //    protected final StringBuilder arithmeticSql = new StringBuilder();
+//    protected final ParameterBinder arithmeticParameterBinder = new ParameterBinder();
     protected Map<String, String> aliasTableMap;
     protected String dataSourceName;
     protected SqlDialect sqlDialect;
     protected Version version;
+    private Arithmetic arithmetic = new Arithmetic(new StringBuilder(), new ParameterBinder());
 
     @Override
     public AbstractColumFunction subtract(Number value) {
-        arithmeticSql.append(" - ").append(SqlUtils.registerValueWithKey(arithmeticParameterBinder, value));
+//        arithmeticSql.append(" - ").append(SqlUtils.registerValueWithKey(arithmeticParameterBinder, value));
+        arithmetic.getArithmeticSql().append(" - ").append(SqlUtils.registerValueWithKey(arithmetic.getArithmeticParameterBinder(), value));
         return this;
     }
 
     @Override
     public AbstractColumFunction subtract(Consumer<AbstractColumnReference> nestedSelect) {
         SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
-        arithmeticSql.append(" - (").append(sqlStatementWrapper.getRawSql()).append(")");
-        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
+//        arithmeticSql.append(" - (").append(sqlStatementWrapper.getRawSql()).append(")");
+//        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
+        arithmetic.getArithmeticSql().append(" - (").append(sqlStatementWrapper.getRawSql()).append(")");
+        arithmetic.getArithmeticParameterBinder().addParameterBinder(sqlStatementWrapper.getParameterBinder());
         return this;
     }
 
     @Override
     public <T, F> AbstractColumFunction subtract(Fn<T, F> column) {
         String name = SqlUtils.extractQualifiedAlias(column, aliasTableMap, dataSourceName);
-        arithmeticSql.append(" - ").append(name);
+//        arithmeticSql.append(" - ").append(name);
+        arithmetic.getArithmeticSql().append(" - ").append(name);
         return this;
     }
 
     @Override
     public AbstractColumFunction subtract(ColumFunction columFunction) {
-        String functionToString = columFunction.getFunctionToString(sqlDialect, version);
-        arithmeticSql.append(" - ").append(functionToString);
-        arithmeticParameterBinder.addParameterBinder(columFunction.getParameterBinder());
+//        columFunctionArithmetic = columFunction;
+//        arithmeticSql.append(" - ");
         return this;
     }
 
     @Override
     public AbstractColumFunction multiply(Number value) {
-        arithmeticSql.append(" * ").append(SqlUtils.registerValueWithKey(arithmeticParameterBinder, value));
+//        arithmeticSql.append(" * ").append(SqlUtils.registerValueWithKey(arithmeticParameterBinder, value));
+        arithmetic.getArithmeticSql().append(" * ").append(SqlUtils.registerValueWithKey(arithmetic.getArithmeticParameterBinder(), value));
         return this;
     }
 
     @Override
     public AbstractColumFunction multiply(Consumer<AbstractColumnReference> nestedSelect) {
         SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
-        arithmeticSql.append(" * (").append(sqlStatementWrapper.getRawSql()).append(")");
-        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
+//        arithmeticSql.append(" * (").append(sqlStatementWrapper.getRawSql()).append(")");
+//        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
+        arithmetic.getArithmeticSql().append(" * (").append(sqlStatementWrapper.getRawSql()).append(")");
+        arithmetic.getArithmeticParameterBinder().addParameterBinder(sqlStatementWrapper.getParameterBinder());
         return this;
     }
 
     @Override
     public <T, F> AbstractColumFunction multiply(Fn<T, F> column) {
         String name = SqlUtils.extractQualifiedAlias(column, aliasTableMap, dataSourceName);
-        arithmeticSql.append(" * ").append(name);
+//        arithmeticSql.append(" * ").append(name);
+        arithmetic.getArithmeticSql().append(" * ").append(name);
         return this;
     }
 
     @Override
     public AbstractColumFunction multiply(ColumFunction columFunction) {
-        String functionToString = columFunction.getFunctionToString(sqlDialect, version);
-        arithmeticSql.append(" * ").append(functionToString);
-        arithmeticParameterBinder.addParameterBinder(columFunction.getParameterBinder());
+//        columFunctionArithmetic = columFunction;
+//        arithmeticSql.append(" * ");
         return this;
     }
 
     @Override
     public AbstractColumFunction divide(Number value) {
-        arithmeticSql.append(" / ").append(SqlUtils.registerValueWithKey(arithmeticParameterBinder, value));
+//        arithmeticSql.append(" / ").append(SqlUtils.registerValueWithKey(arithmeticParameterBinder, value));
+        arithmetic.getArithmeticSql().append(" / ").append(SqlUtils.registerValueWithKey(arithmetic.getArithmeticParameterBinder(), value));
         return this;
     }
 
     @Override
     public AbstractColumFunction divide(Consumer<AbstractColumnReference> nestedSelect) {
         SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
-        arithmeticSql.append(" / (").append(sqlStatementWrapper.getRawSql()).append(")");
-        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
+        arithmetic.getArithmeticSql().append(" / (").append(sqlStatementWrapper.getRawSql()).append(")");
+        arithmetic.getArithmeticParameterBinder().addParameterBinder(sqlStatementWrapper.getParameterBinder());
+//        arithmeticSql.append(" / (").append(sqlStatementWrapper.getRawSql()).append(")");
+//        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
         return this;
     }
 
     @Override
     public <T, F> AbstractColumFunction divide(Fn<T, F> column) {
         String name = SqlUtils.extractQualifiedAlias(column, aliasTableMap, dataSourceName);
-        arithmeticSql.append(" / ").append(name);
+//        arithmeticSql.append(" / ").append(name);
+        arithmetic.getArithmeticSql().append(" / ").append(name);
         return this;
     }
 
     @Override
     public AbstractColumFunction divide(ColumFunction columFunction) {
-        String functionToString = columFunction.getFunctionToString(sqlDialect, version);
-        arithmeticSql.append(" / ").append(functionToString);
-        arithmeticParameterBinder.addParameterBinder(columFunction.getParameterBinder());
+//        columFunctionArithmetic = columFunction;
+//        arithmeticSql.append(" / ");
+        arithmetic.setColumFunctionArithmetic(columFunction);
+        arithmetic.getArithmeticSql().append(" / ");
         return this;
     }
 
     @Override
     public AbstractColumFunction add(Number value) {
-        arithmeticSql.append(" + ").append(SqlUtils.registerValueWithKey(arithmeticParameterBinder, value));
+        arithmetic.getArithmeticSql().append(" + ").append(SqlUtils.registerValueWithKey(arithmetic.getArithmeticParameterBinder(), value));
+//        arithmeticSql.append(" + ").append(SqlUtils.registerValueWithKey(arithmeticParameterBinder, value));
         return this;
     }
 
     @Override
     public AbstractColumFunction add(Consumer<AbstractColumnReference> nestedSelect) {
         SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
-        arithmeticSql.append(" + (").append(sqlStatementWrapper.getRawSql()).append(")");
-        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
+//        arithmeticSql.append(" + (").append(sqlStatementWrapper.getRawSql()).append(")");
+//        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
+        arithmetic.getArithmeticSql().append(" + (").append(sqlStatementWrapper.getRawSql()).append(")");
+        arithmetic.getArithmeticParameterBinder().addParameterBinder(sqlStatementWrapper.getParameterBinder());
         return this;
     }
 
     @Override
     public <T, F> AbstractColumFunction add(Fn<T, F> column) {
         String name = SqlUtils.extractQualifiedAlias(column, aliasTableMap, dataSourceName);
-        arithmeticSql.append(" + ").append(name);
+//        arithmeticSql.append(" + ").append(name);
+        arithmetic.getArithmeticSql().append(" + ").append(name);
         return this;
     }
 
     @Override
     public AbstractColumFunction add(ColumFunction columFunction) {
-        String functionToString = columFunction.getFunctionToString(sqlDialect, version);
-        arithmeticSql.append(" + ").append(functionToString);
-        arithmeticParameterBinder.addParameterBinder(columFunction.getParameterBinder());
+//        columFunctionArithmetic = columFunction;
+//        arithmeticSql.append(" + ");
         return this;
     }
 
-    public StringBuilder getArithmeticSql() {
-        return arithmeticSql;
+    public AbstractColumFunction getDelegateFunction() {
+        return delegateFunction;
     }
 
-    public ParameterBinder getArithmeticParameterBinder() {
-        return arithmeticParameterBinder;
-    }
+//    public StringBuilder getArithmeticSql() {
+//        return arithmeticSql;
+//    }
+//
+//    public ParameterBinder getArithmeticParameterBinder() {
+//        return arithmeticParameterBinder;
+//    }
+//
+//    public ColumFunction getColumFunctionArithmetic() {
+//        return columFunctionArithmetic;
+//    }
 
     public Map<String, String> getAliasTableMap() {
         return aliasTableMap;
@@ -173,5 +199,13 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
 
     public void setVersion(Version version) {
         this.version = version;
+    }
+
+    public Arithmetic getArithmetic() {
+        return arithmetic;
+    }
+
+    public void setArithmetic(Arithmetic arithmetic) {
+        this.arithmetic = arithmetic;
     }
 }

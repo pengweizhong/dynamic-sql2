@@ -8,6 +8,7 @@ import com.dynamic.sql.core.column.conventional.NumberColumn;
 import com.dynamic.sql.core.column.function.modifiers.Distinct;
 import com.dynamic.sql.core.column.function.scalar.datetime.DateFormat;
 import com.dynamic.sql.core.column.function.scalar.datetime.Now;
+import com.dynamic.sql.core.column.function.scalar.number.Round;
 import com.dynamic.sql.core.column.function.table.JsonTable;
 import com.dynamic.sql.core.column.function.table.JsonTable.JsonColumn;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
@@ -725,6 +727,18 @@ public class SelectTest extends InitializingContext {
                 .toList();
         System.out.println(list.size());
         list.forEach(System.out::println);
+    }
+
+    @Test
+    void testArithmetic() {
+        Map<String, Object> one = sqlContext.select()
+                .column(new Round(new Sum(User::getUserId), 3).divide(2))
+                .column(new Round(new Sum(User::getUserId).divide(2), 3))
+                .column(new Round(new Sum(User::getUserId).divide(new Count(User::getUserId)), 3))
+                .from(User.class)
+                .fetchOriginalMap()
+                .toOne();
+        one.forEach((k, v) -> System.out.println(k + " = " + v));
     }
 }
 

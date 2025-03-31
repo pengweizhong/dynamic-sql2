@@ -20,6 +20,7 @@ import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
 import com.dynamic.sql.core.dml.select.build.join.*;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.Arithmetic;
 import com.dynamic.sql.model.Dual;
 import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.TableMeta;
@@ -67,7 +68,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     sqlBuilder.append(columnSeparator);
                     continue;
                 }
-                StringBuilder arithmeticSql;
+                StringBuilder arithmeticSql = new StringBuilder();
                 ParameterBinder arithmeticParameterBinder = null;
                 if (columFunction instanceof AbstractColumFunction) {
                     AbstractColumFunction abstractColumFunction = (AbstractColumFunction) columFunction;
@@ -75,10 +76,24 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     abstractColumFunction.setDataSourceName(dataSourceName);
                     abstractColumFunction.setSqlDialect(sqlDialect);
                     abstractColumFunction.setVersion(version);
-                    arithmeticSql = abstractColumFunction.getArithmeticSql();
-                    arithmeticParameterBinder = abstractColumFunction.getArithmeticParameterBinder();
-                } else {
-                    arithmeticSql = new StringBuilder();
+//                    AbstractColumFunction delegateFunction = abstractColumFunction.getDelegateFunction();
+//                    while (delegateFunction != null) {
+//                        //判断动态函数，如果有则运算
+////                        if (delegateFunction.getColumFunctionArithmetic() != null) {
+////                            String functionToString = delegateFunction.getColumFunctionArithmetic().getFunctionToString(sqlDialect, version);
+////                            parameterBinder.addParameterBinder(delegateFunction.getColumFunctionArithmetic().getParameterBinder());
+////                            arithmeticSql.append(delegateFunction.getArithmeticSql()).append(functionToString);
+////                        } else {
+////                            arithmeticSql.append(delegateFunction.getArithmeticSql());
+////                            parameterBinder.addParameterBinder(delegateFunction.getArithmeticParameterBinder());
+////                        }
+//                        delegateFunction.setArithmetic(new Arithmetic(delegateFunction.getArithmeticSql(), delegateFunction.getArithmeticParameterBinder()));
+//                        delegateFunction = delegateFunction.getDelegateFunction();
+//                    }
+                    Arithmetic arithmetic = abstractColumFunction.getArithmetic();
+                    arithmeticSql.append(arithmetic.getArithmeticSql());
+                    arithmeticParameterBinder = arithmetic.getArithmeticParameterBinder();
+                    parameterBinder.addParameterBinder(arithmeticParameterBinder);
                 }
                 //数字列不需要关心别名问题
                 if (columFunction instanceof NumberColumn || columFunction instanceof Count) {

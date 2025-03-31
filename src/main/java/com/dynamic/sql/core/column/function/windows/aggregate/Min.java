@@ -27,10 +27,10 @@ public class Min extends ColumnFunctionDecorator implements AggregateFunction, W
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "MIN(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "MIN(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "min(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "min(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("min", sqlDialect);
     }

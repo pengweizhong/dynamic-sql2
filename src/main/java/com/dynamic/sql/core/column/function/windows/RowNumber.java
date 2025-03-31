@@ -10,10 +10,10 @@ public class RowNumber extends ColumnFunctionDecorator implements WindowsFunctio
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "ROW_NUMBER(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "ROW_NUMBER(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "row_number(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "row_number(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("row_number", sqlDialect);
     }

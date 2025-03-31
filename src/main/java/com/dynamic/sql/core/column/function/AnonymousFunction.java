@@ -18,12 +18,13 @@ public class AnonymousFunction extends AbstractColumFunction {
      * 仅仅记录函数，不做任何特殊处理
      */
     public AnonymousFunction(String functionToString, ParameterBinder parameterBinder) {
-        arithmeticSql.append(functionToString);
-        arithmeticParameterBinder.addParameterBinder(parameterBinder);
+//        arithmeticSql.append(functionToString);
+//        arithmeticParameterBinder.addParameterBinder(parameterBinder);
     }
 
     public String getFunctionToString() {
-        return arithmeticSql.toString();
+//        return arithmeticSql.toString();
+        return "ANONYMOUS";
     }
 
     @Override
@@ -38,7 +39,7 @@ public class AnonymousFunction extends AbstractColumFunction {
 
     @Override
     public ParameterBinder getParameterBinder() {
-        return arithmeticParameterBinder;
+        return null;
     }
 
     @Override

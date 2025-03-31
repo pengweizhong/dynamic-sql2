@@ -34,9 +34,9 @@ public class Length extends ColumnFunctionDecorator {
         //SUBSTRING(string, start, length)
         if (sqlDialect == SqlDialect.MYSQL) {
             if (string != null) {
-                return "char_length(" + registerValueWithKey(parameterBinder, string) + ")";
+                return "char_length(" + registerValueWithKey(parameterBinder, string) + ")".concat(appendArithmeticSql(sqlDialect, version));
             }
-            return "char_length(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "char_length(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("length", sqlDialect);
     }

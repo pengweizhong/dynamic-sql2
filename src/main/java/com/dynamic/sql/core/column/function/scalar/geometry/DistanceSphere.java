@@ -33,10 +33,10 @@ public class DistanceSphere extends ColumnFunctionDecorator implements ScalarFun
         if (sqlDialect == SqlDialect.MYSQL) {
             if (otherPoint == null) {
                 return "ST_Distance_Sphere(" + delegateFunction.getFunctionToString(sqlDialect, version)
-                        + ",  ST_GeomFromText('" + thisPoint.toPointString() + "', " + thisPoint.getSrid() + "))";
+                        + ",  ST_GeomFromText('" + thisPoint.toPointString() + "', " + thisPoint.getSrid() + "))".concat(appendArithmeticSql(sqlDialect, version));
             }
             return "ST_Distance_Sphere(ST_GeomFromText('" + thisPoint.toPointString() + "', " + thisPoint.getSrid() + ")"
-                    + ",  ST_GeomFromText('" + otherPoint.toPointString() + "', " + otherPoint.getSrid() + "))";
+                    + ",  ST_GeomFromText('" + otherPoint.toPointString() + "', " + otherPoint.getSrid() + "))".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("ST_Distance_Sphere", sqlDialect);
     }

@@ -24,10 +24,10 @@ public class Abs extends ColumnFunctionDecorator implements NumberFunction {
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "ABS(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "ABS(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "abs(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "abs(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("ABS", sqlDialect);
     }

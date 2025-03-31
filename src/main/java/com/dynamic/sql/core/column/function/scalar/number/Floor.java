@@ -24,10 +24,10 @@ public class Floor extends ColumnFunctionDecorator implements NumberFunction {
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "FLOOR(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "FLOOR(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "floor(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "floor(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("FLOOR", sqlDialect);
     }

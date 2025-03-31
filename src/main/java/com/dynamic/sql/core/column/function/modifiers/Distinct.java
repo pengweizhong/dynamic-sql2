@@ -37,10 +37,10 @@ public class Distinct extends ColumnFunctionDecorator implements ColumnModifiers
         shouldAppendDelimiter = !StringUtils.isBlank(functionToString);
         if (shouldAppendDelimiter) {//NOSONAR
             if (sqlDialect == SqlDialect.ORACLE) {
-                return "DISTINCT(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+                return "DISTINCT(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
             }
             if (sqlDialect == SqlDialect.MYSQL) {
-                return "distinct(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+                return "distinct(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
             }
         } else {
             if (sqlDialect == SqlDialect.ORACLE) {

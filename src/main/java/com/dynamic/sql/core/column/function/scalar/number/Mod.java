@@ -28,10 +28,10 @@ public class Mod extends ColumnFunctionDecorator implements NumberFunction {
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "MOD(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + divisor + ")";
+            return "MOD(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + divisor + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "mod(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + divisor + ")";
+            return "mod(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + divisor + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("MOD", sqlDialect);
     }

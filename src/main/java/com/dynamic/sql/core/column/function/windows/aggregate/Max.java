@@ -27,10 +27,10 @@ public class Max extends ColumnFunctionDecorator implements AggregateFunction, W
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "MAX(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "MAX(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "max(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "max(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("max", sqlDialect);
     }

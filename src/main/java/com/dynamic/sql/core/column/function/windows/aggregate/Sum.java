@@ -30,10 +30,10 @@ public class Sum extends ColumnFunctionDecorator implements AggregateFunction, W
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "SUM(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "SUM(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "sum(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "sum(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("sum", sqlDialect);
     }
