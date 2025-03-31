@@ -11,6 +11,7 @@ import com.dynamic.sql.core.column.function.scalar.datetime.Now;
 import com.dynamic.sql.core.column.function.scalar.number.Round;
 import com.dynamic.sql.core.column.function.table.JsonTable;
 import com.dynamic.sql.core.column.function.table.JsonTable.JsonColumn;
+import com.dynamic.sql.core.column.function.windows.DenseRank;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
@@ -26,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
@@ -739,6 +739,24 @@ public class SelectTest extends InitializingContext {
                 .fetchOriginalMap()
                 .toOne();
         one.forEach((k, v) -> System.out.println(k + " = " + v));
+    }
+
+    @Test
+    void testOverOrder() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .column(Product::getProductId)
+                .column(Product::getProductName)
+                .column(new DenseRank(), over -> over.orderBy(new Sum(Product::getPrice), SortOrder.DESC), "currentRankNum")
+                .column(new Sum(Product::getPrice), "sumPrice")
+                .from(Product.class)
+                .groupBy(Product::getProductId)
+                .orderBy("currentRankNum")
+                .fetchOriginalMap()
+                .toList();
+        for (Map<String, Object> stringObjectMap : list) {
+            stringObjectMap.forEach((k, v) -> System.out.println(k + " = " + v));
+            System.out.println("\n");
+        }
     }
 }
 

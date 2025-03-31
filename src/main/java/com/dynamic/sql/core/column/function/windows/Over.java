@@ -2,6 +2,7 @@ package com.dynamic.sql.core.column.function.windows;
 
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.dml.select.order.DefaultOrderBy;
 import com.dynamic.sql.core.dml.select.order.OrderBy;
 import com.dynamic.sql.enums.SortOrder;
@@ -30,6 +31,12 @@ public class Over {
 
     public <T, F> Over orderBy(FieldFn<T, F> fn, SortOrder sortOrder) {
         DefaultOrderBy defaultOrderBy = new DefaultOrderBy(fn, sortOrder);
+        orderByList.add(defaultOrderBy);
+        return this;
+    }
+
+    public Over orderBy(ColumFunction columFunction, SortOrder sortOrder) {
+        DefaultOrderBy defaultOrderBy = new DefaultOrderBy(columFunction, sortOrder);
         orderByList.add(defaultOrderBy);
         return this;
     }

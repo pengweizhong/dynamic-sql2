@@ -2,10 +2,12 @@ package com.dynamic.sql.core.dml.select.order;
 
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.enums.SortOrder;
 
 public class DefaultOrderBy extends OrderBy {
     private FieldFn fn;
+    private ColumFunction columFunction;
     private String tableAlias;
     private String columnName;
 
@@ -26,6 +28,11 @@ public class DefaultOrderBy extends OrderBy {
         this.tableAlias = tableAlias;
     }
 
+    public DefaultOrderBy(ColumFunction columFunction, SortOrder sortOrder) {
+        super(sortOrder);
+        this.columFunction = columFunction;
+    }
+
     @Override
     public String getTableAlias() {
         return tableAlias;
@@ -39,5 +46,9 @@ public class DefaultOrderBy extends OrderBy {
     @Override
     public String getColumnName() {
         return columnName;
+    }
+
+    public ColumFunction getColumFunction() {
+        return columFunction;
     }
 }

@@ -1,8 +1,10 @@
 package com.dynamic.sql.context.properties;
 
 
+import com.dynamic.sql.core.Version;
 import com.dynamic.sql.enums.DbType;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.utils.SqlUtils;
 
 public class SchemaProperties {
     // 数据源名称
@@ -69,24 +71,10 @@ public class SchemaProperties {
 
     public void setDatabaseProductVersion(DbType dbType, String databaseProductVersion) {
         this.databaseProductVersion = databaseProductVersion;
-        //Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production\nVersion 19.19.0.0.0
-        if (dbType == DbType.ORACLE) {
-            int i = databaseProductVersion.indexOf("Version");
-            if (i != -1) {
-                databaseProductVersion = databaseProductVersion.substring(i + "Version".length()).trim();
-            }
-        }
-        String[] split = databaseProductVersion.split("\\.");
-        if (split.length >= 1) {
-            this.majorVersionNumber = Integer.parseInt(split[0]);
-        }
-        if (split.length >= 2) {
-            this.minorVersionNumber = Integer.parseInt(split[1]);
-        }
-        if (split.length >= 3) {
-            this.patchVersionNumber = Integer.parseInt(split[2]);
-        }
-
+        Version version = SqlUtils.databaseProductVersion(dbType, databaseProductVersion);
+        this.majorVersionNumber = version.getMajorVersion();
+        this.minorVersionNumber = version.getMinorVersion();
+        this.patchVersionNumber = version.getPatchVersion();
     }
 
     public boolean isUseAsInQuery() {

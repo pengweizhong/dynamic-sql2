@@ -9,6 +9,7 @@ import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.AbstractAliasHelper;
 import com.dynamic.sql.core.column.AbstractAliasHelper.TableAliasImpl;
 import com.dynamic.sql.core.column.function.AnonymousFunction;
+import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.condition.impl.dialect.MysqlWhereCondition;
 import com.dynamic.sql.core.condition.impl.dialect.OracleWhereCondition;
@@ -191,7 +192,7 @@ public class SqlUtils {
     }
 
     public static String extractQualifiedAliasOrderBy(OrderBy orderBy, Map<String, String> aliasTableMap, String
-            dataSourceName) {
+            dataSourceName, Version version, ParameterBinder parameterBinder) {
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
         DbType dbType = dataSourceMeta.getDbType();
         SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
@@ -215,6 +216,11 @@ public class SqlUtils {
                     sqlBuilder.append(quoteIdentifier(sqlDialect, tableAlias)).append(".");
                 }
                 sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
+            } else if (defaultOrderBy.getColumFunction() != null) {
+                ColumFunction columFunction = defaultOrderBy.getColumFunction();
+                String functionToString = columFunction.getFunctionToString(sqlDialect, version);
+                parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+                sqlBuilder.append(functionToString);
             } else {
                 sqlBuilder.append(quoteIdentifier(sqlDialect, defaultOrderBy.getColumnName()));
             }
@@ -600,6 +606,30 @@ public class SqlUtils {
                 log.error("Statement closed abnormally.", e);
             }
         }
+    }
+
+    public static Version databaseProductVersion(DbType dbType, String databaseProductVersion) {
+        //Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production\nVersion 19.19.0.0.0
+        if (dbType == DbType.ORACLE) {
+            int i = databaseProductVersion.indexOf("Version");
+            if (i != -1) {
+                databaseProductVersion = databaseProductVersion.substring(i + "Version".length()).trim();
+            }
+        }
+        String[] split = databaseProductVersion.split("\\.");
+        Integer majorVersionNumber = 0;
+        if (split.length >= 1) {
+            majorVersionNumber = Integer.parseInt(split[0]);
+        }
+        Integer minorVersionNumber = 0;
+        if (split.length >= 2) {
+            minorVersionNumber = Integer.parseInt(split[1]);
+        }
+        Integer patchVersionNumber = 0;
+        if (split.length >= 3) {
+            patchVersionNumber = Integer.parseInt(split[2]);
+        }
+        return new Version(majorVersionNumber, minorVersionNumber, patchVersionNumber);
     }
 
 }

@@ -189,7 +189,7 @@ public abstract class SqlSelectBuilder {
                 columnSeparator = ",";
             }
             String sort = orderBy.getSortOrder() != null ? orderBy.getSortOrder().toSqlString(sqlDialect) : "";
-            stringBuilder.append(SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName))
+            stringBuilder.append(SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName, version, parameterBinder))
                     .append(" ")
                     .append(sort)
                     .append(columnSeparator);
