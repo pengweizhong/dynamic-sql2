@@ -56,6 +56,9 @@ public class SqlExecutionFactory {
         //添加拦截器
         SqlInterceptorChain sqlInterceptorChain = SqlInterceptorChain.getInstance();
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
+        if (dataSourceMeta == null) {
+            throw new IllegalStateException(dataSourceName + " data source cannot be found.");
+        }
         Connection connection = null;
         Exception exception = null;
         R apply = null;

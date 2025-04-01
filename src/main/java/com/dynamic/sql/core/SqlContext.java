@@ -3,6 +3,7 @@ package com.dynamic.sql.core;
 
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -337,4 +338,34 @@ public interface SqlContext {
      */
     <T> int upsertMultiple(Collection<T> entities);
 
+    /**
+     * 执行指定的 SQL 语句。
+     *
+     * @param sql 要执行的 SQL 语句字符串。例如，查询语句（如 "select * from users limit 10"）或 DDL 语句（如 CREATE TABLE）。
+     * @return 执行 SQL 后的结果对象，具体类型取决于 SQL 类型和数据库实现。例如，查询返回结果集，DDL 操作可能返回成功标志或空对象。
+     */
+    Object execute(String sql);
+
+    /**
+     * 执行带参数绑定的 SQL 语句。
+     *
+     * @param sql             要执行的 SQL 语句字符串，其中可以使用占位符。
+     * @param parameterBinder 参数绑定器
+     * @return 执行 SQL 后的结果对象，具体类型取决于 SQL 类型和数据库实现。例如，查询返回结果集，DML 操作可能返回受影响的行数。
+     * @see SqlUtils#registerValueWithKey(ParameterBinder, Object) 管理参数的注册和绑定
+     */
+    Object execute(String sql, ParameterBinder parameterBinder);
+
+    /**
+     * 执行指定数据源的带参数绑定的 SQL 语句。
+     *
+     * @param dataSourceName  数据源名称，如果系统支持多个数据源，则通过此参数选择目标数据源。
+     * @param sql             要执行的 SQL 语句字符串，其中可以使用占位符。
+     * @param parameterBinder 参数绑定器
+     * @return 执行 SQL 后的结果对象，具体类型取决于 SQL 类型和数据库实现。例如，查询返回结果集，DML 操作可能返回受影响的行数。
+     * @throws IllegalStateException 如果无法匹配数据源名称
+     */
+    Object execute(String dataSourceName, String sql, ParameterBinder parameterBinder);
+
+    boolean existTable(Class<?> entityClass);
 }

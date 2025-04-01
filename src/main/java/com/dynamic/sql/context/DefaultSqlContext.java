@@ -5,6 +5,8 @@ import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.ddl.SqlStatement;
+import com.dynamic.sql.core.ddl.TableExistenceChecker;
 import com.dynamic.sql.core.dml.delete.DeleteHandler;
 import com.dynamic.sql.core.dml.delete.EntitiesDeleter;
 import com.dynamic.sql.core.dml.insert.EntitiesInserter;
@@ -248,5 +250,26 @@ public class DefaultSqlContext implements SqlContext {
             return 0;
         }
         return new EntitiesInserter((Collection<Object>) entities).upsertMultiple(InsertHandler::upsertMultiple);
+    }
+
+    @Override
+    public Object execute(String sql) {
+        return new SqlStatement(null, sql, new ParameterBinder()).execute();
+    }
+
+    @Override
+    public Object execute(String sql, ParameterBinder parameterBinder) {
+        return new SqlStatement(null, sql, parameterBinder).execute();
+    }
+
+    @Override
+    public Object execute(String dataSourceName, String sql, ParameterBinder parameterBinder) {
+        return new SqlStatement(dataSourceName, sql, parameterBinder).execute();
+    }
+
+
+    @Override
+    public boolean existTable(Class<?> entityClass) {
+        return new TableExistenceChecker(entityClass).existTable();
     }
 }

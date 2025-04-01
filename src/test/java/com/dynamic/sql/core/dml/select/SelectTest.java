@@ -758,6 +758,56 @@ public class SelectTest extends InitializingContext {
             System.out.println("\n");
         }
     }
+
+    @Test
+    void execute() {
+        Object execute = sqlContext.execute("select * from users limit 10");
+        System.out.println(execute);
+    }
+
+    @Test
+    void execute2() {
+        String createTable = "CREATE TABLE `t_business_operation_log` (\n" +
+                "  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',\n" +
+                "  `request_id` varchar(32)  NOT NULL COMMENT '当前请求唯一标识，一个请求内可能会有多次数据操作',\n" +
+                "  `thread_name` varchar(100)  NOT NULL COMMENT '线程名',\n" +
+                "  `operation_type` enum('UPDATE','INSERT','DELETE','SELECT')  NOT NULL COMMENT '操作类型',\n" +
+                "  `operation_code` varchar(50)  NOT NULL COMMENT '操作事件编码',\n" +
+                "  `title` varchar(255)  NOT NULL COMMENT '业务标题，多级用短横线分割，按照功能大小排列',\n" +
+                "  `business_key` varchar(32) COMMENT '业务数据键名',\n" +
+                "  `business_value` varchar(255) COMMENT '业务数据键值',\n" +
+                "  `request_data` text COMMENT '请求数据',\n" +
+                "  `before_data` text COMMENT '变更前数据',\n" +
+                "  `after_data` text COMMENT '变更后数据',\n" +
+                "  `is_success` tinyint  NOT NULL COMMENT '操作是否成功',\n" +
+                "  `company_id` int   COMMENT '公司ID',\n" +
+                "  `team_id` int NOT NULL DEFAULT '-1' COMMENT '团队ID',\n" +
+                "  `create_uuid` int NOT NULL COMMENT '创建人UUID',\n" +
+                "  `last_create_time` timestamp  NULL COMMENT '上次创建时间',\n" +
+                "  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',\n" +
+                "  PRIMARY KEY (`id`),\n" +
+                "  KEY `t_business_operation_log_operation_code_IDX` (`operation_code`,`business_key`,`business_value`) USING BTREE\n" +
+                ") ENGINE=InnoDB  COMMENT='业务操作日志表';";
+        Object execute = sqlContext.execute(createTable);
+        System.out.println(execute);
+    }
+
+    @Test
+    void execute3() {
+        ParameterBinder parameterBinder = new ParameterBinder();
+        String key = SqlUtils.registerValueWithKey(parameterBinder, 10);
+        Object execute = sqlContext.execute("select * from users limit " + key, parameterBinder);
+        System.out.println(execute);
+    }
+
+    @Test
+    void execute4() {
+        ParameterBinder parameterBinder = new ParameterBinder();
+        String key = SqlUtils.registerValueWithKey(parameterBinder, 10);
+        Object execute = sqlContext.execute("dataSource", "select * from users limit " + key, parameterBinder);
+        System.out.println(execute);
+    }
+
 }
 
 
