@@ -74,7 +74,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference distinct(boolean isEffective) {
-        return isEffective ? this : distinct();
+        return isEffective ? distinct() : this;
     }
 
     /**
@@ -101,7 +101,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public <T, F> AbstractColumnReference column(boolean isEffective, Fn<T, F> fn) {
-        return isEffective ? this : column(fn);
+        return isEffective ? column(fn) : this;
     }
 
     /**
@@ -128,7 +128,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public <T, F> AbstractColumnReference column(boolean isEffective, String tableAlias, FieldFn<T, F> fn) {
-        return isEffective ? this : column(tableAlias, fn);
+        return isEffective ? column(tableAlias, fn) : this;
     }
 
     /**
@@ -155,7 +155,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public <T, F> AbstractColumnReference column(boolean isEffective, FieldFn<T, F> fn, String columnAlias) {
-        return isEffective ? this : column(fn, columnAlias);
+        return isEffective ? column(fn, columnAlias) : this;
     }
 
     /**
@@ -184,7 +184,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public <T, F> AbstractColumnReference column(boolean isEffective, String tableAlias, FieldFn<T, F> fn, String columnAlias) {
-        return isEffective ? this : column(tableAlias, fn, columnAlias);
+        return isEffective ? column(tableAlias, fn, columnAlias) : this;
     }
 
     /**
@@ -207,7 +207,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference column(boolean isEffective, String tableAlias, String columnName) {
-        return isEffective ? this : column(tableAlias, columnName);
+        return isEffective ? column(tableAlias, columnName) : this;
     }
 
     /**
@@ -232,7 +232,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference column(boolean isEffective, String tableAlias, String columnName, String columnAlias) {
-        return isEffective ? this : column(tableAlias, columnName, columnAlias);
+        return isEffective ? column(tableAlias, columnName, columnAlias) : this;
     }
 
     /**
@@ -253,7 +253,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference column(boolean isEffective, AbstractColumFunction iColumFunction) {
-        return isEffective ? this : column(iColumFunction);
+        return isEffective ? column(iColumFunction) : this;
     }
 
     /**
@@ -276,7 +276,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference column(boolean isEffective, AbstractColumFunction iColumFunction, String columnAlias) {
-        return isEffective ? this : column(iColumFunction, columnAlias);
+        return isEffective ? column(iColumFunction, columnAlias) : this;
     }
 
     /**
@@ -297,7 +297,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference column(boolean isEffective, NumberColumn numberColumn) {
-        return isEffective ? this : column(numberColumn);
+        return isEffective ? column(numberColumn) : this;
     }
 
     /**
@@ -322,7 +322,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference column(boolean isEffective, WindowsFunction windowsFunction, Consumer<Over> over, String columnAlias) {
-        return isEffective ? this : column(windowsFunction, over, columnAlias);
+        return isEffective ? column(windowsFunction, over, columnAlias) : this;
     }
 
     /**
@@ -345,7 +345,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference column(boolean isEffective, Consumer<AbstractColumnReference> nestedSelect, String columnAlias) {
-        return isEffective ? this : column(nestedSelect, columnAlias);
+        return isEffective ? column(nestedSelect, columnAlias) : this;
     }
 
     /**
@@ -383,7 +383,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference includeColumns(boolean isEffective, AbstractColumnReference columnReference) {
-        return isEffective ? this : includeColumns(columnReference);
+        return isEffective ? includeColumns(columnReference) : this;
     }
 
     /**
@@ -402,7 +402,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference allColumn(boolean isEffective) {
-        return isEffective ? this : allColumn();
+        return isEffective ? allColumn() : this;
     }
 
     /**
@@ -423,7 +423,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference allColumn(boolean isEffective, Class<?> tableClass) {
-        return isEffective ? this : allColumn(tableClass);
+        return isEffective ? allColumn(tableClass) : this;
     }
 
     /**
@@ -444,7 +444,7 @@ public abstract class AbstractColumnReference {
      * @return 当前列引用的实例，用于链式调用
      */
     public AbstractColumnReference allColumn(boolean isEffective, String tableAlias) {
-        return isEffective ? this : allColumn(tableAlias);
+        return isEffective ? allColumn(tableAlias) : this;
     }
 
     /**
