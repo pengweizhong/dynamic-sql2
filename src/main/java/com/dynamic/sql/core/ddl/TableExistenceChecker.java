@@ -1,27 +1,37 @@
 package com.dynamic.sql.core.ddl;
 
+import com.dynamic.sql.core.database.SqlExecutionFactory;
+import com.dynamic.sql.core.dml.SqlStatementWrapper;
+import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.datasource.DataSourceProvider;
+import com.dynamic.sql.enums.DDLType;
+import com.dynamic.sql.model.TableMetaData;
+import com.dynamic.sql.utils.StringUtils;
+
+import java.security.InvalidParameterException;
+import java.util.List;
+
 public class TableExistenceChecker {
-    //操作对象
-    private Class<?> entityClass;
-    private String tableName;
+    private final String dataSourceName;
+    private final String catalog;
+    private final String schemaPattern;
+    private final String tableNamePattern;
+    private final String[] tableTypes;
 
-    public TableExistenceChecker(Class<?> entityClass) {
-        this.entityClass = entityClass;
+    public TableExistenceChecker(String dataSourceName, String catalog, String schemaPattern, String tableNamePattern, String[] tableTypes) {
+        if (StringUtils.isEmpty(tableNamePattern)) {
+            throw new InvalidParameterException("tableNamePattern is invalid");
+        }
+        this.dataSourceName = dataSourceName == null ? DataSourceProvider.getDefaultDataSourceName() : dataSourceName;
+        this.catalog = catalog;
+        this.schemaPattern = schemaPattern;
+        this.tableNamePattern = tableNamePattern;
+        this.tableTypes = tableTypes;
     }
 
-    public TableExistenceChecker(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public Class<?> getEntityClass() {
-        return entityClass;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public boolean existTable() {
-        return false;
+    public List<TableMetaData> getAllTableMetaData() {
+        SqlStatementWrapper sqlStatementWrapper = new SqlStatementWrapper(dataSourceName, new StringBuilder(), new ParameterBinder());
+        return SqlExecutionFactory.executorSql(DDLType.GET_META, sqlStatementWrapper,
+                sqlExecutor -> sqlExecutor.getAllTableMetaData(this.catalog, schemaPattern, tableNamePattern, tableTypes));
     }
 }

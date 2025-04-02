@@ -18,6 +18,7 @@ import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.model.Dual;
+import com.dynamic.sql.model.TableMetaData;
 import com.dynamic.sql.plugins.pagination.CollectionPage;
 import com.dynamic.sql.plugins.pagination.MapPage;
 import com.dynamic.sql.plugins.pagination.PageHelper;
@@ -807,6 +808,28 @@ public class SelectTest extends InitializingContext {
         Object execute = sqlContext.execute("dataSource", "select * from users limit " + key, parameterBinder);
         System.out.println(execute);
     }
+
+    @Test
+    void getAllTableMetaData() {
+        List<TableMetaData> tableMetaDataList = sqlContext.getAllTableMetaData(null, null, "t_business_operation_log", new String[]{"TABLE"});
+        System.out.println(tableMetaDataList.size());
+        tableMetaDataList.forEach(System.out::println);
+    }
+
+    @Test
+    void getAllTableMetaData2() {
+        List<TableMetaData> tableMetaDataList = sqlContext.getAllTableMetaData(null, null, "t_business_operation_log", null);
+        System.out.println(tableMetaDataList.size());
+        tableMetaDataList.forEach(System.out::println);
+    }
+
+    @Test
+    void getAllTableMetaData3() {
+        List<TableMetaData> tableMetaDataList = sqlContext.getAllTableMetaData("testDB", "test", null, "t_business_operation_log", null);
+        System.out.println(tableMetaDataList.size());
+        tableMetaDataList.forEach(System.out::println);
+    }
+
 
 }
 

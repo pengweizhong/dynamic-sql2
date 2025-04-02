@@ -1,7 +1,9 @@
 package com.dynamic.sql.core.database;
 
 import com.dynamic.sql.context.properties.SchemaProperties.PrintSqlProperties;
+import com.dynamic.sql.enums.DDLType;
 import com.dynamic.sql.enums.DMLType;
+import com.dynamic.sql.enums.SqlExecuteType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +37,14 @@ public class SqlDebugger {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static void debug(PrintSqlProperties printSqlProperties, DMLType dmlType, String dataSourceName, Object applyResult) {//NOSONAR
+    public static void debug(PrintSqlProperties printSqlProperties, SqlExecuteType sqlExecuteType, String dataSourceName, Object applyResult) {//NOSONAR
         if (!log.isDebugEnabled() || !printSqlProperties.isPrintSql()) {
             return;
         }
         if (!printSqlProperties.isPrintDataSourceName()) {
             dataSourceName = "";
         }
-        if (dmlType == DMLType.SELECT) {
+        if (sqlExecuteType == DMLType.SELECT || sqlExecuteType instanceof DDLType) {
             if (applyResult instanceof Collection) {
                 Collection collection = (Collection) applyResult;
                 if (collection.size() == 1) {
@@ -61,7 +63,7 @@ public class SqlDebugger {
                 log.debug("{} <--     Returned: {}", dataSourceName, applyResult);
             }
         }
-        if (dmlType == DMLType.INSERT || dmlType == DMLType.UPDATE || dmlType == DMLType.DELETE) {
+        if (sqlExecuteType == DMLType.INSERT || sqlExecuteType == DMLType.UPDATE || sqlExecuteType == DMLType.DELETE) {
             log.debug("{} <-- Affected Rows: {}", dataSourceName, applyResult);
         }
     }

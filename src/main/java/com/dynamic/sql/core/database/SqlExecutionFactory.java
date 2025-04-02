@@ -13,8 +13,8 @@ import com.dynamic.sql.core.dml.SqlStatementWrapper;
 import com.dynamic.sql.datasource.DataSourceMeta;
 import com.dynamic.sql.datasource.DataSourceProvider;
 import com.dynamic.sql.datasource.connection.ConnectionHolder;
-import com.dynamic.sql.enums.DMLType;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.enums.SqlExecuteType;
 import com.dynamic.sql.interceptor.ExecutionControl;
 import com.dynamic.sql.interceptor.SqlInterceptorChain;
 import com.dynamic.sql.utils.SqlUtils;
@@ -49,7 +49,7 @@ public class SqlExecutionFactory {
         }
     }
 
-    public static <R> R executorSql(DMLType dmlType,
+    public static <R> R executorSql(SqlExecuteType sqlExecuteType,
                                     SqlStatementWrapper sqlStatementWrapper,
                                     Function<SqlExecutor, R> doSqlExecutor) {
         String dataSourceName = sqlStatementWrapper.getDataSourceName();
@@ -68,7 +68,7 @@ public class SqlExecutionFactory {
             ExecutionControl executionControl = sqlInterceptorChain.beforeExecution(sqlStatementWrapper, connection);
             preparedSql = SqlUtils.parsePreparedObject(sqlStatementWrapper);
             if (executionControl == ExecutionControl.PROCEED) {
-                apply = applySql(dmlType, dataSourceName, connection, preparedSql, true, doSqlExecutor);
+                apply = applySql(sqlExecuteType, dataSourceName, connection, preparedSql, true, doSqlExecutor);
             } else {
                 apply = sqlInterceptorChain.retrieveSkippedResult(sqlStatementWrapper, connection);
             }
@@ -86,7 +86,7 @@ public class SqlExecutionFactory {
     }
 
     @SuppressWarnings("all")
-    public static <R> R applySql(DMLType dmlType,
+    public static <R> R applySql(SqlExecuteType sqlExecuteType,
                                  String dataSourceName,
                                  Connection connection,
                                  PreparedSql preparedSql,
@@ -107,7 +107,7 @@ public class SqlExecutionFactory {
         SchemaProperties.PrintSqlProperties printSqlProperties = schemaProperties.getPrintSqlProperties();
         SqlDebugger.debug(printSqlProperties, preparedSql, dataSourceName, isIntercepted);
         R applyResult = doSqlExecutor.apply(sqlExecutor);
-        SqlDebugger.debug(printSqlProperties, dmlType, dataSourceName, applyResult);
+        SqlDebugger.debug(printSqlProperties, sqlExecuteType, dataSourceName, applyResult);
         return applyResult;
     }
 

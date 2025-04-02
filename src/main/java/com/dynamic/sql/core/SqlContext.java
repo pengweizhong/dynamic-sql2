@@ -3,8 +3,10 @@ package com.dynamic.sql.core;
 
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.model.TableMetaData;
 import com.dynamic.sql.utils.SqlUtils;
 
+import java.sql.DatabaseMetaData;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -344,7 +346,9 @@ public interface SqlContext {
      * @param sql 要执行的 SQL 语句字符串。例如，查询语句（如 "select * from users limit 10"）或 DDL 语句（如 CREATE TABLE）。
      * @return 执行 SQL 后的结果对象，具体类型取决于 SQL 类型和数据库实现。例如，查询返回结果集，DDL 操作可能返回成功标志或空对象。
      */
-    Object execute(String sql);
+    default Object execute(String sql) {
+        return execute(sql, new ParameterBinder());
+    }
 
     /**
      * 执行带参数绑定的 SQL 语句。
@@ -354,18 +358,47 @@ public interface SqlContext {
      * @return 执行 SQL 后的结果对象，具体类型取决于 SQL 类型和数据库实现。例如，查询返回结果集，DML 操作可能返回受影响的行数。
      * @see SqlUtils#registerValueWithKey(ParameterBinder, Object) 管理参数的注册和绑定
      */
-    Object execute(String sql, ParameterBinder parameterBinder);
+    default Object execute(String sql, ParameterBinder parameterBinder) {
+        return execute(null, sql, parameterBinder);
+    }
 
     /**
      * 执行指定数据源的带参数绑定的 SQL 语句。
      *
-     * @param dataSourceName  数据源名称，如果系统支持多个数据源，则通过此参数选择目标数据源。
-     * @param sql             要执行的 SQL 语句字符串，其中可以使用占位符。
-     * @param parameterBinder 参数绑定器
-     * @return 执行 SQL 后的结果对象，具体类型取决于 SQL 类型和数据库实现。例如，查询返回结果集，DML 操作可能返回受影响的行数。
-     * @throws IllegalStateException 如果无法匹配数据源名称
+     * @param dataSourceName  数据源名称，用于指定执行 SQL 的数据库连接。
+     * @param sql             要执行的 SQL 语句字符串，其中可以使用占位符（如通过  注册的参数键）。
+     *                        示例： "SELECT * FROM users WHERE id = {@link SqlUtils#registerValueWithKey(ParameterBinder, Object)}" 或 "CREATE TABLE users (id INT)"。
+     * @param parameterBinder 参数绑定器，负责管理 SQL 语句中需要替换的实际参数值。确保 SQL 执行安全并避免 SQL 注入。
+     * @return 执行 SQL 后的结果对象，具体类型取决于 SQL 类型和数据库实现。例如：<br>
+     * - 对于 SELECT 语句，返回查询结果集（通常是 List<Map<String, Object>> ）。<br>
+     * - 对于 INSERT、UPDATE、DELETE 语句，返回受影响的行数（Integer）。<br>
+     * - 对于 CREATE、ALTER、DROP 等 DDL 语句，返回成功标志（通常为 Integer）。
+     * @see SqlUtils#registerValueWithKey(ParameterBinder, Object) 用于管理参数的注册和绑定。
      */
     Object execute(String dataSourceName, String sql, ParameterBinder parameterBinder);
 
-    boolean existTable(Class<?> entityClass);
+    /**
+     * 获取目录、模式和名称模式下所有匹配的表元数据。
+     *
+     * @see this#getAllTableMetaData(String, String, String, String, String[])
+     */
+    default List<TableMetaData> getAllTableMetaData(String catalog, String schemaPattern, String tableNamePattern, String[] tableTypes) {
+        return getAllTableMetaData(null, catalog, schemaPattern, tableNamePattern, tableTypes);
+    }
+
+    /**
+     * 获取指定数据源、目录、模式和名称模式下所有匹配的表元数据。
+     *
+     * @param dataSourceName   数据源名称，用于指定执行查询的数据库连接。如果系统支持多个数据源，则通过此参数选择目标数据源。
+     * @param catalog          目录名称，可为 null（如果数据库不支持目录或无需指定，在MySQL中等价于database）。
+     * @param schemaPattern    模式名称或模式模式，可为 null（如果数据库不支持模式或无需指定，比如在MySQL中通常为null）。
+     * @param tableNamePattern 表名称模式，支持通配符（如 "%" 匹配所有表，"user%" 匹配以 "user" 开头的表）。
+     *                         不能为空或空字符串。
+     * @param tableTypes       表类型的数组（如 "TABLE", "VIEW", "SYSTEM TABLE"），可为 null（默认只返回 "TABLE" 类型）。
+     * @return 匹配的表元数据列表，每个元素是 {@link TableMetaData} 对象，包含表的详细信息（如名称、类型、备注等）。
+     * 如果没有匹配的表，返回空列表（非 null）。
+     * @throws IllegalStateException 如果数据源名称无效、数据库连接失败或参数无效。
+     * @see DatabaseMetaData#getTables(String, String, String, String[]) 获取表的元数据。
+     */
+    List<TableMetaData> getAllTableMetaData(String dataSourceName, String catalog, String schemaPattern, String tableNamePattern, String[] tableTypes);
 }

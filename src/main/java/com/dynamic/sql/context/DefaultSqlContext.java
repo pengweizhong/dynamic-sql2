@@ -16,6 +16,7 @@ import com.dynamic.sql.core.dml.select.Select;
 import com.dynamic.sql.core.dml.update.EntitiesUpdater;
 import com.dynamic.sql.core.dml.update.UpdateHandler;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.model.TableMetaData;
 import com.dynamic.sql.utils.CollectionUtils;
 import com.dynamic.sql.utils.StringUtils;
 
@@ -253,23 +254,13 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public Object execute(String sql) {
-        return new SqlStatement(null, sql, new ParameterBinder()).execute();
-    }
-
-    @Override
-    public Object execute(String sql, ParameterBinder parameterBinder) {
-        return new SqlStatement(null, sql, parameterBinder).execute();
-    }
-
-    @Override
     public Object execute(String dataSourceName, String sql, ParameterBinder parameterBinder) {
         return new SqlStatement(dataSourceName, sql, parameterBinder).execute();
     }
 
-
     @Override
-    public boolean existTable(Class<?> entityClass) {
-        return new TableExistenceChecker(entityClass).existTable();
+    public List<TableMetaData> getAllTableMetaData(String dataSourceName, String catalog, String schemaPattern, String tableNamePattern, String[] tableTypes) {
+        return new TableExistenceChecker(dataSourceName, catalog, schemaPattern, tableNamePattern, tableTypes).getAllTableMetaData();
     }
+
 }
