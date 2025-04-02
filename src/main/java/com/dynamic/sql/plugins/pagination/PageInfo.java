@@ -39,6 +39,39 @@ public class PageInfo<T> extends AbstractPage {
     }
 
     /**
+     * 判断当前分页结果是否为空。
+     * <p>
+     * 该方法检查分页查询结果（{@link #records}）的实际大小。如果结果集是 {@link Collection} 或 {@link Map} 类型，
+     * 则根据其大小判断；如果结果集类型不受支持，将抛出异常。
+     * </p>
+     *
+     * @return {@code true} 如果当前分页结果为空（大小为 0）；{@code false} 如果结果非空（大小大于 0）。
+     * @throws IllegalStateException 如果 {@link #records} 的类型不受支持（非 Collection 或 Map）。
+     * @see #getRealSize() 获取实际记录数。
+     * @see #records 存储的分页记录。
+     */
+    public boolean isEmpty() {
+        return getRealSize() <= 0;
+    }
+
+    /**
+     * 判断当前分页结果是否非空。
+     * <p>
+     * 该方法是 {@link #isEmpty()} 的逻辑否定，用于检查分页查询结果（{@link #records}）是否包含任何记录。
+     * 如果结果集是 {@link Collection} 或 {@link Map} 类型，则根据其大小判断；如果结果集类型不受支持，将抛出异常。
+     * </p>
+     *
+     * @return {@code true} 如果当前分页结果非空（大小大于 0）；{@code false} 如果结果为空（大小为 0）。
+     * @throws IllegalStateException 如果 {@link #records} 的类型不受支持（非 Collection 或 Map）。
+     * @see #isEmpty() 检查结果是否为空。
+     * @see #getRealSize() 获取实际记录数。
+     * @see #records 存储的分页记录。
+     */
+    public boolean isNotEmpty() {
+        return !isEmpty();
+    }
+
+    /**
      * 查询下一页的记录并返回相同的对象。
      * <p>
      * 此方法会将当前的页码 {@code pageIndex} 自增 ，然后执行查询 {@code Supplier}
