@@ -17,6 +17,7 @@ import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
 import com.dynamic.sql.enums.SortOrder;
+import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.Dual;
 import com.dynamic.sql.model.TableMetaData;
 import com.dynamic.sql.plugins.pagination.CollectionPage;
@@ -828,6 +829,13 @@ public class SelectTest extends InitializingContext {
         List<TableMetaData> tableMetaDataList = sqlContext.getAllTableMetaData("testDB", "test", null, "t_business_operation_log", null);
         System.out.println(tableMetaDataList.size());
         tableMetaDataList.forEach(System.out::println);
+    }
+
+    @Test
+    void getAllColumnMetaData() {
+        List<ColumnMetaData> columnMetaDataList = sqlContext.getAllColumnMetaData(null, null, "t_business_operation_log", null);
+        System.out.println(columnMetaDataList.size());
+        columnMetaDataList.forEach(System.out::println);
     }
 
 

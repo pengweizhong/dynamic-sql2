@@ -5,8 +5,9 @@ import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.ddl.ColumnMetaDataHelper;
 import com.dynamic.sql.core.ddl.SqlStatement;
-import com.dynamic.sql.core.ddl.TableExistenceChecker;
+import com.dynamic.sql.core.ddl.TableMetaDataHelper;
 import com.dynamic.sql.core.dml.delete.DeleteHandler;
 import com.dynamic.sql.core.dml.delete.EntitiesDeleter;
 import com.dynamic.sql.core.dml.insert.EntitiesInserter;
@@ -16,6 +17,7 @@ import com.dynamic.sql.core.dml.select.Select;
 import com.dynamic.sql.core.dml.update.EntitiesUpdater;
 import com.dynamic.sql.core.dml.update.UpdateHandler;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.TableMetaData;
 import com.dynamic.sql.utils.CollectionUtils;
 import com.dynamic.sql.utils.StringUtils;
@@ -260,7 +262,11 @@ public class DefaultSqlContext implements SqlContext {
 
     @Override
     public List<TableMetaData> getAllTableMetaData(String dataSourceName, String catalog, String schemaPattern, String tableNamePattern, String[] tableTypes) {
-        return new TableExistenceChecker(dataSourceName, catalog, schemaPattern, tableNamePattern, tableTypes).getAllTableMetaData();
+        return new TableMetaDataHelper(dataSourceName, catalog, schemaPattern, tableNamePattern, tableTypes).getAllTableMetaData();
     }
 
+    @Override
+    public List<ColumnMetaData> getAllColumnMetaData(String dataSourceName, String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) {
+        return new ColumnMetaDataHelper(dataSourceName, catalog, schemaPattern, tableNamePattern, columnNamePattern).getAllTableMetaData();
+    }
 }

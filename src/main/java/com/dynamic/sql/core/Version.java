@@ -2,6 +2,9 @@ package com.dynamic.sql.core;
 
 import java.util.Objects;
 
+/**
+ * TODO 考虑迁移至{@link com.mysql.cj.ServerVersion}？
+ */
 public class Version {
     private int majorVersion;
     private int minorVersion;

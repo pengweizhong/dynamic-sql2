@@ -3,6 +3,7 @@ package com.dynamic.sql.core.database.impl;
 import com.dynamic.sql.core.database.AbstractSqlExecutor;
 import com.dynamic.sql.core.database.PreparedSql;
 import com.dynamic.sql.core.database.RootExecutor;
+import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.TableMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,8 +96,7 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
     public List<TableMetaData> getAllTableMetaData(String catalog, String schemaPattern, String tableNamePattern, String[] tableTypes) {
         List<TableMetaData> metaDataList = new ArrayList<>();
         try (ResultSet rs = connection.getMetaData().getTables(catalog, schemaPattern, tableNamePattern, tableTypes)) {
-            boolean exists = rs != null && rs.next();
-            if (exists) {
+            if (rs != null && rs.next()) {
                 TableMetaData tableMetaData = new TableMetaData();
                 tableMetaData.setTableCatalog(rs.getString("TABLE_CAT"));
                 tableMetaData.setTableSchema(rs.getString("TABLE_SCHEM")); // 模式
@@ -113,7 +113,39 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
             }
             return metaDataList;
         } catch (SQLException e) {
-            log.error("Failed to check table existence for table: {}", preparedSql.getSql(), e);
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public List<ColumnMetaData> getAllColumnMetaData(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) {
+        try (ResultSet rs = connection.getMetaData().getColumns(catalog, schemaPattern, tableNamePattern, columnNamePattern)) {
+            List<ColumnMetaData> metaDataList = new ArrayList<>();
+            while (rs != null && rs.next()) {
+                ColumnMetaData columnMeta = new ColumnMetaData();
+                columnMeta.setTableCatalog(rs.getString("TABLE_CAT"));
+                columnMeta.setTableSchema(rs.getString("TABLE_SCHEM"));
+                columnMeta.setTableName(rs.getString("TABLE_NAME"));
+                columnMeta.setColumnName(rs.getString("COLUMN_NAME"));
+                columnMeta.setDataType(rs.getInt("DATA_TYPE"));
+                columnMeta.setTypeName(rs.getString("TYPE_NAME"));
+                columnMeta.setColumnSize(rs.getInt("COLUMN_SIZE"));
+                columnMeta.setDecimalDigits(rs.getInt("DECIMAL_DIGITS"));
+                columnMeta.setNumPrecRadix(rs.getInt("NUM_PREC_RADIX"));
+                columnMeta.setNullable(rs.getInt("NULLABLE"));
+                columnMeta.setRemarks(rs.getString("REMARKS"));
+                columnMeta.setColumnDef(rs.getString("COLUMN_DEF"));
+                columnMeta.setOrdinalPosition(rs.getInt("ORDINAL_POSITION"));
+                columnMeta.setIsNullable(rs.getString("IS_NULLABLE"));
+                // MySQL 通常为空的字段
+                columnMeta.setScopeCatalog(rs.getString("SCOPE_CATALOG"));
+                columnMeta.setScopeSchema(rs.getString("SCOPE_SCHEMA"));
+                columnMeta.setScopeTable(rs.getString("SCOPE_TABLE"));
+                columnMeta.setSourceDataType(rs.getShort("SOURCE_DATA_TYPE"));
+                metaDataList.add(columnMeta);
+            }
+            return metaDataList;
+        } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
     }

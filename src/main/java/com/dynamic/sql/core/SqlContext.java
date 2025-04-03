@@ -3,6 +3,7 @@ package com.dynamic.sql.core;
 
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.TableMetaData;
 import com.dynamic.sql.utils.SqlUtils;
 
@@ -378,7 +379,7 @@ public interface SqlContext {
     Object execute(String dataSourceName, String sql, ParameterBinder parameterBinder);
 
     /**
-     * 获取目录、模式和名称模式下所有匹配的表元数据。
+     * 使用默认数据源获取目录、模式和名称模式下所有匹配的表元数据。
      *
      * @see this#getAllTableMetaData(String, String, String, String, String[])
      */
@@ -401,4 +402,31 @@ public interface SqlContext {
      * @see DatabaseMetaData#getTables(String, String, String, String[]) 获取表的元数据。
      */
     List<TableMetaData> getAllTableMetaData(String dataSourceName, String catalog, String schemaPattern, String tableNamePattern, String[] tableTypes);
+
+    /**
+     * 使用默认数据源获取目录、模式、表名称模式和列名称模式下所有匹配的列元数据
+     *
+     * @see this#getAllColumnMetaData(String, String, String, String, String)
+     */
+    default List<ColumnMetaData> getAllColumnMetaData(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) {
+        return getAllColumnMetaData(null, catalog, schemaPattern, tableNamePattern, columnNamePattern);
+    }
+
+    /**
+     * 获取指定数据源、目录、模式、表名称模式和列名称模式下所有匹配的列元数据。
+     *
+     * @param dataSourceName    数据源名称，用于指定执行查询的数据库连接。
+     * @param catalog           目录名称，可为 null（如果数据库不支持目录或无需指定）。
+     * @param schemaPattern     模式名称或模式模式，可为 null（如果数据库不支持模式或无需指定）。
+     * @param tableNamePattern  表名称模式，支持通配符（如 "%" 匹配所有表，"user%" 匹配以 "user" 开头的表）。
+     *                          不能为空或空字符串。
+     * @param columnNamePattern 列名称模式，支持通配符（如 "%" 匹配所有列，"id%" 匹配以 "id" 开头的列）。
+     *                          可为 null，表示匹配所有列。
+     * @return 匹配的列元数据列表，每个元素是 {@link ColumnMetaData} 对象，包含列的详细信息（如名称、类型、注释等）。
+     * 如果没有匹配的列，返回空列表（非 null）。
+     * @throws IllegalStateException 如果数据源名称无效、数据库连接失败或参数无效。
+     * @see DatabaseMetaData#getColumns(String, String, String, String) 获取列的元数据。
+     */
+    List<ColumnMetaData> getAllColumnMetaData(String dataSourceName, String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern);
+
 }
