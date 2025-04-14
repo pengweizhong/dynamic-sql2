@@ -24,6 +24,8 @@ public class SqlContextProperties {
     private List<SchemaProperties> schemaProperties = new ArrayList<>();
     // 加载自定义拦截器
     private List<SqlInterceptor> interceptors = new ArrayList<>();
+    //对于数据源名称重复的，是否允许覆盖？
+    private boolean allowDataSourceDefinitionOverriding;
 
     public static SqlContextProperties defaultSqlContextProperties() {
         SqlContextProperties sqlContextProperties = new SqlContextProperties();
@@ -76,6 +78,14 @@ public class SqlContextProperties {
 
     public List<SqlInterceptor> getInterceptors() {
         return interceptors;
+    }
+
+    public boolean isAllowDataSourceDefinitionOverriding() {
+        return allowDataSourceDefinitionOverriding;
+    }
+
+    public void setAllowDataSourceDefinitionOverriding(boolean allowDataSourceDefinitionOverriding) {
+        this.allowDataSourceDefinitionOverriding = allowDataSourceDefinitionOverriding;
     }
 
     public void addInterceptor(SqlInterceptor interceptor) {

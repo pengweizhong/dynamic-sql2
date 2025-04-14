@@ -7,6 +7,8 @@ public class DataSourceMapping {
     private DataSource dataSource;
     private boolean isGlobalDefault;
     private String[] bindBasePackages;
+    //对于数据源名称重复的，是否允许覆盖？
+    private boolean allowDataSourceDefinitionOverriding;
 
     public DataSourceMapping(String dataSourceName, DataSource dataSource, boolean isGlobalDefault, String[] bindBasePackages) {
         this.dataSourceName = dataSourceName;
@@ -45,5 +47,13 @@ public class DataSourceMapping {
 
     public void setBindBasePackages(String[] bindBasePackages) {
         this.bindBasePackages = bindBasePackages;
+    }
+
+    public boolean isAllowDataSourceDefinitionOverriding() {
+        return allowDataSourceDefinitionOverriding;
+    }
+
+    public void setAllowDataSourceDefinitionOverriding(boolean allowDataSourceDefinitionOverriding) {
+        this.allowDataSourceDefinitionOverriding = allowDataSourceDefinitionOverriding;
     }
 }

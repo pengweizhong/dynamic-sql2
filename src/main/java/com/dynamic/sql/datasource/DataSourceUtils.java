@@ -87,12 +87,8 @@ public class DataSourceUtils {
             schemaProperties.setSqlDialect(sqlDialect);
             //设置其他参数
             schemaProperties.setDataSourceName(dataSourceMapping.getDataSourceName());
-            initDataSource(dataSourceMapping.getDataSourceName(),
-                    dbType, schema,
-                    dataSourceMapping.getDataSource(),
-                    dataSourceMapping.isGlobalDefault(),
-                    version,
-                    dataSourceMapping.getBindBasePackages());
+            dataSourceMapping.setAllowDataSourceDefinitionOverriding(sqlContextProperties.isAllowDataSourceDefinitionOverriding());
+            initDataSource(dataSourceMapping, dbType, schema, version);
             SqlContextHelper.addSchemaProperties(sqlContextProperties);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to read meta information", e);
@@ -104,27 +100,20 @@ public class DataSourceUtils {
     /**
      * 初始化已知数据源
      *
-     * @param dataSourceName   数据源名称
-     * @param dbType           数据源类型
-     * @param schema           命名空间
-     * @param dataSource       数据源原始对象
-     * @param isGlobalDefault  是否全局默认数据源
-     * @param bindBasePackages 绑定的实体类路径
+     * @param dbType 数据源类型
+     * @param schema 命名空间
      */
-    public static synchronized void initDataSource(String dataSourceName,//NOSONAR
+    public static synchronized void initDataSource(DataSourceMapping dataSourceMapping,
                                                    DbType dbType,
                                                    String schema,
-                                                   DataSource dataSource,
-                                                   boolean isGlobalDefault,
-                                                   String version,
-                                                   String[] bindBasePackages
-    ) {
-        log.debug("Initializing DataSource: {}, schema:{}, isGlobalDefault:{}, bindBasePackages:{}",
-                dataSourceName, schema, isGlobalDefault, bindBasePackages);
-        if (StringUtils.isBlank(dataSourceName)) {
+                                                   String version) {
+
+        log.debug("Initializing DataSource: {}, schema:{}, isGlobalDefault:{}, bindBasePackages:{}", dataSourceMapping.getDataSourceName(),
+                schema, dataSourceMapping.isGlobalDefault(), dataSourceMapping.getBindBasePackages());
+        if (StringUtils.isBlank(dataSourceMapping.getDataSourceName())) {
             throw new IllegalArgumentException("The bean name must be provided");
         }
-        if (dataSource == null) {
+        if (dataSourceMapping.getDataSource() == null) {
             throw new IllegalArgumentException("The dataSource must be provided");
         }
         if (StringUtils.isBlank(schema)) {
@@ -135,13 +124,13 @@ public class DataSourceUtils {
         }
         DataSourceMeta meta = new DataSourceMeta();
         meta.setSchema(schema);
-        meta.setGlobalDefault(isGlobalDefault);
-        meta.setBindBasePackages(bindBasePackages);
-        meta.setDataSource(dataSource);
+        meta.setGlobalDefault(dataSourceMapping.isGlobalDefault());
+        meta.setBindBasePackages(dataSourceMapping.getBindBasePackages());
+        meta.setDataSource(dataSourceMapping.getDataSource());
         meta.setDbType(dbType);
         meta.setVersion(version);
-        DataSourceProvider.saveDataSourceMeta(dataSourceName, meta);
-        log.info("Initialized DataSource: {}", dataSourceName);
+        DataSourceProvider.saveDataSourceMeta(dataSourceMapping.isAllowDataSourceDefinitionOverriding(), dataSourceMapping.getDataSourceName(), meta);
+        log.info("Initialized DataSource: {}", dataSourceMapping.getDataSourceName());
     }
 
     public static DbType matchDbType(String jdbcUrl) {
