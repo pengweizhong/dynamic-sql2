@@ -7,6 +7,7 @@ import java.util.List;
 
 public class ViewMeta {
     //绑定到数据源名称
+    @Deprecated
     private String bindDataSourceName;
     //列成员
     private List<ViewColumnMeta> viewColumnMetas;

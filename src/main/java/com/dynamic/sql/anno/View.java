@@ -21,7 +21,9 @@ public @interface View {
      * 数据源唯一名称，此选项优先级最高
      *
      * @return 数据源名称
+     * @deprecated 视图应该允许在多个数据源之间共享，{@code v0.1.1}起不再支持当前方法
      */
+    @Deprecated
     String dataSourceName() default "";
 
 }

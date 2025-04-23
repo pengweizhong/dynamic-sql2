@@ -19,7 +19,6 @@ import com.dynamic.sql.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -28,8 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.dynamic.sql.table.SchemaStructureScanner.matchBestDataSourceName;
 
 
 public class TableUtils {
@@ -106,7 +103,8 @@ public class TableUtils {
             cache = view.isCache();
             dataSourceName = view.dataSourceName();
         }
-        final String finalDataSourceName = matchBestDataSourceName(clazz, dataSourceName);
+//        final String finalDataSourceName = matchBestDataSourceName(clazz, dataSourceName);
+        final String finalDataSourceName = dataSourceName;
         List<ColumnMetaSymbol> columnMetaSymbols = fields.stream().map(f -> parseTableColumn(finalDataSourceName, clazz, f))
                 .filter(Objects::nonNull).collect(Collectors.toList());
         //检查列声明标识是否合规
@@ -250,10 +248,12 @@ public class TableUtils {
         String columnName;
         if (StringUtils.isBlank(value)) {
             columnName = NamingUtils.camelToSnakeCase(field.getName());
-            //如果是Oracle 就转为大写。先写死逻辑，后面有需求在配置化
-            SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-            if (schemaProperties.getSqlDialect() == SqlDialect.ORACLE) {
-                columnName = columnName.toUpperCase();
+            //如果是Oracle 就转为大写。先写死逻辑，后面有需求在配置化 TODO
+            if (StringUtils.isNotEmpty(dataSourceName)) {
+                SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
+                if (schemaProperties.getSqlDialect() == SqlDialect.ORACLE) {
+                    columnName = columnName.toUpperCase();
+                }
             }
         } else {
             //如果是用户指定的，就保留原样 不做任何处置
