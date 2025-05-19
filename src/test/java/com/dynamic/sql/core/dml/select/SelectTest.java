@@ -839,7 +839,9 @@ public class SelectTest extends InitializingContext {
         columnMetaDataList.forEach(System.out::println);
     }
 
-
+    /**
+     * 列表一对多查询
+     */
     @Test
     void selectCollection() {
         List<CategoryView> list = selectCollectionList();
@@ -847,6 +849,9 @@ public class SelectTest extends InitializingContext {
         list.forEach(System.out::println);
     }
 
+    /**
+     * 分页支持一对多查询
+     */
     @Test
     void selectCollectionPage() {
         PageInfo<List<CategoryView>> pageInfo = PageHelper.of(1, 10).selectPage(this::selectCollectionList);
@@ -861,10 +866,13 @@ public class SelectTest extends InitializingContext {
                 .collectionColumn(
                         KeyMapping.of(Category::getCategoryId, Product::getCategoryId),
                         valueMapping -> valueMapping
+                                //-- 如果想在子表中使用关联键，那么直接在类型定义即可，无需重复查询
+//                                .column(Product::getCategoryId)
                                 .column(Product::getProductId)
                                 .column(Product::getProductName),
                         "productVOS"
                 )
+                //也可用于数据去重，等效于 Distinct(Category::getCategoryId)，但不推荐这么使用
 //                .collectionColumn(
 //                        KeyMapping.of(Category::getCategoryId, Category::getCategoryId),
 //                        valueMapping -> valueMapping,
