@@ -9,9 +9,11 @@ import com.dynamic.sql.core.dml.select.TableRelation;
 import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
+import com.dynamic.sql.model.KeyMapping;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -347,6 +349,30 @@ public abstract class AbstractColumnReference {
     public AbstractColumnReference column(boolean isEffective, Consumer<AbstractColumnReference> nestedSelect, String columnAlias) {
         return isEffective ? column(nestedSelect, columnAlias) : this;
     }
+
+
+    public AbstractColumnReference collectionColumn(boolean isEffective, KeyMapping<?, ?> keyMapping,
+                                                    Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
+                                                    String targetProperty) {
+        return isEffective ? collectionColumn(keyMapping, valueMapper, targetProperty) : this;
+    }
+
+    /**
+     * 注册一个一对多的字段集合，用于在主表查询中嵌套查询子表的数据并自动组装成集合字段。
+     * <p>
+     * 该方法用于描述一对多的关系映射，
+     * 查询结果将自动按主表主键（parentKey）分组，将子表数据（valueMapper 中指定的字段）封装为集合，
+     * 并注入到主表 Java 对象的指定属性（targetProperty）中。
+     * </p>
+     *
+     * @param keyMapping     主表字段与子表字段的映射关系（一般为主键外键的映射），用于分组。
+     * @param valueMapper    子表字段的选择器，通过链式调用 column(...) 指定需要查询的子表字段。
+     * @param targetProperty 主表实体类中用于接收子表集合的属性名称。
+     * @return 字段引用构建器，支持链式调用。
+     */
+    public abstract AbstractColumnReference collectionColumn(KeyMapping<?, ?> keyMapping,
+                                                             Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
+                                                             String targetProperty);
 
     /**
      * 添加另一个列引用到当前查询中。

@@ -16,9 +16,12 @@ public class FetchableImpl implements Fetchable {
 
     private SqlStatementSelectWrapper sqlStatementSelectWrapper;
 
+    private CollectionColumnMapping collectionColumnMapping;
+
     public FetchableImpl(SelectSpecification selectSpecification) {
         SqlSelectBuilder sqlSelectBuilder = SqlUtils.matchSqlSelectBuilder(selectSpecification);
         sqlStatementSelectWrapper = sqlSelectBuilder.build();
+        collectionColumnMapping = selectSpecification.getCollectionColumnMapping();
     }
 
     public FetchableImpl(SqlStatementSelectWrapper sqlStatementSelectWrapper) {
@@ -46,6 +49,6 @@ public class FetchableImpl implements Fetchable {
         }
         List<Map<String, Object>> wrapperList = SqlExecutionFactory.executorSql(DMLType.SELECT,
                 sqlStatementSelectWrapper, SqlExecutor::executeQuery);
-        return new FetchResultImpl<>(returnClass, wrapperList);
+        return new FetchResultImpl<>(returnClass, wrapperList, collectionColumnMapping);
     }
 }

@@ -1,8 +1,8 @@
 package com.dynamic.sql.core.dml.select.build;
 
 
-import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.dml.select.CollectionColumnMapping;
 import com.dynamic.sql.core.dml.select.HavingCondition;
 import com.dynamic.sql.core.dml.select.NestedMeta;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
@@ -19,11 +19,12 @@ public class SelectSpecification {
     private List<ColumnQuery> columFunctions = new ArrayList<>();
     private List<JoinTable> joinTables = new ArrayList<>();
     private Consumer<WhereCondition> whereCondition;
-//    private List<Fn<?, ?>> groupByFields;
     private GroupByObject groupByObject;
     private Consumer<HavingCondition> havingCondition;
     private List<OrderBy> orderBys;
     private LimitInfo limitInfo;
+    //一对多映射关系
+    private CollectionColumnMapping collectionColumnMapping;
 
     public List<ColumnQuery> getColumFunctions() {
         return columFunctions;
@@ -33,12 +34,6 @@ public class SelectSpecification {
         return joinTables;
     }
 
-//    public List<Fn<?, ?>> getGroupByFields() {
-//        if (groupByFields == null) {
-//            groupByFields = new ArrayList<>();
-//        }
-//        return groupByFields;
-//    }
 
     public GroupByObject getGroupByObject() {
         if (groupByObject == null) {
@@ -84,5 +79,13 @@ public class SelectSpecification {
 
     public void setNestedMeta(NestedMeta nestedMeta) {
         this.nestedMeta = nestedMeta;
+    }
+
+    public CollectionColumnMapping getCollectionColumnMapping() {
+        return collectionColumnMapping;
+    }
+
+    public void setCollectionColumnMapping(CollectionColumnMapping collectionColumnMapping) {
+        this.collectionColumnMapping = collectionColumnMapping;
     }
 }

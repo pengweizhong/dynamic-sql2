@@ -9,6 +9,7 @@ import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.column.function.modifiers.Distinct;
 import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
+import com.dynamic.sql.core.dml.select.CollectionColumnMapping;
 import com.dynamic.sql.core.dml.select.TableRelation;
 import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
@@ -18,10 +19,12 @@ import com.dynamic.sql.core.dml.select.build.join.FromJoin;
 import com.dynamic.sql.core.dml.select.build.join.FromNestedJoin;
 import com.dynamic.sql.core.dml.select.build.join.NestedJoin;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
+import com.dynamic.sql.model.KeyMapping;
 import com.dynamic.sql.utils.StringUtils;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ColumnReference extends AbstractColumnReference {
@@ -120,6 +123,26 @@ public class ColumnReference extends AbstractColumnReference {
         }
         NestedColumn nestedColumn = new NestedColumn(nestedSelect, columnAlias);
         selectSpecification.getColumFunctions().add(nestedColumn);
+        return this;
+    }
+
+    @Override
+    public AbstractColumnReference collectionColumn(KeyMapping<?, ?> keyMapping,
+                                                    Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
+                                                    String targetProperty) {
+        //继续添加字段查询
+        valueMapper.apply(this);
+        // 注册一对多映射关系
+        ColumnReference columnReference = new ColumnReference(new SelectSpecification());
+        valueMapper.apply(columnReference);
+        List<ColumnQuery> columFunctions = columnReference.getSelectSpecification().getColumFunctions();
+        CollectionColumnMapping collectionColumnMapping = new CollectionColumnMapping(keyMapping.parentKey(), keyMapping.childKey());
+        collectionColumnMapping.setTargetProperty(targetProperty);
+        collectionColumnMapping.addAllChildColumns(columFunctions);
+        //TODO 先简单写不带别名的查询  后面有时间在完善场景，包括不限于多次一对多,对象聚合为一个等等。。。
+//        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(null, keyMapping.parentKey()), null, null));
+//        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(null, keyMapping.childKey()), null, null));
+        selectSpecification.setCollectionColumnMapping(collectionColumnMapping);
         return this;
     }
 

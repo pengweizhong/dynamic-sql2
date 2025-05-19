@@ -41,7 +41,6 @@ public class RootExecutor {
                     String columnName = metaData.getColumnLabel(i);
                     if (objectMap.containsKey(columnName)) {
                         detectedColumnNameSet.add(columnName);
-//                        throw new IllegalArgumentException("Duplicate column name: " + columnName);
                     }
                     Object columnValue = resultSet.getObject(i);
                     objectMap.put(columnName, columnValue);

@@ -1,6 +1,7 @@
 package com.dynamic.sql.core.dml.select;
 
 
+import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.plugins.conversion.FetchResultConverter;
 import com.dynamic.sql.table.FieldMeta;
@@ -12,7 +13,9 @@ import com.dynamic.sql.utils.ConverterUtils;
 import com.dynamic.sql.utils.ReflectUtils;
 import com.dynamic.sql.utils.StringUtils;
 
+import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -22,11 +25,13 @@ import java.util.stream.Collectors;
 public class FetchResultImpl<R> extends AbstractFetchResult<R> {
 
     private final Class<R> resultClass;
-    private final HashSet<String> notUsedColumnTips = new HashSet<>();
+    //    private final HashSet<String> notUsedColumnTips = new HashSet<>();
+    private final CollectionColumnMapping collectionColumnMapping;
 
-    public FetchResultImpl(Class<R> returnClass, List<Map<String, Object>> wrapperList) {
+    public FetchResultImpl(Class<R> returnClass, List<Map<String, Object>> wrapperList, CollectionColumnMapping collectionColumnMapping) {
         super(wrapperList);
         this.resultClass = returnClass;
+        this.collectionColumnMapping = collectionColumnMapping;
     }
 
     @Override
@@ -106,10 +111,61 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         List<FieldMeta> fieldMetas = getFieldMetas("Collection");
         Map<String, FieldMeta> columnNameMap = fieldMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
         Map<String, FieldMeta> fieldNameMap = fieldMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
-        for (Map<String, Object> columnObjectMap : wrapperList) {
-            collection.add(reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap));
+        //是否为一对多关系  不是直接映射后返回
+        if (collectionColumnMapping == null) {
+            for (Map<String, Object> columnObjectMap : wrapperList) {
+                collection.add(reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap));
+            }
+            return collection;
         }
+        System.out.println(collectionColumnMapping);
+        String targetProperty = collectionColumnMapping.getTargetProperty();
+        FieldMeta targetFieldMeta = resolveFieldMeta(targetProperty, fieldNameMap, columnNameMap);
+        if (targetFieldMeta == null) {
+            throw new IllegalArgumentException("Index column [" + targetProperty + "] does not exist");
+        }
+        //targetFieldMeta 取出的是用户设置的集合字段
+        Field targetField = targetFieldMeta.getField();
+        Class<?> childElementClass = ReflectUtils.getUserGenericType(targetField);
+        List<FieldMeta> collectionColumnMetas = TableUtils.parseViewClass(childElementClass).getViewColumnMetas();
+        Map<String, FieldMeta> childColumnNameMap = collectionColumnMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
+        Map<String, FieldMeta> childFieldNameMap = collectionColumnMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
+        //先暴力默认指定实现，具体细节应当根据用户指定的类型、用户是否已经实例化参数等等进行赋值，目前先这么写死，后期有时间再做变更
+        HashMap<Object, Collection<Object>> childHashMap = new HashMap<>();
+        HashMap<Object, Object> parentHashMap = new HashMap<>();
+        FieldFn<?, ?> parentKey = collectionColumnMapping.getParentKey();
+        String parentColumn = ReflectUtils.fnToFieldName(parentKey);
+        FieldMeta parentFieldMeta = resolveFieldMeta(parentColumn, fieldNameMap, columnNameMap);
+        //处理映射一对多
+        for (Map<String, Object> columnObjectMap : wrapperList) {
+            R r = reflectionInstance(childHashMap.keySet(), parentFieldMeta, columnObjectMap, columnNameMap, fieldNameMap);
+            Object parentValue = ReflectUtils.getFieldValue(r, parentFieldMeta.getField());
+            if (!parentHashMap.containsKey(parentValue)) {
+                parentHashMap.put(parentValue, r);
+            } else {
+                r = (R) parentHashMap.get(parentValue);
+            }
+            Object child = childReflectionInstance(childElementClass, columnObjectMap, childColumnNameMap, childFieldNameMap);
+            if (child != null) {
+                Collection<Object> childCollection = childHashMap.computeIfAbsent(
+                        parentValue,
+                        key -> Set.class.isAssignableFrom(targetField.getType())
+                                ? new LinkedHashSet<>()
+                                : new ArrayList<>()
+                );
+                //添加子元素
+                childCollection.add(child);
+                //不断刷新结果集
+                ReflectUtils.setFieldValue(r, targetField, childCollection);
+            }
+        }
+        collection.addAll((Collection<? extends R>) parentHashMap.values());
         return collection;
+    }
+
+    private FieldMeta resolveFieldMeta(String name, Map<String, FieldMeta> fieldNameMap, Map<String, FieldMeta> columnNameMap) {
+        FieldMeta meta = fieldNameMap.get(name);
+        return meta != null ? meta : columnNameMap.get(name);
     }
 
     private <T, K, V, M extends Map<K, V>> Map<K, V> convertToMap(Function<T, ? extends K> keyMapper,
@@ -127,7 +183,6 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
                 // 如果 map 中已存在该键，使用 mergeFunction 处理值冲突
                 m.merge(key, val, mergeFunction);
             }
-
         });
     }
 
@@ -170,18 +225,40 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         if (columnMeta == null) {
             columnMeta = fieldNameMap.get(columnName);
         }
-        // 将来实现自动移除未使用的列（自动优化查询）？？？
-        if (columnMeta == null && log.isTraceEnabled() && !notUsedColumnTips.contains(columnName)) {
-            log.trace("Column '{}' was queried but not used.", columnName);
-            notUsedColumnTips.add(columnName);
-        }
+//        // 将来实现自动移除未使用的列（自动优化查询）？？？
+//        if (columnMeta == null && log.isTraceEnabled() && !notUsedColumnTips.contains(columnName)) {
+//            log.trace("Column '{}' was queried but not used.", columnName);
+//            notUsedColumnTips.add(columnName);
+//        }
         return columnMeta;
     }
 
     R reflectionInstance(Map<String, Object> columnObjectMap,
                          Map<String, FieldMeta> columnNameMap,
                          Map<String, FieldMeta> fieldNameMap) {
+        return reflectionInstance(null, null, columnObjectMap, columnNameMap, fieldNameMap);
+    }
+
+    R reflectionInstance(Set<Object> objects,
+                         FieldMeta parentFieldMeta,
+                         Map<String, Object> columnObjectMap,
+                         Map<String, FieldMeta> columnNameMap,
+                         Map<String, FieldMeta> fieldNameMap) {
         R instance = ReflectUtils.instance(resultClass);
+        if (objects != null && parentFieldMeta != null) {
+            String parentColumnName = parentFieldMeta.getColumnName();
+            Object columnValue = columnObjectMap.get(parentColumnName);
+            FieldMeta columnMeta = getColumnMeta(parentColumnName, columnNameMap, fieldNameMap);
+            if (columnMeta != null) {
+                Object value = ConverterUtils.convertToEntityAttribute(columnMeta, columnMeta.getField().getType(), columnValue);
+                if (value != null) {
+                    ReflectUtils.setFieldValue(instance, columnMeta.getField(), value);
+                }
+                if (objects.contains(value)) {
+                    return instance;
+                }
+            }
+        }
         columnObjectMap.forEach((columnName, columnValue) -> {
             FieldMeta columnMeta = getColumnMeta(columnName, columnNameMap, fieldNameMap);
             if (columnMeta == null) {
@@ -193,6 +270,25 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             }
         });
         return instance;
+    }
+
+    Object childReflectionInstance(Class<?> childElementClass,
+                                   Map<String, Object> columnObjectMap,
+                                   Map<String, FieldMeta> childColumnNameMap,
+                                   Map<String, FieldMeta> childFieldNameMap) {
+        Object childInstance = ReflectUtils.instance(childElementClass);
+        AtomicBoolean isReturnNull = new AtomicBoolean(true);
+        columnObjectMap.forEach((columnName, columnValue) -> {
+            FieldMeta childColumnMeta = getColumnMeta(columnName, childColumnNameMap, childFieldNameMap);
+            if (childColumnMeta != null) {
+                Object value = ConverterUtils.convertToEntityAttribute(childColumnMeta, childColumnMeta.getField().getType(), columnValue);
+                if (value != null) {
+                    isReturnNull.set(false);
+                    ReflectUtils.setFieldValue(childInstance, childColumnMeta.getField(), value);
+                }
+            }
+        });
+        return isReturnNull.get() ? null : childInstance;
     }
 
     private <K, V, M extends Map<K, V>> Map<K, V> convertTo(Supplier<M> mapSupplier, Operator operator) {

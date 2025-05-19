@@ -220,6 +220,22 @@ public class ReflectUtils {
         return types;
     }
 
+    public static Class<?> getUserGenericType(Field field) {
+        // 获取这个 Field 的泛型类型
+        Type genericType = field.getGenericType();
+        if (!(genericType instanceof ParameterizedType)) {
+            throw new IllegalStateException("属性 " + field.getName() + " 不是泛型集合，无法获取元素类型");
+        }
+        ParameterizedType pt = (ParameterizedType) genericType;
+        // 取第一个泛型参数（List<T> 中的 T）
+        Type actualType = pt.getActualTypeArguments()[0];
+        if (!(actualType instanceof Class)) {
+            throw new IllegalStateException(
+                    "集合元素类型不是 Class，无法处理：" + actualType);
+        }
+        return (Class<?>) actualType;
+    }
+
     public static void makeAccessible(Field field) {
         if ((!Modifier.isPublic(field.getModifiers()) ||
                 !Modifier.isPublic(field.getDeclaringClass().getModifiers())

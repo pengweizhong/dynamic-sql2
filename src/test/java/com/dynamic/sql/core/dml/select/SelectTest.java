@@ -19,6 +19,7 @@ import com.dynamic.sql.entites.*;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.Dual;
+import com.dynamic.sql.model.KeyMapping;
 import com.dynamic.sql.model.TableMetaData;
 import com.dynamic.sql.plugins.pagination.CollectionPage;
 import com.dynamic.sql.plugins.pagination.MapPage;
@@ -836,6 +837,43 @@ public class SelectTest extends InitializingContext {
         List<ColumnMetaData> columnMetaDataList = sqlContext.getAllColumnMetaData(null, null, "t_business_operation_log", null);
         System.out.println(columnMetaDataList.size());
         columnMetaDataList.forEach(System.out::println);
+    }
+
+
+    @Test
+    void selectCollection() {
+        List<CategoryView> list = selectCollectionList();
+        System.out.println(list.size());
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void selectCollectionPage() {
+        PageInfo<List<CategoryView>> pageInfo = PageHelper.of(1, 10).selectPage(this::selectCollectionList);
+        System.out.println(pageInfo);
+    }
+
+    List<CategoryView> selectCollectionList() {
+        return sqlContext.select()
+                .column(Category::getCategoryId)
+                .column(Category::getCategoryName)
+                .column(Category::getDescription)
+                .collectionColumn(
+                        KeyMapping.of(Category::getCategoryId, Product::getCategoryId),
+                        valueMapping -> valueMapping
+                                .column(Product::getProductId)
+                                .column(Product::getProductName),
+                        "productVOS"
+                )
+//                .collectionColumn(
+//                        KeyMapping.of(Category::getCategoryId, Category::getCategoryId),
+//                        valueMapping -> valueMapping,
+//                        "productVOS"
+//                )
+                .from(Category.class)
+                .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
+                .fetch(CategoryView.class)
+                .toList();
     }
 
 
