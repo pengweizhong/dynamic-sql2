@@ -615,6 +615,7 @@ public class SqlUtils {
 
     public static Version databaseProductVersion(DbType dbType, String databaseProductVersion) {
         //Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production\nVersion 19.19.0.0.0
+        //MySQL 5.6.16-log
         if (dbType == DbType.ORACLE) {
             int i = databaseProductVersion.indexOf("Version");
             if (i != -1) {
@@ -632,7 +633,12 @@ public class SqlUtils {
         }
         Integer patchVersionNumber = 0;
         if (split.length >= 3) {
-            patchVersionNumber = Integer.parseInt(split[2]);
+            String string = split[2];
+            if (string.contains("-")) {
+                patchVersionNumber = Integer.parseInt(string.substring(0, string.indexOf("-")));
+            } else {
+                patchVersionNumber = Integer.parseInt(string);
+            }
         }
         return new Version(majorVersionNumber, minorVersionNumber, patchVersionNumber);
     }
