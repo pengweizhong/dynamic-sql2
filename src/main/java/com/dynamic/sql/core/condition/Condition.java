@@ -4,6 +4,7 @@ package com.dynamic.sql.core.condition;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.ColumFunction;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 
 import java.util.function.Consumer;
 
@@ -13,7 +14,7 @@ import java.util.function.Consumer;
  * <p>此接口提供了一系列方法，用于构建 SQL 查询中的条件，支持 AND 和 OR 逻辑运算，
  * 包括等于、不等于、大于、小于、范围、集合、正则表达式等操作。支持链式调用。
  */
-public interface Condition {
+public interface Condition<C extends Condition<C>> {
 
     /**
      * 添加等于条件，并且运算。
@@ -22,9 +23,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andEqualTo(Fn<T, F> fn, Object value);
+    <T, F> C andEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加等于条件，并且运算。
@@ -36,16 +37,16 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? andEqualTo(fn, value) : this;
+    default <T, F> C andEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? andEqualTo(fn, value) : self();
     }
 
-    Condition andEqualTo(Column column, Object value);
+    C andEqualTo(Column column, Object value);
 
-    default Condition andEqualTo(boolean isEffective, Column column, Object value) {
-        return isEffective ? andEqualTo(column, value) : this;
+    default C andEqualTo(boolean isEffective, Column column, Object value) {
+        return isEffective ? andEqualTo(column, value) : self();
     }
 
     /**
@@ -62,7 +63,7 @@ public interface Condition {
      * @param <F>    字段类型
      * @return 当前的 {@link Condition} 实例，以便实现链式调用
      */
-    <T1, T2, F> Condition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加等值连接条件，并且运算。
@@ -77,14 +78,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前的 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition andEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? andEqualTo(field1, field2) : this;
+    default <T1, T2, F> C andEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? andEqualTo(field1, field2) : self();
     }
 
-    Condition andEqualTo(ColumFunction columFunction, Object value);
+    C andEqualTo(ColumFunction columFunction, Object value);
 
-    default Condition andEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? andEqualTo(columFunction, value) : this;
+    default C andEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? andEqualTo(columFunction, value) : self();
     }
 
     /**
@@ -94,9 +95,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orEqualTo(Fn<T, F> fn, Object value);
+    <T, F> C orEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加等于条件，或运算。
@@ -108,10 +109,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? orEqualTo(fn, value) : this;
+    default <T, F> C orEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? orEqualTo(fn, value) : self();
     }
 
     /**
@@ -124,7 +125,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition orEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C orEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段等值连接条件，或运算。
@@ -139,14 +140,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition orEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? orEqualTo(field1, field2) : this;
+    default <T1, T2, F> C orEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? orEqualTo(field1, field2) : self();
     }
 
-    Condition orEqualTo(ColumFunction columFunction, Object value);
+    C orEqualTo(ColumFunction columFunction, Object value);
 
-    default Condition orEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? orEqualTo(columFunction, value) : this;
+    default C orEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? orEqualTo(columFunction, value) : self();
     }
 
     /**
@@ -156,9 +157,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andNotEqualTo(Fn<T, F> fn, Object value);
+    <T, F> C andNotEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加不等于条件，并且运算。
@@ -170,10 +171,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andNotEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? andNotEqualTo(fn, value) : this;
+    default <T, F> C andNotEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? andNotEqualTo(fn, value) : self();
     }
 
     /**
@@ -186,7 +187,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition andNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C andNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段不等值连接条件，并且运算。
@@ -201,14 +202,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition andNotEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? andNotEqualTo(field1, field2) : this;
+    default <T1, T2, F> C andNotEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? andNotEqualTo(field1, field2) : self();
     }
 
-    Condition andNotEqualTo(ColumFunction columFunction, Object value);
+    C andNotEqualTo(ColumFunction columFunction, Object value);
 
-    default Condition andNotEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? andNotEqualTo(columFunction, value) : this;
+    default C andNotEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? andNotEqualTo(columFunction, value) : self();
     }
 
     /**
@@ -218,9 +219,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orNotEqualTo(Fn<T, F> fn, Object value);
+    <T, F> C orNotEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加不等于条件，或运算。
@@ -232,10 +233,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orNotEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? orNotEqualTo(fn, value) : this;
+    default <T, F> C orNotEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? orNotEqualTo(fn, value) : self();
     }
 
     /**
@@ -248,7 +249,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition orNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C orNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段不等值连接条件，或运算。
@@ -263,14 +264,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition orNotEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? orNotEqualTo(field1, field2) : this;
+    default <T1, T2, F> C orNotEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? orNotEqualTo(field1, field2) : self();
     }
 
-    Condition orNotEqualTo(ColumFunction columFunction, Object value);
+    C orNotEqualTo(ColumFunction columFunction, Object value);
 
-    default Condition orNotEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? orNotEqualTo(columFunction, value) : this;
+    default C orNotEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? orNotEqualTo(columFunction, value) : self();
     }
 
     /**
@@ -279,9 +280,9 @@ public interface Condition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andIsNull(Fn<T, F> fn);
+    <T, F> C andIsNull(Fn<T, F> fn);
 
     /**
      * 根据条件添加字段为空值条件，并且运算。
@@ -292,16 +293,16 @@ public interface Condition {
      * @param fn          用于获取字段值的函数
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andIsNull(boolean isEffective, Fn<T, F> fn) {
-        return isEffective ? andIsNull(fn) : this;
+    default <T, F> C andIsNull(boolean isEffective, Fn<T, F> fn) {
+        return isEffective ? andIsNull(fn) : self();
     }
 
-    Condition andIsNull(ColumFunction columFunction, Object value);
+    C andIsNull(ColumFunction columFunction, Object value);
 
-    default Condition andIsNull(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? andIsNull(columFunction, value) : this;
+    default C andIsNull(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? andIsNull(columFunction, value) : self();
     }
 
     /**
@@ -310,9 +311,9 @@ public interface Condition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orIsNull(Fn<T, F> fn);
+    <T, F> C orIsNull(Fn<T, F> fn);
 
     /**
      * 根据条件添加字段为空值条件，或运算。
@@ -323,16 +324,16 @@ public interface Condition {
      * @param fn          用于获取字段值的函数
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orIsNull(boolean isEffective, Fn<T, F> fn) {
-        return isEffective ? orIsNull(fn) : this;
+    default <T, F> C orIsNull(boolean isEffective, Fn<T, F> fn) {
+        return isEffective ? orIsNull(fn) : self();
     }
 
-    Condition orIsNull(ColumFunction columFunction, Object value);
+    C orIsNull(ColumFunction columFunction, Object value);
 
-    default Condition orIsNull(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? orIsNull(columFunction, value) : this;
+    default C orIsNull(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? orIsNull(columFunction, value) : self();
     }
 
     /**
@@ -341,9 +342,9 @@ public interface Condition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andIsNotNull(Fn<T, F> fn);
+    <T, F> C andIsNotNull(Fn<T, F> fn);
 
     /**
      * 根据条件添加字段非空值条件，并且运算。
@@ -354,16 +355,16 @@ public interface Condition {
      * @param fn          用于获取字段值的函数
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andIsNotNull(boolean isEffective, Fn<T, F> fn) {
-        return isEffective ? andIsNotNull(fn) : this;
+    default <T, F> C andIsNotNull(boolean isEffective, Fn<T, F> fn) {
+        return isEffective ? andIsNotNull(fn) : self();
     }
 
-    Condition andIsNotNull(ColumFunction columFunction, Object value);
+    C andIsNotNull(ColumFunction columFunction, Object value);
 
-    default Condition andIsNotNull(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? andIsNotNull(columFunction, value) : this;
+    default C andIsNotNull(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? andIsNotNull(columFunction, value) : self();
     }
 
     /**
@@ -372,9 +373,9 @@ public interface Condition {
      * @param fn  用于获取字段值的函数
      * @param <T> 实体类类型
      * @param <F> 字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orIsNotNull(Fn<T, F> fn);
+    <T, F> C orIsNotNull(Fn<T, F> fn);
 
     /**
      * 根据条件添加字段非空值条件，或运算。
@@ -385,16 +386,16 @@ public interface Condition {
      * @param fn          用于获取字段值的函数
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orIsNotNull(boolean isEffective, Fn<T, F> fn) {
-        return isEffective ? orIsNotNull(fn) : this;
+    default <T, F> C orIsNotNull(boolean isEffective, Fn<T, F> fn) {
+        return isEffective ? orIsNotNull(fn) : self();
     }
 
-    Condition orIsNotNull(ColumFunction columFunction, Object value);
+    C orIsNotNull(ColumFunction columFunction, Object value);
 
-    default Condition orIsNotNull(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? orIsNotNull(columFunction, value) : this;
+    default C orIsNotNull(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? orIsNotNull(columFunction, value) : self();
     }
 
     /**
@@ -404,9 +405,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andGreaterThan(Fn<T, F> fn, Object value);
+    <T, F> C andGreaterThan(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加字段大于指定值条件，并且运算。
@@ -418,10 +419,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andGreaterThan(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? andGreaterThan(fn, value) : this;
+    default <T, F> C andGreaterThan(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? andGreaterThan(fn, value) : self();
     }
 
     /**
@@ -434,7 +435,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition andGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C andGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段大于连接条件，并且运算。
@@ -449,14 +450,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition andGreaterThan(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? andGreaterThan(field1, field2) : this;
+    default <T1, T2, F> C andGreaterThan(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? andGreaterThan(field1, field2) : self();
     }
 
-    Condition andGreaterThan(ColumFunction columFunction, Object value);
+    C andGreaterThan(ColumFunction columFunction, Object value);
 
-    default Condition andGreaterThan(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? andGreaterThan(columFunction, value) : this;
+    default C andGreaterThan(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? andGreaterThan(columFunction, value) : self();
     }
 
     /**
@@ -466,9 +467,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orGreaterThan(Fn<T, F> fn, Object value);
+    <T, F> C orGreaterThan(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加字段大于指定值条件，或运算。
@@ -480,10 +481,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orGreaterThan(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? orGreaterThan(fn, value) : this;
+    default <T, F> C orGreaterThan(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? orGreaterThan(fn, value) : self();
     }
 
     /**
@@ -496,7 +497,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition orGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C orGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段大于连接条件，或运算。
@@ -511,14 +512,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition orGreaterThan(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? orGreaterThan(field1, field2) : this;
+    default <T1, T2, F> C orGreaterThan(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? orGreaterThan(field1, field2) : self();
     }
 
-    Condition orGreaterThan(ColumFunction columFunction, Object value);
+    C orGreaterThan(ColumFunction columFunction, Object value);
 
-    default Condition orGreaterThan(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? orGreaterThan(columFunction, value) : this;
+    default C orGreaterThan(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? orGreaterThan(columFunction, value) : self();
     }
 
     /**
@@ -528,9 +529,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andGreaterThanOrEqualTo(Fn<T, F> fn, Object value);
+    <T, F> C andGreaterThanOrEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加字段大于或等于指定值条件，并且运算。
@@ -542,10 +543,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andGreaterThanOrEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? andGreaterThanOrEqualTo(fn, value) : this;
+    default <T, F> C andGreaterThanOrEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? andGreaterThanOrEqualTo(fn, value) : self();
     }
 
     /**
@@ -558,7 +559,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition andGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C andGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段大于或等于连接条件，并且运算。
@@ -573,14 +574,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition andGreaterThanOrEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? andGreaterThanOrEqualTo(field1, field2) : this;
+    default <T1, T2, F> C andGreaterThanOrEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? andGreaterThanOrEqualTo(field1, field2) : self();
     }
 
-    Condition andGreaterThanOrEqualTo(ColumFunction columFunction, Object value);
+    C andGreaterThanOrEqualTo(ColumFunction columFunction, Object value);
 
-    default Condition andGreaterThanOrEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? andGreaterThanOrEqualTo(columFunction, value) : this;
+    default C andGreaterThanOrEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? andGreaterThanOrEqualTo(columFunction, value) : self();
     }
 
     /**
@@ -590,9 +591,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orGreaterThanOrEqualTo(Fn<T, F> fn, Object value);
+    <T, F> C orGreaterThanOrEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加字段大于或等于指定值条件，或运算。
@@ -604,10 +605,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orGreaterThanOrEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? orGreaterThanOrEqualTo(fn, value) : this;
+    default <T, F> C orGreaterThanOrEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? orGreaterThanOrEqualTo(fn, value) : self();
     }
 
     /**
@@ -620,7 +621,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition orGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C orGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段大于或等于连接条件，或运算。
@@ -635,14 +636,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition orGreaterThanOrEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? orGreaterThanOrEqualTo(field1, field2) : this;
+    default <T1, T2, F> C orGreaterThanOrEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? orGreaterThanOrEqualTo(field1, field2) : self();
     }
 
-    Condition orGreaterThanOrEqualTo(ColumFunction columFunction, Object value);
+    C orGreaterThanOrEqualTo(ColumFunction columFunction, Object value);
 
-    default Condition orGreaterThanOrEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? orGreaterThanOrEqualTo(columFunction, value) : this;
+    default C orGreaterThanOrEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? orGreaterThanOrEqualTo(columFunction, value) : self();
     }
 
     /**
@@ -652,9 +653,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andLessThan(Fn<T, F> fn, Object value);
+    <T, F> C andLessThan(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加字段小于指定值条件，并且运算。
@@ -666,10 +667,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andLessThan(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? andLessThan(fn, value) : this;
+    default <T, F> C andLessThan(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? andLessThan(fn, value) : self();
     }
 
     /**
@@ -682,7 +683,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition andLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C andLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段小于连接条件，并且运算。
@@ -697,14 +698,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition andLessThan(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? andLessThan(field1, field2) : this;
+    default <T1, T2, F> C andLessThan(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? andLessThan(field1, field2) : self();
     }
 
-    Condition andLessThan(ColumFunction columFunction, Object value);
+    C andLessThan(ColumFunction columFunction, Object value);
 
-    default Condition andLessThan(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? andLessThan(columFunction, value) : this;
+    default C andLessThan(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? andLessThan(columFunction, value) : self();
     }
 
     /**
@@ -714,9 +715,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orLessThan(Fn<T, F> fn, Object value);
+    <T, F> C orLessThan(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加字段小于指定值条件，或运算。
@@ -728,10 +729,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orLessThan(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? orLessThan(fn, value) : this;
+    default <T, F> C orLessThan(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? orLessThan(fn, value) : self();
     }
 
     /**
@@ -744,7 +745,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition orLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C orLessThan(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段小于连接条件，或运算。
@@ -759,14 +760,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition orLessThan(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? orLessThan(field1, field2) : this;
+    default <T1, T2, F> C orLessThan(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? orLessThan(field1, field2) : self();
     }
 
-    Condition orLessThan(ColumFunction columFunction, Object value);
+    C orLessThan(ColumFunction columFunction, Object value);
 
-    default Condition orLessThan(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? orLessThan(columFunction, value) : this;
+    default C orLessThan(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? orLessThan(columFunction, value) : self();
     }
 
     /**
@@ -776,9 +777,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andLessThanOrEqualTo(Fn<T, F> fn, Object value);
+    <T, F> C andLessThanOrEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加字段小于或等于指定值条件，并且运算。
@@ -790,10 +791,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andLessThanOrEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? andLessThanOrEqualTo(fn, value) : this;
+    default <T, F> C andLessThanOrEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? andLessThanOrEqualTo(fn, value) : self();
     }
 
     /**
@@ -806,7 +807,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition andLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C andLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段小于或等于连接条件，并且运算。
@@ -821,14 +822,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition andLessThanOrEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? andLessThanOrEqualTo(field1, field2) : this;
+    default <T1, T2, F> C andLessThanOrEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? andLessThanOrEqualTo(field1, field2) : self();
     }
 
-    Condition andLessThanOrEqualTo(ColumFunction columFunction, Object value);
+    C andLessThanOrEqualTo(ColumFunction columFunction, Object value);
 
-    default Condition andLessThanOrEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? andLessThanOrEqualTo(columFunction, value) : this;
+    default C andLessThanOrEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? andLessThanOrEqualTo(columFunction, value) : self();
     }
 
     /**
@@ -838,9 +839,9 @@ public interface Condition {
      * @param value 匹配的值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orLessThanOrEqualTo(Fn<T, F> fn, Object value);
+    <T, F> C orLessThanOrEqualTo(Fn<T, F> fn, Object value);
 
     /**
      * 根据条件添加字段小于或等于指定值条件，或运算。
@@ -852,10 +853,10 @@ public interface Condition {
      * @param value       匹配的值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orLessThanOrEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
-        return isEffective ? orLessThanOrEqualTo(fn, value) : this;
+    default <T, F> C orLessThanOrEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
+        return isEffective ? orLessThanOrEqualTo(fn, value) : self();
     }
 
     /**
@@ -868,7 +869,7 @@ public interface Condition {
      * @param field2 用于获取第二个字段值的函数
      * @return 当前 {@link Condition} 实例
      */
-    <T1, T2, F> Condition orLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
+    <T1, T2, F> C orLessThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2);
 
     /**
      * 根据条件添加字段小于或等于连接条件，或运算。
@@ -883,14 +884,14 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition orLessThanOrEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
-        return isEffective ? orLessThanOrEqualTo(field1, field2) : this;
+    default <T1, T2, F> C orLessThanOrEqualTo(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> field2) {
+        return isEffective ? orLessThanOrEqualTo(field1, field2) : self();
     }
 
-    Condition orLessThanOrEqualTo(ColumFunction columFunction, Object value);
+    C orLessThanOrEqualTo(ColumFunction columFunction, Object value);
 
-    default Condition orLessThanOrEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
-        return isEffective ? orLessThanOrEqualTo(columFunction, value) : this;
+    default C orLessThanOrEqualTo(boolean isEffective, ColumFunction columFunction, Object value) {
+        return isEffective ? orLessThanOrEqualTo(columFunction, value) : self();
     }
 
     /**
@@ -900,9 +901,9 @@ public interface Condition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> C andIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 根据条件添加字段在指定值集合中条件，并且运算。
@@ -914,22 +915,22 @@ public interface Condition {
      * @param values      匹配的值集合
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andIn(boolean isEffective, Fn<T, F> fn, Iterable<?> values) {
-        return isEffective ? andIn(fn, values) : this;
+    default <T, F> C andIn(boolean isEffective, Fn<T, F> fn, Iterable<?> values) {
+        return isEffective ? andIn(fn, values) : self();
     }
 
-    Condition andIn(Column column, Iterable<?> values);
+    C andIn(Column column, Iterable<?> values);
 
-    default Condition andIn(boolean isEffective, Column column, Iterable<?> values) {
-        return isEffective ? andIn(column, values) : this;
+    default C andIn(boolean isEffective, Column column, Iterable<?> values) {
+        return isEffective ? andIn(column, values) : self();
     }
 
-    Condition andIn(ColumFunction columFunction, Iterable<?> values);
+    C andIn(ColumFunction columFunction, Iterable<?> values);
 
-    default Condition andIn(boolean isEffective, ColumFunction columFunction, Iterable<?> values) {
-        return isEffective ? andIn(columFunction, values) : this;
+    default C andIn(boolean isEffective, ColumFunction columFunction, Iterable<?> values) {
+        return isEffective ? andIn(columFunction, values) : self();
     }
 
     /**
@@ -939,9 +940,9 @@ public interface Condition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> C orIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 根据条件添加字段在指定值集合中条件，或运算。
@@ -953,16 +954,16 @@ public interface Condition {
      * @param values      匹配的值集合
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orIn(boolean isEffective, Fn<T, F> fn, Iterable<?> values) {
-        return isEffective ? orIn(fn, values) : this;
+    default <T, F> C orIn(boolean isEffective, Fn<T, F> fn, Iterable<?> values) {
+        return isEffective ? orIn(fn, values) : self();
     }
 
-    Condition orIn(ColumFunction columFunction, Iterable<?> values);
+    C orIn(ColumFunction columFunction, Iterable<?> values);
 
-    default Condition orIn(boolean isEffective, ColumFunction columFunction, Iterable<?> values) {
-        return isEffective ? orIn(columFunction, values) : this;
+    default C orIn(boolean isEffective, ColumFunction columFunction, Iterable<?> values) {
+        return isEffective ? orIn(columFunction, values) : self();
     }
 
     /**
@@ -972,9 +973,9 @@ public interface Condition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andNotIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> C andNotIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 根据条件添加字段不在指定值集合中条件，并且运算。
@@ -986,16 +987,16 @@ public interface Condition {
      * @param values      匹配的值集合
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andNotIn(boolean isEffective, Fn<T, F> fn, Iterable<?> values) {
-        return isEffective ? andNotIn(fn, values) : this;
+    default <T, F> C andNotIn(boolean isEffective, Fn<T, F> fn, Iterable<?> values) {
+        return isEffective ? andNotIn(fn, values) : self();
     }
 
-    Condition andNotIn(ColumFunction columFunction, Iterable<?> values);
+    C andNotIn(ColumFunction columFunction, Iterable<?> values);
 
-    default Condition andNotIn(boolean isEffective, ColumFunction columFunction, Iterable<?> values) {
-        return isEffective ? andNotIn(columFunction, values) : this;
+    default C andNotIn(boolean isEffective, ColumFunction columFunction, Iterable<?> values) {
+        return isEffective ? andNotIn(columFunction, values) : self();
     }
 
     /**
@@ -1005,9 +1006,9 @@ public interface Condition {
      * @param values 匹配的值集合
      * @param <T>    实体类类型
      * @param <F>    字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orNotIn(Fn<T, F> fn, Iterable<?> values);
+    <T, F> C orNotIn(Fn<T, F> fn, Iterable<?> values);
 
     /**
      * 根据条件添加字段不在指定值集合中条件，或运算。
@@ -1019,16 +1020,16 @@ public interface Condition {
      * @param values      匹配的值集合
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orNotIn(boolean isEffective, Fn<T, F> fn, Iterable<?> values) {
-        return isEffective ? orNotIn(fn, values) : this;
+    default <T, F> C orNotIn(boolean isEffective, Fn<T, F> fn, Iterable<?> values) {
+        return isEffective ? orNotIn(fn, values) : self();
     }
 
-    Condition orNotIn(ColumFunction columFunction, Iterable<?> values);
+    C orNotIn(ColumFunction columFunction, Iterable<?> values);
 
-    default Condition orNotIn(boolean isEffective, ColumFunction columFunction, Iterable<?> values) {
-        return isEffective ? orNotIn(columFunction, values) : this;
+    default C orNotIn(boolean isEffective, ColumFunction columFunction, Iterable<?> values) {
+        return isEffective ? orNotIn(columFunction, values) : self();
     }
 
     /**
@@ -1039,9 +1040,9 @@ public interface Condition {
      * @param end   范围结束值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andBetween(Fn<T, F> fn, Object start, Object end);
+    <T, F> C andBetween(Fn<T, F> fn, Object start, Object end);
 
     /**
      * 根据条件添加字段在指定范围内条件，并且运算。
@@ -1054,10 +1055,10 @@ public interface Condition {
      * @param end         范围结束值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andBetween(boolean isEffective, Fn<T, F> fn, Object start, Object end) {
-        return isEffective ? andBetween(fn, start, end) : this;
+    default <T, F> C andBetween(boolean isEffective, Fn<T, F> fn, Object start, Object end) {
+        return isEffective ? andBetween(fn, start, end) : self();
     }
 
     /**
@@ -1088,7 +1089,7 @@ public interface Condition {
      * @param endField   用于获取结束值的函数，表示范围的结束值
      * @return 当前 {@link Condition} 实例，以便实现链式调用
      */
-    <T1, T2, F> Condition andBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField);
+    <T1, T2, F> C andBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField);
 
     /**
      * 根据条件添加字段 BETWEEN 连接条件，并且运算。
@@ -1104,8 +1105,8 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition andBetween(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField) {
-        return isEffective ? andBetween(field1, startField, endField) : this;
+    default <T1, T2, F> C andBetween(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField) {
+        return isEffective ? andBetween(field1, startField, endField) : self();
     }
 
     /**
@@ -1116,9 +1117,9 @@ public interface Condition {
      * @param end   范围结束值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orBetween(Fn<T, F> fn, Object start, Object end);
+    <T, F> C orBetween(Fn<T, F> fn, Object start, Object end);
 
     /**
      * 根据条件添加字段在指定范围内条件，或运算。
@@ -1131,10 +1132,10 @@ public interface Condition {
      * @param end         范围结束值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orBetween(boolean isEffective, Fn<T, F> fn, Object start, Object end) {
-        return isEffective ? orBetween(fn, start, end) : this;
+    default <T, F> C orBetween(boolean isEffective, Fn<T, F> fn, Object start, Object end) {
+        return isEffective ? orBetween(fn, start, end) : self();
     }
 
     /**
@@ -1149,7 +1150,7 @@ public interface Condition {
      * @return 当前 {@link Condition} 实例
      * @see #andBetween(Fn, Fn, Fn)
      */
-    <T1, T2, F> Condition orBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField);
+    <T1, T2, F> C orBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField);
 
     /**
      * 根据条件添加字段 BETWEEN 连接条件，或运算。
@@ -1165,8 +1166,8 @@ public interface Condition {
      * @param <F>         字段类型
      * @return 当前 {@link Condition} 实例
      */
-    default <T1, T2, F> Condition orBetween(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField) {
-        return isEffective ? orBetween(field1, startField, endField) : this;
+    default <T1, T2, F> C orBetween(boolean isEffective, Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField) {
+        return isEffective ? orBetween(field1, startField, endField) : self();
     }
 
     /**
@@ -1177,9 +1178,9 @@ public interface Condition {
      * @param end   范围结束值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andNotBetween(Fn<T, F> fn, Object start, Object end);
+    <T, F> C andNotBetween(Fn<T, F> fn, Object start, Object end);
 
     /**
      * 根据条件添加字段不在指定范围内条件，并且运算。
@@ -1192,10 +1193,10 @@ public interface Condition {
      * @param end         范围结束值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andNotBetween(boolean isEffective, Fn<T, F> fn, Object start, Object end) {
-        return isEffective ? andNotBetween(fn, start, end) : this;
+    default <T, F> C andNotBetween(boolean isEffective, Fn<T, F> fn, Object start, Object end) {
+        return isEffective ? andNotBetween(fn, start, end) : self();
     }
 
     /**
@@ -1206,9 +1207,9 @@ public interface Condition {
      * @param end   范围结束值
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orNotBetween(Fn<T, F> fn, Object start, Object end);
+    <T, F> C orNotBetween(Fn<T, F> fn, Object start, Object end);
 
     /**
      * 根据条件添加字段不在指定范围内条件，或运算。
@@ -1221,10 +1222,10 @@ public interface Condition {
      * @param end         范围结束值
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orNotBetween(boolean isEffective, Fn<T, F> fn, Object start, Object end) {
-        return isEffective ? orNotBetween(fn, start, end) : this;
+    default <T, F> C orNotBetween(boolean isEffective, Fn<T, F> fn, Object start, Object end) {
+        return isEffective ? orNotBetween(fn, start, end) : self();
     }
 
     /**
@@ -1234,9 +1235,9 @@ public interface Condition {
      * @param pattern 匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>     实体类类型
      * @param <F>     字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andLike(Fn<T, F> fn, String pattern);
+    <T, F> C andLike(Fn<T, F> fn, String pattern);
 
     /**
      * 根据条件添加字段匹配指定模式条件，并且运算。
@@ -1248,10 +1249,10 @@ public interface Condition {
      * @param pattern     匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andLike(boolean isEffective, Fn<T, F> fn, String pattern) {
-        return isEffective ? andLike(fn, pattern) : this;
+    default <T, F> C andLike(boolean isEffective, Fn<T, F> fn, String pattern) {
+        return isEffective ? andLike(fn, pattern) : self();
     }
 
     /**
@@ -1261,9 +1262,9 @@ public interface Condition {
      * @param pattern 匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>     实体类类型
      * @param <F>     字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orLike(Fn<T, F> fn, String pattern);
+    <T, F> C orLike(Fn<T, F> fn, String pattern);
 
     /**
      * 根据条件添加字段匹配指定模式条件，或运算。
@@ -1275,10 +1276,10 @@ public interface Condition {
      * @param pattern     匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orLike(boolean isEffective, Fn<T, F> fn, String pattern) {
-        return isEffective ? orLike(fn, pattern) : this;
+    default <T, F> C orLike(boolean isEffective, Fn<T, F> fn, String pattern) {
+        return isEffective ? orLike(fn, pattern) : self();
     }
 
     /**
@@ -1288,9 +1289,9 @@ public interface Condition {
      * @param pattern 匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>     实体类类型
      * @param <F>     字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andNotLike(Fn<T, F> fn, String pattern);
+    <T, F> C andNotLike(Fn<T, F> fn, String pattern);
 
     /**
      * 根据条件添加字段不匹配指定模式条件，并且运算。
@@ -1302,10 +1303,10 @@ public interface Condition {
      * @param pattern     匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andNotLike(boolean isEffective, Fn<T, F> fn, String pattern) {
-        return isEffective ? andNotLike(fn, pattern) : this;
+    default <T, F> C andNotLike(boolean isEffective, Fn<T, F> fn, String pattern) {
+        return isEffective ? andNotLike(fn, pattern) : self();
     }
 
     /**
@@ -1315,9 +1316,9 @@ public interface Condition {
      * @param pattern 匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>     实体类类型
      * @param <F>     字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orNotLike(Fn<T, F> fn, String pattern);
+    <T, F> C orNotLike(Fn<T, F> fn, String pattern);
 
     /**
      * 根据条件添加字段不匹配指定模式条件，或运算。
@@ -1329,10 +1330,10 @@ public interface Condition {
      * @param pattern     匹配的模式（如 SQL 的 LIKE 子句）
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orNotLike(boolean isEffective, Fn<T, F> fn, String pattern) {
-        return isEffective ? orNotLike(fn, pattern) : this;
+    default <T, F> C orNotLike(boolean isEffective, Fn<T, F> fn, String pattern) {
+        return isEffective ? orNotLike(fn, pattern) : self();
     }
 
     /**
@@ -1342,9 +1343,9 @@ public interface Condition {
      * @param regex 正则表达式模式
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andMatches(Fn<T, F> fn, String regex);
+    <T, F> C andMatches(Fn<T, F> fn, String regex);
 
     /**
      * 根据条件添加字段匹配正则表达式条件，并且运算。
@@ -1356,10 +1357,10 @@ public interface Condition {
      * @param regex       正则表达式模式
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andMatches(boolean isEffective, Fn<T, F> fn, String regex) {
-        return isEffective ? andMatches(fn, regex) : this;
+    default <T, F> C andMatches(boolean isEffective, Fn<T, F> fn, String regex) {
+        return isEffective ? andMatches(fn, regex) : self();
     }
 
     /**
@@ -1369,9 +1370,9 @@ public interface Condition {
      * @param regex 正则表达式模式
      * @param <T>   实体类类型
      * @param <F>   字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orMatches(Fn<T, F> fn, String regex);
+    <T, F> C orMatches(Fn<T, F> fn, String regex);
 
     /**
      * 根据条件添加字段匹配正则表达式条件，或运算。
@@ -1383,10 +1384,10 @@ public interface Condition {
      * @param regex       正则表达式模式
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orMatches(boolean isEffective, Fn<T, F> fn, String regex) {
-        return isEffective ? orMatches(fn, regex) : this;
+    default <T, F> C orMatches(boolean isEffective, Fn<T, F> fn, String regex) {
+        return isEffective ? orMatches(fn, regex) : self();
     }
 
     /**
@@ -1396,9 +1397,9 @@ public interface Condition {
      * @param item 指定的项目
      * @param <T>  实体类类型
      * @param <F>  字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andFindInSet(Fn<T, F> fn, Object item);
+    <T, F> C andFindInSet(Fn<T, F> fn, Object item);
 
     /**
      * 根据条件添加字段在指定集合中条件，并且运算（使用 FIND_IN_SET 函数）。
@@ -1410,10 +1411,10 @@ public interface Condition {
      * @param item        指定的项目
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andFindInSet(boolean isEffective, Fn<T, F> fn, Object item) {
-        return isEffective ? andFindInSet(fn, item) : this;
+    default <T, F> C andFindInSet(boolean isEffective, Fn<T, F> fn, Object item) {
+        return isEffective ? andFindInSet(fn, item) : self();
     }
 
     /**
@@ -1424,9 +1425,9 @@ public interface Condition {
      * @param separator 分隔符
      * @param <T>       实体类类型
      * @param <F>       字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition andFindInSet(Fn<T, F> fn, Object item, String separator);
+    <T, F> C andFindInSet(Fn<T, F> fn, Object item, String separator);
 
     /**
      * 根据条件添加字段在指定集合中条件，并且运算（使用 FIND_IN_SET 函数），并指定分隔符。
@@ -1439,10 +1440,10 @@ public interface Condition {
      * @param separator   分隔符
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition andFindInSet(boolean isEffective, Fn<T, F> fn, Object item, String separator) {
-        return isEffective ? andFindInSet(fn, item, separator) : this;
+    default <T, F> C andFindInSet(boolean isEffective, Fn<T, F> fn, Object item, String separator) {
+        return isEffective ? andFindInSet(fn, item, separator) : self();
     }
 
     /**
@@ -1452,9 +1453,9 @@ public interface Condition {
      * @param item 指定的项目
      * @param <T>  实体类类型
      * @param <F>  字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orFindInSet(Fn<T, F> fn, Object item);
+    <T, F> C orFindInSet(Fn<T, F> fn, Object item);
 
     /**
      * 根据条件添加字段在指定集合中条件，或运算（使用 FIND_IN_SET 函数）。
@@ -1466,10 +1467,10 @@ public interface Condition {
      * @param item        指定的项目
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orFindInSet(boolean isEffective, Fn<T, F> fn, Object item) {
-        return isEffective ? orFindInSet(fn, item) : this;
+    default <T, F> C orFindInSet(boolean isEffective, Fn<T, F> fn, Object item) {
+        return isEffective ? orFindInSet(fn, item) : self();
     }
 
     /**
@@ -1480,9 +1481,9 @@ public interface Condition {
      * @param separator 分隔符
      * @param <T>       实体类类型
      * @param <F>       字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    <T, F> Condition orFindInSet(Fn<T, F> fn, Object item, String separator);
+    <T, F> C orFindInSet(Fn<T, F> fn, Object item, String separator);
 
     /**
      * 根据条件添加字段在指定集合中条件，或运算（使用 FIND_IN_SET 函数），并指定分隔符。
@@ -1495,10 +1496,10 @@ public interface Condition {
      * @param separator   分隔符
      * @param <T>         实体类类型
      * @param <F>         字段类型
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default <T, F> Condition orFindInSet(boolean isEffective, Fn<T, F> fn, Object item, String separator) {
-        return isEffective ? orFindInSet(fn, item, separator) : this;
+    default <T, F> C orFindInSet(boolean isEffective, Fn<T, F> fn, Object item, String separator) {
+        return isEffective ? orFindInSet(fn, item, separator) : self();
     }
 
     /**
@@ -1506,9 +1507,9 @@ public interface Condition {
      *
      * @param offset 需要跳过的行数
      * @param limit  返回的最大行数
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    Condition limit(int offset, int limit);
+    C limit(int offset, int limit);
 
     /**
      * 根据条件限制查询结果的返回行数。
@@ -1518,19 +1519,19 @@ public interface Condition {
      * @param isEffective 是否使条件生效
      * @param offset      需要跳过的行数
      * @param limit       返回的最大行数
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default Condition limit(boolean isEffective, int offset, int limit) {
-        return isEffective ? limit(offset, limit) : this;
+    default C limit(boolean isEffective, int offset, int limit) {
+        return isEffective ? limit(offset, limit) : self();
     }
 
     /**
      * 限制查询结果的返回行数。
      *
      * @param limit 返回的最大行数
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    Condition limit(int limit);
+    C limit(int limit);
 
     /**
      * 根据条件限制查询结果的返回行数。
@@ -1539,10 +1540,10 @@ public interface Condition {
      *
      * @param isEffective 是否使条件生效
      * @param limit       返回的最大行数
-     * @return 当前 Condition 实例
+     * @return 当前 C 实例
      */
-    default Condition limit(boolean isEffective, int limit) {
-        return isEffective ? limit(limit) : this;
+    default C limit(boolean isEffective, int limit) {
+        return isEffective ? limit(limit) : self();
     }
 
     /**
@@ -1566,9 +1567,9 @@ public interface Condition {
      * @param nestedCondition 用于配置嵌套条件的 {@link Consumer} 对象
      * @return 当前的 {@link Condition} 实例，以便实现链式调用
      */
-    default Condition andCondition(Consumer<Condition> nestedCondition) {
-        nestedCondition.accept(this);
-        return this;
+    default C andCondition(Consumer<GenericWhereCondition> nestedCondition) {
+        nestedCondition.accept((GenericWhereCondition) this);
+        return self();
     }
 
     /**
@@ -1578,22 +1579,22 @@ public interface Condition {
      *
      * @param isEffective     是否使条件生效
      * @param nestedCondition 用于配置嵌套条件的 {@link Consumer} 对象
-     * @return 当前的 {@link Condition} 实例
+     * @return 当前的 {@link GenericWhereCondition} 实例
      */
-    default Condition andCondition(boolean isEffective, Consumer<Condition> nestedCondition) {
-        return isEffective ? andCondition(nestedCondition) : this;
+    default C andCondition(boolean isEffective, Consumer<GenericWhereCondition> nestedCondition) {
+        return isEffective ? andCondition(nestedCondition) : self();
     }
 
     /**
      * 添加一个嵌套条件，或运算。
      *
      * @param nestedCondition 用于配置嵌套条件的 {@link Consumer} 对象
-     * @return 当前的 {@link Condition} 实例，以便实现链式调用
+     * @return 当前的 {@link GenericWhereCondition} 实例，以便实现链式调用
      * @see #andCondition(Consumer)
      */
-    default Condition orCondition(Consumer<Condition> nestedCondition) {
-        nestedCondition.accept(this);
-        return this;
+    default C orCondition(Consumer<GenericWhereCondition> nestedCondition) {
+        nestedCondition.accept((GenericWhereCondition) this);
+        return self();
     }
 
     /**
@@ -1605,8 +1606,8 @@ public interface Condition {
      * @param nestedCondition 用于配置嵌套条件的 {@link Consumer} 对象
      * @return 当前的 {@link Condition} 实例
      */
-    default Condition orCondition(boolean isEffective, Consumer<Condition> nestedCondition) {
-        return isEffective ? orCondition(nestedCondition) : this;
+    default C orCondition(boolean isEffective, Consumer<GenericWhereCondition> nestedCondition) {
+        return isEffective ? orCondition(nestedCondition) : self();
     }
 
     /**
@@ -1632,7 +1633,7 @@ public interface Condition {
      *                      该参数通常表示对数据库列的某种操作或计算（例如 SUM、AVG 等）。
      * @return 当前的 {@link Condition} 实例，以便实现链式调用
      */
-    Condition andFunction(ColumFunction columFunction);
+    C andFunction(ColumFunction columFunction);
 
     /**
      * 根据条件使用 AND 逻辑连接一个列函数条件。
@@ -1643,8 +1644,8 @@ public interface Condition {
      * @param columFunction 要与当前条件通过 AND 连接的列函数条件
      * @return 当前的 {@link Condition} 实例
      */
-    default Condition andFunction(boolean isEffective, ColumFunction columFunction) {
-        return isEffective ? andFunction(columFunction) : this;
+    default C andFunction(boolean isEffective, ColumFunction columFunction) {
+        return isEffective ? andFunction(columFunction) : self();
     }
 
     /**
@@ -1658,7 +1659,7 @@ public interface Condition {
      *                      该参数通常表示对数据库列的某种操作或计算（例如 MAX、MIN 等）。
      * @return 当前的 {@link Condition} 实例，以便实现链式调用
      */
-    Condition orFunction(ColumFunction columFunction);
+    C orFunction(ColumFunction columFunction);
 
     /**
      * 根据条件使用 OR 逻辑连接一个列函数条件。
@@ -1670,9 +1671,31 @@ public interface Condition {
      *                      该参数通常表示对数据库列的某种操作或计算（例如 MAX、MIN 等）。
      * @return 当前的 {@link Condition} 实例，以便实现链式调用
      */
-    default Condition orFunction(boolean isEffective, ColumFunction columFunction) {
-        return isEffective ? orFunction(columFunction) : this;
+    default C orFunction(boolean isEffective, ColumFunction columFunction) {
+        return isEffective ? orFunction(columFunction) : self();
     }
 
+    /**
+     * 返回当前对象自身，作为其泛型类型 {@code C} 的实例。
+     * <p>
+     * 该方法通常用于泛型接口或抽象类中的链式调用，在自引用泛型（self-referencing generics）模式下，
+     * 可以避免子类在每次方法调用后手动进行类型转换。
+     * </p>
+     *
+     * <pre>{@code
+     * public interface Condition<C extends Condition<C>> {
+     *     default C andEqualTo(...) {
+     *         // 逻辑
+     *         return self();
+     *     }
+     * }
+     * }</pre>
+     *
+     * @return 当前对象，作为泛型类型 {@code C}
+     */
+    @SuppressWarnings("unchecked")
+    default C self() {
+        return (C) this;
+    }
 
 }

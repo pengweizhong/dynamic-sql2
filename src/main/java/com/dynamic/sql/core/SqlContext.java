@@ -1,7 +1,7 @@
 package com.dynamic.sql.core;
 
 
-import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.TableMetaData;
@@ -230,7 +230,7 @@ public interface SqlContext {
      *                    如果传入 null，则删除整张表的所有数据。
      * @return 返回删除的记录条数。
      */
-    <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition);
+    <T> int delete(Class<T> entityClass, Consumer<GenericWhereCondition> condition);
 
     /**
      * 根据主键更新整个实体对象的所有字段。
@@ -268,7 +268,7 @@ public interface SqlContext {
      * @param condition 条件构造器，使用 {@link Consumer} 定义更新条件，为null更新所有。
      * @return 返回更新的记录条数。
      */
-    <T> int update(T entity, Consumer<WhereCondition> condition);
+    <T> int update(T entity, Consumer<GenericWhereCondition> condition);
 
     /**
      * 根据指定条件更新实体对象的非空字段。
@@ -278,7 +278,7 @@ public interface SqlContext {
      * @param condition 条件构造器，使用 {@link Consumer} 定义更新条件，为null更新所有。
      * @return 返回更新的记录条数。
      */
-    <T> int updateSelective(T entity, Consumer<WhereCondition> condition);
+    <T> int updateSelective(T entity, Consumer<GenericWhereCondition> condition);
 
     /**
      * 根据指定条件更新实体对象的非空字段，并强制更新指定的字段。
@@ -289,7 +289,7 @@ public interface SqlContext {
      * @param condition    条件构造器，使用 {@link Consumer} 定义更新条件，为null更新所有。
      * @return 返回更新的记录条数。
      */
-    <T> int updateSelective(T entity, Collection<Fn<T, ?>> forcedFields, Consumer<WhereCondition> condition);
+    <T> int updateSelective(T entity, Collection<Fn<T, ?>> forcedFields, Consumer<GenericWhereCondition> condition);
 
     /**
      * 插入或更新实体对象的所有字段。

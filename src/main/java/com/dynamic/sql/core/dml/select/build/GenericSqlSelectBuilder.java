@@ -12,7 +12,6 @@ import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
-import com.dynamic.sql.core.condition.Condition;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import com.dynamic.sql.core.dml.select.build.column.FunctionColumn;
@@ -233,7 +232,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
     }
 
     private void appendOnCondition(JoinTable joinTable) {
-        Consumer<Condition> onCondition = joinTable.getOnCondition();
+        Consumer<GenericWhereCondition> onCondition = joinTable.getOnCondition();
         if (onCondition != null) {
             String syntaxOn = " " + SqlUtils.getSyntaxOn(sqlDialect) + " ";
             GenericWhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);

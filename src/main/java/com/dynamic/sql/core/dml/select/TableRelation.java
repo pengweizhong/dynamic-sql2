@@ -7,8 +7,7 @@ import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.GroupFn;
 import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.column.function.TableFunction;
-import com.dynamic.sql.core.condition.Condition;
-import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.build.LimitInfo;
 import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.join.*;
@@ -33,111 +32,111 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
-    public JoinCondition innerJoin(Class<?> clazz, Consumer<Condition> onCondition) {
+    public JoinCondition innerJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
         return innerJoin(clazz, null, onCondition);
     }
 
     @Override
-    public JoinCondition innerJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition innerJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new InnerJoin(clazz, alias, onCondition));
         return this;
     }
 
     @Override
-    public JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.INNER, nestedSelect, alias, onCondition));
         return this;
     }
 
     @Override
-    public JoinCondition innerJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition innerJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.INNER, tableFunction, alias, onCondition));
         return this;
 //        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
-    public JoinCondition innerJoin(CteTable cte, Consumer<Condition> onCondition) {
+    public JoinCondition innerJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
 //        selectSpecification.getJoinTables().add(new InnerJoin(cte, onCondition));
 //        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
-    public JoinCondition leftJoin(Class<?> clazz, Consumer<Condition> onCondition) {
+    public JoinCondition leftJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
         return leftJoin(clazz, null, onCondition);
     }
 
     @Override
-    public JoinCondition leftJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition leftJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new LeftJoin(clazz, alias, onCondition));
         return this;
     }
 
     @Override
-    public JoinCondition leftJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition leftJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.LEFT, nestedSelect, alias, onCondition));
         return this;
     }
 
     @Override
-    public JoinCondition leftJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition leftJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
 //        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.LEFT, tableFunction, alias, onCondition));
 //        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
-    public JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition) {
+    public JoinCondition leftJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
 //        selectSpecification.getJoinTables().add(new LeftJoin(cte, onCondition));
 //        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
-    public JoinCondition rightJoin(Class<?> clazz, Consumer<Condition> onCondition) {
+    public JoinCondition rightJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
         return rightJoin(clazz, null, onCondition);
     }
 
     @Override
-    public JoinCondition rightJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition rightJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new RightJoin(clazz, alias, onCondition));
         return this;
     }
 
     @Override
-    public JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.RIGHT, nestedSelect, alias, onCondition));
         return this;
     }
 
     @Override
-    public JoinCondition rightJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition rightJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
 //        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.RIGHT, tableFunction, alias, onCondition));
 //        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
-    public JoinCondition rightJoin(CteTable cte, Consumer<Condition> onCondition) {
+    public JoinCondition rightJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
 //        selectSpecification.getJoinTables().add(new RightJoin(cte, onCondition));
 //        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
-    public JoinCondition fullJoin(Class<?> clazz, Consumer<Condition> onCondition) {
+    public JoinCondition fullJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
         return fullJoin(clazz, null, onCondition);
     }
 
     @Override
-    public JoinCondition fullJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+    public JoinCondition fullJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new FullJoin(clazz, alias, onCondition));
         return this;
     }
 
     @Override
-    public JoinCondition fullJoin(CteTable cte, Consumer<Condition> onCondition) {
+    public JoinCondition fullJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
 //        selectSpecification.getJoinTables().add(new FullJoin(cte, onCondition));
 //        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
@@ -156,7 +155,7 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
-    public TableRelation<R> where(Consumer<WhereCondition> condition) {
+    public TableRelation<R> where(Consumer<GenericWhereCondition> condition) {
         selectSpecification.setWhereCondition(condition);
         return this;
     }
@@ -242,12 +241,12 @@ public class TableRelation<R> implements JoinCondition {
         return isEffective ? groupBy(columFunction) : this;
     }
 
-    public TableRelation<R> having(Consumer<HavingCondition> condition) {
+    public TableRelation<R> having(Consumer<HavingCondition<GenericWhereCondition>> condition) {
         selectSpecification.setHavingCondition(condition);
         return this;
     }
 
-    public TableRelation<R> having(boolean isEffective, Consumer<HavingCondition> condition) {
+    public TableRelation<R> having(boolean isEffective, Consumer<HavingCondition<GenericWhereCondition>> condition) {
         return isEffective ? having(condition) : this;
     }
 

@@ -866,20 +866,19 @@ public class SelectTest extends InitializingContext {
                 .collectionColumn(
                         KeyMapping.of(Category::getCategoryId, Product::getCategoryId),
                         valueMapping -> valueMapping
-                                //-- 如果想在子表中使用关联键，那么直接在类型定义即可，无需重复查询
-//                                .column(Product::getCategoryId)
                                 .column(Product::getProductId)
                                 .column(Product::getProductName),
                         "productVOS"
                 )
-                //也可用于数据去重，等效于 Distinct(Category::getCategoryId)，但不推荐这么使用
-//                .collectionColumn(
-//                        KeyMapping.of(Category::getCategoryId, Category::getCategoryId),
-//                        valueMapping -> valueMapping,
-//                        "productVOS"
-//                )
                 .from(Category.class)
                 .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
+                .where(whereCondition -> whereCondition
+                        .andLessThanOrEqualTo(Category::getCategoryId, 10)
+                        .andNotEqualTo(Product::getProductId, 0)
+                        .self()
+                        .sql("and 1=1")
+                        .andNotEqualTo(Product::getProductId, 0)
+                )
                 .fetch(CategoryView.class)
                 .toList();
     }

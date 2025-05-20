@@ -6,6 +6,7 @@ import com.dynamic.sql.context.properties.SchemaProperties;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.ColumFunction;
+import com.dynamic.sql.core.condition.Condition;
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.HavingCondition;
@@ -41,7 +42,7 @@ public abstract class SqlSelectBuilder {
     //如果是嵌套表，则key和value都是别名
     protected final Map<String, String> aliasTableMap = new HashMap<>();
 
-    protected SqlSelectBuilder(SelectSpecification selectSpecification) {
+    protected <C extends WhereCondition<C>> SqlSelectBuilder(SelectSpecification selectSpecification) {
         this.selectSpecification = selectSpecification;
         NestedMeta nestedMeta = selectSpecification.getNestedMeta();
         //是否传递了嵌套查询的元数据？
@@ -125,7 +126,8 @@ public abstract class SqlSelectBuilder {
     protected void continueParsingSql() {
         //step3 解析where条件
         if (selectSpecification.getWhereCondition() != null) {
-            parseWhere(selectSpecification.getWhereCondition());
+            Consumer<? extends WhereCondition<? extends Condition>> whereCondition = selectSpecification.getWhereCondition();
+            parseWhere((Consumer<GenericWhereCondition>) whereCondition);
         }
         //step4 解析group by
         if (CollectionUtils.isNotEmpty(selectSpecification.getGroupByObject().getGroupByList())) {
@@ -169,7 +171,7 @@ public abstract class SqlSelectBuilder {
         }
     }
 
-    private void parseHaving(Consumer<HavingCondition> havingCondition) {
+    private void parseHaving(Consumer<HavingCondition<GenericWhereCondition>> havingCondition) {
         GenericWhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
         havingCondition.accept(whereCondition);
         sqlBuilder.append(" ").append(SqlUtils.getSyntaxHaving(sqlDialect))
@@ -197,7 +199,7 @@ public abstract class SqlSelectBuilder {
         return stringBuilder.toString();
     }
 
-    private void parseWhere(Consumer<WhereCondition> whereConditionConsumer) {
+    private void parseWhere(Consumer<GenericWhereCondition> whereConditionConsumer) {
         GenericWhereCondition whereCondition = SqlUtils.matchDialectCondition(sqlDialect, version, aliasTableMap, dataSourceName);
         whereConditionConsumer.accept(whereCondition);
         String whereConditionSyntax = whereCondition.getWhereConditionSyntax();

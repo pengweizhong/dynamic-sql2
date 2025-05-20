@@ -1,7 +1,7 @@
 package com.dynamic.sql.core.dml.select.build;
 
 
-import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.CollectionColumnMapping;
 import com.dynamic.sql.core.dml.select.HavingCondition;
 import com.dynamic.sql.core.dml.select.NestedMeta;
@@ -18,9 +18,9 @@ public class SelectSpecification {
     private NestedMeta nestedMeta;
     private List<ColumnQuery> columFunctions = new ArrayList<>();
     private List<JoinTable> joinTables = new ArrayList<>();
-    private Consumer<WhereCondition> whereCondition;
+    private Consumer<GenericWhereCondition> whereCondition;
     private GroupByObject groupByObject;
-    private Consumer<HavingCondition> havingCondition;
+    private Consumer<HavingCondition<GenericWhereCondition>> havingCondition;
     private List<OrderBy> orderBys;
     private LimitInfo limitInfo;
     //一对多映射关系
@@ -42,19 +42,19 @@ public class SelectSpecification {
         return groupByObject;
     }
 
-    public Consumer<WhereCondition> getWhereCondition() {
+    public Consumer<GenericWhereCondition> getWhereCondition() {
         return whereCondition;
     }
 
-    public void setWhereCondition(Consumer<WhereCondition> whereCondition) {
+    public void setWhereCondition(Consumer<GenericWhereCondition> whereCondition) {
         this.whereCondition = whereCondition;
     }
 
-    public Consumer<HavingCondition> getHavingCondition() {
+    public Consumer<HavingCondition<GenericWhereCondition>> getHavingCondition() {
         return havingCondition;
     }
 
-    public void setHavingCondition(Consumer<HavingCondition> havingCondition) {
+    public void setHavingCondition(Consumer<HavingCondition<GenericWhereCondition>> havingCondition) {
         this.havingCondition = havingCondition;
     }
 

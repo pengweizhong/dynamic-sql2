@@ -4,7 +4,7 @@ package com.dynamic.sql.context;
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.SqlContext;
-import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.ddl.ColumnMetaDataHelper;
 import com.dynamic.sql.core.ddl.SqlStatement;
 import com.dynamic.sql.core.ddl.TableMetaDataHelper;
@@ -170,7 +170,7 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> int delete(Class<T> entityClass, Consumer<WhereCondition> condition) {
+    public <T> int delete(Class<T> entityClass, Consumer<GenericWhereCondition> condition) {
         return new EntitiesDeleter(entityClass).delete(condition, DeleteHandler::delete);
     }
 
@@ -199,7 +199,7 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> int update(T entity, Consumer<WhereCondition> condition) {
+    public <T> int update(T entity, Consumer<GenericWhereCondition> condition) {
         if (entity == null) {
             return 0;
         }
@@ -207,7 +207,7 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> int updateSelective(T entity, Consumer<WhereCondition> condition) {
+    public <T> int updateSelective(T entity, Consumer<GenericWhereCondition> condition) {
         if (entity == null) {
             return 0;
         }
@@ -215,7 +215,7 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> int updateSelective(T entity, Collection<Fn<T, ?>> forcedFields, Consumer<WhereCondition> condition) {
+    public <T> int updateSelective(T entity, Collection<Fn<T, ?>> forcedFields, Consumer<GenericWhereCondition> condition) {
         if (entity == null) {
             return 0;
         }

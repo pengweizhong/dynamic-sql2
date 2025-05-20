@@ -3,8 +3,7 @@ package com.dynamic.sql.core.dml.select;
 
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.column.function.TableFunction;
-import com.dynamic.sql.core.condition.Condition;
-import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 
 import java.util.function.Consumer;
@@ -24,7 +23,7 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象
      * @return 当前 {@link JoinCondition} 实例，用于链式调用
      */
-    default JoinCondition join(Class<?> clazz, Consumer<Condition> onCondition) {
+    default JoinCondition join(Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
         return join(clazz, null, onCondition);
     }
 
@@ -36,7 +35,7 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象
      * @return 当前 {@link JoinCondition} 实例
      */
-    default JoinCondition join(Class<?> clazz, String alias, Consumer<Condition> onCondition) {
+    default JoinCondition join(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition) {
         return innerJoin(clazz, alias, onCondition);
     }
 
@@ -48,7 +47,7 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象
      * @return 当前 {@link JoinCondition} 实例
      */
-    default JoinCondition join(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition) {
+    default JoinCondition join(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         return innerJoin(nestedSelect, alias, onCondition);
     }
 
@@ -71,7 +70,7 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition   用于构建 ON 条件的 {@link Consumer} 对象
      * @return 当前 {@link JoinCondition} 实例
      */
-    default JoinCondition join(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition) {
+    default JoinCondition join(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
         return innerJoin(tableFunction, alias, onCondition);
     }
 
@@ -82,7 +81,7 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象
      * @return 当前 {@link JoinCondition} 实例
      */
-    default JoinCondition join(CteTable cte, Consumer<Condition> onCondition) {
+    default JoinCondition join(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
         return innerJoin(cte, onCondition);
     }
 
@@ -92,10 +91,10 @@ public interface JoinCondition extends Fetchable {
      * INNER JOIN 返回两个表中满足连接条件的所有记录。如果没有匹配的记录，则不会出现在结果集中。
      *
      * @param clazz       需要连接的表对应的实体类
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition innerJoin(Class<?> clazz, Consumer<Condition> onCondition);
+    JoinCondition innerJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 INNER JOIN 连接，用于将当前查询与另一个表关联。
@@ -105,10 +104,10 @@ public interface JoinCondition extends Fetchable {
      *
      * @param clazz       需要连接的表对应的实体类
      * @param alias       表的别名，用于在查询中标识该表
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition innerJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
+    JoinCondition innerJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 INNER JOIN 连接，用于将当前查询与子查询结果关联。
@@ -117,10 +116,10 @@ public interface JoinCondition extends Fetchable {
      *
      * @param nestedSelect 子查询构建器，用于生成临时表
      * @param alias        子查询结果的别名
-     * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition);
+    JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 INNER JOIN 连接，用于将当前查询与表函数的结果关联。
@@ -129,10 +128,10 @@ public interface JoinCondition extends Fetchable {
      *
      * @param tableFunction 表函数构建器，用于生成临时表
      * @param alias         表函数结果的别名
-     * @param onCondition   用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition   用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition innerJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition);
+    JoinCondition innerJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 INNER JOIN 连接，用于将当前查询与公共表表达式 (CTE) 结果关联。
@@ -140,10 +139,10 @@ public interface JoinCondition extends Fetchable {
      * CTE 的返回值作为临时表参与连接，支持 ON 条件。
      *
      * @param cte         公共表表达式实例
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition innerJoin(CteTable cte, Consumer<Condition> onCondition);
+    JoinCondition innerJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与另一个表关联。
@@ -152,10 +151,10 @@ public interface JoinCondition extends Fetchable {
      * 则结果集中该部分字段的值为 NULL。
      *
      * @param clazz       需要连接的表对应的实体类
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition leftJoin(Class<?> clazz, Consumer<Condition> onCondition);
+    JoinCondition leftJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与另一个表关联。
@@ -165,10 +164,10 @@ public interface JoinCondition extends Fetchable {
      *
      * @param clazz       需要连接的表对应的实体类
      * @param alias       表的别名，用于在查询中标识该表
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition leftJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
+    JoinCondition leftJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与子查询结果关联。
@@ -177,10 +176,10 @@ public interface JoinCondition extends Fetchable {
      *
      * @param nestedSelect 子查询构建器，用于生成临时表
      * @param alias        子查询结果的别名
-     * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition leftJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition);
+    JoinCondition leftJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与表函数的结果关联。
@@ -189,10 +188,10 @@ public interface JoinCondition extends Fetchable {
      *
      * @param tableFunction 表函数构建器，用于生成临时表
      * @param alias         表函数结果的别名
-     * @param onCondition   用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition   用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition leftJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition);
+    JoinCondition leftJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与公共表表达式 (CTE) 结果关联。
@@ -200,10 +199,10 @@ public interface JoinCondition extends Fetchable {
      * CTE 的返回值作为临时表参与连接，支持 ON 条件。
      *
      * @param cte         公共表表达式实例
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition leftJoin(CteTable cte, Consumer<Condition> onCondition);
+    JoinCondition leftJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与另一个表关联。
@@ -212,10 +211,10 @@ public interface JoinCondition extends Fetchable {
      * 则结果集中该部分字段的值为 NULL。
      *
      * @param clazz       需要连接的表对应的实体类
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition rightJoin(Class<?> clazz, Consumer<Condition> onCondition);
+    JoinCondition rightJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与另一个表关联。
@@ -225,10 +224,10 @@ public interface JoinCondition extends Fetchable {
      *
      * @param clazz       需要连接的表对应的实体类
      * @param alias       表的别名，用于在查询中标识该表
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition rightJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
+    JoinCondition rightJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与子查询结果关联。
@@ -237,10 +236,10 @@ public interface JoinCondition extends Fetchable {
      *
      * @param nestedSelect 子查询构建器，用于生成临时表
      * @param alias        子查询结果的别名
-     * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<Condition> onCondition);
+    JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与表函数的结果关联。
@@ -249,10 +248,10 @@ public interface JoinCondition extends Fetchable {
      *
      * @param tableFunction 表函数构建器，用于生成临时表
      * @param alias         表函数结果的别名
-     * @param onCondition   用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition   用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition rightJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<Condition> onCondition);
+    JoinCondition rightJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与公共表表达式 (CTE) 结果关联。
@@ -260,10 +259,10 @@ public interface JoinCondition extends Fetchable {
      * CTE 的返回值作为临时表参与连接，支持 ON 条件。
      *
      * @param cte         公共表表达式实例
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition rightJoin(CteTable cte, Consumer<Condition> onCondition);
+    JoinCondition rightJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 FULL JOIN 连接，用于将当前查询与另一个表关联。
@@ -272,10 +271,10 @@ public interface JoinCondition extends Fetchable {
      * 则结果集中该部分字段的值为 NULL。
      *
      * @param clazz       需要连接的表对应的实体类
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition fullJoin(Class<?> clazz, Consumer<Condition> onCondition);
+    JoinCondition fullJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 FULL JOIN 连接，用于将当前查询与另一个表关联。
@@ -285,10 +284,10 @@ public interface JoinCondition extends Fetchable {
      *
      * @param clazz       需要连接的表对应的实体类
      * @param alias       表的别名，用于在查询中标识该表
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition fullJoin(Class<?> clazz, String alias, Consumer<Condition> onCondition);
+    JoinCondition fullJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 FULL JOIN 连接，用于将当前查询与公共表表达式 (CTE) 的结果关联。
@@ -297,10 +296,10 @@ public interface JoinCondition extends Fetchable {
      * 则结果集中该部分字段的值为 NULL。此方法用于支持 CTE 作为临时表参与连接。
      *
      * @param cte         公共表表达式实例
-     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link Condition} 接口定义连接条件
+     * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition fullJoin(CteTable cte, Consumer<Condition> onCondition);
+    JoinCondition fullJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 CROSS JOIN 连接，用于将当前查询与另一个表关联。
@@ -330,7 +329,7 @@ public interface JoinCondition extends Fetchable {
      * @param condition 用于构建 WHERE 条件的 {@link Consumer} 对象
      * @return 返回表连接实例
      */
-    TableRelation<?> where(Consumer<WhereCondition> condition); // NOSONAR
+    TableRelation<?> where(Consumer<GenericWhereCondition> condition); // NOSONAR
 
     /**
      * 空条件 WHERE，返回无条件的查询上下文。

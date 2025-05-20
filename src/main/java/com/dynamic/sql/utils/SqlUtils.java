@@ -10,6 +10,7 @@ import com.dynamic.sql.core.column.AbstractAliasHelper;
 import com.dynamic.sql.core.column.AbstractAliasHelper.TableAliasImpl;
 import com.dynamic.sql.core.column.function.AnonymousFunction;
 import com.dynamic.sql.core.column.function.ColumFunction;
+import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.condition.impl.dialect.MysqlWhereCondition;
 import com.dynamic.sql.core.condition.impl.dialect.OracleWhereCondition;
@@ -415,7 +416,7 @@ public class SqlUtils {
         return schemaProperties.getSqlDialect();
     }
 
-    public static SqlSelectBuilder matchSqlSelectBuilder(SelectSpecification selectSpecification) {
+    public static <C extends WhereCondition<C>> SqlSelectBuilder matchSqlSelectBuilder(SelectSpecification selectSpecification) {
         NestedMeta nestedMeta = selectSpecification.getNestedMeta();
         SqlDialect sqlDialect = nestedMeta == null ? null : nestedMeta.getSqlDialect();
         if (sqlDialect == null) {

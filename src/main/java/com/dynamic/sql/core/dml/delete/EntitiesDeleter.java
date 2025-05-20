@@ -3,7 +3,7 @@ package com.dynamic.sql.core.dml.delete;
 import com.dynamic.sql.context.SchemaContextHolder;
 import com.dynamic.sql.context.properties.SchemaProperties;
 import com.dynamic.sql.core.Version;
-import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.database.SqlExecutionFactory;
 import com.dynamic.sql.core.database.SqlExecutor;
 import com.dynamic.sql.core.database.parser.AbstractDialectParser;
@@ -51,7 +51,7 @@ public class EntitiesDeleter {
     }
 
 
-    public int delete(Consumer<WhereCondition> condition, Function<SqlExecutor, Integer> doSqlExecutor) {
+    public int delete(Consumer<GenericWhereCondition> condition, Function<SqlExecutor, Integer> doSqlExecutor) {
         TableMeta tableMeta = TableProvider.getTableMeta(entityClass);
         if (tableMeta == null) {
             throw new IllegalStateException("Class `" + entityClass.getCanonicalName()
@@ -59,7 +59,7 @@ public class EntitiesDeleter {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        WhereCondition whereCondition = null;
+        GenericWhereCondition whereCondition = null;
         if (condition != null) {
             Version version = new Version(schemaProperties.getMajorVersionNumber(),
                     schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());

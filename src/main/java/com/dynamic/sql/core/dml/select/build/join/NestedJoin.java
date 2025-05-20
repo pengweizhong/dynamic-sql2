@@ -2,7 +2,7 @@ package com.dynamic.sql.core.dml.select.build.join;
 
 
 import com.dynamic.sql.core.AbstractColumnReference;
-import com.dynamic.sql.core.condition.Condition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 import com.dynamic.sql.enums.JoinTableType;
@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public class NestedJoin extends JoinTable {
     private final Consumer<AbstractColumnReference> nestedSelect;
     private SqlStatementSelectWrapper sqlStatementWrapper;
-    private Consumer<Condition> onCondition;
+    private Consumer<GenericWhereCondition> onCondition;
     private JoinTableType joinTableType;
 
     public NestedJoin(Consumer<AbstractColumnReference> nestedSelect, String tableAlias) {
@@ -21,7 +21,7 @@ public class NestedJoin extends JoinTable {
     }
 
     public NestedJoin(JoinTableType joinTableType, Consumer<AbstractColumnReference> nestedSelect,
-                      String tableAlias, Consumer<Condition> onCondition) {
+                      String tableAlias, Consumer<GenericWhereCondition> onCondition) {
         super(tableAlias);
         this.joinTableType = joinTableType;
         this.nestedSelect = nestedSelect;
@@ -44,7 +44,7 @@ public class NestedJoin extends JoinTable {
     }
 
     @Override
-    public Consumer<Condition> getOnCondition() {
+    public Consumer<GenericWhereCondition> getOnCondition() {
         return onCondition;
     }
 

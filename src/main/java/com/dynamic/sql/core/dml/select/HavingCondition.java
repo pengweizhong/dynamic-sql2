@@ -7,78 +7,78 @@ import com.dynamic.sql.core.condition.Condition;
 
 import java.util.function.Consumer;
 
-public interface HavingCondition extends Condition {
+public interface HavingCondition<C extends HavingCondition<C>> extends Condition<C> {
 
-    HavingCondition andEqualTo(AggregateFunction function, Object value);
+    C andEqualTo(AggregateFunction function, Object value);
 
-    HavingCondition andEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C andEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition orEqualTo(AggregateFunction function, Object value);
+    C orEqualTo(AggregateFunction function, Object value);
 
-    HavingCondition orEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C orEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition andNotEqualTo(AggregateFunction function, Object value);
+    C andNotEqualTo(AggregateFunction function, Object value);
 
-    HavingCondition andNotEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C andNotEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition orNotEqualTo(AggregateFunction function, Object value);
+    C orNotEqualTo(AggregateFunction function, Object value);
 
-    HavingCondition orNotEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C orNotEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition andGreaterThan(AggregateFunction function, Object value);
+    C andGreaterThan(AggregateFunction function, Object value);
 
-    HavingCondition andGreaterThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C andGreaterThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition orGreaterThan(AggregateFunction function, Object value);
+    C orGreaterThan(AggregateFunction function, Object value);
 
-    HavingCondition orGreaterThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C orGreaterThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition andGreaterThanOrEqualTo(AggregateFunction function, Object value);
+    C andGreaterThanOrEqualTo(AggregateFunction function, Object value);
 
-    HavingCondition andGreaterThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C andGreaterThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition orGreaterThanOrEqualTo(AggregateFunction function, Object value);
+    C orGreaterThanOrEqualTo(AggregateFunction function, Object value);
 
-    HavingCondition orGreaterThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C orGreaterThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition andLessThan(AggregateFunction function, Object value);
+    C andLessThan(AggregateFunction function, Object value);
 
-    HavingCondition andLessThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C andLessThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition orLessThan(AggregateFunction function, Object value);
+    C orLessThan(AggregateFunction function, Object value);
 
-    HavingCondition orLessThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C orLessThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition andLessThanOrEqualTo(AggregateFunction function, Object value);
+    C andLessThanOrEqualTo(AggregateFunction function, Object value);
 
-    HavingCondition andLessThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C andLessThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition orLessThanOrEqualTo(AggregateFunction function, Object value);
+    C orLessThanOrEqualTo(AggregateFunction function, Object value);
 
-    HavingCondition orLessThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C orLessThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition andIn(AggregateFunction function, Iterable<?> values);
+    C andIn(AggregateFunction function, Iterable<?> values);
 
-    HavingCondition andIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C andIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition orIn(AggregateFunction function, Iterable<?> values);
+    C orIn(AggregateFunction function, Iterable<?> values);
 
-    HavingCondition orIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C orIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition andNotIn(AggregateFunction function, Iterable<?> values);
+    C andNotIn(AggregateFunction function, Iterable<?> values);
 
-    HavingCondition andNotIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C andNotIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition orNotIn(AggregateFunction function, Iterable<?> values);
+    C orNotIn(AggregateFunction function, Iterable<?> values);
 
-    HavingCondition orNotIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
+    C orNotIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect);
 
-    HavingCondition andBetween(AggregateFunction function, Object start, Object end);
+    C andBetween(AggregateFunction function, Object start, Object end);
 
-    HavingCondition orBetween(AggregateFunction function, Object start, Object end);
+    C orBetween(AggregateFunction function, Object start, Object end);
 
-    HavingCondition andNotBetween(AggregateFunction function, Object start, Object end);
+    C andNotBetween(AggregateFunction function, Object start, Object end);
 
-    HavingCondition orNotBetween(AggregateFunction function, Object start, Object end);
+    C orNotBetween(AggregateFunction function, Object start, Object end);
 
 }

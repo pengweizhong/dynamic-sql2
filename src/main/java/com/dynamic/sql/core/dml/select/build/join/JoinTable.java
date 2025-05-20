@@ -2,7 +2,7 @@ package com.dynamic.sql.core.dml.select.build.join;
 
 
 import com.dynamic.sql.core.column.function.TableFunction;
-import com.dynamic.sql.core.condition.Condition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 import com.dynamic.sql.enums.JoinTableType;
 
@@ -22,7 +22,7 @@ public abstract class JoinTable {
 
     public abstract CteTable getCteTable();
 
-    public abstract Consumer<Condition> getOnCondition();
+    public abstract Consumer<GenericWhereCondition> getOnCondition();
 
     public String getTableAlias() {
         return tableAlias;

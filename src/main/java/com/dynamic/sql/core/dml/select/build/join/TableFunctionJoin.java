@@ -2,7 +2,7 @@ package com.dynamic.sql.core.dml.select.build.join;
 
 
 import com.dynamic.sql.core.column.function.TableFunction;
-import com.dynamic.sql.core.condition.Condition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 import com.dynamic.sql.enums.JoinTableType;
 
@@ -11,12 +11,12 @@ import java.util.function.Supplier;
 
 public class TableFunctionJoin extends JoinTable {
     private final Supplier<TableFunction> tableFunction;
-    private Consumer<Condition> onCondition;
+    private Consumer<GenericWhereCondition> onCondition;
     private JoinTableType joinTableType;
 
 
     public TableFunctionJoin(JoinTableType joinTableType, Supplier<TableFunction> tableFunction,
-                             String tableAlias, Consumer<Condition> onCondition) {
+                             String tableAlias, Consumer<GenericWhereCondition> onCondition) {
         super(tableAlias);
         this.joinTableType = joinTableType;
         this.tableFunction = tableFunction;
@@ -39,7 +39,7 @@ public class TableFunctionJoin extends JoinTable {
     }
 
     @Override
-    public Consumer<Condition> getOnCondition() {
+    public Consumer<GenericWhereCondition> getOnCondition() {
         return onCondition;
     }
 

@@ -2,7 +2,7 @@ package com.dynamic.sql.core.dml.select.build.join;
 
 
 import com.dynamic.sql.core.column.function.TableFunction;
-import com.dynamic.sql.core.condition.Condition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 import com.dynamic.sql.enums.JoinTableType;
 
@@ -43,7 +43,7 @@ public class FromJoin extends JoinTable {
     }
 
     @Override
-    public Consumer<Condition> getOnCondition() {
+    public Consumer<GenericWhereCondition> getOnCondition() {
         return null;
     }
 

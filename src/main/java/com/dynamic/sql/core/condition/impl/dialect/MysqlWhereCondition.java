@@ -4,8 +4,6 @@ package com.dynamic.sql.core.condition.impl.dialect;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.ColumFunction;
-import com.dynamic.sql.core.condition.Condition;
-import com.dynamic.sql.core.condition.FunctionCondition;
 import com.dynamic.sql.enums.LogicalOperatorType;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.SqlUtils;
@@ -29,16 +27,16 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
-    public <T, F> Condition andMatches(Fn<T, F> fn, String regex) {
+    public <T, F> GenericWhereCondition andMatches(Fn<T, F> fn, String regex) {
         return matches(AND, fn, regex);
     }
 
     @Override
-    public <T, F> Condition orMatches(Fn<T, F> fn, String regex) {
+    public <T, F> GenericWhereCondition orMatches(Fn<T, F> fn, String regex) {
         return matches(OR, fn, regex);
     }
 
-    public <T, F> Condition matches(LogicalOperatorType logicalOperatorType, Fn<T, F> fn, String regex) {
+    public <T, F> GenericWhereCondition matches(LogicalOperatorType logicalOperatorType, Fn<T, F> fn, String regex) {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(logicalOperatorType));
         //使用 REGEXP_LIKE (MySQL 8.0+)
@@ -53,16 +51,16 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
-    public <T, F> FunctionCondition andMatches(Fn<T, F> fn, ColumFunction columFunction) {
+    public <T, F> GenericWhereCondition andMatches(Fn<T, F> fn, ColumFunction columFunction) {
         return matchesFunction(AND, fn, columFunction);
     }
 
     @Override
-    public <T, F> FunctionCondition orMatches(Fn<T, F> fn, ColumFunction columFunction) {
+    public <T, F> GenericWhereCondition orMatches(Fn<T, F> fn, ColumFunction columFunction) {
         return matchesFunction(OR, fn, columFunction);
     }
 
-    public <T, F> FunctionCondition matchesFunction(LogicalOperatorType logicalOperatorType, Fn<T, F> fn, ColumFunction columFunction) {
+    public <T, F> GenericWhereCondition matchesFunction(LogicalOperatorType logicalOperatorType, Fn<T, F> fn, ColumFunction columFunction) {
         parameterBinder.addParameterBinder(columFunction.getParameterBinder());
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(logicalOperatorType));
@@ -81,7 +79,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
-    public <T, F> Condition andFindInSet(Fn<T, F> fn, Object item) {
+    public <T, F> GenericWhereCondition andFindInSet(Fn<T, F> fn, Object item) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
                 .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
@@ -89,7 +87,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
-    public <T, F> Condition andFindInSet(Fn<T, F> fn, Object item, String separator) {
+    public <T, F> GenericWhereCondition andFindInSet(Fn<T, F> fn, Object item, String separator) {
         condition.append(" ").append(logicalOperatorType(AND));
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         //REPLACE(str, from_str, to_str)
@@ -100,7 +98,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
-    public <T, F> Condition orFindInSet(Fn<T, F> fn, Object item) {
+    public <T, F> GenericWhereCondition orFindInSet(Fn<T, F> fn, Object item) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
                 .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
@@ -108,7 +106,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
-    public <T, F> Condition orFindInSet(Fn<T, F> fn, Object item, String separator) {
+    public <T, F> GenericWhereCondition orFindInSet(Fn<T, F> fn, Object item, String separator) {
         condition.append(" ").append(logicalOperatorType(OR));
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         //REPLACE(str, from_str, to_str)
@@ -119,7 +117,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
-    public <T, F> FunctionCondition andFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
+    public <T, F> GenericWhereCondition andFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
         parameterBinder.addParameterBinder(columFunction.getParameterBinder());
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn,
@@ -129,7 +127,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
-    public <T, F> FunctionCondition orFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
+    public <T, F> GenericWhereCondition orFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
         parameterBinder.addParameterBinder(columFunction.getParameterBinder());
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn,
@@ -139,12 +137,12 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
-    public Condition limit(int limit) {
+    public GenericWhereCondition limit(int limit) {
         return limit(0, limit);
     }
 
     @Override
-    public Condition limit(int offset, int limit) {
+    public GenericWhereCondition limit(int offset, int limit) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" limit ").append(registerValueWithKey(parameterBinder, null, offset))
                 .append(", ").append(registerValueWithKey(parameterBinder, null, limit));

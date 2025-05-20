@@ -4,7 +4,7 @@ import com.dynamic.sql.context.SchemaContextHolder;
 import com.dynamic.sql.context.properties.SchemaProperties;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
-import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.database.SqlExecutionFactory;
 import com.dynamic.sql.core.database.SqlExecutor;
 import com.dynamic.sql.core.database.parser.AbstractDialectParser;
@@ -24,7 +24,7 @@ public class EntitiesUpdater {
     private final Collection<Object> entities;
     private Class<?> entityClass;
     private final Fn<?, ?>[] forcedFields;
-    private final Consumer<WhereCondition> condition;
+    private final Consumer<GenericWhereCondition> condition;
 
     public EntitiesUpdater(Collection<Object> entities) {
         this.entities = entities;
@@ -40,7 +40,7 @@ public class EntitiesUpdater {
         this.condition = null;
     }
 
-    public EntitiesUpdater(Collection<Object> entities, Fn<?, ?>[] forcedFields, Consumer<WhereCondition> condition) {
+    public EntitiesUpdater(Collection<Object> entities, Fn<?, ?>[] forcedFields, Consumer<GenericWhereCondition> condition) {
         this.entities = entities;
         this.entityClass = entities.iterator().next().getClass();
         this.forcedFields = forcedFields;
@@ -78,7 +78,7 @@ public class EntitiesUpdater {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        WhereCondition whereCondition = null;
+        GenericWhereCondition whereCondition = null;
         if (condition != null) {
             Version version = new Version(schemaProperties.getMajorVersionNumber(),
                     schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
@@ -104,7 +104,7 @@ public class EntitiesUpdater {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        WhereCondition whereCondition = null;
+        GenericWhereCondition whereCondition = null;
         if (condition != null) {
             Version version = new Version(schemaProperties.getMajorVersionNumber(),
                     schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
