@@ -126,7 +126,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         }
         //targetFieldMeta 取出的是用户设置的集合字段
         Field targetField = targetFieldMeta.getField();
-        Class<?> childElementClass = ReflectUtils.getUserGenericType(targetField);
+        Class<?> childElementClass = ReflectUtils.getUserGenericClassByField(targetField);
         List<FieldMeta> collectionColumnMetas = TableUtils.parseViewClass(childElementClass).getViewColumnMetas();
         Map<String, FieldMeta> childColumnNameMap = collectionColumnMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
         Map<String, FieldMeta> childFieldNameMap = collectionColumnMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));

@@ -220,7 +220,7 @@ public class ReflectUtils {
         return types;
     }
 
-    public static Class<?> getUserGenericType(Field field) {
+    public static Class<?> getUserGenericClassByField(Field field) {
         // 获取这个 Field 的泛型类型
         Type genericType = field.getGenericType();
         if (!(genericType instanceof ParameterizedType)) {
