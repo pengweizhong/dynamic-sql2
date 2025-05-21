@@ -19,7 +19,7 @@ public abstract class WhereCondition<C extends WhereCondition<C>>
      *
      * <p><strong>注意：</strong> 该方法不做 SQL 安全校验，需确保传入字符串是安全且语法正确的 SQL 片段。</p>
      *
-     * @param sql 自定义 SQL 条件表达式，例如 "age > 18", "rn = 1", "exists (...)"
+     * @param sql 自定义 SQL 条件表达式，例如 "and age > 18", "or row_num = 1", "exists (...)"
      * @return 返回当前条件构造器对象，用于链式调用
      */
     public abstract C sql(String sql);

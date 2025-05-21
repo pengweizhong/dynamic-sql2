@@ -875,7 +875,6 @@ public class SelectTest extends InitializingContext {
                 .where(whereCondition -> whereCondition
                         .andLessThanOrEqualTo(Category::getCategoryId, 10)
                         .andNotEqualTo(Product::getProductId, 0)
-                        .self()
                         .sql("and 1=1")
                         .andNotEqualTo(Product::getProductId, 0)
                 )
