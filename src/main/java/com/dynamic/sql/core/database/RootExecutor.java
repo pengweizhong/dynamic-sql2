@@ -47,7 +47,7 @@ public class RootExecutor {
                 }
                 arrayList.add(objectMap);
             }
-            detectedColumnNameSet.forEach(columnName -> log.warn("Duplicate column name detected: {}", columnName));
+            detectedColumnNameSet.forEach(columnName -> log.trace("Duplicate column name detected: {}", columnName));
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         } finally {
