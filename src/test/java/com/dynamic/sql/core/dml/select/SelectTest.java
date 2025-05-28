@@ -882,6 +882,20 @@ public class SelectTest extends InitializingContext {
                 .toList();
     }
 
+    @Test
+    void testAlias() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .allColumn(Product.class)
+                .from(Product.class)
+                .innerJoin(select -> select.allColumn(Product.class)
+                        .from(Category.class)
+                        .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
+                        .where(whereCondition -> whereCondition.andLessThanOrEqualTo(Category::getCategoryId, 10)), "t",
+                        on -> on.andEqualTo(Product::getProductId, bindAlias("t", Product::getProductId)))
+                .fetchOriginalMap()
+                .toList();
+        System.out.println(list);
+    }
 
 }
 

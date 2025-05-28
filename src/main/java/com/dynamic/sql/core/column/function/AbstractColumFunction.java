@@ -9,6 +9,7 @@ import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.model.Arithmetic;
+import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.Map;
@@ -19,7 +20,7 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     protected AbstractColumFunction delegateFunction;
     //    protected final StringBuilder arithmeticSql = new StringBuilder();
 //    protected final ParameterBinder arithmeticParameterBinder = new ParameterBinder();
-    protected Map<String, String> aliasTableMap;
+    protected Map<String, TableAliasMapping> aliasTableMap;
     protected String dataSourceName;
     protected SqlDialect sqlDialect;
     protected Version version;
@@ -171,11 +172,11 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
 //        return columFunctionArithmetic;
 //    }
 
-    public Map<String, String> getAliasTableMap() {
+    public Map<String, TableAliasMapping> getAliasTableMap() {
         return aliasTableMap;
     }
 
-    public void setAliasTableMap(Map<String, String> aliasTableMap) {
+    public void setAliasTableMap(Map<String, TableAliasMapping> aliasTableMap) {
         if (aliasTableMap == null) {
             throw new IllegalStateException("Parameters must be set before calling: aliasTableMap");
         }

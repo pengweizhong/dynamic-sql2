@@ -6,6 +6,7 @@ import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.SqlStatementWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.plugins.pagination.AbstractPage;
 import com.dynamic.sql.plugins.pagination.ConditionPageInfo;
 import com.dynamic.sql.plugins.pagination.DialectPagination;
@@ -26,8 +27,8 @@ public class MySQLDialectPagination implements DialectPagination {
             StringBuilder selectCountAppendWhereSql = new StringBuilder(sqlStatementWrapper.getRawSql());
             selectCountAppendWhereSql.insert(0, "select * from (");
             selectCountAppendWhereSql.append(") _append_count_page_temp ");
-            Map<String, String> aliasMap = new HashMap<>();
-            aliasMap.put("**", "_append_count_page_temp");
+            Map<String, TableAliasMapping> aliasMap = new HashMap<>();
+            aliasMap.put("**", new TableAliasMapping("_append_count_page_temp", true));
             GenericWhereCondition whereCondition =
                     SqlUtils.matchDialectCondition(SqlDialect.MYSQL, version, aliasMap, sqlStatementWrapper.getDataSourceName());
             conditionPageInfo.getAppendWhere().accept(whereCondition);
@@ -53,8 +54,8 @@ public class MySQLDialectPagination implements DialectPagination {
         //添加追加where条件的逻辑
         if (abstractPage instanceof ConditionPageInfo) {
             ConditionPageInfo conditionPageInfo = (ConditionPageInfo) abstractPage;
-            Map<String, String> aliasMap = new HashMap<>();
-            aliasMap.put("**", "_page_temp");
+            Map<String, TableAliasMapping> aliasMap = new HashMap<>();
+            aliasMap.put("**", new TableAliasMapping("_page_temp", true));
             GenericWhereCondition whereCondition =
                     SqlUtils.matchDialectCondition(SqlDialect.MYSQL, version, aliasMap, sqlStatementWrapper.getDataSourceName());
             conditionPageInfo.getAppendWhere().accept(whereCondition);

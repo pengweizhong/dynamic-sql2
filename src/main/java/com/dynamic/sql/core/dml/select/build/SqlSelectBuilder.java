@@ -20,6 +20,7 @@ import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.datasource.DataSourceMeta;
 import com.dynamic.sql.datasource.DataSourceProvider;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
 import com.dynamic.sql.utils.CollectionUtils;
@@ -40,7 +41,7 @@ public abstract class SqlSelectBuilder {
     protected final ParameterBinder parameterBinder = new ParameterBinder();
     //key是class路径 value是别名
     //如果是嵌套表，则key和value都是别名
-    protected final Map<String, String> aliasTableMap = new HashMap<>();
+    protected final Map<String, TableAliasMapping> aliasTableMap = new HashMap<>();
 
     protected <C extends WhereCondition<C>> SqlSelectBuilder(SelectSpecification selectSpecification) {
         this.selectSpecification = selectSpecification;
@@ -91,14 +92,17 @@ public abstract class SqlSelectBuilder {
             } else {
                 key = joinTable.getTableClass().getCanonicalName();
             }
-            String alias = aliasTableMap.get(key);
+            TableAliasMapping alias = aliasTableMap.get(key);
             if (alias != null && joinTable.getTableAlias() == null) {
                 throw new IllegalStateException("Repeatedly associated with the same table: " + key + ", When querying " +
                         "the same table continuously at the current level, aliases should be used to distinguish them");
             }
             //只添加第一次设置的 别名，作为当前回话的全局别名
             if (alias == null) {
-                aliasTableMap.put(key, joinTable.getTableAlias());
+                TableAliasMapping aliasMapping = new TableAliasMapping();
+                aliasMapping.setAlias(joinTable.getTableAlias());
+                aliasMapping.setIsNestedJoin(joinTable instanceof NestedJoin || joinTable instanceof FromNestedJoin);
+                aliasTableMap.put(key, aliasMapping);
             }
         });
         //step1 解析查询的列

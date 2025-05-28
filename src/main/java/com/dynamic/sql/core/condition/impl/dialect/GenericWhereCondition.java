@@ -13,6 +13,7 @@ import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.LogicalOperatorType;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.Iterator;
@@ -25,13 +26,13 @@ import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
 
 public class GenericWhereCondition extends WhereCondition<GenericWhereCondition> {
     protected final Version version;
-    protected final Map<String, String> aliasTableMap;
+    protected final Map<String, TableAliasMapping> aliasTableMap;
     protected final StringBuilder condition = new StringBuilder();
     protected final ParameterBinder parameterBinder = new ParameterBinder();
     protected String dataSourceName;
     protected boolean isFirstBuild;
 
-    public GenericWhereCondition(Version version, Map<String, String> aliasTableMap, String dataSourceName) {
+    public GenericWhereCondition(Version version, Map<String, TableAliasMapping> aliasTableMap, String dataSourceName) {
         this.version = version;
         this.aliasTableMap = aliasTableMap;
         this.isFirstBuild = true;

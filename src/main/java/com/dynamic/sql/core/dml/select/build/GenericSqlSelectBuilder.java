@@ -114,7 +114,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 }
                 String tableAlias = columFunction.getTableAlias();
                 if (tableAlias == null) {
-                    tableAlias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(fn));
+                    tableAlias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(fn)).getAlias();
                 }
                 columFunction.setTableAlias(tableAlias);
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
@@ -268,20 +268,19 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         String tableAlias = allColumn.getTableAlias();
         if (StringUtils.isNotEmpty(tableAlias)) {
             final String[] clazz = new String[1];
-            String finalTableAlias = tableAlias;
             aliasTableMap.forEach((cls, alias) -> {
                 if (alias == null) {
                     return;
                 }
-                if (alias.equals(finalTableAlias)) {
+                if (alias.equals(tableAlias)) {
                     clazz[0] = cls;
                 }
             });
-            if (clazz[0] == null) {
-                throw new IllegalArgumentException("Table alias does not exist: " + tableAlias);
-            }
-            //兼容内嵌
-            if (clazz[0].equals(tableAlias)) {
+            if (clazz[0] == null || clazz[0].equals(tableAlias)) {
+//                throw new IllegalArgumentException("Table alias does not exist: " + tableAlias);
+//            }
+//            //兼容内嵌
+//            if (clazz[0].equals(tableAlias)) {
                 sqlBuilder.append(tableAlias).append(".*");
                 return;
             }
@@ -324,7 +323,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             sqlBuilder.append(canonicalName).append(".*");
             return;
         }
-        String tableAlias = aliasTableMap.get(canonicalName);
+        String tableAlias = aliasTableMap.get(canonicalName).getAlias();
         //确定别名
         tableAlias = tableAlias == null ? tableMeta.getTableAlias() : tableAlias;
         List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();

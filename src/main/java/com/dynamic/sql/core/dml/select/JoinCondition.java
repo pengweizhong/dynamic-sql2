@@ -85,6 +85,10 @@ public interface JoinCondition extends Fetchable {
         return innerJoin(cte, onCondition);
     }
 
+    default JoinCondition innerJoin(boolean isEffective, Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? innerJoin(clazz, onCondition) : this;
+    }
+
     /**
      * 构建一个 INNER JOIN 连接，用于将当前查询与另一个表关联。
      * <p>
@@ -95,6 +99,7 @@ public interface JoinCondition extends Fetchable {
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
     JoinCondition innerJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition);
+
 
     /**
      * 构建一个 INNER JOIN 连接，用于将当前查询与另一个表关联。
@@ -263,6 +268,10 @@ public interface JoinCondition extends Fetchable {
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
     JoinCondition rightJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
+
+    default JoinCondition fullJoin(boolean isEffective, Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? fullJoin(clazz, onCondition) : this;
+    }
 
     /**
      * 构建一个 FULL JOIN 连接，用于将当前查询与另一个表关联。

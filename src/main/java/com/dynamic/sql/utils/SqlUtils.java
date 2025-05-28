@@ -33,6 +33,7 @@ import com.dynamic.sql.enums.DbType;
 import com.dynamic.sql.enums.JoinTableType;
 import com.dynamic.sql.enums.LogicalOperatorType;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
@@ -114,25 +115,25 @@ public class SqlUtils {
      * @param aliasTableMap              当前会话匹配到的别名
      * @param tableMeta                  原始表meta
      */
-    public static String extractQualifiedAlias(String originalClassCanonicalName, Map<String, String> aliasTableMap, TableMeta tableMeta) {
+    public static String extractQualifiedAlias(String originalClassCanonicalName, Map<String, TableAliasMapping> aliasTableMap, TableMeta tableMeta) {
         if (aliasTableMap == null) {
             return tableMeta.getTableAlias();
         }
-        String alias = aliasTableMap.get(originalClassCanonicalName);
+        TableAliasMapping alias = aliasTableMap.get(originalClassCanonicalName);
         if (alias != null) {
-            return alias;
+            return alias.getAlias();
         }
         return tableMeta.getTableAlias();
     }
 
-    public static <T, F> String extractQualifiedAlias(Fn<T, F> field, Map<String, String> aliasTableMap, String dataSourceName) {
+    public static <T, F> String extractQualifiedAlias(Fn<T, F> field, Map<String, TableAliasMapping> aliasTableMap, String dataSourceName) {
         return extractQualifiedAlias(null, field, aliasTableMap, dataSourceName);
     }
 
     /**
      * 按照当前SQL语义匹配最佳表别名, 之后拼接列名
      */
-    public static <T, F> String extractQualifiedAlias(String tableAlias, Fn<T, F> field, Map<String, String> aliasTableMap, String dataSourceName) {
+    public static <T, F> String extractQualifiedAlias(String tableAlias, Fn<T, F> field, Map<String, TableAliasMapping> aliasTableMap, String dataSourceName) {
         Fn fn = field;
         //如果内嵌了表别名，则此处的表别名优先级最高
         if (field instanceof AbstractAliasHelper) {
@@ -166,7 +167,7 @@ public class SqlUtils {
         //如果使用了当前回话的表别名
         String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
         if (tableAlias == null && aliasTableMap != null) {
-            tableAlias = aliasTableMap.get(originalClassCanonicalName);
+            tableAlias = aliasTableMap.get(originalClassCanonicalName).getAlias();
         }
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
@@ -175,24 +176,25 @@ public class SqlUtils {
         //最后匹配全局的表别名，通常默认别名就是表名
         tableAlias = ifAbsentAlias(tableAlias, tableMeta.getTableAlias(), aliasTableMap);
         ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(fn));
-        String column = SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
+        TableAliasMapping aliasMapping = aliasTableMap.get(tableAlias);
+        String column = SqlUtils.quoteIdentifier(sqlDialect, aliasMapping != null && aliasMapping.isNestedJoin() ? columnMeta.getField().getName() : columnMeta.getColumnName());
         return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." + column;
     }
 
-    private static String ifAbsentAlias(String oriAlias, String newAlias, Map<String, String> aliasTableMap) {
+    private static String ifAbsentAlias(String oriAlias, String newAlias, Map<String, TableAliasMapping> aliasTableMap) {
         if (oriAlias == null && newAlias != null) {
             return newAlias;
         }
         //如果有通用别名
         if (oriAlias == null && aliasTableMap != null) {
             if (aliasTableMap.get("**") != null) {
-                return aliasTableMap.get("**");
+                return aliasTableMap.get("**").getAlias();
             }
         }
         return oriAlias;
     }
 
-    public static String extractQualifiedAliasOrderBy(OrderBy orderBy, Map<String, String> aliasTableMap, String
+    public static String extractQualifiedAliasOrderBy(OrderBy orderBy, Map<String, TableAliasMapping> aliasTableMap, String
             dataSourceName, Version version, ParameterBinder parameterBinder) {
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
         DbType dbType = dataSourceMeta.getDbType();
@@ -398,7 +400,7 @@ public class SqlUtils {
 
     @SuppressWarnings("unchecked")
     public static <T extends GenericWhereCondition> T matchDialectCondition(SqlDialect sqlDialect, Version version,
-                                                                            Map<String, String> aliasTableMap, String dataSourceName) {
+                                                                            Map<String, TableAliasMapping> aliasTableMap, String dataSourceName) {
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:
