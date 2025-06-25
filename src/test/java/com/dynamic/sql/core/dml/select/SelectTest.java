@@ -890,6 +890,18 @@ public class SelectTest extends InitializingContext {
                 .toList();
     }
 
+    @Test
+    void testAliasSelect() {
+        List<Object> list = sqlContext.select()
+                .column(Category::getCategoryName)
+                .allColumn(Product.class)
+                .from(Category.class)
+                .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
+                .limit(1)
+                .fetch()
+                .toList();
+        System.out.println(list);
+    }
 
 }
 
