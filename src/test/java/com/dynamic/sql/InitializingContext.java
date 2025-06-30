@@ -7,7 +7,6 @@ import com.dynamic.sql.context.properties.SqlContextProperties;
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.datasource.connection.ConnectionHolder;
 import com.dynamic.sql.datasource.connection.SimpleConnectionHandle;
-import com.dynamic.sql.model.Point;
 import com.dynamic.sql.plugins.conversion.impl.FetchJsonObjectConverter;
 import com.dynamic.sql.plugins.pagination.PageInterceptorPlugin;
 import com.dynamic.sql.utils.ConverterUtils;
@@ -35,6 +34,8 @@ public class InitializingContext {
         SchemaProperties schemaProperties = new SchemaProperties();
         //本地数据源名称
         schemaProperties.setDataSourceName("dataSource");
+        //设置全局默认数据源
+        schemaProperties.setGlobalDefault(true);
         schemaProperties.setUseSchemaInQuery(false);
         //可以直接指定SQL方言
         //schemaProperties.setSqlDialect(SqlDialect.ORACLE);

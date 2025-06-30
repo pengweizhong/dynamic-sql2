@@ -45,10 +45,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -135,6 +132,7 @@ public class SqlUtils {
      */
     public static <T, F> String extractQualifiedAlias(String tableAlias, Fn<T, F> field, Map<String, TableAliasMapping> aliasTableMap, String dataSourceName) {
         Fn fn = field;
+        aliasTableMap = aliasTableMap == null ? new HashMap<>() : aliasTableMap;
         //如果内嵌了表别名，则此处的表别名优先级最高
         if (field instanceof AbstractAliasHelper) {
             AbstractAliasHelper abstractAlias = (AbstractAliasHelper) field;
@@ -166,7 +164,7 @@ public class SqlUtils {
         }
         //如果使用了当前回话的表别名
         String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
-        if (tableAlias == null && aliasTableMap != null) {
+        if (tableAlias == null && !aliasTableMap.isEmpty()) {
             tableAlias = aliasTableMap.get(originalClassCanonicalName).getAlias();
         }
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
@@ -215,7 +213,7 @@ public class SqlUtils {
                 TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
                 ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(defaultOrderBy.getFieldFn()));
                 String tableAlias = extractQualifiedAlias(originalClassCanonicalName, aliasTableMap, tableMeta);
-                if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null) {
+                if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null && tableAlias != null) {
                     sqlBuilder.append(quoteIdentifier(sqlDialect, tableAlias)).append(".");
                 }
                 sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));

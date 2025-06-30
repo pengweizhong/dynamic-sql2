@@ -158,7 +158,7 @@ public class SelectTest extends InitializingContext {
                 .where(whereCondition -> {
                     whereCondition.andExists(select -> select
                             .column(new NumberColumn(1))
-                            .from(() -> new JsonTable(User::getName, "$.items[*]",
+                            .from(() -> new JsonTable(User::getDetails, "$.items[*]",
                                     JsonTable.JsonColumn.builder().column("value").dataType("VARCHAR(50)").jsonPath("$").build()
                             ), "jt"));
                 }).fetch(UserAndOrderView.class).toList();
@@ -719,14 +719,14 @@ public class SelectTest extends InitializingContext {
     @Test
     void testDateFormat3() {
         //假设这个排序字段是由前端传入
-        List<User> list = sqlContext.select()
+        List<UserDateView> list = sqlContext.select()
                 .column(User::getUserId)
                 .column(new DateFormat(User::getRegistrationDate, "%Y-%m"))
                 .from(User.class)
                 .groupBy(User::getUserId)
                 .groupBy(new DateFormat(User::getRegistrationDate, "%Y-%m"))
                 .limit(10)
-                .fetch(User.class)
+                .fetch(UserDateView.class)
                 .toList();
         System.out.println(list.size());
         list.forEach(System.out::println);
@@ -770,29 +770,33 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void execute2() {
-        String createTable = "CREATE TABLE `t_business_operation_log` (\n" +
-                "  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',\n" +
-                "  `request_id` varchar(32)  NOT NULL COMMENT '当前请求唯一标识，一个请求内可能会有多次数据操作',\n" +
-                "  `thread_name` varchar(100)  NOT NULL COMMENT '线程名',\n" +
-                "  `operation_type` enum('UPDATE','INSERT','DELETE','SELECT')  NOT NULL COMMENT '操作类型',\n" +
-                "  `operation_code` varchar(50)  NOT NULL COMMENT '操作事件编码',\n" +
-                "  `title` varchar(255)  NOT NULL COMMENT '业务标题，多级用短横线分割，按照功能大小排列',\n" +
-                "  `business_key` varchar(32) COMMENT '业务数据键名',\n" +
-                "  `business_value` varchar(255) COMMENT '业务数据键值',\n" +
-                "  `request_data` text COMMENT '请求数据',\n" +
-                "  `before_data` text COMMENT '变更前数据',\n" +
-                "  `after_data` text COMMENT '变更后数据',\n" +
-                "  `is_success` tinyint  NOT NULL COMMENT '操作是否成功',\n" +
-                "  `company_id` int   COMMENT '公司ID',\n" +
-                "  `team_id` int NOT NULL DEFAULT '-1' COMMENT '团队ID',\n" +
-                "  `create_uuid` int NOT NULL COMMENT '创建人UUID',\n" +
-                "  `last_create_time` timestamp  NULL COMMENT '上次创建时间',\n" +
-                "  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',\n" +
-                "  PRIMARY KEY (`id`),\n" +
-                "  KEY `t_business_operation_log_operation_code_IDX` (`operation_code`,`business_key`,`business_value`) USING BTREE\n" +
-                ") ENGINE=InnoDB  COMMENT='业务操作日志表';";
-        Object execute = sqlContext.execute("dataSource2", createTable, null);
-        System.out.println(execute);
+        try {
+            String createTable = "CREATE TABLE `t_business_operation_log` (\n" +
+                    "  `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',\n" +
+                    "  `request_id` varchar(32)  NOT NULL COMMENT '当前请求唯一标识，一个请求内可能会有多次数据操作',\n" +
+                    "  `thread_name` varchar(100)  NOT NULL COMMENT '线程名',\n" +
+                    "  `operation_type` enum('UPDATE','INSERT','DELETE','SELECT')  NOT NULL COMMENT '操作类型',\n" +
+                    "  `operation_code` varchar(50)  NOT NULL COMMENT '操作事件编码',\n" +
+                    "  `title` varchar(255)  NOT NULL COMMENT '业务标题，多级用短横线分割，按照功能大小排列',\n" +
+                    "  `business_key` varchar(32) COMMENT '业务数据键名',\n" +
+                    "  `business_value` varchar(255) COMMENT '业务数据键值',\n" +
+                    "  `request_data` text COMMENT '请求数据',\n" +
+                    "  `before_data` text COMMENT '变更前数据',\n" +
+                    "  `after_data` text COMMENT '变更后数据',\n" +
+                    "  `is_success` tinyint  NOT NULL COMMENT '操作是否成功',\n" +
+                    "  `company_id` int   COMMENT '公司ID',\n" +
+                    "  `team_id` int NOT NULL DEFAULT '-1' COMMENT '团队ID',\n" +
+                    "  `create_uuid` int NOT NULL COMMENT '创建人UUID',\n" +
+                    "  `last_create_time` timestamp  NULL COMMENT '上次创建时间',\n" +
+                    "  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',\n" +
+                    "  PRIMARY KEY (`id`),\n" +
+                    "  KEY `t_business_operation_log_operation_code_IDX` (`operation_code`,`business_key`,`business_value`) USING BTREE\n" +
+                    ") ENGINE=InnoDB  COMMENT='业务操作日志表';";
+            Object execute = sqlContext.execute("dataSource", createTable, null);
+            System.out.println(execute);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -902,15 +906,16 @@ public class SelectTest extends InitializingContext {
                 .toList();
         System.out.println(list);
     }
+
     @Test
     void testAlias() {
         List<Map<String, Object>> list = sqlContext.select()
                 .allColumn(Product.class)
                 .from(Product.class)
                 .innerJoin(select -> select.allColumn(Product.class)
-                        .from(Category.class)
-                        .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
-                        .where(whereCondition -> whereCondition.andLessThanOrEqualTo(Category::getCategoryId, 10)), "t",
+                                .from(Category.class)
+                                .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
+                                .where(whereCondition -> whereCondition.andLessThanOrEqualTo(Category::getCategoryId, 10)), "t",
                         on -> on.andEqualTo(Product::getProductId, bindAlias("t", Product::getProductId)))
                 .fetchOriginalMap()
                 .toList();

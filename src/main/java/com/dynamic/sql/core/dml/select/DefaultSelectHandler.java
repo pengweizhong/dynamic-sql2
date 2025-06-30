@@ -8,7 +8,6 @@ import com.dynamic.sql.datasource.DataSourceProvider;
 import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
-import com.dynamic.sql.table.view.ViewMeta;
 import com.dynamic.sql.utils.StringUtils;
 
 import java.util.Collection;
@@ -68,19 +67,11 @@ public class DefaultSelectHandler implements SelectHandler {
             }
             return dataSourceName;
         }
-        //匹配默认数据源
-        //如果是单一数据源，就直接使用
-        if (DataSourceProvider.getDataSourceNameList().size() == 1) {
-            String defaultDataSourceName = DataSourceProvider.getDefaultDataSourceName();
-            if (StringUtils.isNotEmpty(defaultDataSourceName)) {
-                return defaultDataSourceName;
-            }
-        }
         if (returnType.isAnnotationPresent(Table.class)) {
             TableMeta tableMeta = TableProvider.getTableMeta(returnType);
             return tableMeta.getBindDataSourceName();
         }
-        ViewMeta viewMeta = TableProvider.getViewMeta(returnType);
-        return viewMeta.getBindDataSourceName();
+        //匹配默认数据源
+        return DataSourceProvider.getDefaultDataSourceName();
     }
 }
