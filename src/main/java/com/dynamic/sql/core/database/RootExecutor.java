@@ -6,6 +6,7 @@ import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.GeneratedStrategy;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
+import com.dynamic.sql.utils.CollectionUtils;
 import com.dynamic.sql.utils.ConverterUtils;
 import com.dynamic.sql.utils.ReflectUtils;
 import com.dynamic.sql.utils.SqlUtils;
@@ -143,6 +144,9 @@ public class RootExecutor {
 
     private static ColumnMeta extractAutoIncrementColumnMeta() {
         Collection<Object> localEntities = EntitiesInserter.getLocalEntities();
+        if (CollectionUtils.isEmpty(localEntities)) {
+            return null;
+        }
         Object next = localEntities.iterator().next();
         TableMeta tableMeta = TableProvider.getTableMeta(next.getClass());
         List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();

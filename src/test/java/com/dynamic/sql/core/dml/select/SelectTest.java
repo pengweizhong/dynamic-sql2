@@ -791,7 +791,7 @@ public class SelectTest extends InitializingContext {
                 "  PRIMARY KEY (`id`),\n" +
                 "  KEY `t_business_operation_log_operation_code_IDX` (`operation_code`,`business_key`,`business_value`) USING BTREE\n" +
                 ") ENGINE=InnoDB  COMMENT='业务操作日志表';";
-        Object execute = sqlContext.execute(createTable);
+        Object execute = sqlContext.execute("dataSource2", createTable, null);
         System.out.println(execute);
     }
 
@@ -808,6 +808,14 @@ public class SelectTest extends InitializingContext {
         ParameterBinder parameterBinder = new ParameterBinder();
         String key = SqlUtils.registerValueWithKey(parameterBinder, 10);
         Object execute = sqlContext.execute("dataSource", "select * from users limit " + key, parameterBinder);
+        System.out.println(execute);
+    }
+
+    @Test
+    void execute6() {
+        Object execute = sqlContext.execute("dataSource", "INSERT INTO dynamic_sql2.users\n" +
+                "(name, gender, registration_date, email, phone_number, account_balance, details, status)\n" +
+                "VALUES('Jerry777', 'Other', '2024-02-01', 'jerry@example.com', '111222333', 1290.00, '{}', 'Active');", null);
         System.out.println(execute);
     }
 
@@ -882,6 +890,18 @@ public class SelectTest extends InitializingContext {
                 .toList();
     }
 
+    @Test
+    void testAliasSelect() {
+        List<Object> list = sqlContext.select()
+                .column(Category::getCategoryName)
+                .allColumn(Product.class)
+                .from(Category.class)
+                .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
+                .limit(1)
+                .fetch()
+                .toList();
+        System.out.println(list);
+    }
     @Test
     void testAlias() {
         List<Map<String, Object>> list = sqlContext.select()

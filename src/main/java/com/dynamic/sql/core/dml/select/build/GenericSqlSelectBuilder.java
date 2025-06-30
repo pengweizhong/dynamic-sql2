@@ -29,6 +29,7 @@ import com.dynamic.sql.utils.SqlUtils;
 import com.dynamic.sql.utils.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -119,7 +120,12 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 columFunction.setTableAlias(tableAlias);
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
                 //拼接别名，
-                String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
+                String columnAlias = columnQuery.getAlias();
+                //如果用户未设置别名 ，那么应该将字段名设置为别名，方便排序
+                if (StringUtils.isEmpty(columnAlias) && Objects.nonNull(columFunction.getOriginColumnFn())) {
+                    columnAlias = ReflectUtils.fnToFieldName(columFunction.getOriginColumnFn());
+                }
+                columnAlias = StringUtils.isEmpty(columnAlias) ? "" : syntaxAs() + columnAlias;
                 sqlBuilder.append(functionToString).append(arithmeticSql);
                 //追加over
                 Consumer<Over> overConsumer = functionColumn.getOver();
