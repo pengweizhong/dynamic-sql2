@@ -351,7 +351,7 @@ List<CategoryView> selectCollectionList() {
 本项目针对“动态 SQL + 纯 Java 构建 + 跨库兼容 + 低侵入”做的优化，实用性强，属于“轻量创新型轮子”，不算重复体力活。  
 主要特点：  
 ✅ 轻量级、纯 Java 链式 SQL 构建工具  
-✅ 侧重动态 SQL、跨数据库兼容、低侵入、避免实体强绑定  
+✅ 侧重动态 SQL、跨数据库兼容、低侵入  
 ✅ 补足了 MyBatis、JOOQ、QueryDSL、JDBC Template 等现有方案的盲区
 
 > 下列表格由 ChatGPT 生成，仅仅供参考
