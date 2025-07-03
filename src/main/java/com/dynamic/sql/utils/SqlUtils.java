@@ -216,7 +216,9 @@ public class SqlUtils {
                 if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null && tableAlias != null) {
                     sqlBuilder.append(quoteIdentifier(sqlDialect, tableAlias)).append(".");
                 }
-                sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
+//                sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
+                //实测发现排序别名更不容易出错，避免多表下同字段名重复的情况
+                sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getField().getName()));
             } else if (defaultOrderBy.getColumFunction() != null) {
                 ColumFunction columFunction = defaultOrderBy.getColumFunction();
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version);
