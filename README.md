@@ -1,7 +1,7 @@
 #
 
 <p align="center">
-    <img src="assets/Dynamic-SQL.webp" width="300" />
+    <img src="Dynamic-SQL.webp" width="300" />
 </p>
 <div align="center">安全 • 灵活 • 动态SQL构建框架</div>
 
