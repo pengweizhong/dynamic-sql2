@@ -48,6 +48,48 @@ public class PageInfo<T> extends AbstractPage {
     }
 
     /**
+     * 快速构建空分页对象，默认页码为 1，页大小为 10，数据为 null。
+     *
+     * @param <T> 记录类型
+     * @return 空的 {@code PageInfo} 对象
+     */
+    public static <T> PageInfo<T> empty() {
+        return empty(1, 10, null);
+    }
+
+    /**
+     * 快速构建空分页对象，指定页码和页大小，数据为 null。
+     *
+     * @param pageIndex 页码，通常从 1 开始
+     * @param pageSize  每页条数
+     * @param <T>       记录类型
+     * @return 空的 {@code PageInfo} 对象
+     */
+    public static <T> PageInfo<T> empty(int pageIndex, int pageSize) {
+        return empty(pageIndex, pageSize, null);
+    }
+
+    /**
+     * 快速构建空分页对象，支持自定义页码、页大小和数据内容。
+     * <p>
+     * 该方法适用于业务提前结束，直接返回空结果，避免实际查询。
+     * </p>
+     *
+     * @param pageIndex 页码，通常从 1 开始
+     * @param pageSize  每页条数
+     * @param records   数据内容，允许传空集合
+     * @param <T>       记录类型
+     * @return 空的 {@code PageInfo} 对象
+     */
+    public static <T> PageInfo<T> empty(int pageIndex, int pageSize, T records) {
+        PageInfo<T> page = new PageInfo<>(pageIndex, pageSize);
+        page.total = 0L;
+        page.totalPage = 0;
+        page.records = records;
+        return page;
+    }
+
+    /**
      * 判断当前分页结果是否为空。
      * <p>
      * 该方法检查分页查询结果（{@link #records}）的实际大小。如果结果集是 {@link Collection} 或 {@link Map} 类型，
