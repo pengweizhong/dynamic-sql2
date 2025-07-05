@@ -1,4 +1,13 @@
-package com.dynamic.sql.core.column.function.scalar.number;//package com.pengwz.dynamic.sql2.core.column.function.scalar.number;
+/*
+ * Copyright (c) 2024 PengWeizhong. All Rights Reserved.
+ *
+ * This source code is licensed under the MIT License.
+ * You may obtain a copy of the License at:
+ * https://opensource.org/licenses/MIT
+ *
+ * See the LICENSE file in the project root for more information.
+ */
+package com.dynamic.sql.core.column.function.scalar.number;
 
 
 import com.dynamic.sql.core.FieldFn;

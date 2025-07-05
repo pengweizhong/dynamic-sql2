@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2024 PengWeizhong. All Rights Reserved.
+ *
+ * This source code is licensed under the MIT License.
+ * You may obtain a copy of the License at:
+ * https://opensource.org/licenses/MIT
+ *
+ * See the LICENSE file in the project root for more information.
+ */
 package com.dynamic.sql.utils;
 
 import com.dynamic.sql.core.Fn;
@@ -59,18 +68,21 @@ public class ReflectUtils {
         collectFields(clazz.getSuperclass(), fields, filterRules);
     }
 
+
     /**
-     * 根据传入的函数式接口 `Fn` 获取对应的字段名。
+     * 根据传入的函数式接口 {@code Fn} 获取对应的字段名。
      *
-     * <p>该方法通过序列化 Lambda 表达式，获取实现方法的名称，并根据 Java Bean 规范进行处理。
-     * 主要处理以下几种情况：
+     * <p>该方法通过序列化 Lambda 表达式，获取实现方法的名称，并根据 Java Bean 规范进行处理：
      * <ul>
      *     <li>方法名以 "get" 开头：去掉前缀 "get" 并转换为字段名</li>
      *     <li>方法名以 "is" 开头（布尔类型）：去掉前缀 "is" 并转换为字段名</li>
-     *     <li>没有匹配到 "get" 或 "is" 前缀时，直接裁剪掉可能存在的 "get" 前缀</li>
+     *     <li>其他情况：若方法名以 "get" 开头，仍裁剪该前缀</li>
      * </ul>
+     * <p>处理完成后，将字段名首字母小写，确保符合 Java 命名规范。
      *
-     * <p>此外，该方法会将字段名的首字母小写，确保符合常规的 Java 命名规范。
+     * <p><b>Portions of this method are derived from:</b> {@code tk.mybatis.mapper.weekend.reflection.Reflections#fnToFieldName}
+     * <br>Original Author: abel533
+     * <br>Licensed under the MIT License
      *
      * @param fn 代表字段的函数式接口
      * @return 字段名称

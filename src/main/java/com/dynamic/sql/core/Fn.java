@@ -1,3 +1,9 @@
+/*
+ * Inspired by tk.mybatis.mapper.weekend.Fn interface (MIT License)
+ * Original Author: abel533
+ * Significant modifications and extensions by PengWeizhong
+ */
+
 package com.dynamic.sql.core;
 
 import java.io.Serializable;

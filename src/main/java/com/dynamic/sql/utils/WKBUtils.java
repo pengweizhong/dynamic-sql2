@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2024 PengWeizhong. All Rights Reserved.
+ *
+ * This source code is licensed under the MIT License.
+ * You may obtain a copy of the License at:
+ * https://opensource.org/licenses/MIT
+ *
+ * See the LICENSE file in the project root for more information.
+ */
 package com.dynamic.sql.utils;
 
 import com.dynamic.sql.enums.WKBType;
@@ -95,7 +104,7 @@ public class WKBUtils {
         }
         List<Point> points = polygon.getPoints();
         Point p = points.get(0);
-        int srid =p.getSrid();
+        int srid = p.getSrid();
         ByteOrder byteOrder = p.getByteOrder();
         int numPoints = points.size();
         // 计算所需的字节数组大小
