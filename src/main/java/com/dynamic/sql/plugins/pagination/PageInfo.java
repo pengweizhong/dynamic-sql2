@@ -71,9 +71,6 @@ public class PageInfo<T> extends AbstractPage {
 
     /**
      * 快速构建空分页对象，支持自定义页码、页大小和数据内容。
-     * <p>
-     * 该方法适用于业务提前结束，直接返回空结果，避免实际查询。
-     * </p>
      *
      * @param pageIndex 页码，通常从 1 开始
      * @param pageSize  每页条数
