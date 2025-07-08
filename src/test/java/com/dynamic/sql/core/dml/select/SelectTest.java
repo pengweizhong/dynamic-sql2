@@ -922,6 +922,17 @@ public class SelectTest extends InitializingContext {
         System.out.println(list);
     }
 
+
+    @Test
+    void page() {
+//        PageInfo<List<User>> pageInfo = PageHelper.of(1, 10)
+//                .selectPage(() -> sqlContext.select().allColumn().from(User.class).fetch().toList());
+//        System.out.println(pageInfo);
+
+        PageInfo<List<User>> pageInfoMybatis = PageHelper.ofMybatis(1, 10)
+                .selectPage(() -> sqlContext.select().allColumn().from(User.class).fetch().toList());
+        System.out.println(pageInfoMybatis);
+    }
 }
 
 

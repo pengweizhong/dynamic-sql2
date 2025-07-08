@@ -24,10 +24,19 @@ public abstract class AbstractPage {
     protected Long total;
     //总分页数量
     protected int totalPage;
+    //分页插件实现者名称
+    protected String pagePluginTypeName;
 
     protected AbstractPage(int pageIndex, int pageSize) {
         this.pageIndex = pageIndex;
         this.pageSize = pageSize;
+        this.pagePluginTypeName = "DYNAMIC_SQL2";
+    }
+
+    protected AbstractPage(int pageIndex, int pageSize, String pagePluginTypeName) {
+        this.pageIndex = pageIndex;
+        this.pageSize = pageSize;
+        this.pagePluginTypeName = pagePluginTypeName;
     }
 
     public final int getPageIndex() {

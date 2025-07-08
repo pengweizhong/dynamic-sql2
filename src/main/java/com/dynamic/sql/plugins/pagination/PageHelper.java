@@ -46,7 +46,20 @@ public class PageHelper {
      */
     public static GeneralPageHelper of(int pageIndex, int pageSize) {
         checkPageParams(pageIndex, pageSize);
-        return new GeneralPageHelper(Math.max(pageIndex, 1), pageSize);
+        return new GeneralPageHelper(Math.max(pageIndex, 1), pageSize, DefaultPagePluginType.DYNAMIC_SQL2.getPluginName());
+    }
+
+    /**
+     * 创建一个用于 MyBatis 分页插件的分页实例。
+     *
+     * @param pageIndex 页码，从 1 开始（若小于等于 0 则默认为 1）
+     * @param pageSize  每页大小（必须大于 0）
+     * @return 配置完成的 {@link GeneralPageHelper} 实例
+     * @throws IllegalArgumentException 如果 {@code pageSize} 小于等于 0
+     */
+    public static GeneralPageHelper ofMybatis(int pageIndex, int pageSize) {
+        checkPageParams(pageIndex, pageSize);
+        return new GeneralPageHelper(Math.max(pageIndex, 1), pageSize, DefaultPagePluginType.MYBATIS.getPluginName());
     }
 
     /**
@@ -58,6 +71,7 @@ public class PageHelper {
      * @return CollectionPageHelper 实例，用于集合的分页处理
      * @throws IllegalArgumentException 如果 pageSize 小于等于0
      */
+    @Deprecated
     public static CollectionPageHelper ofCollection(int pageIndex, int pageSize) {
         checkPageParams(pageIndex, pageSize);
         return new CollectionPageHelper(Math.max(pageIndex, 1), pageSize);
@@ -72,6 +86,7 @@ public class PageHelper {
      * @return MapPageHelper 实例，用于 Map 的分页处理
      * @throws IllegalArgumentException 如果 pageSize 小于等于0
      */
+    @Deprecated
     public static MapPageHelper ofMap(int pageIndex, int pageSize) {
         checkPageParams(pageIndex, pageSize);
         return new MapPageHelper(Math.max(pageIndex, 1), pageSize);
@@ -99,6 +114,7 @@ public class PageHelper {
             throw new IllegalArgumentException("pageSize must be >= 1");
         }
     }
+
 
     @SuppressWarnings("unchecked")
     public static class CollectionPageHelper {
@@ -157,14 +173,16 @@ public class PageHelper {
     @SuppressWarnings("unchecked")
     public static class GeneralPageHelper {
         private PageInfo<?> pageInfo;
+        private String pagePluginTypeName;
 
-        private GeneralPageHelper(int pageIndex, int pageSize) {
-            pageInfo = new PageInfo<>(pageIndex, pageSize);
+        private GeneralPageHelper(int pageIndex, int pageSize, String pagePluginTypeName) {
+            pageInfo = new PageInfo<>(pageIndex, pageSize, pagePluginTypeName);
         }
 
         private <T> GeneralPageHelper(PageInfo<T> pageInfo) {
             this.pageInfo = pageInfo;
         }
+
 
         /**
          * 执行分页查询并返回分页结果 {@link PageInfo} 对象。

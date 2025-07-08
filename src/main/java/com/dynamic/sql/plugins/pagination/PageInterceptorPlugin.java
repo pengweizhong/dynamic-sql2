@@ -28,8 +28,9 @@ import com.dynamic.sql.utils.SqlUtils;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-public class PageInterceptorPlugin implements SqlInterceptor {
+public class PageInterceptorPlugin implements SqlInterceptor, PagePluginType {
 //    private static final Logger log = LoggerFactory.getLogger(PaginationPlugin.class);
 
     @Override
@@ -37,6 +38,9 @@ public class PageInterceptorPlugin implements SqlInterceptor {
         AbstractPage currentPage = LocalPage.getCurrentPage();
         //没有分页参数，直接跳过
         if (currentPage == null) {
+            return ExecutionControl.PROCEED;
+        }
+        if (!Objects.equals(currentPage.pagePluginTypeName, this.getPluginName())) {
             return ExecutionControl.PROCEED;
         }
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName());
@@ -92,4 +96,8 @@ public class PageInterceptorPlugin implements SqlInterceptor {
         return Long.parseLong(countMap.getValue().toString());
     }
 
+    @Override
+    public String getPluginName() {
+        return DefaultPagePluginType.DYNAMIC_SQL2.getPluginName();
+    }
 }

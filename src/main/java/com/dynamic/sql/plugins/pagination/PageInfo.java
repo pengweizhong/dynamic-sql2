@@ -26,6 +26,10 @@ public class PageInfo<T> extends AbstractPage {
         super(pageIndex, pageSize);
     }
 
+    protected PageInfo(int pageIndex, int pageSize, String pagePluginTypeName) {
+        super(pageIndex, pageSize, pagePluginTypeName);
+    }
+
     @Override
     void setRecords(Supplier<?> selectSupplier) {
         this.selectSupplier = (Supplier<T>) selectSupplier;
