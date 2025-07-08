@@ -374,6 +374,12 @@ List<CategoryView> selectCollectionList() {
 
 该项目使用 MIT 许可证。
 
+## QQ交流群
+<p align="left">
+    <img src="qrcode_1751944202021.jpg" width="350" />
+</p>
+
+
 # 开源支持
 
 感谢 [JetBrains](https://www.jetbrains.com/) 提供的开源许可证支持。
