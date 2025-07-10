@@ -104,10 +104,10 @@ public abstract class SqlSelectBuilder {
                 key = joinTable.getTableClass().getCanonicalName();
             }
             TableAliasMapping alias = aliasTableMap.get(key);
-            if (alias != null && joinTable.getTableAlias() == null) {
-                throw new IllegalStateException("Repeatedly associated with the same table: " + key + ", When querying " +
-                        "the same table continuously at the current level, aliases should be used to distinguish them");
-            }
+//            if (alias != null && joinTable.getTableAlias() == null) {
+//                throw new IllegalStateException("Repeatedly associated with the same table: " + key + ", When querying " +
+//                        "the same table continuously at the current level, aliases should be used to distinguish them");
+//            }
             //只添加第一次设置的 别名，作为当前回话的全局别名
             if (alias == null) {
                 TableAliasMapping aliasMapping = new TableAliasMapping();
