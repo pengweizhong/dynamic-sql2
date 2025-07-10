@@ -11,9 +11,7 @@ package com.dynamic.sql.core.dml.select;
 
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.dml.select.order.CustomOrderBy;
-import com.dynamic.sql.core.dml.select.order.DefaultOrderBy;
-import com.dynamic.sql.core.dml.select.order.OrderBy;
+import com.dynamic.sql.core.dml.select.order.*;
 import com.dynamic.sql.enums.SortOrder;
 
 public class ThenSortOrder<R> implements Fetchable {
@@ -270,4 +268,51 @@ public class ThenSortOrder<R> implements Fetchable {
     public Fetchable limit(int limit) {
         return tableRelation.limit(limit);
     }
+
+    /**
+     * 将当前排序字段设置为 NULL 值排在最后，仅在 condition 为 true 时生效。
+     *
+     * @param condition 是否应用 NULLS LAST 排序规则
+     * @return 当前排序构建器实例，用于继续链式调用
+     */
+    public ThenSortOrder<R> nullsLast(boolean condition) {
+        return condition ? nullsLast() : this;
+    }
+
+    /**
+     * 将当前排序字段设置为 NULL 值排在最后。
+     *
+     * <p>对应 SQL 的 "ORDER BY column ... NULLS LAST"，常用于将 NULL 排在排序结果末尾。
+     * 实际生成 SQL 时需根据不同数据库方言（如 MySQL <8.0 不支持 NULLS LAST）处理兼容性。
+     *
+     * @return 当前排序构建器实例，用于继续链式调用
+     */
+    public ThenSortOrder<R> nullsLast() {
+        tableRelation.getSelectSpecification().getOrderBys().add(new NullsLast());
+        return this;
+    }
+
+    /**
+     * 将当前排序字段设置为 NULL 值排在最前，仅在 condition 为 true 时生效。
+     *
+     * @param condition 是否应用 NULLS FIRST 排序规则
+     * @return 当前排序构建器实例，用于继续链式调用
+     */
+    public ThenSortOrder<R> nullsFirst(boolean condition) {
+        return condition ? nullsFirst() : this;
+    }
+
+    /**
+     * 将当前排序字段设置为 NULL 值排在最前。
+     *
+     * <p>对应 SQL 的 "ORDER BY column ... NULLS FIRST"，常用于将 NULL 提前显示。
+     * 实际生成 SQL 时需根据不同数据库方言处理是否支持该语法。
+     *
+     * @return 当前排序构建器实例，用于继续链式调用
+     */
+    public ThenSortOrder<R> nullsFirst() {
+        tableRelation.getSelectSpecification().getOrderBys().add(new NullsFirst());
+        return this;
+    }
+
 }

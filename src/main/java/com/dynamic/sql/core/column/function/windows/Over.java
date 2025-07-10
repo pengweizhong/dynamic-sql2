@@ -13,6 +13,8 @@ package com.dynamic.sql.core.column.function.windows;
 import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.dml.select.order.DefaultOrderBy;
+import com.dynamic.sql.core.dml.select.order.NullsFirst;
+import com.dynamic.sql.core.dml.select.order.NullsLast;
 import com.dynamic.sql.core.dml.select.order.OrderBy;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.enums.SqlDialect;
@@ -56,6 +58,17 @@ public class Over {
         return this;
     }
 
+    public Over nullsLast() {
+        orderByList.add(new NullsLast());
+        return this;
+    }
+
+    public Over nullsFirst() {
+        orderByList.add(new NullsFirst());
+        return this;
+    }
+
+
     public List<OrderBy> getOrderByList() {
         return orderByList;
     }
@@ -70,6 +83,7 @@ public class Over {
         }
         throw FunctionException.unsupportedFunctionException("over", sqlDialect);
     }
+
 
 //    public static class OverBuilder {
 //        private Over over = new Over();

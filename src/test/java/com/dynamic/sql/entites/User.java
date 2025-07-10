@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -24,7 +25,7 @@ public class User {
     private Date registrationDate;  // 注册日期
     private String email;  // 邮箱
     private String phoneNumber;  // 电话号码
-    private double accountBalance;  // 账户余额
+    private Double accountBalance;  // 账户余额
     private String details;  // JSON 格式的额外信息
     private UserStatus status;  // 用户状态
 }

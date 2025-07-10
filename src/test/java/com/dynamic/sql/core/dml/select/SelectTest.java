@@ -933,6 +933,21 @@ public class SelectTest extends InitializingContext {
                 .selectPage(() -> sqlContext.select().allColumn().from(User.class).fetch().toList());
         System.out.println(pageInfoMybatis);
     }
+
+    @Test
+    void orderBy() {
+        List<Double> list = sqlContext.select()
+                .column(User::getAccountBalance)
+                .from(User.class)
+                .orderBy(User::getAccountBalance, SortOrder.ASC).nullsLast(true)
+//                .orderBy(User::getAccountBalance).nullsFirst()
+                .fetch(Double.class)
+                .toList();
+        list.forEach(System.out::println);
+        System.out.println();
+        System.out.println("list.size()  " + list.size());
+    }
+
 }
 
 

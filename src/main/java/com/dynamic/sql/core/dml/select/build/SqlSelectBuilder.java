@@ -24,6 +24,8 @@ import com.dynamic.sql.core.dml.select.build.join.FromNestedJoin;
 import com.dynamic.sql.core.dml.select.build.join.JoinTable;
 import com.dynamic.sql.core.dml.select.build.join.NestedJoin;
 import com.dynamic.sql.core.dml.select.build.join.TableFunctionJoin;
+import com.dynamic.sql.core.dml.select.order.NullsFirst;
+import com.dynamic.sql.core.dml.select.order.NullsLast;
 import com.dynamic.sql.core.dml.select.order.OrderBy;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.datasource.DataSourceMeta;
@@ -204,10 +206,29 @@ public abstract class SqlSelectBuilder {
                 columnSeparator = ",";
             }
             String sort = orderBy.getSortOrder() != null ? orderBy.getSortOrder().toSqlString(sqlDialect) : "";
-            stringBuilder.append(SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName, version, parameterBinder))
-                    .append(" ")
-                    .append(sort)
-                    .append(columnSeparator);
+            String aliasOrderBy = SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName, version, parameterBinder);
+            stringBuilder.append(aliasOrderBy).append(" ");
+            if (i < orderBys.size() - 1) {
+                //获取下个排列
+                OrderBy nextOrderBy = orderBys.get(i + 1);
+                //如果每次都想让null排在前面
+                if (nextOrderBy instanceof NullsFirst) {
+                    stringBuilder.append(" is not null, ").append(aliasOrderBy).append(" ");
+                    //跳过当前对象
+                    i++;
+                }
+                //如果每次都想让null排在后面
+                if (nextOrderBy instanceof NullsLast) {
+                    stringBuilder.append(" is null, ").append(aliasOrderBy).append(" ");
+                    //跳过当前对象
+                    i++;
+                }
+            }
+            //判断下个排列是否属于 nullsLast 或者 nullsFirst
+            stringBuilder.append(sort);
+            if (i < orderBys.size() - 1) {
+                stringBuilder.append(columnSeparator);
+            }
         }
         return stringBuilder.toString();
     }
