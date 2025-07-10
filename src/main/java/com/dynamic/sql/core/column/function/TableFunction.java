@@ -14,12 +14,15 @@ import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
 
 /**
  * 类似查询表级函数，可以在from表时使用
  */
 public interface TableFunction {
-    String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException;
+    String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException;
 
     Fn<?, ?> getOriginColumnFn();
 

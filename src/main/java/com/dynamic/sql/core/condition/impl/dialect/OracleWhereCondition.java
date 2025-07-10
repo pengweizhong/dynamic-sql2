@@ -68,7 +68,7 @@ public class OracleWhereCondition extends GenericWhereCondition {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType);
         condition.append(" REGEXP_LIKE(").append(column).append(", ")
-                .append(registerValueWithKey(parameterBinder, fn, columFunction.getFunctionToString(sqlDialect(), version)))
+                .append(registerValueWithKey(parameterBinder, fn, columFunction.getFunctionToString(sqlDialect(), version, aliasTableMap)))
                 .append(")");
         return this;
     }

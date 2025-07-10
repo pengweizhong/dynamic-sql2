@@ -16,6 +16,9 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
 
 import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
 
@@ -39,13 +42,13 @@ public class Length extends ColumnFunctionDecorator {
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         //SUBSTRING(string, start, length)
         if (sqlDialect == SqlDialect.MYSQL) {
             if (string != null) {
                 return "char_length(" + registerValueWithKey(parameterBinder, string) + ")".concat(appendArithmeticSql(sqlDialect, version));
             }
-            return "char_length(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
+            return "char_length(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("length", sqlDialect);
     }

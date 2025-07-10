@@ -14,13 +14,16 @@ import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
 
 /**
  * 一般情况下实现者不能直接实现该类，需要先继承AbstractColumFunction，因为AbstractColumFunction附带列运算
  */
 public interface ColumFunction {
 
-    String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException;
+    String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException;
 
     Fn<?, ?> getOriginColumnFn();
 

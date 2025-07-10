@@ -16,7 +16,10 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
+
+import java.util.Map;
 
 public final class Column extends AbstractColumFunction implements TableFunction {
 
@@ -43,7 +46,7 @@ public final class Column extends AbstractColumFunction implements TableFunction
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         if (columnName != null) {
             return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." +
                     SqlUtils.quoteIdentifier(sqlDialect, columnName);

@@ -16,6 +16,9 @@ import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
 
 import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
 
@@ -29,7 +32,7 @@ public final class NumberColumn implements ColumFunction, ColumnQuery {
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         return numberColumn + "";
     }
 

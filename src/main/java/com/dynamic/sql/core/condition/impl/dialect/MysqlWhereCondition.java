@@ -77,13 +77,13 @@ public class MysqlWhereCondition extends GenericWhereCondition {
         //使用 REGEXP_LIKE (MySQL 8.0+)
         if (version.isGreaterThanOrEqual(new Version(8, 0, 0))) {
             condition.append(" regexp_like(").append(column).append(", ")
-                    .append(registerValueWithKey(parameterBinder, fn, columFunction.getFunctionToString(sqlDialect(), version)))
+                    .append(registerValueWithKey(parameterBinder, fn, columFunction.getFunctionToString(sqlDialect(), version, aliasTableMap)))
                     .append(")");
             return this;
         }
         //使用 REGEXP (MySQL 5.7+)
         condition.append(" ").append(column).append(" regexp ").append(registerValueWithKey(parameterBinder, fn,
-                columFunction.getFunctionToString(sqlDialect(), version)));
+                columFunction.getFunctionToString(sqlDialect(), version, aliasTableMap)));
 
         return this;
     }
@@ -131,7 +131,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
         parameterBinder.addParameterBinder(columFunction.getParameterBinder());
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn,
-                        columFunction.getFunctionToString(sqlDialect(), version)))
+                        columFunction.getFunctionToString(sqlDialect(), version, aliasTableMap)))
                 .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
         return this;
     }
@@ -141,7 +141,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
         parameterBinder.addParameterBinder(columFunction.getParameterBinder());
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn,
-                        columFunction.getFunctionToString(sqlDialect(), version)))
+                        columFunction.getFunctionToString(sqlDialect(), version, aliasTableMap)))
                 .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
         return this;
     }

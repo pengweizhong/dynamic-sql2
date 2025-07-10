@@ -87,7 +87,7 @@ public abstract class ColumnFunctionDecorator extends AbstractColumFunction
             parameterBinder.addParameterBinder(arithmetic.getArithmeticParameterBinder());
             return arithmetic.getArithmeticSql().toString();
         }
-        String functionToString = columFunctionArithmetic.getFunctionToString(sqlDialect, version);
+        String functionToString = columFunctionArithmetic.getFunctionToString(sqlDialect, version, aliasTableMap);
         parameterBinder.addParameterBinder(columFunctionArithmetic.getParameterBinder());
         return arithmetic.getArithmeticSql().append(functionToString).toString();
     }

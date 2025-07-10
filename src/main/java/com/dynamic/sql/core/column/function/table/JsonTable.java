@@ -15,11 +15,13 @@ import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.dynamic.sql.core.column.AbstractAliasHelper.bindAlias;
 
@@ -92,9 +94,9 @@ public class JsonTable extends AbstractTableFunction {
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         StringBuilder sb = new StringBuilder();
-        sb.append("json_table(").append(tableFunction.getFunctionToString(sqlDialect, version))
+        sb.append("json_table(").append(tableFunction.getFunctionToString(sqlDialect, version, aliasTableMap))
                 .append(", '").append(path).append("' columns(");
 
         for (int i = 0; i < columns.size(); i++) {

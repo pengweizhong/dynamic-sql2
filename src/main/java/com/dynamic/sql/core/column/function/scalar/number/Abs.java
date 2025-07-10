@@ -16,6 +16,9 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
 
 /**
  * 绝对值
@@ -31,12 +34,12 @@ public class Abs extends ColumnFunctionDecorator implements NumberFunction {
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "ABS(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
+            return "ABS(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "abs(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
+            return "abs(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("ABS", sqlDialect);
     }

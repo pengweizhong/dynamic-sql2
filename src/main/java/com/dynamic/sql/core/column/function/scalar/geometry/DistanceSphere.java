@@ -17,6 +17,9 @@ import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
 import com.dynamic.sql.model.Point;
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
 
 public class DistanceSphere extends ColumnFunctionDecorator implements ScalarFunction {
     public DistanceSphere(AbstractColumFunction delegateFunction) {
@@ -38,10 +41,10 @@ public class DistanceSphere extends ColumnFunctionDecorator implements ScalarFun
 
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.MYSQL) {
             if (otherPoint == null) {
-                return "ST_Distance_Sphere(" + delegateFunction.getFunctionToString(sqlDialect, version)
+                return "ST_Distance_Sphere(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap)
                         + ",  ST_GeomFromText('" + thisPoint.toPointString() + "', " + thisPoint.getSrid() + "))".concat(appendArithmeticSql(sqlDialect, version));
             }
             return "ST_Distance_Sphere(ST_GeomFromText('" + thisPoint.toPointString() + "', " + thisPoint.getSrid() + ")"

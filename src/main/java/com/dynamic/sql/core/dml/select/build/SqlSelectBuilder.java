@@ -176,7 +176,7 @@ public abstract class SqlSelectBuilder {
             }
             if (group instanceof ColumFunction) {
                 ColumFunction columFunction = (ColumFunction) group;
-                sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version));
+                sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version, aliasTableMap));
                 ParameterBinder whereParameterBinder = columFunction.getParameterBinder();
                 parameterBinder.addParameterBinder(whereParameterBinder);
             }

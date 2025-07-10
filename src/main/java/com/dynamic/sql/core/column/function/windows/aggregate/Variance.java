@@ -17,6 +17,9 @@ import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
 
 /**
  * 计算指定列的方差。
@@ -38,12 +41,12 @@ public class Variance extends ColumnFunctionDecorator implements AggregateFuncti
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "VARIANCE(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
+            return "VARIANCE(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "variance(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")".concat(appendArithmeticSql(sqlDialect, version));
+            return "variance(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("variance", sqlDialect);
     }

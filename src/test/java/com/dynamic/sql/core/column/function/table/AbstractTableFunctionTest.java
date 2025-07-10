@@ -19,6 +19,6 @@ class AbstractTableFunctionTest extends InitializingContext {
                 JsonTable.JsonColumn.builder().column("price").dataType("DECIMAL(10, 2)").jsonPath("$.price").defaultValue(0.00).on().error().defaultValue(0.99).on().empty().build()
 
         );
-        System.out.println(jsonTable.getFunctionToString(SqlDialect.MYSQL, new Version(1, 1, 1)));
+        System.out.println(jsonTable.getFunctionToString(SqlDialect.MYSQL, new Version(1, 1, 1),null));
     }
 }

@@ -10,10 +10,14 @@
 package com.dynamic.sql.core.dml.select.build;
 
 
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
+
 public class OracleSqlSelectBuilder extends GenericSqlSelectBuilder {
 
-    public OracleSqlSelectBuilder(SelectSpecification selectSpecification) {
-        super(selectSpecification);
+    public OracleSqlSelectBuilder(SelectSpecification selectSpecification, Map<String, TableAliasMapping> aliasTableMap) {
+        super(selectSpecification, aliasTableMap);
     }
 
     @Override

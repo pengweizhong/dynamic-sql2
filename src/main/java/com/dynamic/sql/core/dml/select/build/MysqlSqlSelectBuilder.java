@@ -14,13 +14,15 @@ import com.dynamic.sql.core.dml.select.build.join.FullJoin;
 import com.dynamic.sql.core.dml.select.build.join.JoinTable;
 import com.dynamic.sql.core.dml.select.build.join.LeftJoin;
 import com.dynamic.sql.core.dml.select.build.join.RightJoin;
+import com.dynamic.sql.model.TableAliasMapping;
 
 import java.util.List;
+import java.util.Map;
 
 public class MysqlSqlSelectBuilder extends GenericSqlSelectBuilder {
 
-    public MysqlSqlSelectBuilder(SelectSpecification selectSpecification) {
-        super(selectSpecification);
+    public MysqlSqlSelectBuilder(SelectSpecification selectSpecification, Map<String, TableAliasMapping> aliasTableMap) {
+        super(selectSpecification, aliasTableMap);
     }
 
     @Override

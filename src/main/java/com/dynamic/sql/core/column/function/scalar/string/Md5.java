@@ -16,7 +16,10 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
+
+import java.util.Map;
 
 public class Md5 extends ColumnFunctionDecorator {
     String string;
@@ -39,19 +42,19 @@ public class Md5 extends ColumnFunctionDecorator {
 
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.MYSQL) {
             if (string != null) {
                 return "md5(" + SqlUtils.registerValueWithKey(parameterBinder, string) + ")";
             }
-            return "md5(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "md5(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")";
         }
         if (sqlDialect == SqlDialect.ORACLE) {
             //Oracle 11g 及以上版本支持该功能。
             if (version.getMajorVersion() < 11) {
                 throw FunctionException.unsupportedFunctionException("RAWTOHEX", version, sqlDialect);
             }
-            return "RAWTOHEX(DBMS_CRYPTO.HASH(UTL_RAW.CAST_TO_RAW(" + delegateFunction.getFunctionToString(sqlDialect, version) + "), 2)) ";
+            return "RAWTOHEX(DBMS_CRYPTO.HASH(UTL_RAW.CAST_TO_RAW(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + "), 2)) ";
         }
         throw FunctionException.unsupportedFunctionException("md5", sqlDialect);
     }

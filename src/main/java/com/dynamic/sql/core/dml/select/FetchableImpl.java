@@ -9,6 +9,7 @@ import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.enums.DMLType;
 import com.dynamic.sql.utils.SqlUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class FetchableImpl implements Fetchable {
     private CollectionColumnMapping collectionColumnMapping;
 
     public FetchableImpl(SelectSpecification selectSpecification) {
-        SqlSelectBuilder sqlSelectBuilder = SqlUtils.matchSqlSelectBuilder(selectSpecification);
+        SqlSelectBuilder sqlSelectBuilder = SqlUtils.matchSqlSelectBuilder(selectSpecification, new HashMap<>());
         sqlStatementSelectWrapper = sqlSelectBuilder.build();
         collectionColumnMapping = selectSpecification.getCollectionColumnMapping();
     }

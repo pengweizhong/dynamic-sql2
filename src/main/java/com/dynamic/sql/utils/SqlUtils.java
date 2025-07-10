@@ -174,7 +174,10 @@ public class SqlUtils {
         //如果使用了当前回话的表别名
         String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
         if (tableAlias == null && !aliasTableMap.isEmpty()) {
-            tableAlias = aliasTableMap.get(originalClassCanonicalName).getAlias();
+            TableAliasMapping aliasMapping = aliasTableMap.get(originalClassCanonicalName);
+            if (aliasMapping != null) {
+                tableAlias = aliasMapping.getAlias();
+            }
         }
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
@@ -225,12 +228,16 @@ public class SqlUtils {
                 if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null && tableAlias != null) {
                     sqlBuilder.append(quoteIdentifier(sqlDialect, tableAlias)).append(".");
                 }
-//                sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
-                //实测发现排序别名更不容易出错，避免多表下同字段名重复的情况
-                sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getField().getName()));
+                // 单表排序时不能使用别名，要使用原始字段排序
+                if (MapUtils.isNotEmpty(aliasTableMap) && aliasTableMap.size() < 2) {
+                    sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
+                } else {
+                    //实测发现排序别名更不容易出错，避免多表下同字段名重复的情况
+                    sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getField().getName()));
+                }
             } else if (defaultOrderBy.getColumFunction() != null) {
                 ColumFunction columFunction = defaultOrderBy.getColumFunction();
-                String functionToString = columFunction.getFunctionToString(sqlDialect, version);
+                String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
                 parameterBinder.addParameterBinder(columFunction.getParameterBinder());
                 sqlBuilder.append(functionToString);
             } else {
@@ -427,7 +434,8 @@ public class SqlUtils {
         return schemaProperties.getSqlDialect();
     }
 
-    public static <C extends WhereCondition<C>> SqlSelectBuilder matchSqlSelectBuilder(SelectSpecification selectSpecification) {
+    public static <C extends WhereCondition<C>> SqlSelectBuilder matchSqlSelectBuilder(SelectSpecification selectSpecification,
+                                                                                       Map<String, TableAliasMapping> aliasTableMap) {
         NestedMeta nestedMeta = selectSpecification.getNestedMeta();
         SqlDialect sqlDialect = nestedMeta == null ? null : nestedMeta.getSqlDialect();
         if (sqlDialect == null) {
@@ -448,11 +456,11 @@ public class SqlUtils {
         switch (sqlDialect) {
             case MYSQL:
             case MARIADB:
-                return new MysqlSqlSelectBuilder(selectSpecification);
+                return new MysqlSqlSelectBuilder(selectSpecification, aliasTableMap);
             case ORACLE:
-                return new OracleSqlSelectBuilder(selectSpecification);
+                return new OracleSqlSelectBuilder(selectSpecification, aliasTableMap);
             default:
-                return new GenericSqlSelectBuilder(selectSpecification);
+                return new GenericSqlSelectBuilder(selectSpecification, aliasTableMap);
         }
     }
 
@@ -461,12 +469,18 @@ public class SqlUtils {
         return executeNestedSelect(null, nestedSelectConsumer);
     }
 
-    public static SqlStatementSelectWrapper executeNestedSelect
-            (NestedMeta nestedMeta, Consumer<AbstractColumnReference> nestedSelectConsumer) {
+    public static SqlStatementSelectWrapper executeNestedSelect(NestedMeta nestedMeta,
+                                                                Consumer<AbstractColumnReference> nestedSelectConsumer) {
+        return executeNestedSelect(nestedMeta, nestedSelectConsumer, new HashMap<>());
+    }
+
+    public static SqlStatementSelectWrapper executeNestedSelect(NestedMeta nestedMeta,
+                                                                Consumer<AbstractColumnReference> nestedSelectConsumer,
+                                                                Map<String, TableAliasMapping> aliasTableMap) {
         Select select = new Select(nestedMeta);
         AbstractColumnReference columnReference = select.loadColumReference();
         nestedSelectConsumer.accept(columnReference);
-        SqlSelectBuilder nestedSqlBuilder = matchSqlSelectBuilder(select.getSelectSpecification());
+        SqlSelectBuilder nestedSqlBuilder = matchSqlSelectBuilder(select.getSelectSpecification(), aliasTableMap);
         return nestedSqlBuilder.build();
     }
 
@@ -631,7 +645,7 @@ public class SqlUtils {
         if (dbType == DbType.ORACLE) {
             int i = databaseProductVersion.indexOf("Version");
             if (i != -1) {
-                databaseProductVersion = databaseProductVersion.substring(i + "Version".length()).trim();
+                databaseProductVersion = databaseProductVersion.substring(i + "Version" .length()).trim();
             }
         }
         String[] split = databaseProductVersion.split("\\.");

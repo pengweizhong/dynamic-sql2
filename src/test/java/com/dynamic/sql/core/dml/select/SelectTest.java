@@ -154,6 +154,22 @@ public class SelectTest extends InitializingContext {
         List<UserAndOrderView> list = sqlContext.select()
                 .column(User::getUserId)
                 .column(User::getName, "user_name")
+                .from(User.class, "us")
+                .where(whereCondition -> {
+                    whereCondition.andExists(select -> select
+                            .column(new NumberColumn(1))
+                            .from(() -> new JsonTable(User::getDetails, "$.items[*]",
+                                    JsonTable.JsonColumn.builder().column("value").dataType("VARCHAR(50)").jsonPath("$").build()
+                            ), "jt"));
+                }).fetch(UserAndOrderView.class).toList();
+        System.out.println(list);
+    }
+
+    @Test
+    void select1_2() {
+        List<UserAndOrderView> list = sqlContext.select()
+                .column(User::getUserId)
+                .column(User::getName, "user_name")
                 .from(User.class)
                 .where(whereCondition -> {
                     whereCondition.andExists(select -> select
@@ -948,6 +964,23 @@ public class SelectTest extends InitializingContext {
         System.out.println("list.size()  " + list.size());
     }
 
+    @Test
+    void tableAlias() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .column(Product::getProductId)
+                .column(Product::getProductName)
+                .column(new DenseRank(), over -> over.orderBy(new Sum(Product::getPrice), SortOrder.DESC), "currentRankNum")
+                .column(new Sum(Product::getPrice), "sumPrice")
+                .from(Product.class, "t")
+                .groupBy(Product::getProductId)
+                .orderBy("currentRankNum")
+                .fetchOriginalMap()
+                .toList();
+        for (Map<String, Object> stringObjectMap : list) {
+            stringObjectMap.forEach((k, v) -> System.out.println(k + " = " + v));
+            System.out.println("\n");
+        }
+    }
 }
 
 

@@ -16,6 +16,9 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
 
 /**
  * 指定小数位，四舍五入
@@ -36,12 +39,12 @@ public class Round extends ColumnFunctionDecorator implements NumberFunction {
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "ROUND(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")".concat(appendArithmeticSql(sqlDialect, version));
+            return "ROUND(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ", " + scale + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "round(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + scale + ")".concat(appendArithmeticSql(sqlDialect, version));
+            return "round(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ", " + scale + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("ROUND", sqlDialect);
     }

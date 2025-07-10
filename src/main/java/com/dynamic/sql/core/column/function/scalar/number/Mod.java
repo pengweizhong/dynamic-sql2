@@ -16,6 +16,9 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
 
 /**
  * 取模
@@ -35,12 +38,12 @@ public class Mod extends ColumnFunctionDecorator implements NumberFunction {
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.ORACLE) {
-            return "MOD(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + divisor + ")".concat(appendArithmeticSql(sqlDialect, version));
+            return "MOD(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ", " + divisor + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "mod(" + delegateFunction.getFunctionToString(sqlDialect, version) + ", " + divisor + ")".concat(appendArithmeticSql(sqlDialect, version));
+            return "mod(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ", " + divisor + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
         throw FunctionException.unsupportedFunctionException("MOD", sqlDialect);
     }

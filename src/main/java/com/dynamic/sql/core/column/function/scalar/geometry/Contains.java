@@ -16,7 +16,10 @@ import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
 import com.dynamic.sql.model.Point;
+import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
+
+import java.util.Map;
 
 import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
 
@@ -30,9 +33,9 @@ public class Contains extends ColumnFunctionDecorator implements ScalarFunction 
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.MYSQL) {
-            String name = SqlUtils.extractQualifiedAlias(delegateFunction.getOriginColumnFn(), aliasTableMap, dataSourceName);
+            String name = SqlUtils.extractQualifiedAlias(delegateFunction.getOriginColumnFn(), this.aliasTableMap, dataSourceName);
             registerValueWithKey(parameterBinder, delegateFunction.getOriginColumnFn(), value);
             return "ST_Contains(" + name + ", ST_PointFromText('" + point.toPointString() + "'," + point.getSrid() + "));";
         }

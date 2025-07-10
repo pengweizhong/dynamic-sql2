@@ -16,6 +16,9 @@ import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.model.TableAliasMapping;
+
+import java.util.Map;
 
 public class AsText extends ColumnFunctionDecorator implements ScalarFunction {
     public AsText(AbstractColumFunction delegateFunction) {
@@ -31,9 +34,9 @@ public class AsText extends ColumnFunctionDecorator implements ScalarFunction {
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version) throws UnsupportedOperationException {
+    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "ST_AsText(" + delegateFunction.getFunctionToString(sqlDialect, version) + ")";
+            return "ST_AsText(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")";
         }
         throw FunctionException.unsupportedFunctionException("ST_AsText", sqlDialect);
     }

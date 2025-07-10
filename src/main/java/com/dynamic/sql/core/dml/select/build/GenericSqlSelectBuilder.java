@@ -30,14 +30,17 @@ import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.model.Arithmetic;
 import com.dynamic.sql.model.Dual;
+import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
+import com.dynamic.sql.utils.MapUtils;
 import com.dynamic.sql.utils.ReflectUtils;
 import com.dynamic.sql.utils.SqlUtils;
 import com.dynamic.sql.utils.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -47,8 +50,11 @@ import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
 
 public class GenericSqlSelectBuilder extends SqlSelectBuilder {
 
-    public GenericSqlSelectBuilder(SelectSpecification selectSpecification) {
+    public GenericSqlSelectBuilder(SelectSpecification selectSpecification, Map<String, TableAliasMapping> aliasTableMap) {
         super(selectSpecification);
+        if (MapUtils.isNotEmpty(aliasTableMap)) {
+            aliasTableMap.forEach(super.aliasTableMap::putIfAbsent);
+        }
     }
 
     protected void parseColumnFunction() {
@@ -63,7 +69,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             //TODO 这里类名需要修改以下，太容易引起混淆 ColumFunction、FunctionColumn
             if (columnQuery instanceof ColumFunction) {
                 ColumFunction columFunction = (ColumFunction) columnQuery;
-                String functionToString = columFunction.getFunctionToString(sqlDialect, version);
+                String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
                 sqlBuilder.append(functionToString);
                 continue;
             }
@@ -106,7 +112,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 }
                 //数字列不需要关心别名问题
                 if (columFunction instanceof NumberColumn || columFunction instanceof Count) {
-                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version)).append(arithmeticSql);
+                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version, aliasTableMap)).append(arithmeticSql);
                     parameterBinder.addParameterBinder(arithmeticParameterBinder);
                     String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
                     sqlBuilder.append(syntaxColumnAlias(columnAlias)).append(columnSeparator);
@@ -114,7 +120,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 }
                 Fn<?, ?> fn = columFunction.getOriginColumnFn();
                 if (columFunction instanceof AbstractAliasHelper) {
-                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version)).append(arithmeticSql);
+                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version, aliasTableMap)).append(arithmeticSql);
                     parameterBinder.addParameterBinder(arithmeticParameterBinder);
                     if (StringUtils.isNotBlank(columnQuery.getAlias())) {
                         sqlBuilder.append(syntaxAs()).append(columnQuery.getAlias());
@@ -127,7 +133,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     tableAlias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(fn)).getAlias();
                 }
                 columFunction.setTableAlias(tableAlias);
-                String functionToString = columFunction.getFunctionToString(sqlDialect, version);
+                String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
                 //拼接别名，
                 String columnAlias = columnQuery.getAlias();
                 //如果用户未设置别名 ，那么应该将字段名设置为别名，方便排序
@@ -212,7 +218,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             //如果是直接查询的函数表
             if (joinTable.getTableFunction() != null) {
                 TableFunction tableFunction = joinTable.getTableFunction().get();
-                sqlBuilder.append(tableFunction.getFunctionToString(sqlDialect, version))
+                sqlBuilder.append(tableFunction.getFunctionToString(sqlDialect, version, aliasTableMap))
                         .append(syntaxAs()).append(joinTable.getTableAlias());
                 return;
             }
@@ -233,7 +239,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         if (joinTable instanceof TableFunctionJoin) {
             TableFunctionJoin tableFunctionJoin = (TableFunctionJoin) joinTable;
             TableFunction tableFunction = tableFunctionJoin.getTableFunction().get();
-            String functionToString = tableFunction.getFunctionToString(sqlDialect, version);
+            String functionToString = tableFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
             sqlBuilder.append(" ").append(syntaxJoin).append(functionToString).append(syntaxAs()).append(tableFunctionJoin.getTableAlias());
             parameterBinder.addParameterBinder(tableFunction.getParameterBinder());
             //拼接On条件
