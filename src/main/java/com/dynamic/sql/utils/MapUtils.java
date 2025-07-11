@@ -17,6 +17,20 @@ public class MapUtils {
     private MapUtils() {
     }
 
+    /**
+     * 使用可变参数快速构建一个 {@link LinkedHashMap} 实例。
+     * <p>
+     * 示例：<br>
+     * {@code Map<String, Object> map = MapUtils.of("key1", val1, "key2", val2);}
+     * <p>
+     * 如果参数个数不是偶数，将抛出 {@link IllegalArgumentException}。
+     *
+     * @param keyValue 键值对，可变参数，按 key1, value1, key2, value2... 顺序传入
+     * @param <K>      键类型
+     * @param <V>      值类型
+     * @return 构建完成的 {@link LinkedHashMap}
+     * @throws IllegalArgumentException 如果参数个数不是偶数
+     */
     @SuppressWarnings("unchecked")
     public static <K, V> Map<K, V> of(Object... keyValue) {
         Map<K, V> hashMap = new LinkedHashMap<>();
