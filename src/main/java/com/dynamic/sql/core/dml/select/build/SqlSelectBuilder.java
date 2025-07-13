@@ -53,6 +53,8 @@ public abstract class SqlSelectBuilder {
     //key是class路径 value是别名
     //如果是嵌套表，则key和value都是别名
     protected final Map<String, TableAliasMapping> aliasTableMap = new HashMap<>();
+    //是否是子查询
+    private Boolean isFromNestedSelect;
 
     protected <C extends WhereCondition<C>> SqlSelectBuilder(SelectSpecification selectSpecification) {
         this.selectSpecification = selectSpecification;
@@ -100,6 +102,7 @@ public abstract class SqlSelectBuilder {
             if (joinTable instanceof FromNestedJoin || joinTable instanceof NestedJoin
                     || joinTable instanceof TableFunctionJoin || joinTable.getTableFunction() != null) {
                 key = joinTable.getTableAlias();
+                isFromNestedSelect = Boolean.TRUE;
             } else {
                 key = joinTable.getTableClass().getCanonicalName();
             }
@@ -206,7 +209,7 @@ public abstract class SqlSelectBuilder {
                 columnSeparator = ",";
             }
             String sort = orderBy.getSortOrder() != null ? orderBy.getSortOrder().toSqlString(sqlDialect) : "";
-            String aliasOrderBy = SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName, version, parameterBinder);
+            String aliasOrderBy = SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName, version, parameterBinder, isFromNestedSelect);
             stringBuilder.append(aliasOrderBy).append(" ");
             if (i < orderBys.size() - 1) {
                 //获取下个排列
