@@ -217,24 +217,36 @@ public class SqlUtils {
         }
         if (orderBy instanceof DefaultOrderBy) {
             DefaultOrderBy defaultOrderBy = (DefaultOrderBy) orderBy;
-            if (defaultOrderBy.getTableAlias() != null) {
-                sqlBuilder.append(quoteIdentifier(sqlDialect, defaultOrderBy.getTableAlias())).append(".");
-            }
             if (defaultOrderBy.getFieldFn() != null) {
                 String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(defaultOrderBy.getFieldFn());
                 TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
                 ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(defaultOrderBy.getFieldFn()));
                 String tableAlias = extractQualifiedAlias(originalClassCanonicalName, aliasTableMap, tableMeta);
-                if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null && tableAlias != null) {
+                if (defaultOrderBy.getTableAlias() != null) {
+                    sqlBuilder.append(quoteIdentifier(sqlDialect, defaultOrderBy.getTableAlias())).append(".");
+                } else if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null && tableAlias != null) {
                     sqlBuilder.append(quoteIdentifier(sqlDialect, tableAlias)).append(".");
-                }
-                // 单表排序时不能使用别名，要使用原始字段排序
-                if (MapUtils.isNotEmpty(aliasTableMap) && aliasTableMap.size() < 2) {
-                    sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
                 } else {
-                    //实测发现排序别名更不容易出错，避免多表下同字段名重复的情况
-                    sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getField().getName()));
+                    sqlBuilder.append(quoteIdentifier(sqlDialect, tableMeta.getTableAlias())).append(".");
                 }
+//                if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null && tableAlias != null) {
+//                    sqlBuilder.append(quoteIdentifier(sqlDialect, tableAlias)).append(".");
+//                }
+                /*
+                进行排序（ORDER BY）时，是否使用 原始列名 还是 别名，取决于 SQL 的结构和查询的阶段。
+                    WHERE 之前用原名，
+                    表达函数要别名。
+                    子查询外无原列，
+                    聚合排序任君选。
+                 */
+                // 单表排序时不能使用别名，要使用原始字段排序
+//                if (MapUtils.isNotEmpty(aliasTableMap) && aliasTableMap.size() < 2) {
+//                    sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
+//                } else {
+                //实测发现排序别名更不容易出错，避免多表下同字段名重复的情况
+//                    sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getField().getName()));
+//                }
+                sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
             } else if (defaultOrderBy.getColumFunction() != null) {
                 ColumFunction columFunction = defaultOrderBy.getColumFunction();
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
@@ -645,7 +657,7 @@ public class SqlUtils {
         if (dbType == DbType.ORACLE) {
             int i = databaseProductVersion.indexOf("Version");
             if (i != -1) {
-                databaseProductVersion = databaseProductVersion.substring(i + "Version" .length()).trim();
+                databaseProductVersion = databaseProductVersion.substring(i + "Version".length()).trim();
             }
         }
         String[] split = databaseProductVersion.split("\\.");

@@ -177,9 +177,19 @@ VALUES (5, 5, '2024-02-28', 500.00, 'Cash', 'Completed', '{"zip": "33101", "city
 
 
 
+CREATE TABLE temp_user
+(
+    id   INT PRIMARY KEY,
+    name VARCHAR(20),
+    age  INT
+);
 
-
-
+CREATE TABLE temp_dept
+(
+    id       INT PRIMARY KEY,
+    name     VARCHAR(20),
+    location VARCHAR(50)
+);
 
 
 

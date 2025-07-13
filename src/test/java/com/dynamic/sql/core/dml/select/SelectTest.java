@@ -981,6 +981,40 @@ public class SelectTest extends InitializingContext {
             System.out.println("\n");
         }
     }
+
+
+    @Test
+    void orderByAlias() {
+        List<?> list = sqlContext.select()
+                .allColumn()
+                .from(TempUserEntity.class)
+                .join(TempDeptEntity.class, on -> on.andEqualTo(TempUserEntity::getId, TempDeptEntity::getId))
+                .where()
+                .orderBy(TempUserEntity::getId)
+                .fetch()
+                .toList();
+        System.out.println(list);
+    }
+
+    @Test
+    void orderByAlias2() {
+        List<?> list = sqlContext.select()
+                .allColumn()
+                .from(select -> select
+                        .allColumn(TempDeptEntity.class)
+                        .column(TempUserEntity::getId, "uid")
+                        .column(TempUserEntity::getAge)
+                        .column(TempUserEntity::getName, "uname")
+                        .from(TempUserEntity.class)
+                        .join(TempDeptEntity.class, on -> on.andEqualTo(TempUserEntity::getId, TempDeptEntity::getId))
+                        .where()
+                        .orderBy(TempDeptEntity::getId), "t")
+                .where()
+                .orderBy(TempUserEntity::getId)
+                .fetch(Object.class)
+                .toList();
+        System.out.println(list);
+    }
 }
 
 
