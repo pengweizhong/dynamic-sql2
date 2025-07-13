@@ -250,6 +250,9 @@ public class SqlUtils {
                 parameterBinder.addParameterBinder(columFunction.getParameterBinder());
                 sqlBuilder.append(functionToString);
             } else {
+                if (StringUtils.isNotBlank(orderBy.getTableAlias())) {
+                    sqlBuilder.append(orderBy.getTableAlias()).append(".");
+                }
                 sqlBuilder.append(quoteIdentifier(sqlDialect, defaultOrderBy.getColumnName()));
             }
         }

@@ -12,6 +12,7 @@ import com.dynamic.sql.core.column.function.scalar.number.Round;
 import com.dynamic.sql.core.column.function.table.JsonTable;
 import com.dynamic.sql.core.column.function.table.JsonTable.JsonColumn;
 import com.dynamic.sql.core.column.function.windows.DenseRank;
+import com.dynamic.sql.core.column.function.windows.RowNumber;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
@@ -1009,6 +1010,57 @@ public class SelectTest extends InitializingContext {
                         .join(TempDeptEntity.class, on -> on.andEqualTo(TempUserEntity::getId, TempDeptEntity::getId))
                         .where()
                         .orderBy(TempDeptEntity::getId), "t")
+                .where()
+                .orderBy(TempUserEntity::getId)
+                .fetch(Object.class)
+                .toList();
+        System.out.println(list);
+    }
+
+    @Test
+    void orderByAlias3() {
+        List<?> list = sqlContext.select()
+                .allColumn(TempDeptEntity.class)
+                .column(TempUserEntity::getId, "uid")
+                .column(TempUserEntity::getAge)
+                .column(TempUserEntity::getName, "uname")
+                .column(new RowNumber(), over -> over.orderBy(TempUserEntity::getAge, SortOrder.DESC).orderBy(TempDeptEntity::getId), "number")
+                .from(TempUserEntity.class)
+                .join(TempDeptEntity.class, on -> on.andEqualTo(TempUserEntity::getId, TempDeptEntity::getId))
+                .where()
+                .orderBy(TempUserEntity::getId)
+                .fetch(Object.class)
+                .toList();
+        System.out.println(list);
+    }
+
+    @Test
+    void orderByAlias4() {
+        List<?> list = sqlContext.select()
+                .allColumn(TempDeptEntity.class)
+                .column(TempUserEntity::getId, "uid")
+                .column(TempUserEntity::getAge)
+                .column(TempUserEntity::getName, "uname")
+                .column(new RowNumber(), over -> over.orderBy(TempUserEntity::getAge, SortOrder.DESC).orderBy(TempDeptEntity::getId), "number")
+                .from(TempUserEntity.class, "t1")
+                .join(TempDeptEntity.class, "t2", on -> on.andEqualTo(TempUserEntity::getId, TempDeptEntity::getId))
+                .where()
+                .orderBy(TempUserEntity::getId)
+                .fetch(Object.class)
+                .toList();
+        System.out.println(list);
+    }
+
+    @Test
+    void orderByAlias5() {
+        List<?> list = sqlContext.select()
+                .allColumn(TempDeptEntity.class)
+                .column(TempUserEntity::getId, "uid")
+                .column(TempUserEntity::getAge)
+                .column(TempUserEntity::getName, "uname")
+                .column(new RowNumber(), over -> over.orderBy("t1", "age", SortOrder.DESC).orderBy(TempDeptEntity::getId), "number")
+                .from(TempUserEntity.class, "t1")
+                .join(TempDeptEntity.class, "t2", on -> on.andEqualTo(TempUserEntity::getId, TempDeptEntity::getId))
                 .where()
                 .orderBy(TempUserEntity::getId)
                 .fetch(Object.class)
