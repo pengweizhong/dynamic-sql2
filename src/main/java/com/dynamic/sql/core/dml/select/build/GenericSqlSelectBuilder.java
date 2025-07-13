@@ -344,6 +344,11 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             sqlBuilder.append(canonicalName).append(".*");
             return;
         }
+        //通常子查询可能无法正确获取别名
+        if (aliasTableMap.get(canonicalName) == null) {
+            sqlBuilder.append("*");
+            return;
+        }
         String tableAlias = aliasTableMap.get(canonicalName).getAlias();
         //确定别名
         tableAlias = tableAlias == null ? tableMeta.getTableAlias() : tableAlias;

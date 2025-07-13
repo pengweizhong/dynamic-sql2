@@ -1067,6 +1067,26 @@ public class SelectTest extends InitializingContext {
                 .toList();
         System.out.println(list);
     }
+
+    @Test
+    void orderByAlias6() {
+        List<?> list = sqlContext.select()
+                .allColumn(TempUserEntity.class)
+                .from(select -> select
+                                .allColumn(TempDeptEntity.class)
+                                .column(TempUserEntity::getId, "uid")
+                                .column(TempUserEntity::getAge)
+                                .column(TempUserEntity::getName, "uname")
+                                .column(new RowNumber(), over -> over.orderBy("t1", "age", SortOrder.DESC).orderBy(TempDeptEntity::getId), "number")
+                                .from(TempUserEntity.class, "t1")
+                                .join(TempDeptEntity.class, "t2", on -> on.andEqualTo(TempUserEntity::getId, TempDeptEntity::getId))
+                                .where()
+                                .orderBy(TempUserEntity::getId)
+                        , "sss")
+                .fetch(Object.class)
+                .toList();
+        System.out.println(list);
+    }
 }
 
 
