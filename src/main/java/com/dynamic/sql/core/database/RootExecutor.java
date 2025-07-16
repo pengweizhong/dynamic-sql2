@@ -49,7 +49,7 @@ public class RootExecutor {
                 LinkedHashMap<String, Object> objectMap = new LinkedHashMap<>();
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnLabel(i);
-                    if (objectMap.containsKey(columnName)) {
+                    if (log.isDebugEnabled() && objectMap.containsKey(columnName)) {
                         detectedColumnNameSet.add(columnName);
                     }
                     Object columnValue = resultSet.getObject(i);
@@ -57,7 +57,9 @@ public class RootExecutor {
                 }
                 arrayList.add(objectMap);
             }
-            detectedColumnNameSet.forEach(columnName -> log.trace("Duplicate column name detected: {}", columnName));
+            if (log.isDebugEnabled()) {
+                detectedColumnNameSet.forEach(columnName -> log.debug("Duplicate column name detected: {}", columnName));
+            }
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         } finally {
