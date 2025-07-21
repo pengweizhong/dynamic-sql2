@@ -15,7 +15,7 @@ import java.lang.annotation.*;
  * 表注解，作用在实体类类名上，value 和数据库表对应
  */
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Table {
     /**
