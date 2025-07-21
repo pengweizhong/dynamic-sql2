@@ -48,9 +48,6 @@
     </organization>
 
     <distributionManagement>
-        <site>
-            <url>https://www.dynamic-sql.com</url>
-        </site>
         <snapshotRepository>
             <id>snapshots</id>
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
@@ -163,39 +160,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.2.7</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <useAgent>true</useAgent>
-                    <gpgArguments>
-                        <arg>--pinentry-mode</arg>
-                        <arg>loopback</arg>
-                    </gpgArguments>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.central</groupId>
-                <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.6.0</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <publishingServerId>central</publishingServerId>
-                    <autoPublish>true</autoPublish>
-                    <!--插件会等待直到组件通过 Sonatype Central 的验证过程（确保符合 Maven Central 的要求，如 POM 文件完整性、签名等）。-->
-                    <waitUntil>validated</waitUntil>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
