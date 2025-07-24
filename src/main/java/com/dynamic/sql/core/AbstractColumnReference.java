@@ -17,6 +17,7 @@ import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.core.dml.select.TableRelation;
 import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
+import com.dynamic.sql.core.dml.select.build.column.StringColumn;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 import com.dynamic.sql.model.KeyMapping;
 
@@ -357,6 +358,37 @@ public abstract class AbstractColumnReference {
      */
     public AbstractColumnReference column(boolean isEffective, Consumer<AbstractColumnReference> nestedSelect, String columnAlias) {
         return isEffective ? column(nestedSelect, columnAlias) : this;
+    }
+
+    /**
+     * 添加一个原始 SQL 表达式列到当前查询中。
+     * <p>
+     * 默认始终生效。
+     * <p>
+     * 示例：
+     * <pre>
+     *   column("CASE WHEN risk_level = 1 THEN '低' ELSE '高' END AS riskText")
+     * </pre>
+     *
+     * @param sql 需要添加的 SQL 表达式，支持别名（如 "xxx AS alias"）
+     * @return 当前列引用的实例，支持链式调用
+     */
+    public AbstractColumnReference column(String sql) {
+        return column(true, sql);
+    }
+
+    /**
+     * 条件性地添加一个原始 SQL 表达式列到当前查询中。
+     *
+     * @param isEffective 是否添加该列（true 为添加，false 为忽略）
+     * @param sql         需要添加的 SQL 表达式，支持别名（如 "xxx AS alias"）
+     * @return 当前列引用的实例，支持链式调用
+     */
+    public AbstractColumnReference column(boolean isEffective, String sql) {
+        if (isEffective) {
+            selectSpecification.getColumFunctions().add(new StringColumn(sql));
+        }
+        return this;
     }
 
 

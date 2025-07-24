@@ -1087,6 +1087,17 @@ public class SelectTest extends InitializingContext {
                 .toList();
         System.out.println(list);
     }
+
+    @Test
+    void stringColumn() {
+        Integer aaa = sqlContext.select()
+                .column(" count(1) ")
+                .from(User.class)
+                .fetch(Integer.class)
+                .toOne();
+        System.out.println(aaa);
+
+    }
 }
 
 

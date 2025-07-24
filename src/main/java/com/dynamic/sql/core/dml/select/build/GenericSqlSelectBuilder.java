@@ -25,6 +25,7 @@ import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import com.dynamic.sql.core.dml.select.build.column.FunctionColumn;
 import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
+import com.dynamic.sql.core.dml.select.build.column.StringColumn;
 import com.dynamic.sql.core.dml.select.build.join.*;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
@@ -71,6 +72,11 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 ColumFunction columFunction = (ColumFunction) columnQuery;
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
                 sqlBuilder.append(functionToString);
+                continue;
+            }
+            if (columnQuery instanceof StringColumn) {
+                StringColumn stringColumn = (StringColumn) columnQuery;
+                sqlBuilder.append(" ").append(stringColumn.getSql()).append(" ");
                 continue;
             }
             if (columnQuery instanceof FunctionColumn) {
