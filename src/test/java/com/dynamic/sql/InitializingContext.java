@@ -8,6 +8,8 @@ import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.datasource.connection.ConnectionHolder;
 import com.dynamic.sql.datasource.connection.SimpleConnectionHandle;
 import com.dynamic.sql.plugins.conversion.impl.FetchJsonObjectConverter;
+import com.dynamic.sql.plugins.exception.DefaultSqlErrorHint;
+import com.dynamic.sql.plugins.exception.ExceptionPlugin;
 import com.dynamic.sql.plugins.pagination.PageInterceptorPlugin;
 import com.dynamic.sql.utils.ConverterUtils;
 import com.google.gson.JsonObject;
@@ -50,6 +52,7 @@ public class InitializingContext {
         sqlContextProperties.addSchemaProperties(schemaProperties);
         //内置分页
         sqlContextProperties.addInterceptor(new PageInterceptorPlugin());
+        sqlContextProperties.addInterceptor(new ExceptionPlugin(new DefaultSqlErrorHint()));
         //内置JDBC连接
         ConnectionHolder.setConnectionHandle(new SimpleConnectionHandle());
         ConverterUtils.putFetchResultConverter(JsonObject.class, new FetchJsonObjectConverter());

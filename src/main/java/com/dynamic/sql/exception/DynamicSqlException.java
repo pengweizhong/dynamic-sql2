@@ -10,5 +10,16 @@
 package com.dynamic.sql.exception;
 
 public class DynamicSqlException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
 
+    //SQLException.getSQLState()
+//    private String sqlState;
+
+    public DynamicSqlException(String message) {
+        super(message);
+    }
+
+    public DynamicSqlException(Exception e) {
+        super(e);
+    }
 }

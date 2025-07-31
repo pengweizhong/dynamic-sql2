@@ -24,6 +24,7 @@ import com.dynamic.sql.datasource.DataSourceProvider;
 import com.dynamic.sql.datasource.connection.ConnectionHolder;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.enums.SqlExecuteType;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.interceptor.ExecutionControl;
 import com.dynamic.sql.interceptor.SqlInterceptorChain;
 import com.dynamic.sql.utils.SqlUtils;
@@ -54,7 +55,7 @@ public class SqlExecutionFactory {
             case ORACLE:
                 return new OracleParser(entityClass, schemaProperties, param, whereCondition);
             default:
-                throw new UnsupportedOperationException("Unsupported dialect: " + sqlDialect);
+                throw new DynamicSqlException("Unsupported dialect: " + sqlDialect);
         }
     }
 
@@ -81,9 +82,12 @@ public class SqlExecutionFactory {
             } else {
                 apply = sqlInterceptorChain.retrieveSkippedResult(sqlStatementWrapper, connection);
             }
-        } catch (Exception e) {
+        } catch (DynamicSqlException e) {
             exception = e;
             throw e;
+        } catch (Exception e) {
+            exception = e;
+            throw new DynamicSqlException(e);
         } finally {
             try {
                 ConnectionHolder.releaseConnection(dataSourceMeta.getDataSource(), connection);

@@ -11,6 +11,7 @@ package com.dynamic.sql.core.database;
 
 import com.dynamic.sql.core.dml.insert.EntitiesInserter;
 import com.dynamic.sql.enums.GenerationType;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.GeneratedStrategy;
 import com.dynamic.sql.table.TableMeta;
@@ -61,7 +62,7 @@ public class RootExecutor {
                 detectedColumnNameSet.forEach(columnName -> log.debug("Duplicate column name detected: {}", columnName));
             }
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new DynamicSqlException(e);
         } finally {
             SqlUtils.close(resultSet, preparedStatement);
         }
@@ -91,7 +92,7 @@ public class RootExecutor {
             resultSet = preparedStatement.getGeneratedKeys();
             assignValueToPrimaryKey(resultSet, columnMeta);
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new DynamicSqlException(e);
         } finally {
             SqlUtils.close(resultSet, preparedStatement);
         }
@@ -112,7 +113,7 @@ public class RootExecutor {
                 return rowsAffected;
             }
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new DynamicSqlException(e);
         } finally {
             SqlUtils.close(null, preparedStatement);
         }
@@ -145,7 +146,7 @@ public class RootExecutor {
             resultSet = preparedStatement.getGeneratedKeys();
             assignValueToPrimaryKey(resultSet, columnMeta);
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new DynamicSqlException(e);
         } finally {
             SqlUtils.close(resultSet, preparedStatement);
         }
