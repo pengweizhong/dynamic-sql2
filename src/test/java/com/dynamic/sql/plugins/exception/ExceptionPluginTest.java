@@ -27,4 +27,9 @@ class ExceptionPluginTest extends InitializingContext {
     void test3() {
         sqlContext.execute("insert into `users` (`user_id`,name,registration_date) values (1,'name','2020-01-01')");
     }
+
+    @Test
+    void test4() {
+        sqlContext.execute("insert into `users` (`user_id`,name,registration_date) values (111111111111111111111111111111111,'name','2020-01-01')");
+    }
 }
