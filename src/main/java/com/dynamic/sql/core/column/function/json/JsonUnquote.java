@@ -16,7 +16,7 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.model.TableAliasMapping;
 
 import java.util.Map;
@@ -43,6 +43,6 @@ public class JsonUnquote extends ColumnFunctionDecorator implements TableFunctio
         if (sqlDialect == SqlDialect.MYSQL) {
             return "json_unquote(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")";
         }
-        throw FunctionException.unsupportedFunctionException("json_unquote", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("json_unquote", sqlDialect);
     }
 }

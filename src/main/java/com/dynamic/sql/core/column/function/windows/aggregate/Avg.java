@@ -16,7 +16,7 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.model.TableAliasMapping;
 
 import java.util.Map;
@@ -44,6 +44,6 @@ public class Avg extends ColumnFunctionDecorator implements AggregateFunction, W
         if (sqlDialect == SqlDialect.MYSQL) {
             return "avg(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
-        throw FunctionException.unsupportedFunctionException("avg", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("avg", sqlDialect);
     }
 }

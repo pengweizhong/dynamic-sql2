@@ -18,7 +18,7 @@ import com.dynamic.sql.core.dml.select.order.NullsLast;
 import com.dynamic.sql.core.dml.select.order.OrderBy;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.utils.ExceptionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +81,7 @@ public class Over {
         if (sqlDialect == SqlDialect.MYSQL) {
             return "over(" + overClause + ")";
         }
-        throw FunctionException.unsupportedFunctionException("over", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("over", sqlDialect);
     }
 
 

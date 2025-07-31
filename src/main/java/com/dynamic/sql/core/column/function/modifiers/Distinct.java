@@ -16,7 +16,7 @@ import com.dynamic.sql.core.column.ColumnModifiers;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.StringUtils;
 
@@ -63,7 +63,7 @@ public class Distinct extends ColumnFunctionDecorator implements ColumnModifiers
             }
 
         }
-        throw FunctionException.unsupportedFunctionException("distinct", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("distinct", sqlDialect);
     }
 
     @Override

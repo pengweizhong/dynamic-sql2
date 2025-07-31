@@ -15,7 +15,7 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.model.TableAliasMapping;
 
 import java.util.Map;
@@ -38,6 +38,6 @@ public class AsBinary extends ColumnFunctionDecorator implements ScalarFunction 
         if (sqlDialect == SqlDialect.MYSQL) {
             return "ST_AsBinary(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")";
         }
-        throw FunctionException.unsupportedFunctionException("ST_AsBinary", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("ST_AsBinary", sqlDialect);
     }
 }

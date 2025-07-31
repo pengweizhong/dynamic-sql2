@@ -12,7 +12,7 @@ package com.dynamic.sql.core.column.function.windows;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.model.TableAliasMapping;
 
 import java.util.Map;
@@ -27,7 +27,7 @@ public class RowNumber extends ColumnFunctionDecorator implements WindowsFunctio
         if (sqlDialect == SqlDialect.MYSQL) {
             return "row_number(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
         }
-        throw FunctionException.unsupportedFunctionException("row_number", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("row_number", sqlDialect);
     }
 
 }

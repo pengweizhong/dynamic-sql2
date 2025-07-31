@@ -15,7 +15,7 @@ import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
 
@@ -52,11 +52,11 @@ public class Md5 extends ColumnFunctionDecorator {
         if (sqlDialect == SqlDialect.ORACLE) {
             //Oracle 11g 及以上版本支持该功能。
             if (version.getMajorVersion() < 11) {
-                throw FunctionException.unsupportedFunctionException("RAWTOHEX", version, sqlDialect);
+                throw ExceptionUtils.unsupportedFunctionException("RAWTOHEX", version, sqlDialect);
             }
             return "RAWTOHEX(DBMS_CRYPTO.HASH(UTL_RAW.CAST_TO_RAW(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + "), 2)) ";
         }
-        throw FunctionException.unsupportedFunctionException("md5", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("md5", sqlDialect);
     }
 
 }

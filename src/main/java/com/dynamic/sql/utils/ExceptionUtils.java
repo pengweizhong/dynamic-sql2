@@ -7,15 +7,13 @@
  *
  * See the LICENSE file in the project root for more information.
  */
-package com.dynamic.sql.exception;
-
+package com.dynamic.sql.utils;
 
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.enums.SqlDialect;
 
-public class FunctionException {
-
-    private FunctionException() {
+public class ExceptionUtils {
+    private ExceptionUtils() {
     }
 
     public static UnsupportedOperationException unsupportedFunctionException(String functionName, Version version, SqlDialect sqlDialect) {

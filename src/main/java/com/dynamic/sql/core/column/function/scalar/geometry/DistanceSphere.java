@@ -15,7 +15,7 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.exception.FunctionException;
+import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.model.Point;
 import com.dynamic.sql.model.TableAliasMapping;
 
@@ -50,7 +50,7 @@ public class DistanceSphere extends ColumnFunctionDecorator implements ScalarFun
             return "ST_Distance_Sphere(ST_GeomFromText('" + thisPoint.toPointString() + "', " + thisPoint.getSrid() + ")"
                     + ",  ST_GeomFromText('" + otherPoint.toPointString() + "', " + otherPoint.getSrid() + "))".concat(appendArithmeticSql(sqlDialect, version));
         }
-        throw FunctionException.unsupportedFunctionException("ST_Distance_Sphere", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("ST_Distance_Sphere", sqlDialect);
     }
 
 }
