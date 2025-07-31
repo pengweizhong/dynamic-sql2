@@ -56,6 +56,7 @@ public class ExceptionPlugin implements SqlInterceptor {
         }
         if (exception instanceof SQLException) {
             fillSqlExceptionDescription(preparedSql.getSql(), (SQLException) exception);
+            return;
         }
         Throwable cause = exception.getCause();
         while (cause != null) {
