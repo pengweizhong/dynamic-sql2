@@ -22,7 +22,7 @@ public class PageInfo<T> extends AbstractPage {
     //查询语句
     private Supplier<T> selectSupplier;
 
-    protected PageInfo(int pageIndex, int pageSize) {
+    public PageInfo(int pageIndex, int pageSize) {
         super(pageIndex, pageSize);
     }
 

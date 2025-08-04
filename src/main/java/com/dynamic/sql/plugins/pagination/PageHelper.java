@@ -50,7 +50,7 @@ public class PageHelper {
     }
 
     /**
-     * 创建一个用于 MyBatis 分页插件的分页实例。
+     * 创建一个用于 MyBatis 分页插件的分页实例。（TODO 暂未支持，预留用）
      *
      * @param pageIndex 页码，从 1 开始（若小于等于 0 则默认为 1）
      * @param pageSize  每页大小（必须大于 0）
