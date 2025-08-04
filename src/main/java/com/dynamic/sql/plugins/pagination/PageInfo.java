@@ -177,6 +177,7 @@ public class PageInfo<T> extends AbstractPage {
      */
     public void setTotal(long total) {
         this.total = total;
+        initTotalPage();
     }
 
 
