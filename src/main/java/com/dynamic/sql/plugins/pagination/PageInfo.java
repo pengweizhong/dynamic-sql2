@@ -159,6 +159,27 @@ public class PageInfo<T> extends AbstractPage {
         PageHelper.of(this).selectPage(selectSupplier);
     }
 
+    /**
+     * 设置分页记录数据。
+     *
+     * @param records 当前页的数据记录，类型为泛型 T
+     */
+    public void setRecords(T records) {
+        this.records = records;
+    }
+
+    /**
+     * 设置总记录数。
+     * <br/>
+     * 这里重写了setTotal方法，仅仅是为了放开权限，允许用户手动创建分页对象后可以设置新值
+     *
+     * @param total 所有数据的总条数
+     */
+    public void setTotal(long total) {
+        this.total = total;
+    }
+
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("PageInfo{");
