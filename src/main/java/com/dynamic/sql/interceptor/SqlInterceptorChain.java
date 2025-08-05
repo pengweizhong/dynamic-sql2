@@ -79,8 +79,15 @@ public class SqlInterceptorChain implements SqlInterceptor {
     @Override
     public void afterExecution(PreparedSql preparedSql, Object applyResult, Exception exception) {
         // 依次执行每个拦截器的afterExecution方法
+        // 对于事后的错误应该给予包容，仅作打印
         for (SqlInterceptor interceptor : interceptors) {
-            interceptor.afterExecution(preparedSql, applyResult, exception);
+            try {
+                interceptor.afterExecution(preparedSql, applyResult, exception);
+            } catch (Exception e) {
+                log.error("An error occurred while executing the SQL interceptor ("
+                        + interceptor.getClass().getSimpleName() + "#afterExecution)", e);
+            }
+
         }
     }
 

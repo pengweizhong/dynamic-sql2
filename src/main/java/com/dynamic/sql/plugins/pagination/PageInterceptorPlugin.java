@@ -19,8 +19,11 @@ import com.dynamic.sql.core.database.SqlExecutor;
 import com.dynamic.sql.core.dml.SqlStatementWrapper;
 import com.dynamic.sql.enums.DMLType;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.interceptor.ExecutionControl;
 import com.dynamic.sql.interceptor.SqlInterceptor;
+import com.dynamic.sql.plugins.exception.DefaultSqlErrorHint;
+import com.dynamic.sql.plugins.exception.ExceptionPlugin;
 import com.dynamic.sql.plugins.pagination.impl.MySQLDialectPagination;
 import com.dynamic.sql.plugins.pagination.impl.OracleDialectPagination;
 import com.dynamic.sql.utils.SqlUtils;
@@ -81,14 +84,22 @@ public class PageInterceptorPlugin implements SqlInterceptor, PagePluginType {
 
     @Override
     public void afterExecution(PreparedSql preparedSql, Object applyResult, Exception exception) {
-
+        //IGNORE
     }
 
     private long executeCountSql(SqlStatementWrapper sqlStatementWrapper, Connection connection, StringBuilder countSql) {
         PreparedSql preparedSql = SqlUtils.parsePreparedObject(countSql, sqlStatementWrapper.getParameterBinder());
-        List<Map<String, Object>> resultCountList = SqlExecutionFactory.applySql(DMLType.SELECT,
-                sqlStatementWrapper.getDataSourceName(), connection,
-                preparedSql, true, SqlExecutor::executeQuery);
+        List<Map<String, Object>> resultCountList;
+        try {
+            resultCountList = SqlExecutionFactory.applySql(DMLType.SELECT,
+                    sqlStatementWrapper.getDataSourceName(), connection,
+                    preparedSql, true, SqlExecutor::executeQuery);
+
+        } catch (Exception e) {
+            //打印通用的错误描述
+            new ExceptionPlugin(new DefaultSqlErrorHint()).afterExecution(preparedSql, null, e);
+            throw new DynamicSqlException(e);
+        }
         if (resultCountList.isEmpty()) {
             return 0;
         }

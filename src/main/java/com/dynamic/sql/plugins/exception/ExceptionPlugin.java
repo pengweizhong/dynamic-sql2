@@ -54,14 +54,16 @@ public class ExceptionPlugin implements SqlInterceptor {
         if (exception == null) {
             return;
         }
+        //对于被其他拦截器拦截后发生的错误，或是修改了preparedSql没有正确传递的，就无法打印原生SQL了
+        String sql = preparedSql == null ? null : preparedSql.getSql();
         if (exception instanceof SQLException) {
-            fillSqlExceptionDescription(preparedSql.getSql(), (SQLException) exception);
+            fillSqlExceptionDescription(sql, (SQLException) exception);
             return;
         }
         Throwable cause = exception.getCause();
         while (cause != null) {
             if (cause instanceof SQLException) {
-                fillSqlExceptionDescription(preparedSql.getSql(), (SQLException) cause);
+                fillSqlExceptionDescription(sql, (SQLException) cause);
                 return;
             }
             cause = cause.getCause();
@@ -77,10 +79,18 @@ public class ExceptionPlugin implements SqlInterceptor {
         int errorCode = sqlException.getErrorCode();
         String errorHintMsg = errorHints.get(sqlState);
         if (errorHintMsg != null) {
-            log.error("{}, 原因：{}，参考SQL: {}", errorHintMsg, sqlException.getMessage(), sql);
+            if (sql != null) {
+                log.error("{}, 原因：{}，参考SQL: {}", errorHintMsg, sqlException.getMessage(), sql);
+            } else {
+                log.error("{}, 原因：{}", errorHintMsg, sqlException.getMessage());
+            }
             return;
         }
-        log.error("SQL执行失败！errorCode: {}, 原因：{}，参考SQL: {}", errorCode, sqlException.getMessage(), sql);
+        if (sql != null) {
+            log.error("SQL执行失败！errorCode: {}, 原因：{}，参考SQL: {}", errorCode, sqlException.getMessage(), sql);
+        } else {
+            log.error("SQL执行失败！errorCode: {}, 原因：{}", errorCode, sqlException.getMessage());
+        }
     }
 
     @Override
