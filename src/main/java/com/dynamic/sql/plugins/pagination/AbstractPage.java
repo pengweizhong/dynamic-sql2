@@ -82,19 +82,38 @@ public abstract class AbstractPage {
         return false;
     }
 
-    public long getTotal() {
+    /**
+     * 获取查询分页查询结果的总数量
+     *
+     * @return 分页查询结果的总数量
+     */
+    public final long getTotal() {
         if (total == null) {
             return 0;
         }
         return total;
     }
 
+    /**
+     * 获取总页码
+     *
+     * @return 总页码
+     */
     public final int getTotalPage() {
         return totalPage;
     }
 
     public final String getPagePluginTypeName() {
         return pagePluginTypeName;
+    }
+
+    /**
+     * 获取当前会话已被缓存的总数量
+     *
+     * @return 已被缓存的总数量
+     */
+    public Long getCacheTotal() {
+        return total;
     }
 
     protected void setTotal(long total) {
@@ -105,9 +124,4 @@ public abstract class AbstractPage {
         long pages = (total + pageSize - 1L) / pageSize;
         totalPage = (int) pages;
     }
-
-    protected Long getCacheTotal() {
-        return total;
-    }
-
 }
