@@ -414,7 +414,7 @@ public class SelectTest extends InitializingContext {
     @Test
     void testSelectPage() {
         PageInfo<List<User>> pageInfo = PageHelper.of(1, 3)
-                .selectPage(() -> sqlContext.select().allColumn().from(User.class).where().fetch().toList());
+                .selectPage(() -> sqlContext.select().allColumn().from(User.class).where().limit(20).fetch(User.class).toList());
         pageInfo.getRecords().forEach(System.out::println);
     }
 
