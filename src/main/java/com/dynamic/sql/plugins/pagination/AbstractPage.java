@@ -116,11 +116,11 @@ public abstract class AbstractPage {
         return total;
     }
 
-    protected void setTotal(long total) {
+    public void setTotal(long total) {
         this.total = total;
     }
 
-    protected void initTotalPage() {
+    public void initTotalPage() {
         long pages = (total + pageSize - 1L) / pageSize;
         totalPage = (int) pages;
     }
