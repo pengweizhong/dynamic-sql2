@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class PageInterceptorPlugin implements SqlInterceptor, PagePluginType {
-//    private static final Logger log = LoggerFactory.getLogger(PaginationPlugin.class);
 
     @Override
     public ExecutionControl beforeExecution(SqlStatementWrapper sqlStatementWrapper, Connection connection) {
@@ -43,6 +42,7 @@ public class PageInterceptorPlugin implements SqlInterceptor, PagePluginType {
         if (currentPage == null) {
             return ExecutionControl.PROCEED;
         }
+        //不是受支持的分页类型，直接跳过
         if (!Objects.equals(currentPage.pagePluginTypeName, this.getPluginName())) {
             return ExecutionControl.PROCEED;
         }
