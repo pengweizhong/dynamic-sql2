@@ -30,7 +30,7 @@ public abstract class AbstractPage {
     protected AbstractPage(int pageIndex, int pageSize) {
         this.pageIndex = pageIndex;
         this.pageSize = pageSize;
-        this.pagePluginTypeName = "DYNAMIC_SQL2";
+        this.pagePluginTypeName = DefaultPagePluginType.DYNAMIC_SQL2.getPluginName();
     }
 
     protected AbstractPage(int pageIndex, int pageSize, String pagePluginTypeName) {
@@ -91,6 +91,10 @@ public abstract class AbstractPage {
 
     public final int getTotalPage() {
         return totalPage;
+    }
+
+    public final String getPagePluginTypeName() {
+        return pagePluginTypeName;
     }
 
     protected void setTotal(long total) {
