@@ -10,7 +10,7 @@
 package com.dynamic.sql.plugins.pagination;
 
 
-class LocalPage {
+public class LocalPage {
     private static final ThreadLocal<AbstractPage> LOCAL_CURRENT_PAGE = new ThreadLocal<>();//NOSONAR
 
     private LocalPage() {
