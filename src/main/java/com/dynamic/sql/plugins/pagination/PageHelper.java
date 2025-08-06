@@ -11,11 +11,13 @@ package com.dynamic.sql.plugins.pagination;
 
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.core.condition.WhereCondition;
+import com.dynamic.sql.exception.DynamicSqlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -230,6 +232,9 @@ public class PageHelper {
          * @return 返回当前的 {@link GeneralPageHelper} 实例
          */
         public GeneralPageHelper applyWhere(Consumer<WhereCondition> condition) {
+            if (!Objects.equals(pageInfo.getPagePluginTypeName(), DefaultPagePluginType.DYNAMIC_SQL2.getPluginName())) {
+                throw new DynamicSqlException("仅" + DefaultPagePluginType.DYNAMIC_SQL2.getPluginName() + "支持在外部追加条件");
+            }
             if (condition != null) {
                 pageInfo = new ConditionPageInfo<>(pageInfo, condition);
                 return this;
