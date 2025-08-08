@@ -114,6 +114,8 @@ public class InitializingContext {
         sqlContextProperties.addSchemaProperties(schemaProperties);
         //内置分页
         sqlContextProperties.addInterceptor(new PageInterceptorPlugin());
+        //异常提示插件
+        sqlContextProperties.addInterceptor(new ExceptionPlugin());
         //内置JDBC连接
         ConnectionHolder.setConnectionHandle(new SimpleConnectionHandle());
         ConverterUtils.putFetchResultConverter(JsonObject.class, new FetchJsonObjectConverter());
