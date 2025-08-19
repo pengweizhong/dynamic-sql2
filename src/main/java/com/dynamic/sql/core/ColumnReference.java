@@ -75,6 +75,12 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
+    public <T, F> AbstractColumnReference ignoreColumn(Fn<T, F> fn) {
+        selectSpecification.getIgnoreColumFunctions().add(new ColumnWrapper(new Column(null, fn), null, null));
+        return this;
+    }
+
+    @Override
     public <T, F> ColumnReference column(String tableAlias, FieldFn<T, F> fn) {
         return this.column(tableAlias, fn, null);
     }

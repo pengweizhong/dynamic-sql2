@@ -42,6 +42,7 @@ import com.dynamic.sql.enums.DbType;
 import com.dynamic.sql.enums.JoinTableType;
 import com.dynamic.sql.enums.LogicalOperatorType;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.TableMeta;
@@ -442,6 +443,9 @@ public class SqlUtils {
 
     public static SqlDialect getSqlDialect(Class<?> fromTableClass) {
         TableMeta tableMeta = TableProvider.getTableMeta(fromTableClass);
+        if (tableMeta == null) {
+            throw new DynamicSqlException("不存在表元数据，请检查类是否正确注册。例如类名未使用@Table注解标记，或者未在配置文件中注册。错误发生的表类名：" + fromTableClass.getName());
+        }
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
         return schemaProperties.getSqlDialect();
     }

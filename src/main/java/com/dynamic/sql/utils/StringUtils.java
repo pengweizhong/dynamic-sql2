@@ -127,4 +127,15 @@ public class StringUtils {
         }
         return hexStringBuilder.toString();
     }
+
+    /**
+     * 判断给定字符串是否以指定的后缀结尾。
+     *
+     * @param str    原始字符串，不可为 {@code null}
+     * @param suffix 后缀字符串，不可为 {@code null}
+     * @return 当 {@code str} 以 {@code suffix} 结尾时返回 {@code true}，否则返回 {@code false}
+     */
+    public static boolean endsWith(String str, String suffix) {
+        return str.startsWith(suffix, str.length() - suffix.length());
+    }
 }

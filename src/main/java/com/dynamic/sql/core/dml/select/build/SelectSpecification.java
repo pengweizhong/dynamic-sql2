@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 public class SelectSpecification {
     private NestedMeta nestedMeta;
     private List<ColumnQuery> columFunctions = new ArrayList<>();
+    private List<ColumnQuery> ignoreColumFunctions = new ArrayList<>();
     private List<JoinTable> joinTables = new ArrayList<>();
     private Consumer<GenericWhereCondition> whereCondition;
     private GroupByObject groupByObject;
@@ -37,6 +38,10 @@ public class SelectSpecification {
 
     public List<ColumnQuery> getColumFunctions() {
         return columFunctions;
+    }
+
+    public List<ColumnQuery> getIgnoreColumFunctions() {
+        return ignoreColumFunctions;
     }
 
     public List<JoinTable> getJoinTables() {

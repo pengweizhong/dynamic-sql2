@@ -15,6 +15,7 @@ import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.column.AbstractAliasHelper;
 import com.dynamic.sql.core.column.ColumnModifiers;
 import com.dynamic.sql.core.column.conventional.AllColumn;
+import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.conventional.NumberColumn;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumFunction;
@@ -59,14 +60,22 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
     }
 
     protected void parseColumnFunction() {
-        sqlBuilder.append(SqlUtils.getSyntaxSelect(sqlDialect)).append(" ");
+        String selectStr = SqlUtils.getSyntaxSelect(sqlDialect).concat(" ");
+        sqlBuilder.append(selectStr);
         for (int i = 0; i < selectSpecification.getColumFunctions().size(); i++) {//NOSONAR
             ColumnQuery columnQuery = selectSpecification.getColumFunctions().get(i);
             String columnSeparator = ", ";
-            //最后一个列后面不追加逗号
-            if (selectSpecification.getColumFunctions().size() - 1 == i) {
+            if (isIgnoreColumn(columnQuery)) {
+                if (StringUtils.endsWith(sqlBuilder.toString(), ", ")) {
+                    sqlBuilder.delete(sqlBuilder.length() - columnSeparator.length(), sqlBuilder.length());
+                }
+                continue;
+            }
+            //最前/后一个列后面不追加逗号
+            if (selectSpecification.getColumFunctions().size() - 1 == i /*|| sqlBuilder.length() == selectStr.length()*/) {
                 columnSeparator = "";
             }
+//            sqlBuilder.append(columnSeparator);
             //TODO 这里类名需要修改以下，太容易引起混淆 ColumFunction、ColumnRef
             if (columnQuery instanceof ColumFunction) {
                 ColumFunction columFunction = (ColumFunction) columnQuery;
@@ -184,6 +193,56 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
             }
         }
+    }
+
+    /***
+     * 判断当前查询的字段是否在忽略列表中
+     */
+    protected boolean isIgnoreColumn(ColumnQuery columnQuery) {
+        if (selectSpecification.getIgnoreColumFunctions().isEmpty()) {
+            return false;
+        }
+        if (!(columnQuery instanceof ColumnWrapper)) {
+            return false;
+        }
+        ColumnWrapper columnWrapper = (ColumnWrapper) columnQuery;
+        if (!(columnWrapper.getColumFunction() instanceof Column)) {
+            return false;
+        }
+        Column column = (Column) columnWrapper.getColumFunction();
+        for (ColumnQuery columFunction : selectSpecification.getIgnoreColumFunctions()) {
+            ColumnWrapper ignoreColumnWrapper = (ColumnWrapper) columFunction;
+            Column ignoreColumn = (Column) ignoreColumnWrapper.getColumFunction();
+            String ignoreClassName = ReflectUtils.getOriginalClassCanonicalName(ignoreColumn.getOriginColumnFn());
+            String className = ReflectUtils.getOriginalClassCanonicalName(column.getOriginColumnFn());
+            // 检查列函数是否与给定的函数匹配
+            if (Objects.equals(ignoreClassName, className)) {
+                String ignoreField = ReflectUtils.fnToFieldName(ignoreColumn.getOriginColumnFn());
+                String field = ReflectUtils.fnToFieldName(column.getOriginColumnFn());
+                if (Objects.equals(ignoreField, field)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean isIgnoreColumn(String tableClasspath, ColumnMeta columnMeta) {
+        if (selectSpecification.getIgnoreColumFunctions().isEmpty()) {
+            return false;
+        }
+        for (ColumnQuery columFunction : selectSpecification.getIgnoreColumFunctions()) {
+            ColumnWrapper ignoreColumnWrapper = (ColumnWrapper) columFunction;
+            Column ignoreColumn = (Column) ignoreColumnWrapper.getColumFunction();
+            String ignoreClassName = ReflectUtils.getOriginalClassCanonicalName(ignoreColumn.getOriginColumnFn());
+            if (Objects.equals(ignoreClassName, tableClasspath)) {
+                String ignoreField = ReflectUtils.fnToFieldName(ignoreColumn.getOriginColumnFn());
+                if (Objects.equals(ignoreField, columnMeta.getField().getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -312,7 +371,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 return;
             }
             List<ColumnMeta> columnMetas = TableProvider.getTableMeta(clazz[0]).getColumnMetas();
-            appendQueryColumn(columnMetas, tableAlias);
+            appendQueryColumn(columnMetas, tableAlias, clazz[0]);
             return;
         }
         //类引用
@@ -359,12 +418,15 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         //确定别名
         tableAlias = tableAlias == null ? tableMeta.getTableAlias() : tableAlias;
         List<ColumnMeta> columnMetas = tableMeta.getColumnMetas();
-        appendQueryColumn(columnMetas, tableAlias);
+        appendQueryColumn(columnMetas, tableAlias, canonicalName);
     }
 
-    private void appendQueryColumn(List<ColumnMeta> columnMetas, String tableAlias) {
+    private void appendQueryColumn(List<ColumnMeta> columnMetas, String tableAlias, String tableClasspath) {
         for (int i = 0; i < columnMetas.size(); i++) {
             ColumnMeta columnMeta = columnMetas.get(i);
+            if (isIgnoreColumn(tableClasspath, columnMeta)) {
+                continue;
+            }
             //拼接别名，
             sqlBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, tableAlias))
                     .append(".").append(SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName()))

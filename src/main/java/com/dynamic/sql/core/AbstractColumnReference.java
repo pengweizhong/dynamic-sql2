@@ -117,6 +117,36 @@ public abstract class AbstractColumnReference {
     }
 
     /**
+     * <b>实验性</b>
+     * <p>
+     * 显式忽略一个列，使其不参与查询结果。
+     * <p>常用于在已经选择了多个列的情况下，排除掉其中某些不需要的列。
+     *
+     * @param fn  字段引用函数，通常为实体类的 getter 方法引用
+     * @param <T> 表对应的实体类类型
+     * @param <F> 字段的类型
+     * @return 当前列引用实例，用于链式调用
+     */
+    public abstract <T, F> AbstractColumnReference ignoreColumn(Fn<T, F> fn);
+
+    /**
+     * <b>实验性</b>
+     * <p>
+     * 条件性地忽略一个列。
+     * <p>根据 {@code isEffective} 参数决定是否忽略字段，
+     * 仅当 {@code isEffective} 为 {@code true} 时才会将指定字段从查询结果中排除。
+     *
+     * @param isEffective 是否忽略字段，{@code true} 表示忽略，{@code false} 表示不做处理
+     * @param fn          字段引用函数，通常为实体类的 getter 方法引用
+     * @param <T>         表对应的实体类类型
+     * @param <F>         字段的类型
+     * @return 当前列引用实例，用于链式调用
+     */
+    public <T, F> AbstractColumnReference ignoreColumn(boolean isEffective, Fn<T, F> fn) {
+        return isEffective ? ignoreColumn(fn) : this;
+    }
+
+    /**
      * 添加一个带有表别名的列到查询中。
      *
      * <p>通过指定表别名和方法引用选择字段，适用于多表查询场景。

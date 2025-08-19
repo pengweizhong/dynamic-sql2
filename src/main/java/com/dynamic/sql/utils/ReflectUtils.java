@@ -131,6 +131,21 @@ public class ReflectUtils {
     }
 
     /**
+     * 从 SerializedLambda 获取原始类的短名称（不包含包名）。
+     *
+     * @param fn 代表字段的函数式接口
+     * @return 原始类的短名称
+     */
+    @SuppressWarnings("all")
+    public static String getOriginalClassShortCanonicalName(Fn fn) {
+        String originalClassCanonicalName = getOriginalClassCanonicalName(fn);
+        if (originalClassCanonicalName.contains(".")) {
+            return originalClassCanonicalName.substring(originalClassCanonicalName.lastIndexOf(".") + 1);
+        }
+        return originalClassCanonicalName;
+    }
+
+    /**
      * 从给定的函数式接口 `Fn` 中获取返回值的类型。
      *
      * <p>该方法通过 `SerializedLambda` 获取函数的签名信息，解析其中的返回值类型描述符，并将其转换为对应的 Java 类。

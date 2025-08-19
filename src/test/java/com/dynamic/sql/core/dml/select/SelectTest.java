@@ -1098,6 +1098,78 @@ public class SelectTest extends InitializingContext {
         System.out.println(aaa);
 
     }
+
+    @Test
+    void ignoreColumn() {
+        Map<String, Object> one = sqlContext.select()
+                .column(User::getUserId)
+                .column(User::getName)
+                .column(User::getDetails)
+                .ignoreColumn(User::getDetails)
+                .from(User.class)
+                .limit(1)
+                .fetchOriginalMap()
+                .toOne();
+        one.forEach((k, v) -> System.out.println(k + " = " + v));
+    }
+
+    @Test
+    void ignoreColumn2() {
+        Map<String, Object> one = sqlContext.select()
+                .ignoreColumn(User::getDetails)
+                .column(User::getDetails)
+                .column(User::getUserId)
+                .column(User::getName)
+                .from(User.class)
+                .limit(1)
+                .fetchOriginalMap()
+                .toOne();
+        one.forEach((k, v) -> System.out.println(k + " = " + v));
+    }
+
+    @Test
+    void ignoreColumn3() {
+        Map<String, Object> one = sqlContext.select()
+                .allColumn(User.class)
+                .column(User::getUserId)
+                .ignoreColumn(User::getDetails)
+                .from(User.class)
+                .limit(1)
+                .fetchOriginalMap()
+                .toOne();
+        one.forEach((k, v) -> System.out.println(k + " = " + v));
+    }
+
+    @Test
+    void ignoreColumn4() {
+        List<?> list = sqlContext.select()
+                .allColumn()
+                .ignoreColumn(TempUserEntity::getName)
+                .ignoreColumn(TempDeptEntity::getName)
+                .from(TempUserEntity.class)
+                .join(TempDeptEntity.class, on -> on.andEqualTo(TempUserEntity::getId, TempDeptEntity::getId))
+                .where()
+                .orderBy(TempUserEntity::getId)
+                .fetch()
+                .toList();
+        System.out.println(list);
+    }
+
+    @Test
+    void ignoreColumn5() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .allColumn(Product.class)
+                .ignoreColumn(Product::getAttributes)
+                .from(Product.class)
+                .innerJoin(select -> select.allColumn(Product.class)
+                                .from(Category.class)
+                                .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
+                                .where(whereCondition -> whereCondition.andLessThanOrEqualTo(Category::getCategoryId, 10)), "t",
+                        on -> on.andEqualTo(Product::getProductId, bindAlias("t", Product::getProductId)))
+                .fetchOriginalMap()
+                .toList();
+        System.out.println(list);
+    }
 }
 
 

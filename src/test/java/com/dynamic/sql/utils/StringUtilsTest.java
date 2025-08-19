@@ -80,4 +80,41 @@ class StringUtilsTest {
         assertTrue(StringUtils.isEquals("hello", "hello"));
         assertFalse(StringUtils.isEquals("hello", "world"));
     }
+
+    @Test
+    void isEquals() {
+    }
+
+    @Test
+    void isNotEquals() {
+    }
+
+    @Test
+    void isEqualsIgnoreCase() {
+    }
+
+    @Test
+    void isNotEqualsIgnoreCase() {
+    }
+
+    @Test
+    void join() {
+    }
+
+    @Test
+    void testJoin() {
+    }
+
+    @Test
+    void bytesToHex() {
+    }
+
+    @Test
+    void endsWith() {
+        System.out.println(StringUtils.endsWith("hello", "lo"));
+        System.out.println(StringUtils.endsWith("hello", "o"));
+        System.out.println(StringUtils.endsWith("hello", "he"));
+        System.out.println(StringUtils.endsWith("hello", ""));
+//        System.out.println(StringUtils.endsWith("hello", null));
+    }
 }
