@@ -16,6 +16,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <test.lombok.version>1.18.30</test.lombok.version>
     </properties>
 
     <developers>
@@ -84,7 +85,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
+            <version>${test.lombok.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -194,6 +195,27 @@
                     <autoPublish>true</autoPublish>
                     <!--插件会等待直到组件通过 Sonatype Central 的验证过程（确保符合 Maven Central 的要求，如 POM 文件完整性、签名等）。-->
                     <waitUntil>validated</waitUntil>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${test.lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>com.dynamic-sql</groupId>
+                            <artifactId>dynamic-sql2</artifactId>
+                            <version>${project.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>

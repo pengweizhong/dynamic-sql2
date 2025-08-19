@@ -22,7 +22,7 @@ import com.dynamic.sql.core.dml.select.CollectionColumnMapping;
 import com.dynamic.sql.core.dml.select.TableRelation;
 import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
-import com.dynamic.sql.core.dml.select.build.column.FunctionColumn;
+import com.dynamic.sql.core.dml.select.build.column.ColumnWrapper;
 import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
 import com.dynamic.sql.core.dml.select.build.join.FromJoin;
 import com.dynamic.sql.core.dml.select.build.join.FromNestedJoin;
@@ -44,7 +44,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public AbstractColumnReference distinct() {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(new Distinct(), null, null));
+        selectSpecification.getColumFunctions().add(new ColumnWrapper(new Distinct(), null, null));
         return this;
     }
 
@@ -70,7 +70,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public <T, F> ColumnReference column(Fn<T, F> fn) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(null, fn), null, null));
+        selectSpecification.getColumFunctions().add(new ColumnWrapper(new Column(null, fn), null, null));
         return this;
     }
 
@@ -86,7 +86,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public <T, F> ColumnReference column(String tableAlias, FieldFn<T, F> fn, String columnAlias) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(tableAlias, fn), null, columnAlias));
+        selectSpecification.getColumFunctions().add(new ColumnWrapper(new Column(tableAlias, fn), null, columnAlias));
         return this;
     }
 
@@ -97,7 +97,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public AbstractColumnReference column(String tableAlias, String columnName, String columnAlias) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(tableAlias, columnName), null, columnAlias));
+        selectSpecification.getColumFunctions().add(new ColumnWrapper(new Column(tableAlias, columnName), null, columnAlias));
         return this;
     }
 
@@ -109,7 +109,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public AbstractColumnReference column(AbstractColumFunction iColumFunction, String columnAlias) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(iColumFunction, null, columnAlias));
+        selectSpecification.getColumFunctions().add(new ColumnWrapper(iColumFunction, null, columnAlias));
         return this;
     }
 
@@ -121,7 +121,7 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public AbstractColumnReference column(WindowsFunction windowsFunction, Consumer<Over> over, String columnAlias) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(windowsFunction, over, columnAlias));
+        selectSpecification.getColumFunctions().add(new ColumnWrapper(windowsFunction, over, columnAlias));
         return this;
     }
 
@@ -149,8 +149,8 @@ public class ColumnReference extends AbstractColumnReference {
         collectionColumnMapping.setTargetProperty(targetProperty);
         collectionColumnMapping.addAllChildColumns(columFunctions);
         //TODO 先简单写不带别名的查询  后面有时间在完善场景，包括不限于多次一对多,对象聚合为一个等等。。。
-//        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(null, keyMapping.parentKey()), null, null));
-//        selectSpecification.getColumFunctions().add(new FunctionColumn(new Column(null, keyMapping.childKey()), null, null));
+//        selectSpecification.getColumFunctions().add(new ColumnWrapper(new Column(null, keyMapping.parentKey()), null, null));
+//        selectSpecification.getColumFunctions().add(new ColumnWrapper(new Column(null, keyMapping.childKey()), null, null));
         selectSpecification.setCollectionColumnMapping(collectionColumnMapping);
         return this;
     }
@@ -170,13 +170,13 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public AbstractColumnReference allColumn(Class<?> tableClass) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(new AllColumn(tableClass), null, null));
+        selectSpecification.getColumFunctions().add(new ColumnWrapper(new AllColumn(tableClass), null, null));
         return this;
     }
 
     @Override
     public AbstractColumnReference allColumn(String tableAlias) {
-        selectSpecification.getColumFunctions().add(new FunctionColumn(new AllColumn(tableAlias, null), null, null));
+        selectSpecification.getColumFunctions().add(new ColumnWrapper(new AllColumn(tableAlias, null), null, null));
         return this;
     }
 

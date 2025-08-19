@@ -15,7 +15,7 @@ import com.dynamic.sql.core.column.function.windows.Over;
 
 import java.util.function.Consumer;
 
-public class FunctionColumn implements ColumnQuery {
+public class ColumnWrapper implements ColumnQuery {
     //列函数
     private ColumFunction columFunction;
     //滑窗函数
@@ -23,7 +23,7 @@ public class FunctionColumn implements ColumnQuery {
     //
     private String alias;
 
-    public FunctionColumn(ColumFunction columFunction, Consumer<Over> over, String alias) {
+    public ColumnWrapper(ColumFunction columFunction, Consumer<Over> over, String alias) {
         this.columFunction = columFunction;
         this.over = over;
         this.alias = alias;

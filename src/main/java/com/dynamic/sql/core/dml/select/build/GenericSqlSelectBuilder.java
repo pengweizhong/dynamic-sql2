@@ -23,7 +23,7 @@ import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
-import com.dynamic.sql.core.dml.select.build.column.FunctionColumn;
+import com.dynamic.sql.core.dml.select.build.column.ColumnWrapper;
 import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
 import com.dynamic.sql.core.dml.select.build.column.StringColumn;
 import com.dynamic.sql.core.dml.select.build.join.*;
@@ -67,7 +67,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             if (selectSpecification.getColumFunctions().size() - 1 == i) {
                 columnSeparator = "";
             }
-            //TODO 这里类名需要修改以下，太容易引起混淆 ColumFunction、FunctionColumn
+            //TODO 这里类名需要修改以下，太容易引起混淆 ColumFunction、ColumnRef
             if (columnQuery instanceof ColumFunction) {
                 ColumFunction columFunction = (ColumFunction) columnQuery;
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
@@ -79,9 +79,9 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 sqlBuilder.append(" ").append(stringColumn.getSql()).append(" ");
                 continue;
             }
-            if (columnQuery instanceof FunctionColumn) {
-                FunctionColumn functionColumn = (FunctionColumn) columnQuery;
-                ColumFunction columFunction = functionColumn.getColumFunction();
+            if (columnQuery instanceof ColumnWrapper) {
+                ColumnWrapper columnWrapper = (ColumnWrapper) columnQuery;
+                ColumFunction columFunction = columnWrapper.getColumFunction();
                 //是否查询的全部列
                 if (columFunction instanceof AllColumn) {
                     //除了第一个后续元素都要追加`,`
@@ -149,7 +149,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 columnAlias = StringUtils.isEmpty(columnAlias) ? "" : syntaxAs() + columnAlias;
                 sqlBuilder.append(functionToString).append(arithmeticSql);
                 //追加over
-                Consumer<Over> overConsumer = functionColumn.getOver();
+                Consumer<Over> overConsumer = columnWrapper.getOver();
                 if (overConsumer != null) {
                     Over over = new Over();
                     //初始化over块
