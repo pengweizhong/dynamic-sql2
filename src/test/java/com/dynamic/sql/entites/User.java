@@ -16,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-//@Table("users")
+@Table("users")
 public class User {
     private int userId;  // 用户 ID
     private String name;  // 用户姓名
