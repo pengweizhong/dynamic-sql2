@@ -1170,6 +1170,18 @@ public class SelectTest extends InitializingContext {
                 .toList();
         System.out.println(list);
     }
+
+    @Test
+    void ignoreColumn6() {
+        Map<String, Object> one = sqlContext.select()
+                .column(User::getUserId)
+                .ignoreColumn(User::getUserId)
+                .from(User.class)
+                .limit(1)
+                .fetchOriginalMap()
+                .toOne();
+        one.forEach((k, v) -> System.out.println(k + " = " + v));
+    }
 }
 
 
