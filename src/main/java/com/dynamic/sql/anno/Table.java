@@ -19,9 +19,23 @@ import java.lang.annotation.*;
 @Documented
 public @interface Table {
     /**
+     * 数据库模式，默认是当前模式
+     */
+    String schema() default "";
+
+    /**
      * 表名
      *
      * @return 表名
+     * @see this#value()
+     */
+    String name() default "";
+
+    /**
+     * 表名
+     *
+     * @return 表名
+     * @see this#name()
      */
     String value() default "";
 

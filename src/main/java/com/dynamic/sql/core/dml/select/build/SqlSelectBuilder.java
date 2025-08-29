@@ -28,7 +28,6 @@ import com.dynamic.sql.core.dml.select.order.NullsFirst;
 import com.dynamic.sql.core.dml.select.order.NullsLast;
 import com.dynamic.sql.core.dml.select.order.OrderBy;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
-import com.dynamic.sql.datasource.DataSourceMeta;
 import com.dynamic.sql.datasource.DataSourceProvider;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.model.TableAliasMapping;
@@ -274,11 +273,12 @@ public abstract class SqlSelectBuilder {
     }
 
 
-    protected String getSchemaName(TableMeta tableMeta) {
+    protected String getSchemaTableFullName(TableMeta tableMeta) {
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
         if (schemaProperties.isUseSchemaInQuery()) {
-            DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
-            return SqlUtils.quoteIdentifier(sqlDialect, dataSourceMeta.getSchema()) + "." +
+            String schema = StringUtils.isEmpty(tableMeta.getSchema()) ?
+                    DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName()).getSchema() : tableMeta.getSchema();
+            return SqlUtils.quoteIdentifier(sqlDialect, schema) + "." +
                     SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableName());
         }
         return SqlUtils.quoteIdentifier(sqlDialect, tableMeta.getTableName());

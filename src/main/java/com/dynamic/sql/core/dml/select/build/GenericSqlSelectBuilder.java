@@ -30,6 +30,7 @@ import com.dynamic.sql.core.dml.select.build.column.StringColumn;
 import com.dynamic.sql.core.dml.select.build.join.*;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.Arithmetic;
 import com.dynamic.sql.model.Dual;
 import com.dynamic.sql.model.TableAliasMapping;
@@ -255,9 +256,12 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         if (tableClass == Dual.class) {
             return tableMeta.getTableName();
         }
+        if (tableMeta == null) {
+            throw new DynamicSqlException("Cannot find table mapping for class: " + tableClass.getCanonicalName());
+        }
         String alias = StringUtils.isEmpty(joinTable.getTableAlias()) ? tableMeta.getTableAlias() : joinTable.getTableAlias();
         String tableAlias = SqlUtils.quoteIdentifier(sqlDialect, alias);
-        return getSchemaName(tableMeta).concat(syntaxAs()).concat(tableAlias);
+        return getSchemaTableFullName(tableMeta).concat(syntaxAs()).concat(tableAlias);
     }
 
     @Override

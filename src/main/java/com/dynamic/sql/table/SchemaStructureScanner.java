@@ -165,7 +165,9 @@ public class SchemaStructureScanner {
         }
         //判断应当归属哪个数据源
         TableEntityMapping tableEntityMapping = new TableEntityMapping();
-        tableEntityMapping.setTableName(table.value().trim());
+        tableEntityMapping.setSchema(table.schema().trim());
+        String tableName = StringUtils.isBlank(table.name()) ? table.value().trim() : table.name().trim();
+        tableEntityMapping.setTableName(tableName);
         String tableAlias = table.alias().trim();
         if (StringUtils.isBlank(tableAlias)) {
             tableAlias = tableEntityMapping.getTableName();

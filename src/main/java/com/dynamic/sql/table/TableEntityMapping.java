@@ -1,6 +1,7 @@
 package com.dynamic.sql.table;
 
 public class TableEntityMapping {
+    private String schema;
     private String tableName;
     private String tableAlias;
     private boolean isCache;
@@ -45,5 +46,13 @@ public class TableEntityMapping {
 
     public void setTableAlias(String tableAlias) {
         this.tableAlias = tableAlias;
+    }
+
+    public String getSchema() {
+        return schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
     }
 }

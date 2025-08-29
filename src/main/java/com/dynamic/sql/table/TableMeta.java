@@ -15,6 +15,8 @@ import com.dynamic.sql.utils.StringUtils;
 import java.util.List;
 
 public class TableMeta {
+    //命名空间 允许跨库
+    private String schema;
     //表名称
     private String tableName;
     //表别名
@@ -72,5 +74,13 @@ public class TableMeta {
             }
         }
         return null;
+    }
+
+    public String getSchema() {
+        return schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
     }
 }

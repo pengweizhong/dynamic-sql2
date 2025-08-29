@@ -17,6 +17,7 @@ import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
+import com.dynamic.sql.entities2.UserExtEntity;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.Dual;
@@ -1177,6 +1178,21 @@ public class SelectTest extends InitializingContext {
                 .column(User::getUserId)
                 .ignoreColumn(User::getUserId)
                 .from(User.class)
+                .limit(1)
+                .fetchOriginalMap()
+                .toOne();
+        one.forEach((k, v) -> System.out.println(k + " = " + v));
+    }
+
+    @Test
+    void crossSchema() {
+        Map<String, Object> one = sqlContext.select()
+                .column(User::getUserId)
+                .from(User.class)
+                .join(UserExtEntity.class, on -> on.andEqualTo(User::getUserId, UserExtEntity::getUserId))
+                .leftJoin(UserExtEntity.class, "t1", on -> on.andEqualTo(User::getUserId, UserExtEntity::getUserId))
+                .rightJoin(UserExtEntity.class, "t2", on -> on.andEqualTo(User::getUserId, UserExtEntity::getUserId))
+                .innerJoin(UserExtEntity.class, "t3", on -> on.andEqualTo(User::getUserId, UserExtEntity::getUserId))
                 .limit(1)
                 .fetchOriginalMap()
                 .toOne();

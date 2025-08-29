@@ -139,6 +139,7 @@ public class TableUtils {
         Class<?> entityClass = tableEntity.getEntityClass();
         List<Field> fields = ReflectUtils.getAllFields(entityClass, filterFieldTypeRules());
         TableMeta tableMeta = new TableMeta();
+        tableMeta.setSchema(tableEntity.getSchema());
         tableMeta.setTableName(tableEntity.getTableName());
         if (StringUtils.isBlank(tableMeta.getTableName())) {
             throw new IllegalArgumentException("The table name is empty");

@@ -38,7 +38,7 @@ public class InitializingContext {
         schemaProperties.setDataSourceName("dataSource");
         //设置全局默认数据源
         schemaProperties.setGlobalDefault(true);
-        schemaProperties.setUseSchemaInQuery(false);
+        schemaProperties.setUseSchemaInQuery(true);
         //可以直接指定SQL方言
         //schemaProperties.setSqlDialect(SqlDialect.ORACLE);
         //指定特定的版本号，不同的版本号语法可能不同
