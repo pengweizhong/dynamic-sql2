@@ -196,6 +196,10 @@ public class SqlUtils {
         if (oriAlias == null && newAlias != null) {
             return newAlias;
         }
+        //判断是否强制使用表别名
+        if (aliasTableMap.containsKey("***")) {
+            return aliasTableMap.get("***").getAlias();
+        }
         //如果有通用别名
         if (oriAlias == null && aliasTableMap != null) {
             if (aliasTableMap.get("**") != null) {

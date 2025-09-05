@@ -4,6 +4,7 @@ import com.dynamic.sql.HelloTest;
 import com.dynamic.sql.InitializingContext;
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.ColumnReference;
+import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.conventional.NumberColumn;
 import com.dynamic.sql.core.column.function.modifiers.Distinct;
 import com.dynamic.sql.core.column.function.scalar.datetime.DateFormat;
@@ -28,6 +29,7 @@ import com.dynamic.sql.plugins.pagination.MapPage;
 import com.dynamic.sql.plugins.pagination.PageHelper;
 import com.dynamic.sql.plugins.pagination.PageInfo;
 import com.dynamic.sql.utils.SqlUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1174,14 +1176,19 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void ignoreColumn6() {
-        Map<String, Object> one = sqlContext.select()
-                .column(User::getUserId)
-                .ignoreColumn(User::getUserId)
-                .from(User.class)
-                .limit(1)
-                .fetchOriginalMap()
-                .toOne();
-        one.forEach((k, v) -> System.out.println(k + " = " + v));
+        try {
+            Map<String, Object> one = sqlContext.select()
+                    .column(User::getUserId)
+                    .ignoreColumn(User::getUserId)
+                    .from(User.class)
+                    .limit(1)
+                    .fetchOriginalMap()
+                    .toOne();
+            one.forEach((k, v) -> System.out.println(k + " = " + v));
+        } catch (Exception e) {
+            //select  from `dynamic_sql2`.`users` as `users` limit ?
+            Assertions.fail(e);
+        }
     }
 
     @Test
@@ -1198,6 +1205,120 @@ public class SelectTest extends InitializingContext {
                 .toOne();
         one.forEach((k, v) -> System.out.println(k + " = " + v));
     }
+
+
+    @Test
+    void pageApplyOrder() {
+        //TODO 增加外部的排序
+        //TODO 增加debug能力
+        //TODO 修复外部追加where错误
+        PageInfo<List<Map<String, Object>>> pageInfo = PageHelper.of(1, 3)
+                .applyWhere(whereCondition -> whereCondition.andLessThanOrEqualTo(new Column(User::getUserId), 100))
+                .selectPage(() -> sqlContext.select()
+                        .allColumn()
+                        .from(User.class)
+                        .limit(10)
+                        .fetchOriginalMap()
+                        .toList());
+        List<Map<String, Object>> list = pageInfo.getRecords();
+        list.forEach(map -> System.out.println(map));
+        System.out.println(list.size());
+    }
+
+    @Test
+    void testSqlInjection() {
+        try {
+            List<User> list = sqlContext.select()
+                    .allColumn()
+                    .from(User.class)
+                    .where(whereCondition -> whereCondition.andEqualTo(User::getName, "Alice'; drop table users; --"))
+                    .fetch()
+                    .toList();
+            System.out.println(list);
+        } catch (Exception e) {
+            Assertions.fail(e);
+        }
+    }
+
+    //ORDER BY 后面的 字段名/列名/表名 在任何数据库里 都不能用参数化预编译 (?)
+    //ORDER BY 的 SQL 注入问题 本质上和常见的 WHERE 注入不太一样：
+    //在 WHERE 子句中，用户输入可能影响条件值（如 ' OR '1'='1），所以可以用 参数化查询/预编译 来彻底避免。
+    //但是在 ORDER BY 子句中，用户输入通常是 列名或排序方向（ASC/DESC），这些位置 不能用参数化，如果直接拼接就有风险。
+    @Test
+    void testSqlInjection2() {
+        try {
+            List<User> list = sqlContext.select()
+                    .allColumn()
+                    .from(User.class)
+                    .orderBy("user_id; drop table users; --", SortOrder.DESC)
+                    .fetch()
+                    .toList();
+            System.out.println(list);
+        } catch (Exception e) {
+            Assertions.fail(e);
+        }
+    }
+
+    @Test
+    void testSqlInjection3() {
+        try {
+            List<User> list = sqlContext.select()
+                    .allColumn()
+                    .from(User.class)
+                    .orderBy("user_id`; drop table users; --", SortOrder.DESC)
+                    .fetch()
+                    .toList();
+            System.out.println(list);
+        } catch (Exception e) {
+            Assertions.fail(e);
+        }
+    }
+
+    @Test
+    void testSqlInjection4() {
+        try {
+            List<User> list = sqlContext.select()
+                    .allColumn()
+                    .from(User.class)
+                    .orderBy("user_id; drop table users")
+                    .fetch()
+                    .toList();
+            System.out.println(list);
+        } catch (Exception e) {
+            Assertions.fail(e);
+        }
+    }
+
+    @Test
+    void testSqlInjection5() {
+        try {
+            List<User> list = sqlContext.select()
+                    .allColumn()
+                    .from(User.class)
+                    .orderBy("updatexml(1,concat(0x7e,(select database()),0x7e),1)")
+                    .fetch()
+                    .toList();
+            System.out.println(list);
+        } catch (Exception e) {
+            Assertions.fail(e);
+        }
+    }
+
+    @Test
+    void testSqlInjection6() {
+        try {
+            List<User> list = sqlContext.select()
+                    .allColumn()
+                    .from(User.class)
+                    .orderBy("CASE WHEN (SELECT LENGTH(user())>5) THEN 1 ELSE 2 END")
+                    .fetch()
+                    .toList();
+            System.out.println(list);
+        } catch (Exception e) {
+            Assertions.fail(e);
+        }
+    }
+
 }
 
 

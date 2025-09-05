@@ -37,7 +37,7 @@ public class MySQLDialectPagination implements DialectPagination {
             selectCountAppendWhereSql.insert(0, "select * from (");
             selectCountAppendWhereSql.append(") _append_count_page_temp ");
             Map<String, TableAliasMapping> aliasMap = new HashMap<>();
-            aliasMap.put("**", new TableAliasMapping("_append_count_page_temp", true));
+            aliasMap.put("***", new TableAliasMapping("_append_count_page_temp", true));
             GenericWhereCondition whereCondition =
                     SqlUtils.matchDialectCondition(SqlDialect.MYSQL, version, aliasMap, sqlStatementWrapper.getDataSourceName());
             conditionPageInfo.getAppendWhere().accept(whereCondition);

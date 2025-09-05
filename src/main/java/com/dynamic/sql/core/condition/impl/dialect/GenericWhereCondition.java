@@ -35,6 +35,12 @@ import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
 
 public class GenericWhereCondition extends WhereCondition<GenericWhereCondition> {
     protected final Version version;
+    /**
+     * TODO 把这个抽成一个类，用来管理别名和表的映射关系
+     * 别名-表映射
+     * 1、** 表示如果没有别名则使用该表
+     * 2、*** 表示如果有没有别名都强制使用该表
+     */
     protected final Map<String, TableAliasMapping> aliasTableMap;
     protected final StringBuilder condition = new StringBuilder();
     protected final ParameterBinder parameterBinder = new ParameterBinder();

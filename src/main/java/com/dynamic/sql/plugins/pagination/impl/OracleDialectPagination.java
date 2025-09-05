@@ -21,6 +21,7 @@ import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
 public class OracleDialectPagination implements DialectPagination {
     @Override
     public StringBuilder selectCountSql(Version version, SqlStatementWrapper sqlStatementWrapper, AbstractPage abstractPage) {
+        //TODO 追加外部条件
         StringBuilder selectCountSql = new StringBuilder(sqlStatementWrapper.getRawSql());
         selectCountSql.insert(0, "SELECT COUNT(1) FROM (");
         selectCountSql.append(") COUNT_PAGE_TEMP ");

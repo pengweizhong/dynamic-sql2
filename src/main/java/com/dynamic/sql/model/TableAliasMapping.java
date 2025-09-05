@@ -9,6 +9,13 @@
  */
 package com.dynamic.sql.model;
 
+/**
+ * 表别名映射规则
+ * <p>
+ * 主要用于处理复杂的SQL查询场景，尤其是涉及嵌套JOIN操作时。
+ * 通过该类，可以明确标识表的别名以及是否为嵌套JOIN，从而确保SQL语句的正确生成和执行。
+ * </p>
+ */
 public class TableAliasMapping {
     private String alias;
     private boolean isNestedJoin;
