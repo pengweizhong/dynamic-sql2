@@ -11,6 +11,7 @@ package com.dynamic.sql.core.dml.select;
 
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.dml.select.order.*;
 import com.dynamic.sql.enums.SortOrder;
 
@@ -23,7 +24,7 @@ public class ThenSortOrder<R> implements Fetchable {
     public ThenSortOrder(boolean condition, TableRelation<R> tableRelation, OrderBy orderBy) {
         this.tableRelation = tableRelation;
         //this.condition = condition;
-        if (condition) {
+        if (condition && orderBy != null) {
             tableRelation.getSelectSpecification().getOrderBys().add(orderBy);
         }
     }
@@ -236,6 +237,61 @@ public class ThenSortOrder<R> implements Fetchable {
         }
         return this;
     }
+
+    /**
+     * 使用列函数添加排序，默认排序方式为 {@link SortOrder#ASC}。
+     *
+     * @param iColumFunction 列函数或表达式
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
+    public ThenSortOrder<R> thenOrderBy(AbstractColumFunction iColumFunction) {
+        return thenOrderBy(iColumFunction, SortOrder.ASC);
+    }
+
+
+    /**
+     * 根据条件使用列函数添加排序，默认排序方式为 {@link SortOrder#ASC}。
+     * <p>
+     * 当 {@code condition} 为 {@code false} 时，该排序片段不会生效。
+     * </p>
+     *
+     * @param condition      执行条件，如果为 {@code false} 则忽略该排序
+     * @param iColumFunction 列函数或表达式
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
+    public ThenSortOrder<R> thenOrderBy(boolean condition, AbstractColumFunction iColumFunction) {
+        return thenOrderBy(condition, iColumFunction, SortOrder.ASC);
+    }
+
+    /**
+     * 使用列函数添加排序，并指定排序方式。
+     *
+     * @param iColumFunction 列函数或表达式
+     * @param sortOrder      排序方式（{@link SortOrder#ASC} 或 {@link SortOrder#DESC}）
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
+    public ThenSortOrder<R> thenOrderBy(AbstractColumFunction iColumFunction, SortOrder sortOrder) {
+        return thenOrderBy(true, iColumFunction, sortOrder);
+    }
+
+    /**
+     * 根据条件使用列函数添加排序，并指定排序方式。
+     * <p>
+     * 当 {@code condition} 为 {@code false} 时，该排序片段不会生效。
+     * </p>
+     *
+     * @param condition      执行条件，如果为 {@code false} 则忽略该排序
+     * @param iColumFunction 列函数或表达式
+     * @param sortOrder      排序方式（{@link SortOrder#ASC} 或 {@link SortOrder#DESC}）
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
+    public ThenSortOrder<R> thenOrderBy(boolean condition, AbstractColumFunction iColumFunction, SortOrder sortOrder) {
+        if (condition) {
+            return this;
+        }
+        return new ThenSortOrder<>(condition, tableRelation, new DefaultOrderBy(iColumFunction, sortOrder));
+    }
+
 
     @Override
     @SuppressWarnings("unchecked")

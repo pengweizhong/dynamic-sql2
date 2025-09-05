@@ -10,6 +10,7 @@ import com.dynamic.sql.core.column.function.modifiers.Distinct;
 import com.dynamic.sql.core.column.function.scalar.datetime.DateFormat;
 import com.dynamic.sql.core.column.function.scalar.datetime.Now;
 import com.dynamic.sql.core.column.function.scalar.number.Round;
+import com.dynamic.sql.core.column.function.scalar.string.Length;
 import com.dynamic.sql.core.column.function.table.JsonTable;
 import com.dynamic.sql.core.column.function.table.JsonTable.JsonColumn;
 import com.dynamic.sql.core.column.function.windows.DenseRank;
@@ -442,6 +443,18 @@ public class SelectTest extends InitializingContext {
                 .thenOrderBy(User::getUserId, SortOrder.DESC)
                 .fetch().toList();
         list.forEach(System.out::println);
+    }
+
+    @Test
+    void testOrderBy2() {
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .orderBy(new Length(User::getName), SortOrder.DESC)
+                .thenOrderBy(false, User::getUserId)
+                .fetch()
+                .toList();
+        System.out.println(list);
     }
 
     @Test
@@ -1311,6 +1324,21 @@ public class SelectTest extends InitializingContext {
                     .allColumn()
                     .from(User.class)
                     .orderBy("CASE WHEN (SELECT LENGTH(user())>5) THEN 1 ELSE 2 END")
+                    .fetch()
+                    .toList();
+            System.out.println(list);
+        } catch (Exception e) {
+            Assertions.fail(e);
+        }
+    }
+
+    @Test
+    void testSqlInjection7() {
+        try {
+            List<User> list = sqlContext.select()
+                    .allColumn()
+                    .from(User.class)
+                    .orderBy(new Length(User::getName), SortOrder.DESC)
                     .fetch()
                     .toList();
             System.out.println(list);

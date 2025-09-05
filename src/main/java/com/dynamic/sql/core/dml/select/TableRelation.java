@@ -14,6 +14,7 @@ import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.GroupFn;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
@@ -35,9 +36,11 @@ import java.util.function.Supplier;
  */
 public class TableRelation<R> implements JoinCondition {
     private final SelectSpecification selectSpecification;
+    //    private final ThenSortOrder<R> thenSortOrder;
 
     public TableRelation(SelectSpecification selectSpecification) {
         this.selectSpecification = selectSpecification;
+//        this.thenSortOrder = new ThenSortOrder<>(true, this, null);
     }
 
     @Override
@@ -449,10 +452,75 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     /**
-     * 根据条件添加一个自定义排序片段。
+     * 使用列函数添加排序，默认排序方式为 {@link SortOrder#ASC}。
      *
-     * @param condition        条件是否为真，为真时才添加排序
-     * @param orderingFragment 自定义排序片段（SQL 字符串）
+     * @param iColumFunction 列函数或表达式
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
+    public ThenSortOrder<R> orderBy(AbstractColumFunction iColumFunction) {
+        return orderBy(iColumFunction, SortOrder.ASC);
+    }
+
+
+    /**
+     * 根据条件使用列函数添加排序，默认排序方式为 {@link SortOrder#ASC}。
+     * <p>
+     * 当 {@code condition} 为 {@code false} 时，该排序片段不会生效。
+     * </p>
+     *
+     * @param condition      执行条件，如果为 {@code false} 则忽略该排序
+     * @param iColumFunction 列函数或表达式
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
+    public ThenSortOrder<R> orderBy(boolean condition, AbstractColumFunction iColumFunction) {
+        return orderBy(condition, iColumFunction, SortOrder.ASC);
+    }
+
+    /**
+     * 使用列函数添加排序，并指定排序方式。
+     *
+     * @param iColumFunction 列函数或表达式
+     * @param sortOrder      排序方式（{@link SortOrder#ASC} 或 {@link SortOrder#DESC}）
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
+    public ThenSortOrder<R> orderBy(AbstractColumFunction iColumFunction, SortOrder sortOrder) {
+        return orderBy(true, iColumFunction, sortOrder);
+    }
+
+    /**
+     * 根据条件使用列函数添加排序，并指定排序方式。
+     * <p>
+     * 当 {@code condition} 为 {@code false} 时，该排序片段不会生效。
+     * </p>
+     *
+     * @param condition      执行条件，如果为 {@code false} 则忽略该排序
+     * @param iColumFunction 列函数或表达式
+     * @param sortOrder      排序方式（{@link SortOrder#ASC} 或 {@link SortOrder#DESC}）
+     * @return {@code ThenSortOrder<R>} 实例，用于链式调用
+     */
+    public ThenSortOrder<R> orderBy(boolean condition, AbstractColumFunction iColumFunction, SortOrder sortOrder) {
+        return new ThenSortOrder<>(condition, this, new DefaultOrderBy(iColumFunction, sortOrder));
+    }
+
+
+    /**
+     * 添加一个自定义排序片段到 SQL 的 {@code ORDER BY} 子句中。
+     * <p>
+     * ⚠️ 注意：该方法直接拼接传入的 {@code orderingFragment}，不会做任何转义或参数化处理，
+     * 因此<strong>存在 SQL 注入风险</strong>。仅推荐在以下场景下使用：
+     * <ul>
+     *   <li>排序字段和排序方向已通过白名单或枚举校验</li>
+     *   <li>片段由框架或可信代码生成，而非直接使用用户输入</li>
+     * </ul>
+     * </p>
+     *
+     * <p>示例：</p>
+     * <pre>{@code
+     * orderBy("user_id DESC")
+     * orderBy("created_at ASC, id DESC")
+     * }</pre>
+     *
+     * @param orderingFragment 自定义排序片段
      * @return {@code ThenSortOrder<R>} 实例，用于链式调用
      */
     public ThenSortOrder<R> orderBy(boolean condition, String orderingFragment) {
