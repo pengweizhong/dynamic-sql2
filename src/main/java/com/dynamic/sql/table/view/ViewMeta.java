@@ -27,4 +27,22 @@ public class ViewMeta {
     public void setBindDataSourceName(String bindDataSourceName) {
         this.bindDataSourceName = bindDataSourceName;
     }
+
+    public ViewColumnMeta getViewColumnMetaByFieldName(String fieldName) {
+        for (ViewColumnMeta columnMeta : viewColumnMetas) {
+            if (columnMeta.getField().getName().equals(fieldName)) {
+                return columnMeta;
+            }
+        }
+        return null;
+    }
+
+    public ViewColumnMeta getViewColumnMetaByColumnName(String columnName) {
+        for (ViewColumnMeta columnMeta : viewColumnMetas) {
+            if (columnMeta.getColumnName().equals(columnName)) {
+                return columnMeta;
+            }
+        }
+        return null;
+    }
 }

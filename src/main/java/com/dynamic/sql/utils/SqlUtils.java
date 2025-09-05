@@ -47,6 +47,8 @@ import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
+import com.dynamic.sql.table.view.ViewColumnMeta;
+import com.dynamic.sql.table.view.ViewMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -282,10 +284,10 @@ public class SqlUtils {
             return;
         }
         //校验列名是否存在SQL注入风险
-        TableMeta tableMeta = TableProvider.getTableMeta(returnClass);
-        ColumnMeta byFieldName = tableMeta.getColumnMetaByFieldName(columnName);
-        ColumnMeta columnMeta = byFieldName == null
-                ? tableMeta.getColumnMetaByColumnName(columnName) : byFieldName;
+        ViewMeta fieldMeta = TableProvider.getViewMeta(returnClass);
+        ViewColumnMeta viewColumnMeta = fieldMeta.getViewColumnMetaByFieldName(columnName);
+        ViewColumnMeta columnMeta = viewColumnMeta == null
+                ? fieldMeta.getViewColumnMetaByColumnName(columnName) : viewColumnMeta;
         if (columnMeta == null) {
             throw new DynamicSqlException("Order by column name '" + columnName
                     + "' not found in  '" + returnClass.getCanonicalName() + "'. Possible SQL injection risk.");

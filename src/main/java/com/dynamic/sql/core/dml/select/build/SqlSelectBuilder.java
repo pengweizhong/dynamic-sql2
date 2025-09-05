@@ -132,10 +132,6 @@ public abstract class SqlSelectBuilder {
                     returnClass = guessTheTarget.getTableClass();
                 }
             }
-            if (returnClass == null) {
-                throw new IllegalStateException("The query result object cannot be inferred from the context. " +
-                        "Please declare the return type.");
-            }
             //继续解析SQL
             continueParsingSql(returnClass);
         }
