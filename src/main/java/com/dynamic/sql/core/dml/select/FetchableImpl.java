@@ -16,17 +16,18 @@ import java.util.Map;
 public class FetchableImpl implements Fetchable {
 
     private SqlStatementSelectWrapper sqlStatementSelectWrapper;
-
+    private SelectSpecification selectSpecification;
     private CollectionColumnMapping collectionColumnMapping;
+    private final boolean isBuildSqlWrapper;
 
     public FetchableImpl(SelectSpecification selectSpecification) {
-        SqlSelectBuilder sqlSelectBuilder = SqlUtils.matchSqlSelectBuilder(selectSpecification, new HashMap<>());
-        sqlStatementSelectWrapper = sqlSelectBuilder.build();
-        collectionColumnMapping = selectSpecification.getCollectionColumnMapping();
+        this.isBuildSqlWrapper = true;
+        this.selectSpecification = selectSpecification;
     }
 
     public FetchableImpl(SqlStatementSelectWrapper sqlStatementSelectWrapper) {
         this.sqlStatementSelectWrapper = sqlStatementSelectWrapper;
+        this.isBuildSqlWrapper = false;
     }
 
     @Override
@@ -41,6 +42,11 @@ public class FetchableImpl implements Fetchable {
 
     @SuppressWarnings("unchecked")
     private <T> FetchResult<T> fetchResult(Class<T> returnClass) {
+        if (isBuildSqlWrapper) {
+            SqlSelectBuilder sqlSelectBuilder = SqlUtils.matchSqlSelectBuilder(selectSpecification, new HashMap<>());
+            sqlStatementSelectWrapper = sqlSelectBuilder.build(returnClass);
+            collectionColumnMapping = selectSpecification.getCollectionColumnMapping();
+        }
         if (returnClass == null) {
             if (sqlStatementSelectWrapper.getGuessTheTargetClass() == null) {
                 throw new IllegalStateException("The query result object cannot be inferred from the context. " +

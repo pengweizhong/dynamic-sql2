@@ -214,18 +214,20 @@ public class SqlUtils {
                                                       String dataSourceName,
                                                       Version version,
                                                       ParameterBinder parameterBinder,
-                                                      Boolean isFromNestedSelect) {
+                                                      Boolean isFromNestedSelect,
+                                                      Class<?> returnClass) {
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
         DbType dbType = dataSourceMeta.getDbType();
         SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
         StringBuilder sqlBuilder = new StringBuilder(" ");
         if (orderBy instanceof CustomOrderBy) {
             CustomOrderBy customOrderBy = (CustomOrderBy) orderBy;
-            //自定义排序直接append
+            //自定义排序直接append SQL注入交给调用者自行控制
             sqlBuilder.append(customOrderBy.getOrderingFragment());
         }
         if (orderBy instanceof DefaultOrderBy) {
             DefaultOrderBy defaultOrderBy = (DefaultOrderBy) orderBy;
+            //通过类排序的方式不存在SQL注入的风险
             if (defaultOrderBy.getFieldFn() != null) {
                 String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(defaultOrderBy.getFieldFn());
                 TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
@@ -250,6 +252,7 @@ public class SqlUtils {
                 }
                 sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
             } else if (defaultOrderBy.getColumFunction() != null) {
+                //TODO 校验函数是否存在注入风险
                 ColumFunction columFunction = defaultOrderBy.getColumFunction();
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
                 parameterBinder.addParameterBinder(columFunction.getParameterBinder());
@@ -258,10 +261,35 @@ public class SqlUtils {
                 if (StringUtils.isNotBlank(orderBy.getTableAlias())) {
                     sqlBuilder.append(orderBy.getTableAlias()).append(".");
                 }
+                //校验SQL风险
+                checkSqlInjection(dataSourceName, returnClass, defaultOrderBy.getColumnName());
                 sqlBuilder.append(quoteIdentifier(sqlDialect, defaultOrderBy.getColumnName()));
             }
         }
         return sqlBuilder.toString();
+    }
+
+    /**
+     * 校验SQL注入风险
+     */
+    private static void checkSqlInjection(String dataSourceName, Class<?> returnClass, String columnName) {
+        //没有就不校验
+        if (returnClass == null) {
+            return;
+        }
+        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
+        if (!schemaProperties.isCheckSqlInjection()) {
+            return;
+        }
+        //校验列名是否存在SQL注入风险
+        TableMeta tableMeta = TableProvider.getTableMeta(returnClass);
+        ColumnMeta byFieldName = tableMeta.getColumnMetaByFieldName(columnName);
+        ColumnMeta columnMeta = byFieldName == null
+                ? tableMeta.getColumnMetaByColumnName(columnName) : byFieldName;
+        if (columnMeta == null) {
+            throw new DynamicSqlException("Order by column name '" + columnName
+                    + "' not found in  '" + returnClass.getCanonicalName() + "'. Possible SQL injection risk.");
+        }
     }
 
     public static Object formattedParameter(/*SqlDialect sqlDialect,*/ Object value) {
@@ -501,7 +529,7 @@ public class SqlUtils {
         AbstractColumnReference columnReference = select.loadColumReference();
         nestedSelectConsumer.accept(columnReference);
         SqlSelectBuilder nestedSqlBuilder = matchSqlSelectBuilder(select.getSelectSpecification(), aliasTableMap);
-        return nestedSqlBuilder.build();
+        return nestedSqlBuilder.build(null);
     }
 
     private static SqlDialect nestedJoinSqlDialect(NestedJoin nestedJoin) {

@@ -93,7 +93,7 @@ public abstract class SqlSelectBuilder {
 
     protected abstract void parseLimit();
 
-    public final SqlStatementSelectWrapper build() {
+    public final SqlStatementSelectWrapper build(Class<?> returnClass) {
         //step0 解析表别名
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(joinTable -> {
@@ -124,23 +124,30 @@ public abstract class SqlSelectBuilder {
         //step2 解析查询的表
         sqlBuilder.append(SqlUtils.getSyntaxFrom(sqlDialect)).append(" ");
         if (parseFormTables()) {
+            //猜测可能需要fetch的对象，如果用户没有生命具体的对象，就把这个类作为返回对象
+            if (returnClass == null) {
+                JoinTable guessTheTarget = joinTables.stream().filter(joinTable -> joinTable.getTableClass() != null)
+                        .findFirst().orElse(null);
+                if (guessTheTarget != null) {
+                    returnClass = guessTheTarget.getTableClass();
+                }
+            }
+            if (returnClass == null) {
+                throw new IllegalStateException("The query result object cannot be inferred from the context. " +
+                        "Please declare the return type.");
+            }
             //继续解析SQL
-            continueParsingSql();
+            continueParsingSql(returnClass);
         }
-        //猜测可能需要fetch的对象，如果用户没有生命具体的对象，就把这个类作为返回对象
-        JoinTable guessTheTarget = joinTables.stream().filter(joinTable -> joinTable.getTableClass() != null)
-                .findFirst().orElse(null);
-        Class<?> guessTheTargetClass = null;
-        if (guessTheTarget != null) {
-            guessTheTargetClass = guessTheTarget.getTableClass();
-        }
-        return new SqlStatementSelectWrapper(dataSourceName, sqlBuilder, parameterBinder, guessTheTargetClass);
+        return new SqlStatementSelectWrapper(dataSourceName, sqlBuilder, parameterBinder, returnClass);
     }
 
     /**
      * 将解析表后的操作都聚拢在这里
+     *
+     * @param returnClass 返回对象,该对象仅作SQL注入校验用，可以为null,为空代表不涉及注入
      */
-    protected void continueParsingSql() {
+    protected void continueParsingSql(Class<?> returnClass) {
         //step3 解析where条件
         if (selectSpecification.getWhereCondition() != null) {
             Consumer<? extends WhereCondition<? extends Condition>> whereCondition = selectSpecification.getWhereCondition();
@@ -156,7 +163,7 @@ public abstract class SqlSelectBuilder {
         }
         //step6 解析order by
         if (CollectionUtils.isNotEmpty(selectSpecification.getOrderBys())) {
-            sqlBuilder.append(parseOrderBy(selectSpecification.getOrderBys()));
+            sqlBuilder.append(parseOrderBy(selectSpecification.getOrderBys(), returnClass));
         }
         //step7 解析limit
         if (selectSpecification.getLimitInfo() != null) {
@@ -197,7 +204,7 @@ public abstract class SqlSelectBuilder {
         parameterBinder.addParameterBinder(whereParameterBinder);
     }
 
-    protected String parseOrderBy(List<OrderBy> orderBys) {
+    protected String parseOrderBy(List<OrderBy> orderBys, Class<?> returnClass) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(" ").append(SqlUtils.getSyntaxOrderBy(sqlDialect));
         for (int i = 0; i < orderBys.size(); i++) {
@@ -208,7 +215,7 @@ public abstract class SqlSelectBuilder {
                 columnSeparator = ",";
             }
             String sort = orderBy.getSortOrder() != null ? orderBy.getSortOrder().toSqlString(sqlDialect) : "";
-            String aliasOrderBy = SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName, version, parameterBinder, isFromNestedSelect);
+            String aliasOrderBy = SqlUtils.extractQualifiedAliasOrderBy(orderBy, aliasTableMap, dataSourceName, version, parameterBinder, isFromNestedSelect, returnClass);
             stringBuilder.append(aliasOrderBy).append(" ");
             if (i < orderBys.size() - 1) {
                 //获取下个排列

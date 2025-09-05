@@ -164,7 +164,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     Over over = new Over();
                     //初始化over块
                     overConsumer.accept(over);
-                    String parseOrderBy = parseOrderBy(over.getOrderByList());
+                    String parseOrderBy = parseOrderBy(over.getOrderByList(), null);
                     over.setOverClause(parseOrderBy);
                     sqlBuilder.append(" ").append(over.toOverString(sqlDialect));
                 }

@@ -44,6 +44,7 @@ public class InitializingContext {
         //指定特定的版本号，不同的版本号语法可能不同
         //schemaProperties.setDatabaseProductVersion("11.0.0.1");
         schemaProperties.setUseAsInQuery(true);
+        schemaProperties.setCheckSqlInjection(true);
         //打印SQL
         PrintSqlProperties printSqlProperties = new PrintSqlProperties();
         printSqlProperties.setPrintSql(true);

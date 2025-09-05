@@ -1225,6 +1225,7 @@ public class SelectTest extends InitializingContext {
         //TODO 增加外部的排序
         //TODO 增加debug能力
         //TODO 修复外部追加where错误
+        //TODO 全局配置as 是否生效
         PageInfo<List<Map<String, Object>>> pageInfo = PageHelper.of(1, 3)
                 .applyWhere(whereCondition -> whereCondition.andLessThanOrEqualTo(new Column(User::getUserId), 100))
                 .selectPage(() -> sqlContext.select()
@@ -1338,7 +1339,7 @@ public class SelectTest extends InitializingContext {
             List<User> list = sqlContext.select()
                     .allColumn()
                     .from(User.class)
-                    .orderBy(new Length(User::getName), SortOrder.DESC)
+                    .orderBy("name", SortOrder.DESC)
                     .fetch()
                     .toList();
             System.out.println(list);

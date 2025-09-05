@@ -33,6 +33,8 @@ public class SchemaProperties {
     private boolean useAsInQuery = true;
     // 强制指定兼容的数据库版本
     private String databaseProductVersion;
+    //SQL 注入检查, true → 开启检查
+    private boolean checkSqlInjection = true;
     // 打印SQL语句
     private PrintSqlProperties printSqlProperties = new PrintSqlProperties();
     //主版本号
@@ -128,6 +130,14 @@ public class SchemaProperties {
 
     public void setBindBasePackages(String... bindBasePackages) {
         this.bindBasePackages = bindBasePackages;
+    }
+
+    public boolean isCheckSqlInjection() {
+        return checkSqlInjection;
+    }
+
+    public void setCheckSqlInjection(boolean checkSqlInjection) {
+        this.checkSqlInjection = checkSqlInjection;
     }
 
     public static class PrintSqlProperties {

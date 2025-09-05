@@ -54,13 +54,13 @@ public class MysqlSqlSelectBuilder extends GenericSqlSelectBuilder {
         }
         //解析左连接
         parseJoinTable(leftJoin);
-        continueParsingSql();
+        continueParsingSql(null);
         final StringBuilder leftSql = new StringBuilder(sqlBuilder);
         //清空原始SQL
         sqlBuilder.setLength(0);
         final StringBuilder rightSql = new StringBuilder(stubSql);
         parseJoinTable(rightJoin);
-        continueParsingSql();
+        continueParsingSql(null);
         rightSql.append(sqlBuilder);
         //union 合并SQL
         leftSql.append(" union ").append(rightSql);

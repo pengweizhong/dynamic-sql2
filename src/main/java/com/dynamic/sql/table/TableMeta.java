@@ -50,9 +50,23 @@ public class TableMeta {
         this.columnMetas = columnMetas;
     }
 
+    @Deprecated
     public ColumnMeta getColumnMeta(String fieldName) {
+        return getColumnMetaByFieldName(fieldName);
+    }
+
+    public ColumnMeta getColumnMetaByFieldName(String fieldName) {
         for (ColumnMeta columnMeta : columnMetas) {
             if (columnMeta.getField().getName().equals(fieldName)) {
+                return columnMeta;
+            }
+        }
+        return null;
+    }
+
+    public ColumnMeta getColumnMetaByColumnName(String columnName) {
+        for (ColumnMeta columnMeta : columnMetas) {
+            if (columnMeta.getColumnName().equals(columnName)) {
                 return columnMeta;
             }
         }
