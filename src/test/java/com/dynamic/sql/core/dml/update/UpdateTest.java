@@ -95,6 +95,21 @@ class UpdateTest extends InitializingContext {
     }
 
     @Test
+    void updateAlias() {
+        Product product = new Product();
+        product.setProductId(20);
+        product.setProductName("New Coffee Maker updateAlias");
+        product.setCategoryId(4);
+        product.setCreatedAt(new Date());
+        product.setPrice(BigDecimal.valueOf(879));
+        product.setStock(222);
+        int i = sqlContext.updateSelective(product, Collections.singletonList(Product::getAttributes), whereCondition -> whereCondition.andEqualTo(Product::getProductId, 20));
+        int i2 = sqlContext.updateByPrimaryKey(product);
+        System.out.println(i);
+        System.out.println(i2);
+    }
+
+    @Test
     void upsert() {
         Product product = new Product();
 //        product.setProductId(20);

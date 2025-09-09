@@ -3,15 +3,14 @@ package com.dynamic.sql.core.dml.update;
 import com.dynamic.sql.context.SchemaContextHolder;
 import com.dynamic.sql.context.properties.SchemaProperties;
 import com.dynamic.sql.core.Fn;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.database.SqlExecutionFactory;
 import com.dynamic.sql.core.database.SqlExecutor;
 import com.dynamic.sql.core.database.parser.AbstractDialectParser;
+import com.dynamic.sql.core.dml.ParseWhereHandler;
 import com.dynamic.sql.enums.DMLType;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
-import com.dynamic.sql.utils.SqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,32 +18,31 @@ import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class EntitiesUpdater {
+public class EntitiesUpdater extends ParseWhereHandler {
     protected static final Logger log = LoggerFactory.getLogger(EntitiesUpdater.class);
     private final Collection<Object> entities;
     private Class<?> entityClass;
     private final Fn<?, ?>[] forcedFields;
-    private final Consumer<GenericWhereCondition> condition;
 
     public EntitiesUpdater(Collection<Object> entities) {
+        super(null);
         this.entities = entities;
         this.entityClass = entities.iterator().next().getClass();
         this.forcedFields = null;
-        this.condition = null;
     }
 
     public EntitiesUpdater(Collection<Object> entities, Fn<?, ?>[] forcedFields) {
+        super(null);
         this.entities = entities;
         this.entityClass = entities.iterator().next().getClass();
         this.forcedFields = forcedFields;
-        this.condition = null;
     }
 
     public EntitiesUpdater(Collection<Object> entities, Fn<?, ?>[] forcedFields, Consumer<GenericWhereCondition> condition) {
+        super(condition);
         this.entities = entities;
         this.entityClass = entities.iterator().next().getClass();
         this.forcedFields = forcedFields;
-        this.condition = condition;
     }
 
     public int updateByPrimaryKey(Function<SqlExecutor, Integer> doSqlExecutor) {
@@ -78,14 +76,7 @@ public class EntitiesUpdater {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        GenericWhereCondition whereCondition = null;
-        if (condition != null) {
-            Version version = new Version(schemaProperties.getMajorVersionNumber(),
-                    schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
-            whereCondition = SqlUtils.matchDialectCondition(schemaProperties.getSqlDialect(),
-                    version, null, dataSourceName);
-            condition.accept(whereCondition);
-        }
+        GenericWhereCondition whereCondition = applyGenericWhereCondition(schemaProperties);
         SchemaProperties.PrintSqlProperties printSqlProperties = schemaProperties.getPrintSqlProperties();
         if (printSqlProperties.isPrintSql() && condition == null) {
             log.debug("When the Where condition is null, the data in the entire table will be updated");
@@ -104,14 +95,7 @@ public class EntitiesUpdater {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        GenericWhereCondition whereCondition = null;
-        if (condition != null) {
-            Version version = new Version(schemaProperties.getMajorVersionNumber(),
-                    schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
-            whereCondition = SqlUtils.matchDialectCondition(schemaProperties.getSqlDialect(),
-                    version, null, dataSourceName);
-            condition.accept(whereCondition);
-        }
+        GenericWhereCondition whereCondition = applyGenericWhereCondition(schemaProperties);
         SchemaProperties.PrintSqlProperties printSqlProperties = schemaProperties.getPrintSqlProperties();
         if (printSqlProperties.isPrintSql() && condition == null) {
             log.debug("When the Where condition is null, the data in the entire table will be updated");
@@ -122,4 +106,8 @@ public class EntitiesUpdater {
         return SqlExecutionFactory.executorSql(DMLType.UPDATE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
     }
 
+    @Override
+    public String getType() {
+        return DMLType.UPDATE.getType();
+    }
 }

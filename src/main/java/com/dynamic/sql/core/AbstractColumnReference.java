@@ -117,7 +117,6 @@ public abstract class AbstractColumnReference {
     }
 
     /**
-     * <b>实验性</b>
      * <p>
      * 显式忽略一个列，使其不参与查询结果。
      * <p>常用于在已经选择了多个列的情况下，排除掉其中某些不需要的列。
@@ -130,7 +129,6 @@ public abstract class AbstractColumnReference {
     public abstract <T, F> AbstractColumnReference ignoreColumn(Fn<T, F> fn);
 
     /**
-     * <b>实验性</b>
      * <p>
      * 条件性地忽略一个列。
      * <p>根据 {@code isEffective} 参数决定是否忽略字段，

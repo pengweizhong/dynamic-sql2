@@ -15,7 +15,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("products")
+@Table(value = "products",alias = "p")
 public class Product implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id

@@ -38,10 +38,7 @@ import com.dynamic.sql.core.dml.select.order.OrderBy;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.datasource.DataSourceMeta;
 import com.dynamic.sql.datasource.DataSourceProvider;
-import com.dynamic.sql.enums.DbType;
-import com.dynamic.sql.enums.JoinTableType;
-import com.dynamic.sql.enums.LogicalOperatorType;
-import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.enums.*;
 import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.table.ColumnMeta;
@@ -136,13 +133,18 @@ public class SqlUtils {
     }
 
     public static <T, F> String extractQualifiedAlias(Fn<T, F> field, Map<String, TableAliasMapping> aliasTableMap, String dataSourceName) {
-        return extractQualifiedAlias(null, field, aliasTableMap, dataSourceName);
+        return extractQualifiedAlias(null, field, aliasTableMap, dataSourceName, null);
+    }
+
+    public static <T, F> String extractQualifiedAlias(Fn<T, F> field, Map<String, TableAliasMapping> aliasTableMap, String dataSourceName, SqlExecuteType sqlExecuteType) {
+        return extractQualifiedAlias(null, field, aliasTableMap, dataSourceName, sqlExecuteType);
     }
 
     /**
      * 按照当前SQL语义匹配最佳表别名, 之后拼接列名
+     * TODO 应当将别名和列名分开处理
      */
-    public static <T, F> String extractQualifiedAlias(String tableAlias, Fn<T, F> field, Map<String, TableAliasMapping> aliasTableMap, String dataSourceName) {
+    public static <T, F> String extractQualifiedAlias(String tableAlias, Fn<T, F> field, Map<String, TableAliasMapping> aliasTableMap, String dataSourceName, SqlExecuteType sqlExecuteType) {
         Fn fn = field;
         aliasTableMap = aliasTableMap == null ? new HashMap<>() : aliasTableMap;
         //如果内嵌了表别名，则此处的表别名优先级最高
@@ -157,7 +159,10 @@ public class SqlUtils {
                     DbType dbType = dataSourceMeta.getDbType();
                     SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
                     tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
-                    return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, abstractAlias.getColumnName());
+                    if (isNeedAlias(sqlExecuteType)) {
+                        return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, abstractAlias.getColumnName());
+                    }
+                    return SqlUtils.quoteIdentifier(sqlDialect, abstractAlias.getColumnName());
                 }
             }
         }
@@ -170,13 +175,16 @@ public class SqlUtils {
                 DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
                 DbType dbType = dataSourceMeta.getDbType();
                 SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
-                tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
-                return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, groupFn.getColumnName());
+                if (isNeedAlias(sqlExecuteType)) {
+                    tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
+                    return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, groupFn.getColumnName());
+                }
+                return SqlUtils.quoteIdentifier(sqlDialect, groupFn.getColumnName());
             }
         }
         //如果使用了当前回话的表别名
         String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
-        if (tableAlias == null && !aliasTableMap.isEmpty()) {
+        if (isNeedAlias(sqlExecuteType) && tableAlias == null && !aliasTableMap.isEmpty()) {
             TableAliasMapping aliasMapping = aliasTableMap.get(originalClassCanonicalName);
             if (aliasMapping != null) {
                 tableAlias = aliasMapping.getAlias();
@@ -186,14 +194,25 @@ public class SqlUtils {
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
         DbType dbType = dataSourceMeta.getDbType();
         SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
+        ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(fn));
         //最后匹配全局的表别名，通常默认别名就是表名
         tableAlias = ifAbsentAlias(tableAlias, tableMeta.getTableAlias(), aliasTableMap);
-        ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(fn));
         TableAliasMapping aliasMapping = aliasTableMap.get(tableAlias);
         String column = SqlUtils.quoteIdentifier(sqlDialect, aliasMapping != null && aliasMapping.isNestedJoin() ? columnMeta.getField().getName() : columnMeta.getColumnName());
-        return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." + column;
+        if (isNeedAlias(sqlExecuteType)) {
+            return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." + column;
+        }
+        return column;
     }
 
+    /**
+     * 别名是否存在
+     *
+     * @param oriAlias
+     * @param newAlias
+     * @param aliasTableMap
+     * @return
+     */
     private static String ifAbsentAlias(String oriAlias, String newAlias, Map<String, TableAliasMapping> aliasTableMap) {
         if (oriAlias == null && newAlias != null) {
             return newAlias;
@@ -209,6 +228,20 @@ public class SqlUtils {
             }
         }
         return oriAlias;
+    }
+
+    /**
+     * 是否需要拼接别名
+     *
+     * @param sqlExecuteType sql执行类型
+     * @return true 需要拼接别名，false 不需要拼接别名
+     */
+    public static boolean isNeedAlias(SqlExecuteType sqlExecuteType) {
+        if (sqlExecuteType == null) {
+            return true;
+        }
+        //为空 或者  只是查询时，才需要表别名
+        return Objects.equals(sqlExecuteType.getType(), DMLType.SELECT.getType());
     }
 
     public static String extractQualifiedAliasOrderBy(OrderBy orderBy,

@@ -11,15 +11,14 @@ package com.dynamic.sql.core.dml.delete;
 
 import com.dynamic.sql.context.SchemaContextHolder;
 import com.dynamic.sql.context.properties.SchemaProperties;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.database.SqlExecutionFactory;
 import com.dynamic.sql.core.database.SqlExecutor;
 import com.dynamic.sql.core.database.parser.AbstractDialectParser;
+import com.dynamic.sql.core.dml.ParseWhereHandler;
 import com.dynamic.sql.enums.DMLType;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
-import com.dynamic.sql.utils.SqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +27,17 @@ import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class EntitiesDeleter {
+public class EntitiesDeleter extends ParseWhereHandler {
     protected static final Logger log = LoggerFactory.getLogger(EntitiesDeleter.class);
     private Class<?> entityClass;
 
     public <T> EntitiesDeleter(Class<T> entityClass) {
+        super(null);
+        this.entityClass = entityClass;
+    }
+
+    public <T> EntitiesDeleter(Class<T> entityClass, Consumer<GenericWhereCondition> condition) {
+        super(condition);
         this.entityClass = entityClass;
     }
 
@@ -60,7 +65,7 @@ public class EntitiesDeleter {
     }
 
 
-    public int delete(Consumer<GenericWhereCondition> condition, Function<SqlExecutor, Integer> doSqlExecutor) {
+    public int delete(Function<SqlExecutor, Integer> doSqlExecutor) {
         TableMeta tableMeta = TableProvider.getTableMeta(entityClass);
         if (tableMeta == null) {
             throw new IllegalStateException("Class `" + entityClass.getCanonicalName()
@@ -68,14 +73,7 @@ public class EntitiesDeleter {
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
-        GenericWhereCondition whereCondition = null;
-        if (condition != null) {
-            Version version = new Version(schemaProperties.getMajorVersionNumber(),
-                    schemaProperties.getMinorVersionNumber(), schemaProperties.getPatchVersionNumber());
-            whereCondition = SqlUtils.matchDialectCondition(schemaProperties.getSqlDialect(),
-                    version, null, dataSourceName);
-            condition.accept(whereCondition);
-        }
+        GenericWhereCondition whereCondition = applyGenericWhereCondition(schemaProperties);
         SchemaProperties.PrintSqlProperties printSqlProperties = schemaProperties.getPrintSqlProperties();
         if (printSqlProperties.isPrintSql() && condition == null) {
             log.debug("When the Where condition is null, the data in the entire table will be deleted");
@@ -84,5 +82,10 @@ public class EntitiesDeleter {
                 SqlExecutionFactory.chosenDialectParser(schemaProperties, entityClass, null, whereCondition);
         dialectParser.delete();
         return SqlExecutionFactory.executorSql(DMLType.DELETE, dialectParser.getSqlStatementWrapper(), doSqlExecutor);
+    }
+
+    @Override
+    public String getType() {
+        return DMLType.DELETE.getType();
     }
 }

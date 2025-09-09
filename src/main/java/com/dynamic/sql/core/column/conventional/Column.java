@@ -51,7 +51,7 @@ public final class Column extends AbstractColumFunction implements TableFunction
             return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." +
                     SqlUtils.quoteIdentifier(sqlDialect, columnName);
         }
-        return SqlUtils.extractQualifiedAlias(tableAlias, columnFn, aliasTableMap, dataSourceName);
+        return SqlUtils.extractQualifiedAlias(tableAlias, columnFn, aliasTableMap, dataSourceName,null);
 //        String filedName = ReflectUtils.fnToFieldName(columnFn);
 //        String classCanonicalName = ReflectUtils.getOriginalClassCanonicalName(columnFn);
 //        TableMeta tableMeta = TableProvider.getTableMeta(classCanonicalName);

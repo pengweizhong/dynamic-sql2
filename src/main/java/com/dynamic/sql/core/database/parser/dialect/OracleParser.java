@@ -141,11 +141,8 @@ public class OracleParser extends AbstractDialectParser {
     public void delete() {
         StringBuilder sql = new StringBuilder();
         sql.append("delete from ");
-        sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableAlias()));
-        sql.append(" ");
-        sql.append(SqlUtils.getSyntaxAs(schemaProperties.getSqlDialect()));
-        sql.append(" ");
         sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), tableMeta.getTableName()));
+        sql.append(" ");
         if (whereCondition == null) {
             sqlStatementWrapper = new SqlStatementWrapper(schemaProperties.getDataSourceName(), sql, null);
             return;
