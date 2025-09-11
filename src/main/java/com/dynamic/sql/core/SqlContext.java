@@ -189,8 +189,6 @@ public interface SqlContext {
 
     /**
      * 批量插入一组实体到数据库。
-     * <p>
-     * 使用批处理模式插入多个记录，更加稳定但执行时间相对较长。
      *
      * @param entities 要插入的实体集合，不能为空。
      * @param <T>      实体的类型，一般为数据模型类。
@@ -200,9 +198,6 @@ public interface SqlContext {
 
     /**
      * 通过追加模式插入多条记录到数据库。
-     * <p>
-     * 追加模式更高效，但可能有局限性；<br>
-     * 比如 SQL 语句长度超出数据库限制。
      *
      * @param entities 要插入的实体集合，不能为空。
      * @param <T>      实体的类型，一般为数据模型类。
