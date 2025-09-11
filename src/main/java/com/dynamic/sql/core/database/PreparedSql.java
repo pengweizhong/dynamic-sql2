@@ -20,13 +20,13 @@ public class PreparedSql {
     /**
      * SQL 语句字符串
      */
-    private String sql;
+    private final String sql;
 
     /**
      * 参数列表的列表，用于支持批量参数传递。
      * 每个内部列表代表一组对应 SQL 语句的参数。
      */
-    private List<List<Object>> params = new ArrayList<>();
+    private final List<List<Object>> params = new ArrayList<>();
 
     /**
      * 构造函数，初始化 SQL 语句和参数列表。
