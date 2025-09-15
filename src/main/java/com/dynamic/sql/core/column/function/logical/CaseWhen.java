@@ -11,6 +11,7 @@ import com.dynamic.sql.model.TableAliasMapping;
 import java.util.Map;
 import java.util.function.Consumer;
 
+//TODO 需要时再实现
 public class CaseWhen extends ColumnFunctionDecorator {
 
     public CaseWhen(AbstractColumFunction delegateFunction) {
