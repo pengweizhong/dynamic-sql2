@@ -21,10 +21,7 @@ import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
 import com.dynamic.sql.entities2.UserExtEntity;
 import com.dynamic.sql.enums.SortOrder;
-import com.dynamic.sql.model.ColumnMetaData;
-import com.dynamic.sql.model.Dual;
-import com.dynamic.sql.model.KeyMapping;
-import com.dynamic.sql.model.TableMetaData;
+import com.dynamic.sql.model.*;
 import com.dynamic.sql.plugins.pagination.CollectionPage;
 import com.dynamic.sql.plugins.pagination.MapPage;
 import com.dynamic.sql.plugins.pagination.PageHelper;
@@ -1346,6 +1343,19 @@ public class SelectTest extends InitializingContext {
         } catch (Exception e) {
             Assertions.fail(e);
         }
+    }
+
+    @Test
+    void testNestSelect() {
+//        //OrderVO
+//        OrderVO one = sqlContext.select()
+//                .nestColumn()
+//                .from(Order.class)
+//                .join(User.class, on -> on.andEqualTo(User::getUserId, Order::getUserId))
+//                .where(whereCondition -> whereCondition.andEqualTo(Order::getOrderId, 1))
+//                .fetch(OrderVO.class)
+//                .toOne();
+//        System.out.println(one);
     }
 
 }

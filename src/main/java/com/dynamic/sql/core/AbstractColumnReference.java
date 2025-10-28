@@ -443,6 +443,12 @@ public abstract class AbstractColumnReference {
                                                              Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
                                                              String targetProperty);
 
+    //TODO
+    public AbstractColumnReference nestColumn(boolean isEffective) {
+//        return isEffective ? collectionColumn(keyMapping, valueMapper, targetProperty) : this;
+        return null;
+    }
+
     /**
      * 添加另一个列引用到当前查询中。
      *

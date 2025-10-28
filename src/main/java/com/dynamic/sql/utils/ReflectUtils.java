@@ -10,6 +10,7 @@
 package com.dynamic.sql.utils;
 
 import com.dynamic.sql.core.Fn;
+import com.dynamic.sql.exception.DynamicSqlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,7 @@ import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -435,5 +437,30 @@ public class ReflectUtils {
             if (paramType == char.class && argType == Character.class) return true;
         }
         return false;
+    }
+
+    public static Field findField(Class<?> clazz, String name) {
+        return findField(clazz, name, null);
+    }
+
+
+    public static Field findField(Class<?> clazz, String name, Class<?> type) {
+        if (Objects.isNull(clazz)) {
+            throw new DynamicSqlException("Class must not be null");
+        }
+        if (Objects.isNull(name)) {
+            throw new DynamicSqlException("Either name of the field must be specified");
+        }
+        Class<?> searchType = clazz;
+        while (Object.class != searchType && searchType != null) {
+            List<Field> fields = getAllFields(searchType);
+            for (Field field : fields) {
+                if (name.equalsIgnoreCase(field.getName()) && (type == null || type.equals(field.getType()))) {
+                    return field;
+                }
+            }
+            searchType = searchType.getSuperclass();
+        }
+        return null;
     }
 }
