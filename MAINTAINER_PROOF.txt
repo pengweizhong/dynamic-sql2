@@ -1,0 +1,11 @@
+我是 pengweizhong（GitHub: https://github.com/pengweizhong），我是仓库 pengweizhong/dynamic-sql2 的主要维护者（Owner / Lead maintainer）。
+仓库为公开仓库，使用 MIT 许可证（LICENSE 文件位于：https://github.com/pengweizhong/dynamic-sql2/blob/add-maintainers-md/LICENSE）。
+我负责该项目的总体设计、重要 PR 审核与合并、版本发布及社区治理。仓库近期有持续维护活动（最近提交：2025-10-28）。
+我在此声明：本人为该仓库的主要维护者，申请将我的账号 pengweizhong 标记为“已验证的开源维护者”，以便获得 GitHub Copilot Pro 的免费访问资格。如需更多证明（提交历史、PR/Issue 记录、贡献者列表等），我可以提供相应链接或截图。
+
+---
+
+I am pengweizhong (GitHub: https://github.com/pengweizhong), the primary maintainer (Owner / Lead maintainer) of the repository pengweizhong/dynamic-sql2.
+The repository is public and licensed under MIT (LICENSE file: https://github.com/pengweizhong/dynamic-sql2/blob/add-maintainers-md/LICENSE).
+I am responsible for overall design, reviewing and merging important PRs, releases, and community governance. The repository has recent activity (most recent push: 2025-10-28).
+I hereby declare that I am the primary maintainer of this repository and request that my account (pengweizhong) be marked as a verified open-source maintainer to qualify for free access to GitHub Copilot Pro. If you need further evidence (commit history, PR/issue records, contributor lists), I can provide links or screenshots upon request.
