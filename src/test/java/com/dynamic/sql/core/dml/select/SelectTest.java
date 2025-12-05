@@ -21,7 +21,10 @@ import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
 import com.dynamic.sql.entities2.UserExtEntity;
 import com.dynamic.sql.enums.SortOrder;
-import com.dynamic.sql.model.*;
+import com.dynamic.sql.model.ColumnMetaData;
+import com.dynamic.sql.model.Dual;
+import com.dynamic.sql.model.KeyMapping;
+import com.dynamic.sql.model.TableMetaData;
 import com.dynamic.sql.plugins.pagination.CollectionPage;
 import com.dynamic.sql.plugins.pagination.MapPage;
 import com.dynamic.sql.plugins.pagination.PageHelper;
@@ -36,6 +39,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -1356,6 +1360,98 @@ public class SelectTest extends InitializingContext {
 //                .fetch(OrderVO.class)
 //                .toOne();
 //        System.out.println(one);
+    }
+
+    @Test
+    void testGroupBy() {
+        //TODO
+//        List<Map<String, Object>> list = sqlContext.select()
+//                .column(User::getUserId)
+//                .column(Order::getOrderId)
+//                .from(User.class)
+//                .join(Order.class, on -> on.andEqualTo(User::getUserId, User::getUserId))
+//                .where()
+//                .groupBy(User::getUserId, Order::getOrderId)
+//                .fetchOriginalMap()
+//                .toList();
+//        System.out.println(list);
+    }
+
+    @Test
+    void testFetchList() {
+        List<Object> list = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .limit(10)
+                .fetch()
+                .toList();
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void testFetchList2() {
+        LinkedList<Object> list = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .limit(10)
+                .fetch()
+                .toList(LinkedList::new);
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void testFetchMap() {
+        Map<Integer, User> map = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .limit(10)
+                .fetch(User.class)
+                .toMap(User::getUserId, Function.identity());
+        map.forEach((k, v) -> System.out.println(k + " --- " + v));
+    }
+
+    @Test
+    void testFetchMap2() {
+        LinkedHashMap<Integer, User> map = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .limit(10)
+                .fetch(User.class)
+                .toMap(User::getUserId, Function.identity(), (v1, v2) -> v1, LinkedHashMap::new);
+        map.forEach((k, v) -> System.out.println(k + " --- " + v));
+    }
+
+    @Test
+    void testFetchToGroupingBy() {
+        Map<String, List<User>> groupingBy = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .limit(10)
+                .fetch(User.class)
+                .toGroupingBy(User::getName);
+        groupingBy.forEach((k, v) -> System.out.println(k + " --- " + v.size()));
+    }
+
+    @Test
+    void testFetchToGroupingBy2() {
+        HashMap<String, ArrayList<User>> groupingBy = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .limit(10)
+                .fetch(User.class)
+                .toGroupingBy(User::getName, ArrayList::new, HashMap::new);
+        groupingBy.forEach((k, v) -> System.out.println(k + " --- " + v.size()));
+    }
+
+    @Test
+    void testFetchToGroupingBy3() {
+        LinkedHashMap<String, HashSet<Integer>> groupingBy = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .limit(10)
+                .fetch(User.class)
+                .toGroupingBy(User::getName, User::getUserId, HashSet::new, LinkedHashMap::new);
+        groupingBy.forEach((k, v) -> System.out.println(k + " --- " + v.size()));
     }
 
 }

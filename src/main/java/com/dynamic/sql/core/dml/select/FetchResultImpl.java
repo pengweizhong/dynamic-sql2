@@ -57,15 +57,15 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
     }
 
     @Override
-    public <K, V, M extends Map<K, V>> Map<K, V> toMap(Function<R, ? extends K> keyMapper,
-                                                       Function<R, ? extends V> valueMapper,
-                                                       BinaryOperator<V> mergeFunction,
-                                                       Supplier<M> mapSupplier) {
+    public <K, V, M extends Map<K, V>> M toMap(Function<R, ? extends K> keyMapper,
+                                               Function<R, ? extends V> valueMapper,
+                                               BinaryOperator<V> mergeFunction,
+                                               Supplier<M> mapSupplier) {
         return convertToMap(keyMapper, valueMapper, mergeFunction, mapSupplier);
     }
 
     @Override
-    public <K, V, C extends Collection<V>, M extends Map<K, C>> Map<K, C> toGroupingBy(
+    public <K, V, C extends Collection<V>, M extends Map<K, C>> M toGroupingBy(
             Function<R, ? extends K> keyMapper,
             Function<R, ? extends V> valueMapper,
             Supplier<C> collectionSupplier,
@@ -168,10 +168,10 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         return meta != null ? meta : columnNameMap.get(name);
     }
 
-    private <T, K, V, M extends Map<K, V>> Map<K, V> convertToMap(Function<T, ? extends K> keyMapper,
-                                                                  Function<T, ? extends V> valueMapper,
-                                                                  BinaryOperator<V> mergeFunction,
-                                                                  Supplier<M> mapSupplier) {
+    private <T, K, V, M extends Map<K, V>> M convertToMap(Function<T, ? extends K> keyMapper,
+                                                          Function<T, ? extends V> valueMapper,
+                                                          BinaryOperator<V> mergeFunction,
+                                                          Supplier<M> mapSupplier) {
         return convertTo(mapSupplier, (m, columnObjectMap, columnNameMap, fieldNameMap) -> {
             T value = (T) reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap);
             K key = keyMapper.apply(value); // 计算键
@@ -186,7 +186,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         });
     }
 
-    public <K, V, C extends Collection<V>, M extends Map<K, C>> Map<K, C> convertToGroupingBy(
+    public <K, V, C extends Collection<V>, M extends Map<K, C>> M convertToGroupingBy(
             Function<R, ? extends K> keyMapper,
             Function<R, ? extends V> valueMapper,
             Supplier<C> collectionSupplier,
@@ -291,7 +291,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         return isReturnNull.get() ? null : childInstance;
     }
 
-    private <K, V, M extends Map<K, V>> Map<K, V> convertTo(Supplier<M> mapSupplier, Operator operator) {
+    private <K, V, M extends Map<K, V>> M convertTo(Supplier<M> mapSupplier, Operator operator) {
         M m = mapSupplier.get();
         if (CollectionUtils.isEmpty(wrapperList)) {
             return m;

@@ -71,8 +71,8 @@ public interface FetchResult<R> {
      * @param valueMapper 用于生成值的函数
      * @return 返回一个包含映射结果的 Map，如果集合为空则返回空的 Map
      */
-    <K, V> Map<K, V> toMap(Function<R, ? extends K> keyMapper,
-                           Function<R, ? extends V> valueMapper);
+    <K, V, M extends Map<K, V>> M toMap(Function<R, ? extends K> keyMapper,
+                                        Function<R, ? extends V> valueMapper);
 
     /**
      * 将集合中的元素转换为一个 Map，键和值由指定的函数生成。
@@ -85,9 +85,9 @@ public interface FetchResult<R> {
      * @param mergeFunction 用于处理重复键的合并函数
      * @return 返回一个包含映射结果的 Map，如果集合为空则返回空的 Map
      */
-    <K, V> Map<K, V> toMap(Function<R, ? extends K> keyMapper,
-                           Function<R, ? extends V> valueMapper,
-                           BinaryOperator<V> mergeFunction);
+    <K, V, M extends Map<K, V>> M toMap(Function<R, ? extends K> keyMapper,
+                                        Function<R, ? extends V> valueMapper,
+                                        BinaryOperator<V> mergeFunction);
 
     /**
      * 将集合中的元素转换为一个 Map，键和值由指定的函数生成。
@@ -103,10 +103,10 @@ public interface FetchResult<R> {
      * @param mapSupplier   用于创建 Map 实例的供应商
      * @return 返回一个包含映射结果的 Map，如果集合为空则返回由 mapSupplier 创建的 Map
      */
-    <K, V, M extends Map<K, V>> Map<K, V> toMap(Function<R, ? extends K> keyMapper,
-                                                Function<R, ? extends V> valueMapper,
-                                                BinaryOperator<V> mergeFunction,
-                                                Supplier<M> mapSupplier);
+    <K, V, M extends Map<K, V>> M toMap(Function<R, ? extends K> keyMapper,
+                                        Function<R, ? extends V> valueMapper,
+                                        BinaryOperator<V> mergeFunction,
+                                        Supplier<M> mapSupplier);
 
     /**
      * 根据给定的键映射函数，将集合中的元素分组，并返回一个键值对的映射。
@@ -145,9 +145,9 @@ public interface FetchResult<R> {
      * @param mapSupplier        用于提供返回 Map 的生成器
      * @return 一个以分组键为键，以分组后的集合为值的 Map
      */
-    <K, C extends Collection<R>, M extends Map<K, C>> Map<K, C> toGroupingBy(Function<R, ? extends K> keyMapper,
-                                                                             Supplier<C> collectionSupplier,
-                                                                             Supplier<M> mapSupplier);
+    <K, C extends Collection<R>, M extends Map<K, C>> M toGroupingBy(Function<R, ? extends K> keyMapper,
+                                                                     Supplier<C> collectionSupplier,
+                                                                     Supplier<M> mapSupplier);
 
     /**
      * 根据给定的键映射函数、值映射函数、集合生成器和 Map 生成器，将集合中的元素分组，并返回一个键值对的映射。<br>
@@ -167,9 +167,9 @@ public interface FetchResult<R> {
      * @param mapSupplier        用于提供返回 Map 的生成器
      * @return 一个以分组键为键，以转换后的值集合为值的 Map
      */
-    <K, V, C extends Collection<V>, M extends Map<K, C>> Map<K, C> toGroupingBy(Function<R, ? extends K> keyMapper,
-                                                                                Function<R, ? extends V> valueMapper,
-                                                                                Supplier<C> collectionSupplier,
-                                                                                Supplier<M> mapSupplier);
+    <K, V, C extends Collection<V>, M extends Map<K, C>> M toGroupingBy(Function<R, ? extends K> keyMapper,
+                                                                        Function<R, ? extends V> valueMapper,
+                                                                        Supplier<C> collectionSupplier,
+                                                                        Supplier<M> mapSupplier);
 
 }

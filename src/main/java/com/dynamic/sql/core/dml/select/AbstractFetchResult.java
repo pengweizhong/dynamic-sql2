@@ -37,16 +37,17 @@ public abstract class AbstractFetchResult<R> implements FetchResult<R> {
     }
 
     @Override
-    public <K, V> Map<K, V> toMap(Function<R, ? extends K> keyMapper, Function<R, ? extends V> valueMapper) {
+    public <K, V, M extends Map<K, V>> M toMap(Function<R, ? extends K> keyMapper, Function<R, ? extends V> valueMapper) {
         return toMap(keyMapper, valueMapper, (u1, u2) -> {
             throw new IllegalStateException("Duplicate values encountered for the same key: value1=" + u1 + ", value2=" + u2);
         });
     }
 
     @Override
-    public <K, V> Map<K, V> toMap(Function<R, ? extends K> keyMapper,
-                                  Function<R, ? extends V> valueMapper, BinaryOperator<V> mergeFunction) {
-        return toMap(keyMapper, valueMapper, mergeFunction, HashMap::new);
+    @SuppressWarnings("unchecked")
+    public <K, V, M extends Map<K, V>> M toMap(Function<R, ? extends K> keyMapper,
+                                               Function<R, ? extends V> valueMapper, BinaryOperator<V> mergeFunction) {
+        return (M) toMap(keyMapper, valueMapper, mergeFunction, HashMap::new);
     }
 
     @Override
@@ -61,10 +62,11 @@ public abstract class AbstractFetchResult<R> implements FetchResult<R> {
     }
 
     @Override
-    public <K, C extends Collection<R>, M extends Map<K, C>> Map<K, C> toGroupingBy(Function<R, ? extends K> keyMapper,
-                                                                                    Supplier<C> collectionSupplier,
-                                                                                    Supplier<M> mapSupplier) {
-        return toGroupingBy(keyMapper, v -> v, collectionSupplier, HashMap::new);
+    @SuppressWarnings("unchecked")
+    public <K, C extends Collection<R>, M extends Map<K, C>> M toGroupingBy(Function<R, ? extends K> keyMapper,
+                                                                            Supplier<C> collectionSupplier,
+                                                                            Supplier<M> mapSupplier) {
+        return (M) toGroupingBy(keyMapper, v -> v, collectionSupplier, HashMap::new);
     }
 
 }
