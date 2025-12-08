@@ -425,6 +425,7 @@ public interface JoinCondition extends Fetchable {
 
     /**
      * 空条件 WHERE，返回无条件的查询上下文。
+     * 有时可能需要衔接使用，比如在直接调用分组时。
      *
      * @return 返回表连接实例
      */
