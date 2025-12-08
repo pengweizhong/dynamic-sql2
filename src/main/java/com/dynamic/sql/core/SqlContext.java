@@ -405,10 +405,10 @@ public interface SqlContext {
      * @param returnType      集合元素的目标类型，例如 {@code User.class}。
      * @param listSupplier    集合供应器，用于创建具体的集合实例（如 {@code ArrayList::new}）。
      * @param <T>             集合元素的类型参数。
-     * @param <R>             返回集合的具体类型，必须是 {@link java.util.List} 的子类型。
+     * @param <L>             返回集合的具体类型，必须是 {@link java.util.List} 的子类型。
      * @return 执行 SQL 后的结果集合，类型为 {@code R}。
      */
-    default <T, R extends List<T>> R execute(String sql, ParameterBinder parameterBinder, Class<T> returnType, Supplier<? extends List<T>> listSupplier) {
+    default <T, L extends List<T>> L execute(String sql, ParameterBinder parameterBinder, Class<T> returnType, Supplier<L> listSupplier) {
         return execute(null, sql, parameterBinder, returnType, listSupplier);
     }
 
@@ -460,7 +460,7 @@ public interface SqlContext {
      * @param <L>             返回集合的具体类型，必须是 {@link java.util.List} 的子类型。
      * @return 执行 SQL 后的结果集合，类型为 {@code L}。
      */
-    <T, L extends List<T>> L execute(String dataSourceName, String sql, ParameterBinder parameterBinder, Class<T> returnType, Supplier<? extends List<T>> listSupplier);
+    <T, L extends List<T>> L execute(String dataSourceName, String sql, ParameterBinder parameterBinder, Class<T> returnType, Supplier<L> listSupplier);
 
     /**
      * 使用默认数据源获取目录、模式和名称模式下所有匹配的表元数据。

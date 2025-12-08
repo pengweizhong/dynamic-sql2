@@ -437,12 +437,13 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void testOrderBy() {
-        List<User> list = sqlContext.select()
+        LinkedList<User> list = sqlContext.select()
                 .allColumn()
                 .from(User.class)
                 .orderBy(User::getRegistrationDate)
                 .thenOrderBy(User::getUserId, SortOrder.DESC)
-                .fetch().toList();
+                .fetch()
+                .toList(LinkedList::new);
         list.forEach(System.out::println);
     }
 
@@ -869,7 +870,7 @@ public class SelectTest extends InitializingContext {
     void execute7() {
         ParameterBinder parameterBinder = new ParameterBinder();
         String key = SqlUtils.registerValueWithKey(parameterBinder, 10);
-        List<User> execute = sqlContext.execute("select * from users limit " + key, parameterBinder, User.class, ArrayList::new);
+        ArrayList<User> execute = sqlContext.execute("select * from users limit " + key, parameterBinder, User.class, ArrayList::new);
         execute.forEach(System.out::println);
     }
 

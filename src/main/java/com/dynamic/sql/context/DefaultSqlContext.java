@@ -272,7 +272,7 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T, L extends List<T>> L execute(String dataSourceName, String sql, ParameterBinder parameterBinder, Class<T> returnType, Supplier<? extends List<T>> listSupplier) {
+    public <T, L extends List<T>> L execute(String dataSourceName, String sql, ParameterBinder parameterBinder, Class<T> returnType, Supplier<L> listSupplier) {
         return new SqlStatement(dataSourceName, sql, parameterBinder).execute(returnType, listSupplier);
     }
 

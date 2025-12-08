@@ -69,7 +69,7 @@ public class SqlStatement {
         }
     }
 
-    public <T, L extends List<T>> L execute(Class<T> returnType, Supplier<? extends List<T>> listSupplier) {
+    public <T, L extends List<T>> L execute(Class<T> returnType, Supplier<L> listSupplier) {
         SqlStatementWrapper sqlStatementWrapper = new SqlStatementWrapper(getDataSourceName(), new StringBuilder(sql), getParameterBinder());
         String sqlType = parseSqlType(sql);
         if (sqlType == null) {
@@ -81,7 +81,7 @@ public class SqlStatement {
         try {
             List<Map<String, Object>> maps = SqlExecutionFactory.executorSql(DMLType.SELECT, sqlStatementWrapper, SqlExecutor::executeQuery);
             FetchResultImpl<T> tFetchResult = new FetchResultImpl<>(returnType, maps, null);
-            return (L) tFetchResult.toList(listSupplier);
+            return tFetchResult.toList(listSupplier);
         } catch (Exception e) {
             throw new RuntimeException("Failed to execute SQL: " + sql, e);
         }
