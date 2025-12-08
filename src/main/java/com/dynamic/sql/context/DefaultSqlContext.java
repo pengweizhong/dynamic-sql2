@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 
 public class DefaultSqlContext implements SqlContext {
@@ -266,8 +267,13 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public Object execute(String dataSourceName, String sql, ParameterBinder parameterBinder) {
-        return new SqlStatement(dataSourceName, sql, parameterBinder).execute();
+    public <T> T execute(String dataSourceName, String sql, ParameterBinder parameterBinder, Class<T> returnType) {
+        return new SqlStatement(dataSourceName, sql, parameterBinder).execute(returnType);
+    }
+
+    @Override
+    public <T, L extends List<T>> L execute(String dataSourceName, String sql, ParameterBinder parameterBinder, Class<T> returnType, Supplier<? extends List<T>> listSupplier) {
+        return new SqlStatement(dataSourceName, sql, parameterBinder).execute(returnType, listSupplier);
     }
 
     @Override

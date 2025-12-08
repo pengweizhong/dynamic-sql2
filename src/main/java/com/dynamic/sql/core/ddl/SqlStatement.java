@@ -12,6 +12,7 @@ package com.dynamic.sql.core.ddl;
 import com.dynamic.sql.core.database.SqlExecutionFactory;
 import com.dynamic.sql.core.database.SqlExecutor;
 import com.dynamic.sql.core.dml.SqlStatementWrapper;
+import com.dynamic.sql.core.dml.select.FetchResultImpl;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.datasource.DataSourceProvider;
 import com.dynamic.sql.enums.DDLType;
@@ -20,8 +21,11 @@ import com.dynamic.sql.enums.SqlExecuteType;
 import com.dynamic.sql.utils.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 public class SqlStatement {
     //数据源名称
@@ -52,14 +56,32 @@ public class SqlStatement {
         return dataSourceName == null ? DataSourceProvider.getDefaultDataSourceName() : dataSourceName;
     }
 
-    public Object execute() {
+    public <T> T execute(Class<T> returnType) {
         SqlStatementWrapper sqlStatementWrapper = new SqlStatementWrapper(getDataSourceName(), new StringBuilder(sql), getParameterBinder());
         String sqlType = parseSqlType(sql);
         if (sqlType == null) {
             throw new IllegalStateException("Unable to determine SQL type for statement: " + sql);
         }
         try {
-            return executeSqlByType(sqlType, sqlStatementWrapper);
+            return executeSqlByType(sqlType, sqlStatementWrapper, returnType);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to execute SQL: " + sql, e);
+        }
+    }
+
+    public <T, L extends List<T>> L execute(Class<T> returnType, Supplier<? extends List<T>> listSupplier) {
+        SqlStatementWrapper sqlStatementWrapper = new SqlStatementWrapper(getDataSourceName(), new StringBuilder(sql), getParameterBinder());
+        String sqlType = parseSqlType(sql);
+        if (sqlType == null) {
+            throw new IllegalStateException("Unable to determine SQL type for statement: " + sql);
+        }
+        if (!Objects.equals(sqlType, DMLType.SELECT.name())) {
+            throw new IllegalStateException("Only accepting SQL queries: " + sql);
+        }
+        try {
+            List<Map<String, Object>> maps = SqlExecutionFactory.executorSql(DMLType.SELECT, sqlStatementWrapper, SqlExecutor::executeQuery);
+            FetchResultImpl<T> tFetchResult = new FetchResultImpl<>(returnType, maps, null);
+            return (L) tFetchResult.toList(listSupplier);
         } catch (Exception e) {
             throw new RuntimeException("Failed to execute SQL: " + sql, e);
         }
@@ -90,7 +112,7 @@ public class SqlStatement {
     /**
      * 根据 SQL 类型执行语句
      */
-    private Object executeSqlByType(String sqlType, SqlStatementWrapper sqlStatementWrapper) {
+    private <T> T executeSqlByType(String sqlType, SqlStatementWrapper sqlStatementWrapper, Class<T> returnType) {
         // 定义执行器映射
         Map<String, BiFunction<SqlExecuteType, SqlStatementWrapper, Object>> executorMap = new HashMap<>();
         executorMap.put(DMLType.SELECT.name(), (type, wrapper) -> SqlExecutionFactory.executorSql(type, wrapper, SqlExecutor::executeQuery));
@@ -106,7 +128,15 @@ public class SqlStatement {
         BiFunction<SqlExecuteType, SqlStatementWrapper, Object> executor = executorMap.getOrDefault(sqlType,
                 //默认更新
                 (type, wrapper) -> SqlExecutionFactory.executorSql(type, wrapper, SqlExecutor::update));
-        return executor.apply(executeType, sqlStatementWrapper);
+        Object apply = executor.apply(executeType, sqlStatementWrapper);
+        if (apply.getClass().isAssignableFrom(returnType)) {
+            return (T) apply;
+        }
+        if (Objects.equals(sqlType, DMLType.SELECT.name())) {
+            FetchResultImpl<T> tFetchResult = new FetchResultImpl<>(returnType, (List<Map<String, Object>>) apply, null);
+            return tFetchResult.toOne();
+        }
+        return (T) apply;
     }
 
     /**

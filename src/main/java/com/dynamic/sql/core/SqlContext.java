@@ -20,11 +20,12 @@ import java.sql.DatabaseMetaData;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * SQL 操作上下文，提供构建和执行 SQL 语句的方法。
  * <p>
- * 该接口定义了一系列方法，用于构建 SQL 查询、插入、更新、删除等操作。
+ * 该接口定义了一系列方法，用于构建 SQL 查询、插入、更新、删除等等操作。
  * </p>
  */
 public interface SqlContext {
@@ -356,6 +357,18 @@ public interface SqlContext {
     }
 
     /**
+     * 执行指定的 SQL 语句，并将结果映射为指定的返回类型。
+     *
+     * @param sql        要执行的 SQL 语句字符串。
+     * @param returnType 结果的目标类型，例如 {@code User.class} 或 {@code Integer.class}。
+     * @param <T>        返回对象的类型参数。
+     * @return 执行 SQL 后的结果对象，类型为 {@code returnType}。
+     */
+    default <T> T execute(String sql, Class<T> returnType) {
+        return execute(sql, new ParameterBinder(), returnType);
+    }
+
+    /**
      * 执行带参数绑定的 SQL 语句。
      *
      * @param sql             要执行的 SQL 语句字符串，其中可以使用占位符。
@@ -365,6 +378,38 @@ public interface SqlContext {
      */
     default Object execute(String sql, ParameterBinder parameterBinder) {
         return execute(null, sql, parameterBinder);
+    }
+
+    /**
+     * 执行带参数绑定的 SQL 语句，并将结果映射为指定的返回类型。
+     *
+     * @param sql             要执行的 SQL 语句字符串。
+     * @param parameterBinder 参数绑定器，用于注册和绑定 SQL 参数。
+     * @param returnType      结果的目标类型，例如 {@code User.class}。
+     * @param <T>             返回对象的类型参数。
+     * @return 执行 SQL 后的结果对象，类型为 {@code returnType}。
+     */
+    default <T> T execute(String sql, ParameterBinder parameterBinder, Class<T> returnType) {
+        return execute(null, sql, parameterBinder, returnType);
+    }
+
+    /**
+     * 执行带参数绑定的 SQL 语句，并将结果映射为指定集合类型。
+     * <p>
+     * 此方法适用于需要返回集合结果的场景，例如返回 {@code ArrayList<User>} 或 {@code LinkedList<User>}。
+     * 调用者可通过 {@code listSupplier} 指定具体集合实现。
+     * </p>
+     *
+     * @param sql             要执行的 SQL 语句字符串。
+     * @param parameterBinder 参数绑定器，用于注册和绑定 SQL 参数。
+     * @param returnType      集合元素的目标类型，例如 {@code User.class}。
+     * @param listSupplier    集合供应器，用于创建具体的集合实例（如 {@code ArrayList::new}）。
+     * @param <T>             集合元素的类型参数。
+     * @param <R>             返回集合的具体类型，必须是 {@link java.util.List} 的子类型。
+     * @return 执行 SQL 后的结果集合，类型为 {@code R}。
+     */
+    default <T, R extends List<T>> R execute(String sql, ParameterBinder parameterBinder, Class<T> returnType, Supplier<? extends List<T>> listSupplier) {
+        return execute(null, sql, parameterBinder, returnType, listSupplier);
     }
 
     /**
@@ -380,7 +425,42 @@ public interface SqlContext {
      * - 对于 CREATE、ALTER、DROP 等 DDL 语句，返回成功标志（通常为 Integer）。
      * @see SqlUtils#registerValueWithKey(ParameterBinder, Object) 用于管理参数的注册和绑定。
      */
-    Object execute(String dataSourceName, String sql, ParameterBinder parameterBinder);
+    default Object execute(String dataSourceName, String sql, ParameterBinder parameterBinder) {
+        return execute(dataSourceName, sql, parameterBinder, Object.class);
+    }
+
+    /**
+     * 执行指定数据源上的 SQL 语句，并将结果映射为指定的返回类型。
+     * <p>
+     * 此方法适用于需要在多数据源环境下执行查询，并将结果转换为单对象的场景。
+     * </p>
+     *
+     * @param dataSourceName  数据源名称，用于标识要执行 SQL 的目标数据源。
+     * @param sql             要执行的 SQL 语句字符串，其中可以包含占位符。
+     * @param parameterBinder 参数绑定器，用于注册和绑定 SQL 参数。
+     * @param returnType      结果的目标类型，例如 {@code User.class} 或 {@code Integer.class}。
+     * @param <T>             返回对象的类型参数。
+     * @return 执行 SQL 后的结果对象，类型为 {@code returnType}。
+     */
+    <T> T execute(String dataSourceName, String sql, ParameterBinder parameterBinder, Class<T> returnType);
+
+    /**
+     * 执行指定数据源上的 SQL 语句，并将结果映射为指定集合类型。
+     * <p>
+     * 此方法适用于需要返回集合结果的场景，例如返回 {@code ArrayList<User>} 或 {@code LinkedList<User>}。
+     * 调用者可通过 {@code listSupplier} 指定具体集合实现。
+     * </p>
+     *
+     * @param dataSourceName  数据源名称，用于标识要执行 SQL 的目标数据源。
+     * @param sql             要执行的 SQL 语句字符串，其中可以包含占位符。
+     * @param parameterBinder 参数绑定器，用于注册和绑定 SQL 参数。
+     * @param returnType      集合元素的目标类型，例如 {@code User.class}。
+     * @param listSupplier    集合供应器，用于创建具体的集合实例（如 {@code ArrayList::new}）。
+     * @param <T>             集合元素的类型参数。
+     * @param <L>             返回集合的具体类型，必须是 {@link java.util.List} 的子类型。
+     * @return 执行 SQL 后的结果集合，类型为 {@code L}。
+     */
+    <T, L extends List<T>> L execute(String dataSourceName, String sql, ParameterBinder parameterBinder, Class<T> returnType, Supplier<? extends List<T>> listSupplier);
 
     /**
      * 使用默认数据源获取目录、模式和名称模式下所有匹配的表元数据。

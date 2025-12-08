@@ -850,12 +850,29 @@ public class SelectTest extends InitializingContext {
     }
 
     @Test
-    void execute6() {
+    void execute5() {
         Object execute = sqlContext.execute("dataSource", "INSERT INTO dynamic_sql2.users\n" +
                 "(name, gender, registration_date, email, phone_number, account_balance, details, status)\n" +
                 "VALUES('Jerry777', 'Other', '2024-02-01', 'jerry@example.com', '111222333', 1290.00, '{}', 'Active');", null);
         System.out.println(execute);
     }
+
+    @Test
+    void execute6() {
+        ParameterBinder parameterBinder = new ParameterBinder();
+        String key = SqlUtils.registerValueWithKey(parameterBinder, 1);
+        User user = sqlContext.execute("select * from users limit " + key, parameterBinder, User.class);
+        System.out.println(user);
+    }
+
+    @Test
+    void execute7() {
+        ParameterBinder parameterBinder = new ParameterBinder();
+        String key = SqlUtils.registerValueWithKey(parameterBinder, 10);
+        List<User> execute = sqlContext.execute("select * from users limit " + key, parameterBinder, User.class, ArrayList::new);
+        execute.forEach(System.out::println);
+    }
+
 
     @Test
     void getAllTableMetaData() {
