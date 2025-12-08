@@ -10,7 +10,6 @@
 package com.dynamic.sql.utils;
 
 import com.dynamic.sql.core.Fn;
-import com.dynamic.sql.exception.DynamicSqlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -415,8 +414,33 @@ public class ReflectUtils {
         return adjustedArgs;
     }
 
-    // 检查类型是否可赋值（考虑基本类型和包装类型）
-    private static boolean isAssignable(Class<?> paramType, Object arg) {
+    /**
+     * 检查给定的参数对象是否可以赋值给指定的目标类型。
+     * <p>
+     * 此方法支持常规的类型匹配（通过 {@link Class#isAssignableFrom(Class)}），
+     * 额外处理了 Java 基本类型与其对应的包装类型之间的兼容关系。
+     * 例如：
+     * <ul>
+     *     <li>{@code int.class} 与 {@code Integer.class} 视为可赋值。</li>
+     *     <li>{@code boolean.class} 与 {@code Boolean.class} 视为可赋值。</li>
+     *     <li>{@code null} 可以赋值给任何引用类型，但不能赋值给基本类型。</li>
+     * </ul>
+     * </p>
+     *
+     * @param paramType 目标参数类型（可能是基本类型或引用类型）。
+     * @param arg       待检查的参数对象，可以为 {@code null}。
+     * @return 如果参数对象可以赋值给目标类型，返回 {@code true}；否则返回 {@code false}。
+     *
+     * <p><b>示例：</b></p>
+     * <pre>{@code
+     * isAssignable(int.class, 123);              // true
+     * isAssignable(Integer.class, 123);          // true
+     * isAssignable(boolean.class, Boolean.TRUE); // true
+     * isAssignable(String.class, null);          // true
+     * isAssignable(int.class, null);             // false
+     * }</pre>
+     */
+    public static boolean isAssignable(Class<?> paramType, Object arg) {
         if (arg == null) {
             return !paramType.isPrimitive(); // null 可以赋值给引用类型，但不能给基本类型
         }
@@ -439,18 +463,48 @@ public class ReflectUtils {
         return false;
     }
 
+    /**
+     * 在指定类及其父类中查找字段。
+     * <p>
+     * 此方法会从给定类开始，逐层向上遍历父类，查找名称匹配的字段。
+     * 与 {@link #findField(Class, String, Class)} 不同的是，此方法不限制字段类型。
+     * </p>
+     *
+     * @param clazz 要搜索的类，不能为空。
+     * @param name  字段名称，不能为空。默认大小写不敏感。
+     * @return 匹配的 {@link Field} 对象；如果未找到，返回 {@code null}。
+     *
+     * <p><b>示例：</b></p>
+     * <pre>{@code
+     *                             Field idField = findField(User.class, "id");
+     *                             }</pre>
+     */
     public static Field findField(Class<?> clazz, String name) {
         return findField(clazz, name, null);
     }
 
 
+    /**
+     * 在指定类及其父类中查找字段。
+     * <p>
+     * 此方法会从给定类开始，逐层向上遍历父类，查找名称匹配的字段。
+     * 如果指定了 {@code type}，则字段类型也必须匹配。
+     * </p>
+     *
+     * @param clazz 要搜索的类，不能为空。
+     * @param name  字段名称，不能为空。默认大小写不敏感。
+     * @param type  可选的字段类型。如果为 {@code null}，则不限制类型。
+     * @return 匹配的 {@link Field} 对象；如果未找到，返回 {@code null}。
+     *
+     * <p><b>示例：</b></p>
+     * <pre>{@code
+     *                             Field idField = findField(User.class, "id");
+     *                             Field nameField = findField(User.class, "name", String.class);
+     *                             }</pre>
+     */
     public static Field findField(Class<?> clazz, String name, Class<?> type) {
-        if (Objects.isNull(clazz)) {
-            throw new DynamicSqlException("Class must not be null");
-        }
-        if (Objects.isNull(name)) {
-            throw new DynamicSqlException("Either name of the field must be specified");
-        }
+        Objects.requireNonNull(clazz, "Class must not be null");
+        Objects.requireNonNull(name, "Field name must not be null");
         Class<?> searchType = clazz;
         while (Object.class != searchType && searchType != null) {
             List<Field> fields = getAllFields(searchType);
