@@ -48,14 +48,44 @@ public class MapUtils {
         return hashMap;
     }
 
+    /**
+     * 判断 Map 是否为空（null 或无元素）。
+     */
     public static <K, V> boolean isEmpty(Map<K, V> map) {
         return map == null || map.isEmpty();
     }
 
+    /**
+     * 判断 Map 是否非空。
+     */
     public static <K, V> boolean isNotEmpty(Map<K, V> map) {
         return !isEmpty(map);
     }
 
+    /**
+     * 从指定的 Map 中获取 key 对应的值，如果不存在则使用给定的映射函数计算并插入。
+     * <p>
+     * 此方法是对 {@link Map#computeIfAbsent(Object, Function)} 的封装，保证：
+     * <ul>
+     *     <li>如果 key 已存在，直接返回对应的值。</li>
+     *     <li>如果 key 不存在，调用 {@code mappingFunction} 计算新值并放入 Map，然后返回该值。</li>
+     * </ul>
+     * </p>
+     *
+     * @param map             目标 Map，不能为空。
+     * @param key             要查找或插入的键。
+     * @param mappingFunction 当 key 不存在时，用于生成新值的函数。
+     * @param <K>             键的类型。
+     * @param <V>             值的类型。
+     * @return key 对应的值，如果不存在则返回新计算的值。
+     *
+     * <p><b>示例：</b></p>
+     * <pre>{@code
+     * Map<String, Integer> cache = new HashMap<>();
+     * Integer length = computeIfAbsent(cache, "hello", String::length);
+     * // 如果 "hello" 不存在，则插入 5；否则返回已有值。
+     * }</pre>
+     */
     public static <K, V> V computeIfAbsent(Map<K, V> map, K key, Function<K, V> mappingFunction) {
         V value = map.get(key);
         if (value != null) {
