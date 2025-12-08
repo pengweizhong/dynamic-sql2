@@ -230,6 +230,7 @@ public class PageHelper {
          * @param condition 需要应用的查询条件，使用 {@link WhereCondition} 来构建具体的查询条件。该参数是一个 Consumer 类型，
          *                  用于接收条件并进行操作。如果传入的 condition 为 {@code null}，则不会进行任何条件应用操作。
          * @return 返回当前的 {@link GeneralPageHelper} 实例
+         * @apiNote 此方法为实验性功能，未来版本可能修改或移除。
          */
         public GeneralPageHelper applyWhere(Consumer<WhereCondition> condition) {
             if (!Objects.equals(pageInfo.getPagePluginTypeName(), DefaultPagePluginType.DYNAMIC_SQL2.getPluginName())) {
