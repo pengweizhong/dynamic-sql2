@@ -4,15 +4,6 @@ package com.dynamic.sql.core.dml.select;
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
-/*
- * Copyright (c) 2024 PengWeizhong. All Rights Reserved.
- *
- * This source code is licensed under the MIT License.
- * You may obtain a copy of the License at:
- * https://opensource.org/licenses/MIT
- *
- * See the LICENSE file in the project root for more information.
- */
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 
 import java.util.function.Consumer;
@@ -36,6 +27,10 @@ public interface JoinCondition extends Fetchable {
         return join(clazz, null, onCondition);
     }
 
+    default JoinCondition join(boolean isEffective, Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? join(clazz, null, onCondition) : this;
+    }
+
     /**
      * INNER JOIN 的别名方法，允许指定表别名。
      *
@@ -46,6 +41,10 @@ public interface JoinCondition extends Fetchable {
      */
     default JoinCondition join(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition) {
         return innerJoin(clazz, alias, onCondition);
+    }
+
+    default JoinCondition join(boolean isEffective, Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? innerJoin(clazz, alias, onCondition) : this;
     }
 
     /**
@@ -60,6 +59,10 @@ public interface JoinCondition extends Fetchable {
         return innerJoin(nestedSelect, alias, onCondition);
     }
 
+    default JoinCondition join(boolean isEffective, Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? innerJoin(nestedSelect, alias, onCondition) : this;
+    }
+
     /**
      * 使用表函数进行 INNER JOIN。
      *
@@ -69,6 +72,10 @@ public interface JoinCondition extends Fetchable {
      */
     default JoinCondition join(Supplier<TableFunction> tableFunction, String alias) {
         return innerJoin(tableFunction, alias, null);
+    }
+
+    default JoinCondition join(boolean isEffective, Supplier<TableFunction> tableFunction, String alias) {
+        return isEffective ? innerJoin(tableFunction, alias, null) : this;
     }
 
     /**
@@ -83,6 +90,10 @@ public interface JoinCondition extends Fetchable {
         return innerJoin(tableFunction, alias, onCondition);
     }
 
+    default JoinCondition join(boolean isEffective, Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? innerJoin(tableFunction, alias, onCondition) : this;
+    }
+
     /**
      * 使用 CTE 表进行 INNER JOIN。
      *
@@ -92,6 +103,10 @@ public interface JoinCondition extends Fetchable {
      */
     default JoinCondition join(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
         return innerJoin(cte, onCondition);
+    }
+
+    default JoinCondition join(boolean isEffective, CteTable cte, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? innerJoin(cte, onCondition) : this;
     }
 
     default JoinCondition innerJoin(boolean isEffective, Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
@@ -170,6 +185,10 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition leftJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition);
 
+    default JoinCondition leftJoin(boolean isEffective, Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? leftJoin(clazz, onCondition) : this;
+    }
+
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与另一个表关联。
      * <p>
@@ -183,6 +202,10 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition leftJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition);
 
+    default JoinCondition leftJoin(boolean isEffective, Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? leftJoin(clazz, alias, onCondition) : this;
+    }
+
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与子查询结果关联。
      * <p>
@@ -194,6 +217,11 @@ public interface JoinCondition extends Fetchable {
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
     JoinCondition leftJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
+
+    default JoinCondition leftJoin(boolean isEffective, Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? leftJoin(nestedSelect, alias, onCondition) : this;
+    }
+
 
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与表函数的结果关联。
@@ -207,6 +235,10 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition leftJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition);
 
+    default JoinCondition leftJoin(boolean isEffective, Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? leftJoin(tableFunction, alias, onCondition) : this;
+    }
+
     /**
      * 构建一个 LEFT JOIN 连接，用于将当前查询与公共表表达式 (CTE) 结果关联。
      * <p>
@@ -217,6 +249,10 @@ public interface JoinCondition extends Fetchable {
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
     JoinCondition leftJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
+
+    default JoinCondition leftJoin(boolean isEffective, CteTable cte, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? leftJoin(cte, onCondition) : this;
+    }
 
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与另一个表关联。
@@ -229,6 +265,10 @@ public interface JoinCondition extends Fetchable {
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
     JoinCondition rightJoin(Class<?> clazz, Consumer<GenericWhereCondition> onCondition);
+
+    default JoinCondition rightJoin(boolean isEffective, Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? rightJoin(clazz, onCondition) : this;
+    }
 
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与另一个表关联。
@@ -243,6 +283,10 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition rightJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition);
 
+    default JoinCondition rightJoin(boolean isEffective, Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? rightJoin(clazz, alias, onCondition) : this;
+    }
+
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与子查询结果关联。
      * <p>
@@ -254,6 +298,10 @@ public interface JoinCondition extends Fetchable {
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
     JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
+
+    default JoinCondition rightJoin(boolean isEffective, Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? rightJoin(nestedSelect, alias, onCondition) : this;
+    }
 
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与表函数的结果关联。
@@ -267,6 +315,10 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition rightJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition);
 
+    default JoinCondition rightJoin(boolean isEffective, Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? rightJoin(tableFunction, alias, onCondition) : this;
+    }
+
     /**
      * 构建一个 RIGHT JOIN 连接，用于将当前查询与公共表表达式 (CTE) 结果关联。
      * <p>
@@ -277,6 +329,10 @@ public interface JoinCondition extends Fetchable {
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
     JoinCondition rightJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
+
+    default JoinCondition rightJoin(boolean isEffective, CteTable cte, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? rightJoin(cte, onCondition) : this;
+    }
 
     default JoinCondition fullJoin(boolean isEffective, Class<?> clazz, Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? fullJoin(clazz, onCondition) : this;
@@ -307,6 +363,10 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition fullJoin(Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition);
 
+    default JoinCondition fullJoin(boolean isEffective, Class<?> clazz, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? fullJoin(clazz, alias, onCondition) : this;
+    }
+
     /**
      * 构建一个 FULL JOIN 连接，用于将当前查询与公共表表达式 (CTE) 的结果关联。
      * <p>
@@ -319,6 +379,10 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition fullJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
 
+    default JoinCondition fullJoin(boolean isEffective, CteTable cte, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? fullJoin(cte, onCondition) : this;
+    }
+
     /**
      * 构建一个 CROSS JOIN 连接，用于将当前查询与另一个表关联。
      * <p>
@@ -329,6 +393,10 @@ public interface JoinCondition extends Fetchable {
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
     JoinCondition crossJoin(Class<?> clazz);
+
+    default JoinCondition crossJoin(boolean isEffective, Class<?> clazz) {
+        return isEffective ? crossJoin(clazz) : this;
+    }
 
     /**
      * 构建一个 CROSS JOIN 连接，用于将当前查询与公共表表达式 (CTE) 的结果关联。
@@ -341,6 +409,10 @@ public interface JoinCondition extends Fetchable {
      */
     JoinCondition crossJoin(CteTable cte);
 
+    default JoinCondition crossJoin(boolean isEffective, CteTable cte) {
+        return isEffective ? crossJoin(cte) : this;
+    }
+
     /**
      * 追加 WHERE 条件。
      *
@@ -348,6 +420,8 @@ public interface JoinCondition extends Fetchable {
      * @return 返回表连接实例
      */
     TableRelation<?> where(Consumer<GenericWhereCondition> condition); // NOSONAR
+
+    TableRelation<?> where(boolean isEffective, Consumer<GenericWhereCondition> condition);
 
     /**
      * 空条件 WHERE，返回无条件的查询上下文。
@@ -365,6 +439,8 @@ public interface JoinCondition extends Fetchable {
      */
     Fetchable limit(int offset, int limit);
 
+    Fetchable limit(boolean isEffective, int offset, int limit);
+
     /**
      * 限制查询返回的行数。
      *
@@ -372,4 +448,6 @@ public interface JoinCondition extends Fetchable {
      * @return 当前查询构建器的实例
      */
     Fetchable limit(int limit);
+
+    Fetchable limit(boolean isEffective, int limit);
 }

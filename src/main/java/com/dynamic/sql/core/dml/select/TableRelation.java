@@ -173,15 +173,30 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
+    public TableRelation<R> where(boolean isEffective, Consumer<GenericWhereCondition> condition) {
+        return isEffective ? where(condition) : this;
+    }
+
+    @Override
     public Fetchable limit(int offset, int limit) {
         selectSpecification.setLimitInfo(new LimitInfo(offset, limit));
         return this;
     }
 
     @Override
+    public Fetchable limit(boolean isEffective, int offset, int limit) {
+        return isEffective ? limit(offset, limit) : this;
+    }
+
+    @Override
     public Fetchable limit(int limit) {
         selectSpecification.setLimitInfo(new LimitInfo(null, limit));
         return this;
+    }
+
+    @Override
+    public Fetchable limit(boolean isEffective, int limit) {
+        return isEffective ? limit(limit) : this;
     }
 
     public TableRelation<R> where() {

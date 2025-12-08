@@ -1454,6 +1454,17 @@ public class SelectTest extends InitializingContext {
         groupingBy.forEach((k, v) -> System.out.println(k + " --- " + v.size()));
     }
 
+    @Test
+    void testJoin() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .join(false, Order.class, on -> on.andEqualTo(User::getUserId, Order::getUserId))
+                .limit(10)
+                .fetchOriginalMap()
+                .toList();
+        list.forEach(System.out::println);
+    }
 }
 
 
