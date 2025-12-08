@@ -1362,9 +1362,9 @@ public class SelectTest extends InitializingContext {
 //        System.out.println(one);
     }
 
-    @Test
-    void testGroupBy() {
-        //TODO
+//    @Test
+//    void testGroupBy() {
+//        //TODO
 //        List<Map<String, Object>> list = sqlContext.select()
 //                .column(User::getUserId)
 //                .column(Order::getOrderId)
@@ -1375,7 +1375,7 @@ public class SelectTest extends InitializingContext {
 //                .fetchOriginalMap()
 //                .toList();
 //        System.out.println(list);
-    }
+//    }
 
     @Test
     void testFetchList() {

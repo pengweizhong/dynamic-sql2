@@ -53,7 +53,18 @@ public class RootExecutor {
                     if (log.isDebugEnabled() && objectMap.containsKey(columnName)) {
                         detectedColumnNameSet.add(columnName);
                     }
-                    Object columnValue = resultSet.getObject(i);
+                    //目前已知的情况是mysql会将tinyint(1)的数字默认转为布尔（0，1）
+                    //尤其是在使用Integer来接收tinyint(1)时，因此这里不能直接getIndex
+                    //解决方案1：在 JDBC URL 中关闭布尔映射 tinyInt1isBit=false
+                    //解决方案2：在 SQL 层面避免 tinyint(1)
+                    //解决方案3：在 JDBC 读取时强制指定类型
+                    Object columnValue;
+                    int columnType = metaData.getColumnType(i);
+                    if (columnType == Types.TINYINT || columnType == Types.BIT) {
+                        columnValue = resultSet.getInt(i); // 强制为 int
+                    } else {
+                        columnValue = resultSet.getObject(i);
+                    }
                     objectMap.put(columnName, columnValue);
                 }
                 arrayList.add(objectMap);

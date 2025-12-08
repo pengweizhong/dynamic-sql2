@@ -1,15 +1,16 @@
 -- 创建 Users 表
 CREATE TABLE users
 (
-    user_id           INT PRIMARY KEY AUTO_INCREMENT COMMENT '用户 ID',                -- 用户 ID
-    name              VARCHAR(100)                     NOT NULL COMMENT '用户姓名',    -- 用户姓名
-    gender            ENUM ('Male', 'Female', 'Other') NOT NULL COMMENT '性别',        -- 枚举类型：性别
-    registration_date DATE                             NOT NULL COMMENT '注册日期',    -- 注册日期
-    email             VARCHAR(150) COMMENT '邮箱',                                     -- 邮箱
-    phone_number      VARCHAR(15) COMMENT '电话号码',                                  -- 电话号码
-    account_balance   DECIMAL(10, 2)              DEFAULT 0.00 COMMENT '用户账户余额', -- 用户账户余额
-    details           JSON COMMENT '用户详细信息（JSON 存储地址、兴趣等）',               -- 额外信息（JSON）
-    status            ENUM ('Active', 'Inactive') DEFAULT 'Active' COMMENT '用户状态'  -- 用户状态
+    user_id           INT PRIMARY KEY AUTO_INCREMENT COMMENT '用户 ID',                   -- 用户 ID
+    name              VARCHAR(100)                     NOT NULL COMMENT '用户姓名',       -- 用户姓名
+    gender            ENUM ('Male', 'Female', 'Other') NOT NULL COMMENT '性别（枚举类型）', -- 枚举类型：性别
+    sex               tinyint(1)                       NULL COMMENT '性别（数字类型）',     -- 数字类型：性别
+    registration_date DATE                             NOT NULL COMMENT '注册日期',       -- 注册日期
+    email             VARCHAR(150) COMMENT '邮箱',                                        -- 邮箱
+    phone_number      VARCHAR(15) COMMENT '电话号码',                                     -- 电话号码
+    account_balance   DECIMAL(10, 2)              DEFAULT 0.00 COMMENT '用户账户余额',    -- 用户账户余额
+    details           JSON COMMENT '用户详细信息（JSON 存储地址、兴趣等）',                  -- 额外信息（JSON）
+    status            ENUM ('Active', 'Inactive') DEFAULT 'Active' COMMENT '用户状态'     -- 用户状态
 ) COMMENT = '用户表';
 
 INSERT INTO dynamic_sql2.users
@@ -32,7 +33,8 @@ INSERT INTO dynamic_sql2.users
 (user_id, name, gender, registration_date, email, phone_number, account_balance, details, status)
 VALUES (5, 'Eve Williams', 'Other', '2024-02-28', 'eve@example.com', '5556667777', 200.75,
         '{"address": "654 Birch St", "interests": ["fitness", "yoga"]}', 'Active');
-INSERT INTO dynamic_sql2.users (user_id, name, gender, registration_date, email, phone_number, account_balance, details, status)
+INSERT INTO dynamic_sql2.users (user_id, name, gender, registration_date, email, phone_number, account_balance, details,
+                                status)
 VALUES (6, 'Jerry', 'Other', '2024-02-01', 'jerry@example.com', '111222333', 1290.00, '{}', 'Active');
 
 -- 创建 Categories 表
@@ -81,7 +83,8 @@ INSERT INTO dynamic_sql2.products
 VALUES (2, 'MacBook Pro', 1999.99, 30, 1, '{"color": "silver", "storage": "256GB"}', '2023-03-10', 1);
 INSERT INTO dynamic_sql2.products
 (product_id, product_name, price, stock, category_id, `attributes`, created_at, is_available)
-VALUES (3, 'Harry Potter and the Philosopher''s Stone', 12.99, 200, 2, '{"author": "J.K. Rowling", "format": "hardcover"}',
+VALUES (3, 'Harry Potter and the Philosopher''s Stone', 12.99, 200, 2,
+        '{"author": "J.K. Rowling", "format": "hardcover"}',
         '2022-09-05', 1);
 INSERT INTO dynamic_sql2.products
 (product_id, product_name, price, stock, category_id, `attributes`, created_at, is_available)
@@ -97,7 +100,8 @@ INSERT INTO dynamic_sql2.products
 VALUES (7, 'MacBook Pro', 1999.99, 30, 1, '{"color": "silver", "storage": "256GB"}', '2023-03-10', 1);
 INSERT INTO dynamic_sql2.products
 (product_id, product_name, price, stock, category_id, `attributes`, created_at, is_available)
-VALUES (8, 'Harry Potter and the Philosopher''s Stone', 12.99, 200, 2, '{"author": "J.K. Rowling", "format": "hardcover"}',
+VALUES (8, 'Harry Potter and the Philosopher''s Stone', 12.99, 200, 2,
+        '{"author": "J.K. Rowling", "format": "hardcover"}',
         '2022-09-05', 1);
 INSERT INTO dynamic_sql2.products
 (product_id, product_name, price, stock, category_id, `attributes`, created_at, is_available)
@@ -113,7 +117,8 @@ INSERT INTO dynamic_sql2.products
 VALUES (12, 'MacBook Pro', 1999.99, 30, 1, '{"color": "silver", "storage": "256GB"}', '2023-03-10', 1);
 INSERT INTO dynamic_sql2.products
 (product_id, product_name, price, stock, category_id, `attributes`, created_at, is_available)
-VALUES (13, 'Harry Potter and the Philosopher''s Stone', 12.99, 200, 2, '{"author": "J.K. Rowling", "format": "hardcover"}',
+VALUES (13, 'Harry Potter and the Philosopher''s Stone', 12.99, 200, 2,
+        '{"author": "J.K. Rowling", "format": "hardcover"}',
         '2022-09-05', 1);
 INSERT INTO dynamic_sql2.products
 (product_id, product_name, price, stock, category_id, `attributes`, created_at, is_available)
@@ -129,7 +134,8 @@ INSERT INTO dynamic_sql2.products
 VALUES (17, 'MacBook Pro', 1999.99, 30, 1, '{"color": "silver", "storage": "256GB"}', '2023-03-10', 1);
 INSERT INTO dynamic_sql2.products
 (product_id, product_name, price, stock, category_id, `attributes`, created_at, is_available)
-VALUES (18, 'Harry Potter and the Philosopher''s Stone', 12.99, 200, 2, '{"author": "J.K. Rowling", "format": "hardcover"}',
+VALUES (18, 'Harry Potter and the Philosopher''s Stone', 12.99, 200, 2,
+        '{"author": "J.K. Rowling", "format": "hardcover"}',
         '2022-09-05', 1);
 INSERT INTO dynamic_sql2.products
 (product_id, product_name, price, stock, category_id, `attributes`, created_at, is_available)
@@ -155,15 +161,18 @@ CREATE TABLE orders
 
 INSERT INTO dynamic_sql2.orders
 (order_id, user_id, order_date, total_amount, payment_method, payment_status, shipping_address, status, order_details)
-VALUES (1, 1, '2024-03-10', 1150.99, 'Credit Card', 'Completed', '{"zip": "10001", "city": "New York", "address": "123 Main St"}',
+VALUES (1, 1, '2024-03-10', 1150.99, 'Credit Card', 'Completed',
+        '{"zip": "10001", "city": "New York", "address": "123 Main St"}',
         'Delivered', '{"items": [{"product": "iPhone 14", "quantity": 1}, {"product": "MacBook Pro", "quantity": 1}]}');
 INSERT INTO dynamic_sql2.orders
 (order_id, user_id, order_date, total_amount, payment_method, payment_status, shipping_address, status, order_details)
-VALUES (2, 2, '2023-12-01', 12.99, 'PayPal', 'Completed', '{"zip": "90001", "city": "Los Angeles", "address": "456 Elm St"}',
+VALUES (2, 2, '2023-12-01', 12.99, 'PayPal', 'Completed',
+        '{"zip": "90001", "city": "Los Angeles", "address": "456 Elm St"}',
         'Shipped', '{"items": [{"product": "Harry Potter and the Philosopher''s Stone", "quantity": 1}]}');
 INSERT INTO dynamic_sql2.orders
 (order_id, user_id, order_date, total_amount, payment_method, payment_status, shipping_address, status, order_details)
-VALUES (3, 3, '2024-01-15', 85.50, 'Bank Transfer', 'Pending', '{"zip": "60601", "city": "Chicago", "address": "789 Oak St"}',
+VALUES (3, 3, '2024-01-15', 85.50, 'Bank Transfer', 'Pending',
+        '{"zip": "60601", "city": "Chicago", "address": "789 Oak St"}',
         'Pending', '{"items": [{"product": "Nike Running Shoes", "quantity": 1}]}');
 INSERT INTO dynamic_sql2.orders
 (order_id, user_id, order_date, total_amount, payment_method, payment_status, shipping_address, status, order_details)

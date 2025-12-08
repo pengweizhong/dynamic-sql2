@@ -21,6 +21,7 @@ public class User {
     private int userId;  // 用户 ID
     private String name;  // 用户姓名
     private Gender gender;  // 性别
+    private Integer sex;  // 性别
     @Column()
     private Date registrationDate;  // 注册日期
     private String email;  // 邮箱
