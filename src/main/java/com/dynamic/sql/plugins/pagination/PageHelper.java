@@ -27,9 +27,20 @@ import static com.dynamic.sql.plugins.pagination.LocalPage.setCurrentPage;
 /**
  * PageHelper 用于处理不同类型的数据分页逻辑的辅助类。
  * <p>
- * {@link PageHelper#of(int, int)}：通用分页逻辑<br>
- * {@link PageHelper#ofCollection(int, int)}：集合类型分页逻辑<br>
- * {@link PageHelper#ofMap(int, int)}：Map类型分页逻辑
+ * 提供多种分页方式，适用于不同场景：
+ * </p>
+ * <ul>
+ *     <li>{@link PageHelper#of(int, int)}：通用分页逻辑，基于 Dynamic-SQL2 插件</li>
+ *     <li>{@link PageHelper#ofMybatis(int, int)}：MyBatis 分页逻辑（需要加载扩展包
+ *         <a href="https://mvnrepository.com/artifact/com.dynamic-sql/dynamic-sql2-extension">dynamic-sql2-extension</a>）</li>
+ *     <li>{@link PageHelper#ofCollection(int, int)}：集合类型分页逻辑（已废弃）</li>
+ *     <li>{@link PageHelper#ofMap(int, int)}：Map 类型分页逻辑（已废弃）</li>
+ *     <li>{@link PageHelper#ofLogic(int, int)}：逻辑分页，基于内存集合的分页，不依赖数据库插件</li>
+ * </ul>
+ *
+ * <p>
+ * 调用者可根据不同的数据源选择合适的分页方法。
+ * </p>
  */
 public class PageHelper {
     private static final Logger log = LoggerFactory.getLogger(PageHelper.class);
@@ -171,7 +182,7 @@ public class PageHelper {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static class MapPageHelper {
         private int pageIndex;
         private int pageSize;
@@ -258,6 +269,7 @@ public class PageHelper {
          * @return 返回当前的 {@link GeneralPageHelper} 实例
          * @apiNote 此方法为实验性功能，未来版本可能修改或移除。
          */
+        @SuppressWarnings("all")
         public GeneralPageHelper applyWhere(Consumer<WhereCondition> condition) {
             if (!Objects.equals(pageInfo.getPagePluginTypeName(), DefaultPagePluginType.DYNAMIC_SQL2.getPluginName())) {
                 throw new DynamicSqlException("仅" + DefaultPagePluginType.DYNAMIC_SQL2.getPluginName() + "支持在外部追加条件");
