@@ -2,6 +2,8 @@ package com.dynamic.sql.utils;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -115,6 +117,37 @@ class StringUtilsTest {
         System.out.println(StringUtils.endsWith("hello", "o"));
         System.out.println(StringUtils.endsWith("hello", "he"));
         System.out.println(StringUtils.endsWith("hello", ""));
+        System.out.println(StringUtils.endsWith("hello", "hellohello"));
 //        System.out.println(StringUtils.endsWith("hello", null));
+        System.out.println("hello".endsWith("lo"));
+        System.out.println("hello".endsWith("lo0000"));
+    }
+
+    @Test
+    void testBytesToHex() {
+        byte[] bytes = "hello".getBytes();
+        System.out.println(StringUtils.bytesToHex(bytes));
+        String s = StringUtils.bytesToHex(bytes, true);
+        System.out.println(s);
+        byte[] bytes1 = StringUtils.hexToBytes(s);
+        System.out.println(Arrays.equals(bytes1, bytes));
+    }
+
+    @Test
+    void toBaseString() {
+        System.out.println(StringUtils.toBaseString(10, 2));
+        System.out.println(StringUtils.toBaseString(10, 8));
+        System.out.println(StringUtils.toBaseString(10, 10));
+        System.out.println(StringUtils.toBaseString(10, 16));
+    }
+
+    @Test
+    void leftPad() {
+        System.out.println(StringUtils.leftPad("str", 5, '0'));
+    }
+
+    @Test
+    void rightPad() {
+        System.out.println(StringUtils.rightPad("str", 5, '0'));
     }
 }
