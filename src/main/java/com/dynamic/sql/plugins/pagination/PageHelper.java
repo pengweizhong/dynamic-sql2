@@ -38,9 +38,6 @@ import static com.dynamic.sql.plugins.pagination.LocalPage.setCurrentPage;
  *     <li>{@link PageHelper#ofLogic(int, int)}：逻辑分页，基于内存集合的分页，不依赖数据库插件</li>
  * </ul>
  *
- * <p>
- * 调用者可根据不同的数据源选择合适的分页方法。
- * </p>
  */
 public class PageHelper {
     private static final Logger log = LoggerFactory.getLogger(PageHelper.class);
@@ -155,7 +152,7 @@ public class PageHelper {
     }
 
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static class CollectionPageHelper {
         private int pageIndex;
         private int pageSize;

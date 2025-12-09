@@ -94,4 +94,19 @@ public class MapUtils {
         return map.computeIfAbsent(key, mappingFunction);
     }
 
+    /**
+     * 键值反转（value 作为 key，key 作为 value）。
+     * 如果存在重复 value，则后者覆盖前者。
+     */
+    public static <K, V> Map<V, K> invert(Map<K, V> map) {
+        Map<V, K> result = new LinkedHashMap<>();
+        if (isEmpty(map)) {
+            return result;
+        }
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            result.put(entry.getValue(), entry.getKey());
+        }
+        return result;
+    }
+
 }
