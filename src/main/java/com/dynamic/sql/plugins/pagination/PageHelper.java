@@ -52,6 +52,17 @@ public class PageHelper {
 
     /**
      * 创建一个用于 MyBatis 分页插件的分页实例。
+     * <p>
+     * 注意：调用此方法需要额外加载扩展包：
+     * <pre>
+     * &lt;!-- https://mvnrepository.com/artifact/com.dynamic-sql/dynamic-sql2-extension --&gt;
+     * &lt;dependency&gt;
+     *     &lt;groupId&gt;com.dynamic-sql&lt;/groupId&gt;
+     *     &lt;artifactId&gt;dynamic-sql2-extension&lt;/artifactId&gt;
+     *     &lt;version&gt;版本号&lt;/version&gt;
+     * &lt;/dependency&gt;
+     * </pre>
+     * </p>
      *
      * @param pageIndex 页码，从 1 开始（若小于等于 0 则默认为 1）
      * @param pageSize  每页大小（必须大于 0）
