@@ -12,12 +12,11 @@ package com.dynamic.sql.plugins.pagination;
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.exception.DynamicSqlException;
+import com.dynamic.sql.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -62,6 +61,22 @@ public class PageHelper {
     public static GeneralPageHelper ofMybatis(int pageIndex, int pageSize) {
         checkPageParams(pageIndex, pageSize);
         return new GeneralPageHelper(Math.max(pageIndex, 1), pageSize, DefaultPagePluginType.MYBATIS.getPluginName());
+    }
+
+    /**
+     * 创建一个 LogicPageHelper 实例，指定页码和页大小。
+     * <p>
+     * LogicPageHelper 用于对集合进行内存分页，不依赖数据库插件。
+     * </p>
+     *
+     * @param pageIndex 页码（从 1 开始，若小于等于 0 则默认为 1）
+     * @param pageSize  每页大小（必须大于 0）
+     * @return LogicPageHelper 实例，用于集合的逻辑分页处理
+     * @throws IllegalArgumentException 如果 {@code pageSize} 小于等于 0
+     */
+    public static LogicPageHelper ofLogic(int pageIndex, int pageSize) {
+        checkPageParams(pageIndex, pageSize);
+        return new LogicPageHelper(Math.max(pageIndex, 1), pageSize);
     }
 
     /**
@@ -252,6 +267,57 @@ public class PageHelper {
             abstractPage.setRecords(selectSupplier);
         } finally {
             clearCurrentPage();
+        }
+    }
+
+    /**
+     * 逻辑分页工具类，用于对集合进行内存分页。
+     */
+    public static class LogicPageHelper {
+        private final int pageIndex;
+        private final int pageSize;
+
+        private LogicPageHelper(int pageIndex, int pageSize) {
+            this.pageIndex = pageIndex;
+            this.pageSize = pageSize;
+        }
+
+        /**
+         * 对集合进行逻辑分页，返回包含分页信息的 {@link PageInfo}。
+         *
+         * @param collection 原始集合，若为 {@code null} 或空集合则返回空分页对象
+         * @param <T>        集合元素类型
+         * @return 包含分页信息和当前页数据的 {@link PageInfo}
+         *
+         * <pre>
+         * 示例：
+         *   List<Integer> list = Arrays.asList(1,2,3,4,5,6,7);
+         *   PageInfo<List<Integer>> pageInfo = PageHelper.ofLogic(2, 3).selectPage(list);
+         *   // pageInfo.getRecords() = [4,5,6]
+         *   // pageInfo.getTotal() = 7
+         *   // pageInfo.getTotalPage() = 3
+         * </pre>
+         */
+        public <T> PageInfo<List<T>> selectPage(Collection<T> collection) {
+            if (CollectionUtils.isEmpty(collection)) {
+                PageInfo<List<T>> emptyPage = new PageInfo<>(pageIndex, pageSize);
+                emptyPage.setTotal(0L);
+                emptyPage.setRecords(Collections.emptyList());
+                return emptyPage;
+            }
+
+            List<T> list = (collection instanceof List) ? (List<T>) collection : new ArrayList<>(collection);
+            int total = list.size();
+            int fromIndex = (pageIndex - 1) * pageSize;
+            if (fromIndex >= total) {
+                fromIndex = total; // 超出范围时返回空页
+            }
+            int toIndex = Math.min(fromIndex + pageSize, total);
+            List<T> pageRecords = list.subList(fromIndex, toIndex);
+            PageInfo<List<T>> pageInfo = new PageInfo<>(pageIndex, pageSize);
+            pageInfo.setTotal(total);
+            pageInfo.setRecords(pageRecords);
+            return pageInfo;
         }
     }
 }
