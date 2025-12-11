@@ -118,7 +118,6 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             }
             return collection;
         }
-        System.out.println(collectionColumnMapping);
         String targetProperty = collectionColumnMapping.getTargetProperty();
         FieldMeta targetFieldMeta = resolveFieldMeta(targetProperty, fieldNameMap, columnNameMap);
         if (targetFieldMeta == null) {
