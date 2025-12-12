@@ -1,4 +1,4 @@
-package com.dynamic.sql.entites;
+package com.dynamic.sql.entites.temp;
 
 import com.dynamic.sql.anno.GeneratedValue;
 import com.dynamic.sql.anno.Id;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(schema = "mysqlDataSourceTemp", value = "t_team_department")
+@Table(schema = "trumgu_cas_db", value = "t_team_department", dataSourceName = "mysqlDataSourceTemp")
 public class TeamDepartmentEntity {
     /**
      * 部门id

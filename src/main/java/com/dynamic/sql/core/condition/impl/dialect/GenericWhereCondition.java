@@ -462,6 +462,16 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition andEqualTo(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" = ").append(functionToString2);
+        return this;
+    }
+
+
+    @Override
     public <T1, T2, F> GenericWhereCondition andEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName))

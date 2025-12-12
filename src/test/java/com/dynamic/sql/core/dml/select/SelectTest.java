@@ -19,6 +19,7 @@ import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
+import com.dynamic.sql.entites.temp.TeamDepartmentEntity;
 import com.dynamic.sql.entities2.UserExtEntity;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.model.ColumnMetaData;
@@ -1027,10 +1028,10 @@ public class SelectTest extends InitializingContext {
                 .column("d4", TeamDepartmentEntity::getId, "l2Id")
                 .column("d5", TeamDepartmentEntity::getId, "l1Id")
                 .from(TeamDepartmentEntity.class, "d1")
-                .leftJoin(TeamDepartmentEntity.class, "d2", condition -> condition.andEqualTo("d1.id", new Column("d2", "parentId")))
-                .leftJoin(TeamDepartmentEntity.class, "d3", condition -> condition.andEqualTo("d2.id", new Column("d3", "parentId")))
-                .leftJoin(TeamDepartmentEntity.class, "d4", condition -> condition.andEqualTo("d3.id", new Column("d4", "parentId")))
-                .leftJoin(TeamDepartmentEntity.class, "d5", condition -> condition.andEqualTo("d4.id", new Column("d5", "parentId")))
+                .leftJoin(TeamDepartmentEntity.class, "d2", condition -> condition.andEqualTo(new Column("d1", "id"), new Column("d2", "parent_id")))
+                .leftJoin(TeamDepartmentEntity.class, "d3", condition -> condition.andEqualTo(new Column("d2", "id"), new Column("d3", "parent_id")))
+                .leftJoin(TeamDepartmentEntity.class, "d4", condition -> condition.andEqualTo(new Column("d3", "id"), new Column("d4", "parent_id")))
+                .leftJoin(TeamDepartmentEntity.class, "d5", condition -> condition.andEqualTo(new Column("d4", "id"), new Column("d5", "parent_id")))
                 .where(condition -> condition.andIn(TeamDepartmentEntity::getId, Arrays.asList(1, 2, 3)))
                 .fetchOriginalMap()
                 .toList();

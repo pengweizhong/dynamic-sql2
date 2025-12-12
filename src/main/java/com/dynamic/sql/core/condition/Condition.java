@@ -54,6 +54,8 @@ public interface Condition<C extends Condition<C>> {
 
     C andEqualTo(Column column, Object value);
 
+    C andEqualTo(Column column, Column column2);
+
     default C andEqualTo(boolean isEffective, Column column, Object value) {
         return isEffective ? andEqualTo(column, value) : self();
     }

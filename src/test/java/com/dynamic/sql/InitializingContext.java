@@ -29,13 +29,14 @@ public class InitializingContext {
             return;
         }
         SqlContextProperties sqlContextProperties = SqlContextProperties.defaultSqlContextProperties();
-        sqlContextProperties.setScanTablePackage("com.dynamic.sql");
+        sqlContextProperties.setScanTablePackage("com.dynamic.sql.entites.temp");
         sqlContextProperties.setScanDatabasePackage("com.dynamic.sql");
         //提供Mapper代理，但是与Mybatis不兼容，因此推荐使用SqlContext
         sqlContextProperties.setScanMapperPackage("com.dynamic.sql");
         SchemaProperties schemaProperties = new SchemaProperties();
         //本地数据源名称
-        schemaProperties.setDataSourceName("dataSource");
+//        schemaProperties.setDataSourceName("dataSource");
+        schemaProperties.setDataSourceName("mysqlDataSourceTemp");
         //设置全局默认数据源
         schemaProperties.setGlobalDefault(true);
         schemaProperties.setUseSchemaInQuery(true);
