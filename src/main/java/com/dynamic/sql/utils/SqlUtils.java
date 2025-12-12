@@ -191,6 +191,9 @@ public class SqlUtils {
             }
         }
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
+        if (tableMeta == null) {
+            throw new DynamicSqlException("Table mapping failed to load: " + originalClassCanonicalName);
+        }
         DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
         DbType dbType = dataSourceMeta.getDbType();
         SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
