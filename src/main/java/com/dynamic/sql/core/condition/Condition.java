@@ -52,12 +52,46 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? andEqualTo(fn, value) : self();
     }
 
+    /**
+     * 追加等于运算。
+     *
+     * @param column 列对象
+     * @param value  匹配的值
+     * @return 当前 C 实例
+     */
     C andEqualTo(Column column, Object value);
 
-    C andEqualTo(Column column, Column column2);
-
+    /**
+     * 根据条件追加等于运算。
+     *
+     * @param isEffective 是否使条件生效；为 {@code true} 时追加条件，否则忽略
+     * @param column      列对象
+     * @param value       匹配的值
+     * @return 当前 C 实例
+     */
     default C andEqualTo(boolean isEffective, Column column, Object value) {
         return isEffective ? andEqualTo(column, value) : self();
+    }
+
+    /**
+     * 追加列间等于运算。
+     *
+     * @param column  左侧列对象
+     * @param column2 右侧列对象
+     * @return 当前 C 实例
+     */
+    C andEqualTo(Column column, Column column2);
+
+    /**
+     * 根据条件追加列间等于运算。
+     *
+     * @param isEffective 是否使条件生效；为 {@code true} 时追加条件，否则忽略
+     * @param column      左侧列对象
+     * @param column2     右侧列对象
+     * @return 当前 C 实例
+     */
+    default C andEqualTo(boolean isEffective, Column column, Column column2) {
+        return isEffective ? andEqualTo(column, column2) : self();
     }
 
     /**
@@ -126,6 +160,21 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orEqualTo(fn, value) : self();
     }
 
+    C orEqualTo(Column column, Object value);
+
+
+    default C orEqualTo(boolean isEffective, Column column, Object value) {
+        return isEffective ? orEqualTo(column, value) : self();
+    }
+
+
+    C orEqualTo(Column column, Column column2);
+
+
+    default C orEqualTo(boolean isEffective, Column column, Column column2) {
+        return isEffective ? orEqualTo(column, column2) : self();
+    }
+
     /**
      * 添加字段等值连接条件，或运算。
      *
@@ -186,6 +235,21 @@ public interface Condition<C extends Condition<C>> {
      */
     default <T, F> C andNotEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
         return isEffective ? andNotEqualTo(fn, value) : self();
+    }
+
+    C andNotEqualTo(Column column, Object value);
+
+
+    default C andNotEqualTo(boolean isEffective, Column column, Object value) {
+        return isEffective ? andNotEqualTo(column, value) : self();
+    }
+
+
+    C andNotEqualTo(Column column, Column column2);
+
+
+    default C andNotEqualTo(boolean isEffective, Column column, Column column2) {
+        return isEffective ? andNotEqualTo(column, column2) : self();
     }
 
     /**
@@ -250,6 +314,18 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orNotEqualTo(fn, value) : self();
     }
 
+    C orNotEqualTo(Column column, Object value);
+
+    default C orNotEqualTo(boolean isEffective, Column column, Object value) {
+        return isEffective ? orNotEqualTo(column, value) : self();
+    }
+
+    C orNotEqualTo(Column column, Column column2);
+
+    default C orNotEqualTo(boolean isEffective, Column column, Column column2) {
+        return isEffective ? orNotEqualTo(column, column2) : self();
+    }
+
     /**
      * 添加字段不等值连接条件，或运算。
      *
@@ -310,6 +386,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? andIsNull(fn) : self();
     }
 
+    C andIsNull(Column column);
+
+    default C andIsNull(boolean isEffective, Column column) {
+        return isEffective ? andIsNull(column) : self();
+    }
+
     C andIsNull(ColumFunction columFunction, Object value);
 
     default C andIsNull(boolean isEffective, ColumFunction columFunction, Object value) {
@@ -347,6 +429,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orIsNull(columFunction, value) : self();
     }
 
+    C orIsNull(Column column);
+
+    default C orIsNull(boolean isEffective, Column column) {
+        return isEffective ? orIsNull(column) : self();
+    }
+
     /**
      * 添加字段非空值条件，并且运算。
      *
@@ -376,6 +464,12 @@ public interface Condition<C extends Condition<C>> {
 
     default C andIsNotNull(boolean isEffective, ColumFunction columFunction, Object value) {
         return isEffective ? andIsNotNull(columFunction, value) : self();
+    }
+
+    C andIsNotNull(Column column);
+
+    default C andIsNotNull(boolean isEffective, Column column) {
+        return isEffective ? andIsNotNull(column) : self();
     }
 
     /**
@@ -409,6 +503,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orIsNotNull(columFunction, value) : self();
     }
 
+    C orIsNotNull(Column column);
+
+    default C orIsNotNull(boolean isEffective, Column column) {
+        return isEffective ? orIsNotNull(column) : self();
+    }
+
     /**
      * 添加字段大于指定值条件，并且运算。
      *
@@ -434,6 +534,18 @@ public interface Condition<C extends Condition<C>> {
      */
     default <T, F> C andGreaterThan(boolean isEffective, Fn<T, F> fn, Object value) {
         return isEffective ? andGreaterThan(fn, value) : self();
+    }
+
+    C andGreaterThan(Column column, Object value);
+
+    default C andGreaterThan(boolean isEffective, Column column, Object value) {
+        return isEffective ? andGreaterThan(column, value) : self();
+    }
+
+    C andGreaterThan(Column column, Column column2);
+
+    default C andGreaterThan(boolean isEffective, Column column, Column column2) {
+        return isEffective ? andGreaterThan(column, column2) : self();
     }
 
     /**
@@ -498,6 +610,18 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orGreaterThan(fn, value) : self();
     }
 
+    C orGreaterThan(Column column, Object value);
+
+    default C orGreaterThan(boolean isEffective, Column column, Object value) {
+        return isEffective ? orGreaterThan(column, value) : self();
+    }
+
+    C orGreaterThan(Column column, Column column2);
+
+    default C orGreaterThan(boolean isEffective, Column column, Column column2) {
+        return isEffective ? orGreaterThan(column, column2) : self();
+    }
+
     /**
      * 添加字段大于连接条件，或运算。
      *
@@ -558,6 +682,12 @@ public interface Condition<C extends Condition<C>> {
      */
     default <T, F> C andGreaterThanOrEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
         return isEffective ? andGreaterThanOrEqualTo(fn, value) : self();
+    }
+
+    C andGreaterThanOrEqualTo(Column column, Column column2);
+
+    default C andGreaterThanOrEqualTo(boolean isEffective, Column column, Column column2) {
+        return isEffective ? andGreaterThanOrEqualTo(column, column2) : self();
     }
 
     /**
@@ -622,6 +752,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orGreaterThanOrEqualTo(fn, value) : self();
     }
 
+    C orGreaterThanOrEqualTo(Column column, Column column2);
+
+    default C orGreaterThanOrEqualTo(boolean isEffective, Column column, Column column2) {
+        return isEffective ? orGreaterThanOrEqualTo(column, column2) : self();
+    }
+
     /**
      * 添加字段大于或等于连接条件，或运算。
      *
@@ -682,6 +818,13 @@ public interface Condition<C extends Condition<C>> {
      */
     default <T, F> C andLessThan(boolean isEffective, Fn<T, F> fn, Object value) {
         return isEffective ? andLessThan(fn, value) : self();
+    }
+
+
+    C andLessThan(Column column, Column column2);
+
+    default C andLessThan(boolean isEffective, Column column, Column column2) {
+        return isEffective ? andLessThan(column, column2) : self();
     }
 
     /**
@@ -746,6 +889,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orLessThan(fn, value) : self();
     }
 
+    C orLessThan(Column column, Column column2);
+
+    default C orLessThan(boolean isEffective, Column column, Column column2) {
+        return isEffective ? orLessThan(column, column2) : self();
+    }
+
     /**
      * 添加字段小于连接条件，或运算。
      *
@@ -808,6 +957,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? andLessThanOrEqualTo(fn, value) : self();
     }
 
+    C andLessThanOrEqualTo(Column column, Column column2);
+
+    default C andLessThanOrEqualTo(boolean isEffective, Column column, Column column2) {
+        return isEffective ? andLessThanOrEqualTo(column, column2) : self();
+    }
+
     /**
      * 添加字段小于或等于连接条件，并且运算。
      *
@@ -868,6 +1023,12 @@ public interface Condition<C extends Condition<C>> {
      */
     default <T, F> C orLessThanOrEqualTo(boolean isEffective, Fn<T, F> fn, Object value) {
         return isEffective ? orLessThanOrEqualTo(fn, value) : self();
+    }
+
+    C orLessThanOrEqualTo(Column column, Column column2);
+
+    default C orLessThanOrEqualTo(boolean isEffective, Column column, Column column2) {
+        return isEffective ? orLessThanOrEqualTo(column, column2) : self();
     }
 
     /**
@@ -1072,6 +1233,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? andBetween(fn, start, end) : self();
     }
 
+    C andBetween(Column column, Object start, Object end);
+
+    default C andBetween(boolean isEffective, Column column, Object start, Object end) {
+        return isEffective ? andBetween(column, start, end) : self();
+    }
+
     /**
      * 添加字段 BETWEEN 连接条件，并且运算。
      * <p>
@@ -1149,6 +1316,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orBetween(fn, start, end) : self();
     }
 
+    C orBetween(Column column, Object start, Object end);
+
+    default C orBetween(boolean isEffective, Column column, Object start, Object end) {
+        return isEffective ? orBetween(column, start, end) : self();
+    }
+
     /**
      * 添加字段 BETWEEN 连接条件，或运算。
      *
@@ -1210,6 +1383,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? andNotBetween(fn, start, end) : self();
     }
 
+    C andNotBetween(Column column, Object start, Object end);
+
+    default C andNotBetween(boolean isEffective, Column column, Object start, Object end) {
+        return isEffective ? andNotBetween(column, start, end) : self();
+    }
+
     /**
      * 添加字段不在指定范围内条件，或运算。
      *
@@ -1239,6 +1418,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orNotBetween(fn, start, end) : self();
     }
 
+    C orNotBetween(Column column, Object start, Object end);
+
+    default C orNotBetween(boolean isEffective, Column column, Object start, Object end) {
+        return isEffective ? orNotBetween(column, start, end) : self();
+    }
+
     /**
      * 添加字段匹配指定模式条件，并且运算。
      *
@@ -1264,6 +1449,12 @@ public interface Condition<C extends Condition<C>> {
      */
     default <T, F> C andLike(boolean isEffective, Fn<T, F> fn, String pattern) {
         return isEffective ? andLike(fn, pattern) : self();
+    }
+
+    C andLike(Column column, Object value);
+
+    default C andLike(boolean isEffective, Column column, Object value) {
+        return isEffective ? andLike(column, value) : self();
     }
 
     /**
@@ -1293,6 +1484,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orLike(fn, pattern) : self();
     }
 
+    C orLike(Column column, Object value);
+
+    default C orLike(boolean isEffective, Column column, Object value) {
+        return isEffective ? orLike(column, value) : self();
+    }
+
     /**
      * 添加字段不匹配指定模式条件，并且运算。
      *
@@ -1318,6 +1515,12 @@ public interface Condition<C extends Condition<C>> {
      */
     default <T, F> C andNotLike(boolean isEffective, Fn<T, F> fn, String pattern) {
         return isEffective ? andNotLike(fn, pattern) : self();
+    }
+
+    C andNotLike(Column column, Object value);
+
+    default C andNotLike(boolean isEffective, Column column, Object value) {
+        return isEffective ? andNotLike(column, value) : self();
     }
 
     /**
@@ -1347,6 +1550,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orNotLike(fn, pattern) : self();
     }
 
+    C orNotLike(Column column, Object value);
+
+    default C orNotLike(boolean isEffective, Column column, Object value) {
+        return isEffective ? orNotLike(column, value) : self();
+    }
+
     /**
      * 添加字段匹配正则表达式条件，并且运算。
      *
@@ -1372,6 +1581,12 @@ public interface Condition<C extends Condition<C>> {
      */
     default <T, F> C andMatches(boolean isEffective, Fn<T, F> fn, String regex) {
         return isEffective ? andMatches(fn, regex) : self();
+    }
+
+    C andMatches(Column column, String regex);
+
+    default C andMatches(boolean isEffective, Column column, String regex) {
+        return isEffective ? andMatches(column, regex) : self();
     }
 
     /**
@@ -1401,6 +1616,12 @@ public interface Condition<C extends Condition<C>> {
         return isEffective ? orMatches(fn, regex) : self();
     }
 
+    C orMatches(Column column, String regex);
+
+    default C orMatches(boolean isEffective, Column column, String regex) {
+        return isEffective ? orMatches(column, regex) : self();
+    }
+
     /**
      * 添加字段在指定集合中条件，并且运算（使用 FIND_IN_SET 函数）。
      *
@@ -1426,6 +1647,12 @@ public interface Condition<C extends Condition<C>> {
      */
     default <T, F> C andFindInSet(boolean isEffective, Fn<T, F> fn, Object item) {
         return isEffective ? andFindInSet(fn, item) : self();
+    }
+
+    C andFindInSet(Column column, Object value);
+
+    default C andFindInSet(boolean isEffective, Column column, Object value) {
+        return isEffective ? andFindInSet(column, value) : self();
     }
 
     /**
@@ -1482,6 +1709,12 @@ public interface Condition<C extends Condition<C>> {
      */
     default <T, F> C orFindInSet(boolean isEffective, Fn<T, F> fn, Object item) {
         return isEffective ? orFindInSet(fn, item) : self();
+    }
+
+    C orFindInSet(Column column, Object value);
+
+    default C orFindInSet(boolean isEffective, Column column, Object value) {
+        return isEffective ? andFindInSet(column, value) : self();
     }
 
     /**

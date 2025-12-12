@@ -12,14 +12,14 @@ public class MysqlDataSource {
     private static final Logger log = LoggerFactory.getLogger(MysqlDataSource.class);
     private static final String OS = System.getProperty("os.name").toLowerCase();
 
-//    @DBSource(defaultDB = true)
+    @DBSource(defaultDB = true)
     public DataSource getDataSource() {
         log.info("----------------- getDataSource -----------------");
         DruidDataSource ds = new DruidDataSource();
         ds.setUrl("jdbc:mysql://127.0.0.1:3306/dynamic_sql2?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
         ds.setUsername("root");
 //        if (OS.contains("linux")) {
-            ds.setPassword("root");
+        ds.setPassword("root");
 //        } else {
 //            ds.setPassword("Pwz_123456789");
 //        }
@@ -40,14 +40,14 @@ public class MysqlDataSource {
         return ds;
     }
 
-//    @DBSource("testDB")
+    @DBSource("testDB")
     public DataSource getTestDataSource() {
         log.info("----------------- getTestDataSource -----------------");
         DruidDataSource ds = new DruidDataSource();
         ds.setUrl("jdbc:mysql://127.0.0.1:3306/test?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
         ds.setUsername("root");
 //        if (OS.contains("linux")) {
-            ds.setPassword("root");
+        ds.setPassword("root");
 //        } else {
 //            ds.setPassword("Pwz_123456789");
 //        }
@@ -74,14 +74,14 @@ public class MysqlDataSource {
         return ds;
     }
 
-    //    @DBSource("testDB2")
+//    @DBSource("testDB2")
     public DataSource getTestDataSource2() {
         log.info("----------------- getTestDataSource2 -----------------");
         DruidDataSource ds = new DruidDataSource();
         ds.setUrl("jdbc:mysql://127.0.0.1:3306/test?useOldAliasMetadataBehavior=true&useUnicode=true&rewriteBatchedStatements=true&serverTimezone=GMT%2B8&characterEncoding=utf-8");
         ds.setUsername("root");
 //        if (OS.contains("linux")) {
-            ds.setPassword("root");
+        ds.setPassword("root");
 //        } else {
 //            ds.setPassword("Pwz_123456789");
 //        }

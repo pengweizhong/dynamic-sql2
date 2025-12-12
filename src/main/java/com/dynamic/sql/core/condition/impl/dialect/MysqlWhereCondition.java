@@ -12,6 +12,7 @@ package com.dynamic.sql.core.condition.impl.dialect;
 
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
+import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.enums.LogicalOperatorType;
 import com.dynamic.sql.enums.SqlDialect;
@@ -42,21 +43,47 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
+    public GenericWhereCondition andMatches(Column column, String value) {
+        return matches(AND, column, value);
+    }
+
+    @Override
     public <T, F> GenericWhereCondition orMatches(Fn<T, F> fn, String regex) {
         return matches(OR, fn, regex);
     }
 
+    @Override
+    public GenericWhereCondition orMatches(Column column, String value) {
+        return matches(OR, column, value);
+    }
+
     public <T, F> GenericWhereCondition matches(LogicalOperatorType logicalOperatorType, Fn<T, F> fn, String regex) {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
+        String key = registerValueWithKey(parameterBinder, fn, regex);
         condition.append(" ").append(logicalOperatorType(logicalOperatorType));
         //使用 REGEXP_LIKE (MySQL 8.0+)
         if (version.isGreaterThanOrEqual(new Version(8, 0, 0))) {
             condition.append(" regexp_like(").append(column).append(", ")
-                    .append(registerValueWithKey(parameterBinder, fn, regex)).append(")");
+                    .append(key).append(")");
             return this;
         }
         //使用 REGEXP (MySQL 5.7+)
-        condition.append(" ").append(column).append(" regexp ").append(registerValueWithKey(parameterBinder, fn, regex));
+        condition.append(" ").append(column).append(" regexp ").append(key);
+        return this;
+    }
+
+    public GenericWhereCondition matches(LogicalOperatorType logicalOperatorType, Column column, String regex) {
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, regex);
+        condition.append(" ").append(logicalOperatorType(logicalOperatorType));
+        //使用 REGEXP_LIKE (MySQL 8.0+)
+        if (version.isGreaterThanOrEqual(new Version(8, 0, 0))) {
+            condition.append(" regexp_like(").append(functionToString).append(", ")
+                    .append(key).append(")");
+            return this;
+        }
+        //使用 REGEXP (MySQL 5.7+)
+        condition.append(" ").append(functionToString).append(" regexp ").append(key);
         return this;
     }
 
@@ -97,6 +124,16 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     @Override
+    public GenericWhereCondition andFindInSet(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(" find_in_set(").append(key)
+                .append(", ").append(functionToString).append(")");
+        return this;
+    }
+
+    @Override
     public <T, F> GenericWhereCondition andFindInSet(Fn<T, F> fn, Object item, String separator) {
         condition.append(" ").append(logicalOperatorType(AND));
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
@@ -112,6 +149,16 @@ public class MysqlWhereCondition extends GenericWhereCondition {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
                 .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition orFindInSet(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(" find_in_set(").append(key)
+                .append(", ").append(functionToString).append(")");
         return this;
     }
 

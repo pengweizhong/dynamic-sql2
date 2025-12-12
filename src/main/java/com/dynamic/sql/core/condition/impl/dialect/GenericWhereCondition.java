@@ -498,6 +498,24 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition orEqualTo(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(functionToString).append(" = ").append(key);
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition orEqualTo(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" = ").append(functionToString2);
+        return this;
+    }
+
+    @Override
     public <T1, T2, F> GenericWhereCondition orEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName))
@@ -519,6 +537,24 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(extractQualifiedAliasToColumn(fn))
                 .append(" != ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition andNotEqualTo(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(functionToString).append(" != ").append(key);
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition andNotEqualTo(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" != ").append(functionToString2);
         return this;
     }
 
@@ -548,6 +584,24 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition orNotEqualTo(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(functionToString).append(" != ").append(key);
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition orNotEqualTo(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" != ").append(functionToString2);
+        return this;
+    }
+
+    @Override
     public <T1, T2, F> GenericWhereCondition orNotEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName))
@@ -569,6 +623,14 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(extractQualifiedAliasToColumn(fn))
                 .append(" is null");
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition andIsNull(Column column) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" is null");
         return this;
     }
 
@@ -601,6 +663,14 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition orIsNull(Column column) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" is null");
+        return this;
+    }
+
+    @Override
     public <T, F> GenericWhereCondition andIsNotNull(Fn<T, F> fn) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(extractQualifiedAliasToColumn(fn))
@@ -615,6 +685,14 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
         registerValueWithKey(parameterBinder, null, value);
         condition.append(" ").append(logicalOperatorType(AND)).append(functionToString)
                 .append(" is not null");
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition andIsNotNull(Column column) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" is not null");
         return this;
     }
 
@@ -637,10 +715,36 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition orIsNotNull(Column column) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" is not null");
+        return this;
+    }
+
+    @Override
     public <T, F> GenericWhereCondition andGreaterThan(Fn<T, F> fn, Object value) {
         String name = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(AND))
                 .append(name).append(" > ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition andGreaterThan(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(functionToString).append(" > ").append(key);
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition andGreaterThan(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" > ").append(functionToString2);
         return this;
     }
 
@@ -671,6 +775,24 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition orGreaterThan(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(functionToString).append(" > ").append(key);
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition orGreaterThan(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" > ").append(functionToString2);
+        return this;
+    }
+
+    @Override
     public <T1, T2, F> GenericWhereCondition orGreaterThan(Fn<T1, F> field1, Fn<T2, F> field2) {
         String name = extractQualifiedAliasToColumn(field1);
         String name2 = extractQualifiedAliasToColumn(field2);
@@ -697,6 +819,16 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition andGreaterThanOrEqualTo(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" >= ").append(functionToString2);
+        return this;
+    }
+
+
+    @Override
     public <T1, T2, F> GenericWhereCondition andGreaterThanOrEqualTo(Fn<T1, F> field1, Fn<T2, F> field2) {
         String name = extractQualifiedAliasToColumn(field1);
         String name2 = extractQualifiedAliasToColumn(field2);
@@ -719,6 +851,15 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
         String name = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
                 .append(" >= ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition orGreaterThanOrEqualTo(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" >= ").append(functionToString2);
         return this;
     }
 
@@ -749,6 +890,15 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition andLessThan(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" < ").append(functionToString2);
+        return this;
+    }
+
+    @Override
     public <T1, T2, F> GenericWhereCondition andLessThan(Fn<T1, F> field1, Fn<T2, F> field2) {
         String name = extractQualifiedAliasToColumn(field1);
         String name2 = extractQualifiedAliasToColumn(field2);
@@ -771,6 +921,15 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
         String name = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
                 .append(" < ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition orLessThan(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" < ").append(functionToString2);
         return this;
     }
 
@@ -801,6 +960,15 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition andLessThanOrEqualTo(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" <= ").append(functionToString2);
+        return this;
+    }
+
+    @Override
     public GenericWhereCondition andLessThanOrEqualTo(ColumFunction columFunction, Object value) {
         String functionToString = columFunction.getFunctionToString(sqlDialect(), version, aliasTableMap);
         condition.append(" ").append(logicalOperatorType(AND)).append(functionToString)
@@ -822,6 +990,15 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
         String name = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(name)
                 .append(" <= ").append(registerValueWithKey(parameterBinder, fn, value));
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition orLessThanOrEqualTo(Column column, Column column2) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString2 = column2.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString).append(" <= ").append(functionToString2);
         return this;
     }
 
@@ -933,8 +1110,22 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     public <T, F> GenericWhereCondition andBetween(Fn<T, F> fn, Object start, Object end) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
-                .append(" between ").append(registerValueWithKey(parameterBinder, fn, start))
-                .append(" and ").append(registerValueWithKey(parameterBinder, fn, end));
+                .append(" between ")
+                .append(registerValueWithKey(parameterBinder, fn, start))
+                .append(" and ")
+                .append(registerValueWithKey(parameterBinder, fn, end));
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition andBetween(Column column, Object start, Object end) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString)
+                .append(" between ")
+                .append(registerValueWithKey(parameterBinder, start))
+                .append(" and ")
+                .append(registerValueWithKey(parameterBinder, end));
         return this;
     }
 
@@ -959,6 +1150,18 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition orBetween(Column column, Object start, Object end) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString)
+                .append(" between ")
+                .append(registerValueWithKey(parameterBinder, start))
+                .append(" and ")
+                .append(registerValueWithKey(parameterBinder, end));
+        return this;
+    }
+
+    @Override
     public <T1, T2, F> GenericWhereCondition orBetween(Fn<T1, F> field1, Fn<T2, F> startField, Fn<T2, F> endField) {
         String column = SqlUtils.extractQualifiedAlias(field1, aliasTableMap, dataSourceName, sqlExecuteType);
         String column2 = SqlUtils.extractQualifiedAlias(startField, aliasTableMap, dataSourceName, sqlExecuteType);
@@ -979,11 +1182,35 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition andNotBetween(Column column, Object start, Object end) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString)
+                .append(" not between ")
+                .append(registerValueWithKey(parameterBinder, start))
+                .append(" and ")
+                .append(registerValueWithKey(parameterBinder, end));
+        return this;
+    }
+
+    @Override
     public <T, F> GenericWhereCondition orNotBetween(Fn<T, F> fn, Object start, Object end) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" not between ").append(registerValueWithKey(parameterBinder, fn, start))
                 .append(" and ").append(registerValueWithKey(parameterBinder, fn, end));
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition orNotBetween(Column column, Object start, Object end) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        condition.append(functionToString)
+                .append(" not between ")
+                .append(registerValueWithKey(parameterBinder, start))
+                .append(" and ")
+                .append(registerValueWithKey(parameterBinder, end));
         return this;
     }
 
@@ -996,10 +1223,28 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition andLike(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(functionToString).append(" like ").append(key);
+        return this;
+    }
+
+    @Override
     public <T, F> GenericWhereCondition orLike(Fn<T, F> fn, String pattern) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" like ").append(registerValueWithKey(parameterBinder, fn, pattern));
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition orLike(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(functionToString).append(" like ").append(key);
         return this;
     }
 
@@ -1012,10 +1257,28 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition andNotLike(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(AND));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(functionToString).append(" not like ").append(key);
+        return this;
+    }
+
+    @Override
     public <T, F> GenericWhereCondition orNotLike(Fn<T, F> fn, String pattern) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" not like ").append(registerValueWithKey(parameterBinder, fn, pattern));
+        return this;
+    }
+
+    @Override
+    public GenericWhereCondition orNotLike(Column column, Object value) {
+        condition.append(" ").append(logicalOperatorType(OR));
+        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String key = registerValueWithKey(parameterBinder, value);
+        condition.append(functionToString).append(" not like ").append(key);
         return this;
     }
 
@@ -1025,7 +1288,17 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition andMatches(Column column, String regex) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public <T, F> GenericWhereCondition orMatches(Fn<T, F> fn, String regex) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GenericWhereCondition orMatches(Column column, String regex) {
         throw new UnsupportedOperationException();
     }
 
@@ -1035,7 +1308,17 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
+    public GenericWhereCondition andFindInSet(Column column, Object value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public <T, F> GenericWhereCondition orFindInSet(Fn<T, F> fn, Object item) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GenericWhereCondition orFindInSet(Column column, Object value) {
         throw new UnsupportedOperationException();
     }
 

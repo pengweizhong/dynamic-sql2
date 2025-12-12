@@ -129,7 +129,7 @@ public class SqlStatement {
                 //默认更新
                 (type, wrapper) -> SqlExecutionFactory.executorSql(type, wrapper, SqlExecutor::update));
         Object apply = executor.apply(executeType, sqlStatementWrapper);
-        if (apply.getClass().isAssignableFrom(returnType)) {
+        if (apply.getClass().isAssignableFrom(returnType) || Objects.equals(returnType, Object.class)) {
             return (T) apply;
         }
         if (Objects.equals(sqlType, DMLType.SELECT.name())) {

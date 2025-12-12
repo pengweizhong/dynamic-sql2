@@ -19,7 +19,6 @@ import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
-import com.dynamic.sql.entites.temp.TeamDepartmentEntity;
 import com.dynamic.sql.entities2.UserExtEntity;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.model.ColumnMetaData;
@@ -1022,17 +1021,17 @@ public class SelectTest extends InitializingContext {
     @Test
     void tableAlias2() {
         List<Map<String, Object>> list = sqlContext.select()
-                .column("d1", TeamDepartmentEntity::getId, "l5Id")
-                .column("d2", TeamDepartmentEntity::getId, "l4Id")
-                .column("d3", TeamDepartmentEntity::getId, "l3Id")
-                .column("d4", TeamDepartmentEntity::getId, "l2Id")
-                .column("d5", TeamDepartmentEntity::getId, "l1Id")
-                .from(TeamDepartmentEntity.class, "d1")
-                .leftJoin(TeamDepartmentEntity.class, "d2", condition -> condition.andEqualTo(new Column("d1", "id"), new Column("d2", "parent_id")))
-                .leftJoin(TeamDepartmentEntity.class, "d3", condition -> condition.andEqualTo(new Column("d2", "id"), new Column("d3", "parent_id")))
-                .leftJoin(TeamDepartmentEntity.class, "d4", condition -> condition.andEqualTo(new Column("d3", "id"), new Column("d4", "parent_id")))
-                .leftJoin(TeamDepartmentEntity.class, "d5", condition -> condition.andEqualTo(new Column("d4", "id"), new Column("d5", "parent_id")))
-                .where(condition -> condition.andIn(TeamDepartmentEntity::getId, Arrays.asList(1, 2, 3)))
+                .column("d1", DepartmentEntity::getId, "l5Id")
+                .column("d2", DepartmentEntity::getId, "l4Id")
+                .column("d3", DepartmentEntity::getId, "l3Id")
+                .column("d4", DepartmentEntity::getId, "l2Id")
+                .column("d5", DepartmentEntity::getId, "l1Id")
+                .from(DepartmentEntity.class, "d1")
+                .leftJoin(DepartmentEntity.class, "d2", condition -> condition.andEqualTo(new Column("d1", "id"), new Column("d2", "parent_id")))
+                .leftJoin(DepartmentEntity.class, "d3", condition -> condition.andEqualTo(new Column("d2", "id"), new Column("d3", "parent_id")))
+                .leftJoin(DepartmentEntity.class, "d4", condition -> condition.andEqualTo(new Column("d3", "id"), new Column("d4", "parent_id")))
+                .leftJoin(DepartmentEntity.class, "d5", condition -> condition.andEqualTo(new Column("d4", "id"), new Column("d5", "parent_id")))
+                .where(condition -> condition.andIn(DepartmentEntity::getId, Arrays.asList(1, 2, 3)))
                 .fetchOriginalMap()
                 .toList();
         list.forEach(System.out::println);

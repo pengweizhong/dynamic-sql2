@@ -202,3 +202,21 @@ CREATE TABLE temp_dept
 
 
 
+CREATE TABLE `t_department`
+(
+    `id`           int                                                          NOT NULL AUTO_INCREMENT COMMENT '部门id',
+    `team_id`      int                                                          NOT NULL COMMENT '团队id',
+    `dept_name`    varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '部门名称',
+    `dept_desc`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci         DEFAULT NULL COMMENT '部门描述',
+    `parent_id`    int                                                          NOT NULL DEFAULT '0' COMMENT '上级部门id，0表示顶级部门',
+    `is_delete`    tinyint(1)                                                   NOT NULL DEFAULT '0' COMMENT '是否删除 0 未删除 1 已删除',
+    `create_id`    int                                                          NOT NULL COMMENT '创建人id',
+    `update_id`    int                                                          NOT NULL COMMENT '更新人id',
+    `create_time`  timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`  timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `dept_tag`     varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci         DEFAULT NULL,
+    `dept_ldap_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci         DEFAULT NULL COMMENT 'ladp中的id',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT ='部门表';
