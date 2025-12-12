@@ -217,6 +217,4 @@ CREATE TABLE `t_department`
     `dept_tag`     varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci         DEFAULT NULL,
     `dept_ldap_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci         DEFAULT NULL COMMENT 'ladp中的id',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci COMMENT ='部门表';
+) ENGINE = InnoDB  COMMENT ='部门表';
