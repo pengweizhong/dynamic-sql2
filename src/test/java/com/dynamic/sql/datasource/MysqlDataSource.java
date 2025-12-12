@@ -12,7 +12,7 @@ public class MysqlDataSource {
     private static final Logger log = LoggerFactory.getLogger(MysqlDataSource.class);
     private static final String OS = System.getProperty("os.name").toLowerCase();
 
-    @DBSource(defaultDB = true)
+//    @DBSource(defaultDB = true)
     public DataSource getDataSource() {
         log.info("----------------- getDataSource -----------------");
         DruidDataSource ds = new DruidDataSource();
@@ -40,7 +40,7 @@ public class MysqlDataSource {
         return ds;
     }
 
-    @DBSource("testDB")
+//    @DBSource("testDB")
     public DataSource getTestDataSource() {
         log.info("----------------- getTestDataSource -----------------");
         DruidDataSource ds = new DruidDataSource();

@@ -1018,6 +1018,25 @@ public class SelectTest extends InitializingContext {
         }
     }
 
+    @Test
+    void tableAlias2() {
+        List<Map<String, Object>> list = sqlContext.select()
+                .column("d1", TeamDepartmentEntity::getId, "l5Id")
+                .column("d2", TeamDepartmentEntity::getId, "l4Id")
+                .column("d3", TeamDepartmentEntity::getId, "l3Id")
+                .column("d4", TeamDepartmentEntity::getId, "l2Id")
+                .column("d5", TeamDepartmentEntity::getId, "l1Id")
+                .from(TeamDepartmentEntity.class, "d1")
+                .leftJoin(TeamDepartmentEntity.class, "d2", condition -> condition.andEqualTo("d1.id", new Column("d2", "parentId")))
+                .leftJoin(TeamDepartmentEntity.class, "d3", condition -> condition.andEqualTo("d2.id", new Column("d3", "parentId")))
+                .leftJoin(TeamDepartmentEntity.class, "d4", condition -> condition.andEqualTo("d3.id", new Column("d4", "parentId")))
+                .leftJoin(TeamDepartmentEntity.class, "d5", condition -> condition.andEqualTo("d4.id", new Column("d5", "parentId")))
+                .where(condition -> condition.andIn(TeamDepartmentEntity::getId, Arrays.asList(1, 2, 3)))
+                .fetchOriginalMap()
+                .toList();
+        list.forEach(System.out::println);
+    }
+
 
     @Test
     void orderByAlias() {
