@@ -122,7 +122,7 @@ public class ReflectUtils {
         // 获取 SerializedLambda
         SerializedLambda serializedLambda = serializedLambda(fn);
         // 获取实现类的内部名称
-        String implClass = serializedLambda.getImplClass();
+        String implClass = extractInstantiatedClass(serializedLambda);
         // 判断是否为空或者不符合标准的内部类名称
         if (implClass == null || implClass.isEmpty()) {
             throw new IllegalStateException("Unable to obtain the implementation class");
@@ -144,6 +144,21 @@ public class ReflectUtils {
             return originalClassCanonicalName.substring(originalClassCanonicalName.lastIndexOf(".") + 1);
         }
         return originalClassCanonicalName;
+    }
+
+    /**
+     * 提取 Lambda 实例化时的泛型 T 类型。
+     * 优先从 instantiatedMethodType 中解析（真实泛型类型），
+     * 若无法解析则 fallback 到 implClass（方法声明类）。
+     */
+    public static String extractInstantiatedClass(SerializedLambda lambda) {
+        String sig = lambda.getInstantiatedMethodType();
+        int start = sig.indexOf('L');
+        int end = sig.indexOf(';');
+        if (start >= 0 && end > start) {
+            return sig.substring(start + 1, end);
+        }
+        return lambda.getImplClass();
     }
 
     /**
