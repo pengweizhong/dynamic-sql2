@@ -1496,7 +1496,10 @@ public class SelectTest extends InitializingContext {
         List<Map<String, Object>> list = sqlContext.select()
                 .allColumn()
                 .from(User.class)
-                .join(false, Order.class, on -> on.andEqualTo(User::getUserId, Order::getUserId))
+                .join(Order.class, on -> on.andEqualTo(User::getUserId, Order::getUserId))
+                .where()
+                .groupBy(User::getUserId)
+                .groupBy(Order::getUserId)
                 .limit(10)
                 .fetchOriginalMap()
                 .toList();

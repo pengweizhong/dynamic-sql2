@@ -5,6 +5,7 @@ import com.dynamic.sql.anno.Column;
 import com.dynamic.sql.anno.Table;
 import com.dynamic.sql.anno.View;
 import com.dynamic.sql.datasource.DataSourceProvider;
+import com.dynamic.sql.plugins.resolve.ValueParserManager;
 import com.dynamic.sql.table.cte.CTEEntityMapping;
 import com.dynamic.sql.table.view.ViewColumnMeta;
 import com.dynamic.sql.table.view.ViewMeta;
@@ -165,9 +166,9 @@ public class SchemaStructureScanner {
         }
         //判断应当归属哪个数据源
         TableEntityMapping tableEntityMapping = new TableEntityMapping();
-        tableEntityMapping.setSchema(table.schema().trim());
+        tableEntityMapping.setSchema(ValueParserManager.resolve(table.schema().trim()));
         String tableName = StringUtils.isBlank(table.name()) ? table.value().trim() : table.name().trim();
-        tableEntityMapping.setTableName(tableName);
+        tableEntityMapping.setTableName(ValueParserManager.resolve(tableName));
         String tableAlias = table.alias().trim();
         if (StringUtils.isBlank(tableAlias)) {
             tableAlias = tableEntityMapping.getTableName();
