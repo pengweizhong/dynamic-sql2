@@ -46,7 +46,7 @@ public class ValueResolver {
      * (?::([^{}]*))?   可选的 ":default" 部分<br>
      * }                匹配结束的 "}"<br>
      */
-    private static final Pattern PATTERN = Pattern.compile("\\$\\{([^:{}]+)(?::([^{}]*))?}");
+    public static final Pattern PATTERN = Pattern.compile("\\$\\{([^:{}]+)(?::([^{}]*))?}");
 
     /**
      * 解析字符串中的占位符。
