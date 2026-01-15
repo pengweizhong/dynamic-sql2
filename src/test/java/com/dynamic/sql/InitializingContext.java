@@ -13,6 +13,7 @@ import com.dynamic.sql.plugins.exception.ExceptionPlugin;
 import com.dynamic.sql.plugins.pagination.PageInterceptorPlugin;
 import com.dynamic.sql.plugins.resolve.DefaultValueParser;
 import com.dynamic.sql.plugins.resolve.ValueParserManager;
+import com.dynamic.sql.plugins.resolve.ValueParserRegistrar;
 import com.dynamic.sql.utils.ConverterUtils;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.BeforeAll;
@@ -59,7 +60,8 @@ public class InitializingContext {
         //内置JDBC连接
         ConnectionHolder.setConnectionHandle(new SimpleConnectionHandle());
         ConverterUtils.putFetchResultConverter(JsonObject.class, new FetchJsonObjectConverter());
-        ValueParserManager.register(new DefaultValueParser());
+        ValueParserRegistrar valueParserRegistrar = new ValueParserRegistrar();
+        valueParserRegistrar.register(new DefaultValueParser());
         sqlContext = SqlContextHelper.createSqlContext(sqlContextProperties);
     }
 }

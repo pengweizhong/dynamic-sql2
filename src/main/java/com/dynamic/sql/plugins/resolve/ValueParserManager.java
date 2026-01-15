@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ValueParserManager {
-    private static final List<ValueParser> parsers = new ArrayList<>();
+    protected static final List<ValueParser> parsers = new ArrayList<>();
 
-    private ValueParserManager() {
+    protected ValueParserManager() {
     }
 
     /**
      * 注册解析器
      */
-    public static void register(ValueParser parser) {
+    protected static void register(ValueParser parser) {
         if (parsers.contains(parser)) {
             return;
         }
