@@ -46,7 +46,7 @@ public class ValueResolver {
      * (?::([^{}]*))?   可选的 ":default" 部分<br>
      * }                匹配结束的 "}"<br>
      */
-    public static final Pattern PATTERN = Pattern.compile("\\$\\{([^:{}]+)(?::([^{}]*))?}");
+    public static final Pattern VALUE_PATTERN = Pattern.compile("\\$\\{([^:{}]+)(?::([^{}]*))?}");
 
     /**
      * 解析字符串中的占位符。
@@ -55,7 +55,7 @@ public class ValueResolver {
      * @return 替换后的文本
      */
     public String resolve(String text) {
-        Matcher matcher = PATTERN.matcher(text);
+        Matcher matcher = VALUE_PATTERN.matcher(text);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             // group(1) = key
