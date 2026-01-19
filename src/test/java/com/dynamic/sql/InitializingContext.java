@@ -60,6 +60,7 @@ public class InitializingContext {
         //内置JDBC连接
         ConnectionHolder.setConnectionHandle(new SimpleConnectionHandle());
         ConverterUtils.putFetchResultConverter(JsonObject.class, new FetchJsonObjectConverter());
+        //0.1.8起，自定义值库表解析器，这在同一实例相似业务下不同的命令库表命名规则时非常有用
         ValueParserRegistrar valueParserRegistrar = new ValueParserRegistrar();
         valueParserRegistrar.register(new DefaultValueParser());
         sqlContext = SqlContextHelper.createSqlContext(sqlContextProperties);

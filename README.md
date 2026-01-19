@@ -1,4 +1,3 @@
-#
 
 <p align="center">
     <img src="Dynamic-SQL.webp" width="300" />
@@ -14,7 +13,7 @@ MySQL、Oracle、DB2 等数据库的无缝集成，支持子查询、窗口函�
 
 > 旧版地址： https://github.com/pengweizhong/dynamic-sql
 
-## 特性
+# 特性
 
 - **动态 SQL 构建**：通过 Java API 动态构建复杂的 SQL 查询。
 - **跨数据库兼容性**：支持 MySQL、Oracle、DB2 等主流数据库。
@@ -22,7 +21,7 @@ MySQL、Oracle、DB2 等数据库的无缝集成，支持子查询、窗口函�
 - **分页功能**：现代化的分页功能，高效处理查询结果。
 - **Spring 集成**：与 Spring、JDBC、MyBatis 灵活搭配
 
-## 为什么需要 Dynamic-SQL2 ？
+# 为什么需要 Dynamic-SQL2 ？
 
 在开发应用时，特别是在处理数据库交互时，很多场景下需要根据不同的条件动态构建 SQL 查询。  
 为了更加敏捷开发，dynamic-sql2 应运而生，解决了以下几个主要问题：
@@ -53,19 +52,19 @@ MySQL、Oracle、DB2 等数据库的无缝集成，支持子查询、窗口函�
    提供的日志记录和调试支持也使得开发者能够更容易追踪
    SQL 查询的执行过程和调试问题。
 
-### Dynamic-SQL2 不是什么 ？
+# Dynamic-SQL2 不是什么 ？
 
 动态SQL的定位是面向企业级`SAAS`系统开发，它的设计思想是专注于简化 `SQL` 构建和敏捷开发的轻量级的`ORM`框架，  
 它补充了`Mybatis-plus`和`TK-Mybatis`不能多表连接的空白，并额外添加了许多实际应用场景的API，但仍不如像 `Mybatis` 或 `Hibernate` 那样提供全面的数据库操作。  
 所以它不太适用于复杂的数据分析，即使有时`Dynamic-SQL2`支持特别复杂的SQL，但由于Java臃肿的语法，又想要保持低侵入的编码状态，这是无法避免的；  
 过长的SQL构建语句会比较难以阅读，因此不建议在代码中构建特别复杂的`SQL`。
-## 快速开始
+# 快速开始
 
 https://github.com/pengweizhong/dynamic-sql2-spring-boot-starter
 
-## 本地测试
+# 本地测试
 
-### 1. 引入依赖
+## 1. 引入依赖
 
 在 `pom.xml` 中添加以下依赖：
 
@@ -74,11 +73,11 @@ https://github.com/pengweizhong/dynamic-sql2-spring-boot-starter
 <dependency>
     <groupId>com.dynamic-sql</groupId>
     <artifactId>dynamic-sql2</artifactId>
-    <version>0.1.7</version>
+    <version>0.1.8</version>
 </dependency>
 ```
 
-### 2. 配置基础参数
+## 2. 配置基础参数
 
 ```java
 public class InitializingContext {
@@ -93,19 +92,22 @@ public class InitializingContext {
             return;
         }
         SqlContextProperties sqlContextProperties = SqlContextProperties.defaultSqlContextProperties();
-        sqlContextProperties.setScanTablePackage("com.dynamic.sql");
+        sqlContextProperties.setScanTablePackage("com.dynamic.sql.entites");
         sqlContextProperties.setScanDatabasePackage("com.dynamic.sql");
         //提供Mapper代理，但是与Mybatis不兼容，因此推荐使用SqlContext
-        sqlContextProperties.setScanMapperPackage("com.dynamic.sql.mapper");
+        sqlContextProperties.setScanMapperPackage("com.dynamic.sql");
         SchemaProperties schemaProperties = new SchemaProperties();
         //本地数据源名称
         schemaProperties.setDataSourceName("dataSource");
-        schemaProperties.setUseSchemaInQuery(false);
+        //设置全局默认数据源
+        schemaProperties.setGlobalDefault(true);
+        schemaProperties.setUseSchemaInQuery(true);
         //可以直接指定SQL方言
         //schemaProperties.setSqlDialect(SqlDialect.ORACLE);
         //指定特定的版本号，不同的版本号语法可能不同
         //schemaProperties.setDatabaseProductVersion("11.0.0.1");
         schemaProperties.setUseAsInQuery(true);
+        schemaProperties.setCheckSqlInjection(true);
         //打印SQL
         PrintSqlProperties printSqlProperties = new PrintSqlProperties();
         printSqlProperties.setPrintSql(true);
@@ -114,17 +116,19 @@ public class InitializingContext {
         sqlContextProperties.addSchemaProperties(schemaProperties);
         //内置分页
         sqlContextProperties.addInterceptor(new PageInterceptorPlugin());
-        //异常提示插件
-        sqlContextProperties.addInterceptor(new ExceptionPlugin());
+        sqlContextProperties.addInterceptor(new ExceptionPlugin(new DefaultSqlErrorHint()));
         //内置JDBC连接
         ConnectionHolder.setConnectionHandle(new SimpleConnectionHandle());
         ConverterUtils.putFetchResultConverter(JsonObject.class, new FetchJsonObjectConverter());
+        //0.1.8起，自定义值库表解析器，这在同一实例相似业务下不同的命令库表命名规则时非常有用
+        ValueParserRegistrar valueParserRegistrar = new ValueParserRegistrar();
+        valueParserRegistrar.register(new DefaultValueParser());
         sqlContext = SqlContextHelper.createSqlContext(sqlContextProperties);
     }
 }
 ```
 
-### 3. 使用示例
+## 3. 使用示例
 
 ```java
 
@@ -335,7 +339,7 @@ List<CategoryView> selectCollectionList() {
 
 ```
 
-## 使用方法
+# 使用方法
 
 ### 1. 构建查询
 
@@ -349,7 +353,7 @@ List<CategoryView> selectCollectionList() {
 
 ### 3. 分页功能
 
-## 重复造轮子？
+# 重复造轮子？
 本项目针对“动态 SQL + 纯 Java 构建 + 跨库兼容 + 低侵入”做的优化，实用性强，属于“轻量创新型轮子”，不算重复体力活。  
 主要特点：  
 ✅ 轻量级、纯 Java 链式 SQL 构建工具  
@@ -368,15 +372,15 @@ List<CategoryView> selectCollectionList() {
 | 侵入性         | 低，独立使用       | 中等           | 高，依赖代码生成    | 中等，绑定实体    | 极低，裸 SQL      |
 | 典型应用场景      | 传统业务系统       | 传统业务系统       | 严格类型 SQL 场景 | ORM 查询补充   | 简单小型项目        |
 | 是否全面覆盖复杂 SQL 场景 | ✅ 高度覆盖              | 部分覆盖，复杂 SQL 受限  | ✅ 全面支持               | 部分支持，灵活性不足     | 需手动拼接、易出错 |
-## 贡献
+# 贡献
 
 欢迎提交 Pull Request 或在 Issues 中反馈问题。
 
-## 许可证
+# 许可证
 
 该项目使用 MIT 许可证。
 
-## QQ交流群
+# QQ交流群
 <p align="left">
     <img src="qrcode_1751944202021.jpg" width="350" />
 </p>
