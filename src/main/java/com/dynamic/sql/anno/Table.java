@@ -24,12 +24,18 @@ public @interface Table {
     String schema() default "";
 
     /**
-     * 表名
+     * 表名。
+     *
+     * <p>支持直接填写表名，也支持通过配置占位符方式动态获取，例如：{@code ${com.profile.table.user:t_user}}
+     * <p>
+     * 当使用占位符时，框架会通过 {@link  com.dynamic.sql.plugins.resolve.ValueParser} 体系解析该值，
+     * 从配置文件或环境变量中获取最终的表名。</p>
      *
      * @return 表名
      * @see this#value()
      */
     String name() default "";
+
 
     /**
      * 表名
