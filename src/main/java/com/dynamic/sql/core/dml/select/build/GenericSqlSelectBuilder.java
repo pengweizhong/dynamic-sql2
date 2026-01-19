@@ -77,7 +77,6 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 columnSeparator = "";
             }
 //            sqlBuilder.append(columnSeparator);
-            //TODO 这里类名需要修改以下，太容易引起混淆 ColumFunction、ColumnRef
             if (columnQuery instanceof ColumFunction) {
                 ColumFunction columFunction = (ColumFunction) columnQuery;
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);

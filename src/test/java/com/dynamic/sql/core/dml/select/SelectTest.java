@@ -1401,7 +1401,6 @@ public class SelectTest extends InitializingContext {
 
 //    @Test
 //    void testGroupBy() {
-//        //TODO
 //        List<Map<String, Object>> list = sqlContext.select()
 //                .column(User::getUserId)
 //                .column(Order::getOrderId)

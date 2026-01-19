@@ -290,7 +290,6 @@ public class SqlUtils {
                 }
                 sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
             } else if (defaultOrderBy.getColumFunction() != null) {
-                //TODO 校验函数是否存在注入风险
                 ColumFunction columFunction = defaultOrderBy.getColumFunction();
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
                 parameterBinder.addParameterBinder(columFunction.getParameterBinder());
