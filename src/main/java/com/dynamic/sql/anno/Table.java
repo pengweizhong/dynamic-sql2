@@ -19,9 +19,18 @@ import java.lang.annotation.*;
 @Documented
 public @interface Table {
     /**
-     * 数据库模式，默认是当前模式
+     * 数据库模式（schema）。
+     *
+     * <p>支持直接填写 schema 名称，也支持通过配置占位符方式动态获取，例如：
+     * {@code "${com.profile.trumgu.schema.user}"}
+     *
+     * <p>当使用占位符时，框架会通过 ValueParser 体系解析该值，
+     * 从配置文件或环境变量中获取最终的 schema 名称。</p>
+     *
+     * @return schema 名称
      */
     String schema() default "";
+
 
     /**
      * 表名。

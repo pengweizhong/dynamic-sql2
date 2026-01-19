@@ -28,7 +28,6 @@
 //        super.init(env);
 //        this.filer = env.getFiler();
 //        this.messager = env.getMessager();
-//        // 这句必须调用
 //        this.processingEnv = env;
 //    }
 //
@@ -78,7 +77,6 @@
 //
 //        builder.append("}\n");
 //
-//        // ColumnRef 类必须你项目中已有，或也一起生成
 //        JavaFileObject file = filer.createSourceFile(pkg + "." + className);
 //        try (Writer writer = file.openWriter()) {
 //            writer.write(builder.toString());
