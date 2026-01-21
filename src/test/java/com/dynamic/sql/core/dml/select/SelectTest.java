@@ -16,6 +16,7 @@ import com.dynamic.sql.core.column.function.table.JsonTable.JsonColumn;
 import com.dynamic.sql.core.column.function.windows.DenseRank;
 import com.dynamic.sql.core.column.function.windows.RowNumber;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
+import com.dynamic.sql.core.column.function.windows.aggregate.Max;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
@@ -401,6 +402,16 @@ public class SelectTest extends InitializingContext {
                 .fetch()
                 .toList();
         list.forEach(System.out::println);
+    }
+
+    @Test
+    void testMax() {
+        Integer max = sqlContext.select()
+                .column(new Max(Product::getProductId))
+                .from(Product.class)
+                .fetch(Integer.class)
+                .toOne();
+        System.out.println(max);
     }
 
     AbstractColumnReference columnReference() {
