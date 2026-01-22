@@ -2,17 +2,17 @@ package com.dynamic.sql;
 
 import com.dynamic.sql.context.SqlContextHelper;
 import com.dynamic.sql.context.properties.SchemaProperties;
-import com.dynamic.sql.context.properties.SchemaProperties.PrintSqlProperties;
 import com.dynamic.sql.context.properties.SqlContextProperties;
+import com.dynamic.sql.context.properties.SqlLogProperties;
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.datasource.connection.ConnectionHolder;
 import com.dynamic.sql.datasource.connection.SimpleConnectionHandle;
 import com.dynamic.sql.plugins.conversion.impl.FetchJsonObjectConverter;
 import com.dynamic.sql.plugins.exception.DefaultSqlErrorHint;
 import com.dynamic.sql.plugins.exception.ExceptionPlugin;
+import com.dynamic.sql.plugins.logger.impl.DefaultSqlLogger;
 import com.dynamic.sql.plugins.pagination.PageInterceptorPlugin;
 import com.dynamic.sql.plugins.resolve.DefaultValueParser;
-import com.dynamic.sql.plugins.resolve.ValueParserManager;
 import com.dynamic.sql.plugins.resolve.ValueParserRegistrar;
 import com.dynamic.sql.utils.ConverterUtils;
 import com.google.gson.JsonObject;
@@ -49,10 +49,10 @@ public class InitializingContext {
         schemaProperties.setUseAsInQuery(true);
         schemaProperties.setCheckSqlInjection(true);
         //打印SQL
-        PrintSqlProperties printSqlProperties = new PrintSqlProperties();
-        printSqlProperties.setPrintSql(true);
-        printSqlProperties.setPrintDataSourceName(true);
-        schemaProperties.setPrintSqlProperties(printSqlProperties);
+        SqlLogProperties sqlLogProperties = new SqlLogProperties();
+        sqlLogProperties.setEnabled(true);
+        sqlLogProperties.setLogger(new DefaultSqlLogger());
+        schemaProperties.setSqlLogProperties(sqlLogProperties);
         sqlContextProperties.addSchemaProperties(schemaProperties);
         //内置分页
         sqlContextProperties.addInterceptor(new PageInterceptorPlugin());

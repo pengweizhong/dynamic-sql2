@@ -11,6 +11,7 @@ package com.dynamic.sql.core.dml.delete;
 
 import com.dynamic.sql.context.SchemaContextHolder;
 import com.dynamic.sql.context.properties.SchemaProperties;
+import com.dynamic.sql.context.properties.SqlLogProperties;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.database.SqlExecutionFactory;
 import com.dynamic.sql.core.database.SqlExecutor;
@@ -74,8 +75,8 @@ public class EntitiesDeleter extends ParseWhereHandler {
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
         GenericWhereCondition whereCondition = applyGenericWhereCondition(schemaProperties);
-        SchemaProperties.PrintSqlProperties printSqlProperties = schemaProperties.getPrintSqlProperties();
-        if (printSqlProperties.isPrintSql() && condition == null) {
+        SqlLogProperties sqlLogProperties = schemaProperties.getSqlLogProperties();
+        if (sqlLogProperties.isEnabled() && condition == null) {
             log.debug("When the Where condition is null, the data in the entire table will be deleted");
         }
         AbstractDialectParser dialectParser =

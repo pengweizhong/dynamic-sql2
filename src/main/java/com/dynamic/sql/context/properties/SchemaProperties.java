@@ -36,7 +36,7 @@ public class SchemaProperties {
     //SQL 注入检查, true → 开启检查
     private boolean checkSqlInjection = true;
     // 打印SQL语句
-    private PrintSqlProperties printSqlProperties = new PrintSqlProperties();
+    private SqlLogProperties sqlLogProperties = new SqlLogProperties();
     //主版本号
     private int majorVersionNumber;
     //次版本号
@@ -96,12 +96,12 @@ public class SchemaProperties {
         this.useAsInQuery = useAsInQuery;
     }
 
-    public PrintSqlProperties getPrintSqlProperties() {
-        return printSqlProperties;
+    public SqlLogProperties getSqlLogProperties() {
+        return sqlLogProperties;
     }
 
-    public void setPrintSqlProperties(PrintSqlProperties printSqlProperties) {
-        this.printSqlProperties = printSqlProperties;
+    public void setSqlLogProperties(SqlLogProperties printSqlProperties) {
+        this.sqlLogProperties = printSqlProperties;
     }
 
     public int getMajorVersionNumber() {
@@ -140,26 +140,4 @@ public class SchemaProperties {
         this.checkSqlInjection = checkSqlInjection;
     }
 
-    public static class PrintSqlProperties {
-        // 打印SQL语句
-        private boolean printSql = true;
-        // 打印SQL时是否打印数据源名称
-        private boolean printDataSourceName = true;
-
-        public boolean isPrintSql() {
-            return printSql;
-        }
-
-        public void setPrintSql(boolean printSql) {
-            this.printSql = printSql;
-        }
-
-        public boolean isPrintDataSourceName() {
-            return printDataSourceName;
-        }
-
-        public void setPrintDataSourceName(boolean printDataSourceName) {
-            this.printDataSourceName = printDataSourceName;
-        }
-    }
 }

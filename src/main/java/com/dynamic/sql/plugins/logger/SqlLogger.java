@@ -1,8 +1,10 @@
 package com.dynamic.sql.plugins.logger;
 
 
-import com.dynamic.sql.core.database.PreparedSql;
+import com.dynamic.sql.context.properties.SqlLogProperties;
 
 public interface SqlLogger {
-    void logSql(String dataSourceName, PreparedSql parseSql);
+    void beforeSql(SqlLogProperties props, SqlLogContext ctx);
+
+    void afterSql(SqlLogProperties props, SqlLogContext ctx);
 }

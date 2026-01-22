@@ -12,6 +12,7 @@ package com.dynamic.sql.core.database;
 
 import com.dynamic.sql.context.SchemaContextHolder;
 import com.dynamic.sql.context.properties.SchemaProperties;
+import com.dynamic.sql.context.properties.SqlLogProperties;
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.database.impl.MysqlSqlExecutor;
 import com.dynamic.sql.core.database.impl.OracleSqlExecutor;
@@ -27,6 +28,9 @@ import com.dynamic.sql.enums.SqlExecuteType;
 import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.interceptor.ExecutionControl;
 import com.dynamic.sql.interceptor.SqlInterceptorChain;
+import com.dynamic.sql.plugins.logger.SqlLogContext;
+import com.dynamic.sql.plugins.logger.SqlLogResultResolver;
+import com.dynamic.sql.plugins.logger.SqlLogger;
 import com.dynamic.sql.utils.SqlUtils;
 
 import java.sql.Connection;
@@ -117,11 +121,16 @@ public class SqlExecutionFactory {
             default:
                 throw new UnsupportedOperationException("Unsupported sql dialect" + schemaProperties.getSqlDialect());
         }
-        SchemaProperties.PrintSqlProperties printSqlProperties = schemaProperties.getPrintSqlProperties();
-        SqlDebugger.debug(printSqlProperties, preparedSql, dataSourceName, isIntercepted);
-        R applyResult = doSqlExecutor.apply(sqlExecutor);
-        SqlDebugger.debug(printSqlProperties, sqlExecuteType, dataSourceName, applyResult);
-        return applyResult;
+        SqlLogProperties sqlLogProperties = schemaProperties.getSqlLogProperties();
+        SqlLogger sqlLogger = sqlLogProperties.getLogger();
+        SqlLogContext ctx = new SqlLogContext(sqlExecuteType, dataSourceName, preparedSql, isIntercepted);
+        ctx.setStartTime(System.currentTimeMillis());
+        sqlLogger.beforeSql(sqlLogProperties, ctx);
+        R rawResult = doSqlExecutor.apply(sqlExecutor);
+        ctx.setEndTime(System.currentTimeMillis());
+        ctx.setRawResult(rawResult);
+        sqlLogger.afterSql(sqlLogProperties, ctx);
+        return rawResult;
     }
 
 }
