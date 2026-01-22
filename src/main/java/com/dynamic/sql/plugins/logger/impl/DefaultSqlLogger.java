@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2024 PengWeizhong. All Rights Reserved.
+ *
+ * This source code is licensed under the MIT License.
+ * You may obtain a copy of the License at:
+ * https://opensource.org/licenses/MIT
+ *
+ * See the LICENSE file in the project root for more information.
+ */
 package com.dynamic.sql.plugins.logger.impl;
 
 import com.dynamic.sql.context.properties.SqlLogProperties;
@@ -31,7 +40,7 @@ public class DefaultSqlLogger extends AbstractSqlLog implements SqlLogger {
         if (!props.isEnabled()) {
             return;
         }
-        SqlLogResult resolve = SqlLogResultResolver.resolve(props.isEnabled(), ctx.getSqlExecuteType(), ctx.getRawResult());
+        SqlLogResult resolve = SqlLogResultResolver.resolve(props.isEnabled(), ctx.getSqlExecuteType());
         //没有解析出来结果就不打印了
         if (resolve == null) {
             return;
@@ -43,58 +52,6 @@ public class DefaultSqlLogger extends AbstractSqlLog implements SqlLogger {
         }
     }
 
-    //    @Override
-//    public void logSql(SchemaProperties.SqlLogProperties printSqlProperties, PreparedSql preparedSql, String dataSourceName, boolean isIntercepted) {
-//        if (!log.isDebugEnabled() || !printSqlProperties.isPrintSql()) {
-//            return;
-//        }
-//        if (!printSqlProperties.isPrintDataSourceName()) {
-//            dataSourceName = "";
-//        }
-//        log.debug("{} -->     Preparing: {}", dataSourceName, preparedSql.getSql());
-//        List<List<Object>> batchParams = preparedSql.getBatchParams();
-//        //
-//        for (List<Object> batchParam : batchParams) {
-//            log.debug("{} -->    Parameters: {}", dataSourceName, assemblyParameters(batchParam));
-//        }
-//        if (!isIntercepted) {
-//            log.debug("{} -->       !!!!!! : SQL is intercepted.", dataSourceName);
-//        }
-//    }
-//
-//    @Override
-//    @SuppressWarnings("unchecked")
-//    public void logResult(SchemaProperties.SqlLogProperties printSqlProperties, SqlExecuteType sqlExecuteType, String dataSourceName, Object applyResult) {
-//        if (!log.isDebugEnabled() || !printSqlProperties.isPrintSql()) {
-//            return;
-//        }
-//        if (!printSqlProperties.isPrintDataSourceName()) {
-//            dataSourceName = "";
-//        }
-//        if (sqlExecuteType == DMLType.SELECT || sqlExecuteType instanceof DDLType) {
-//            if (applyResult instanceof Collection) {
-//                Collection collection = (Collection) applyResult;
-//                if (collection.size() == 1) {
-//                    Object next = collection.iterator().next();
-//                    if (next instanceof Map) {
-//                        Map<String, Object> map = (Map) next;
-//                        Map.Entry<String, Object> entry = map.entrySet().iterator().next();
-//                        if (entry.getKey().equalsIgnoreCase("count(1)")) {
-//                            log.debug("{} <--         Count: {}", dataSourceName, entry.getValue());
-//                            return;
-//                        }
-//                    }
-//                }
-//                log.debug("{} <--         Total: {}", dataSourceName, collection.size());
-//            } else {
-//                log.debug("{} <--     Returned: {}", dataSourceName, applyResult);
-//            }
-//        }
-//        if (sqlExecuteType == DMLType.INSERT || sqlExecuteType == DMLType.UPDATE || sqlExecuteType == DMLType.DELETE) {
-//            log.debug("{} <-- Affected Rows: {}", dataSourceName, applyResult);
-//        }
-//    }
-//
     private static StringBuilder assemblyParameters(List<Object> params) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < params.size(); i++) {
