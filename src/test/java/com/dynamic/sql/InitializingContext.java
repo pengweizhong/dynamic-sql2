@@ -16,6 +16,7 @@ import com.dynamic.sql.plugins.resolve.DefaultValueParser;
 import com.dynamic.sql.plugins.resolve.ValueParserRegistrar;
 import com.dynamic.sql.utils.ConverterUtils;
 import com.google.gson.JsonObject;
+import jdk.jfr.internal.LogLevel;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,7 @@ public class InitializingContext {
         sqlLogProperties.setEnabled(true);
         sqlLogProperties.setPrintExecutionTime(true);
         sqlLogProperties.setLogger(new DefaultSqlLogger());
+        sqlLogProperties.setLevel(LogLevel.INFO);
         schemaProperties.setSqlLogProperties(sqlLogProperties);
         sqlContextProperties.addSchemaProperties(schemaProperties);
         //内置分页

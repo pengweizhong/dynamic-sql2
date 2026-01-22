@@ -30,7 +30,7 @@ import com.dynamic.sql.interceptor.ExecutionControl;
 import com.dynamic.sql.interceptor.SqlInterceptorChain;
 import com.dynamic.sql.plugins.logger.SqlLogContext;
 import com.dynamic.sql.plugins.logger.SqlLogger;
-import com.dynamic.sql.plugins.logger.impl.DefaultSqlLogger;
+import com.dynamic.sql.plugins.logger.impl.CloseSqlLogger;
 import com.dynamic.sql.utils.SqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,12 +126,7 @@ public class SqlExecutionFactory {
                 throw new UnsupportedOperationException("Unsupported sql dialect" + schemaProperties.getSqlDialect());
         }
         SqlLogProperties sqlLogProperties = schemaProperties.getSqlLogProperties();
-        SqlLogger sqlLogger = sqlLogProperties.getLogger();
-        if (sqlLogger == null) {
-            sqlLogger = new DefaultSqlLogger();
-            sqlLogProperties.setLogger(sqlLogger);
-            log.info("If no SqlLogger implementation is found, DefaultSqlLogger will be used.");
-        }
+        SqlLogger sqlLogger = sqlLogProperties.getLoggerOrSet(CloseSqlLogger::new);
         SqlLogContext ctx = new SqlLogContext(sqlExecuteType, dataSourceName, preparedSql, isIntercepted);
         try {
             sqlLogger.beforeSql(sqlLogProperties, ctx);

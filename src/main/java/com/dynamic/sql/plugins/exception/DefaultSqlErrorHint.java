@@ -51,7 +51,7 @@ public class DefaultSqlErrorHint implements SqlErrorHint {
                 "42601", "语法错误，请检查 SQL 语句",
 
                 // === 通用与系统错误 ===
-                "HY000", "数据库通用错误",
+                "HY000", "SQL 执行失败",
                 "HY001", "内存不足，无法完成操作",
                 "57014", "查询被取消（通常是超时或用户中断）"
         );

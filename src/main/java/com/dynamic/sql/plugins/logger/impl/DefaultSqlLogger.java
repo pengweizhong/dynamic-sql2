@@ -52,18 +52,4 @@ public class DefaultSqlLogger extends AbstractSqlLog implements SqlLogger {
         }
     }
 
-    private static StringBuilder assemblyParameters(List<Object> params) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < params.size(); i++) {
-            Object param = params.get(i);
-            stringBuilder.append(param);
-            if (param != null) {
-                stringBuilder.append("(").append(param.getClass().getSimpleName()).append(")");
-            }
-            if (i != params.size() - 1) {
-                stringBuilder.append(", ");
-            }
-        }
-        return stringBuilder;
-    }
 }

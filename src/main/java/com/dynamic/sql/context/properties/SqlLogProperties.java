@@ -12,6 +12,8 @@ package com.dynamic.sql.context.properties;
 import com.dynamic.sql.plugins.logger.SqlLogger;
 import jdk.jfr.internal.LogLevel;
 
+import java.util.function.Supplier;
+
 public class SqlLogProperties {
     /**
      * 是否打印 SQL
@@ -91,6 +93,16 @@ public class SqlLogProperties {
     }
 
     public SqlLogger getLogger() {
+        return logger;
+    }
+
+    public SqlLogger getLoggerOrSet(Supplier<SqlLogger> sqlLoggerSupplier) {
+        if (sqlLoggerSupplier == null) {
+            throw new NullPointerException("sqlLogger is null");
+        }
+        if (logger == null) {
+            logger = sqlLoggerSupplier.get();
+        }
         return logger;
     }
 
