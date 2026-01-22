@@ -32,11 +32,12 @@ Dynamic-SQL2 是一个 **纯 Java、低侵入、跨数据库、可组合的动�
 
 传统方式的问题：
 
-| 方式         | 特点与适用场景                                         |
-| ------------ | ------------------------------------------------------ |
-| 手写 SQL     | 灵活度最高，适合简单查询或对 SQL 完全可控的场景        |
-| MyBatis XML  | 结构清晰，适合复杂 SQL；简单业务场景下需要配置较多代码 |
-| MyBatis-Plus | CRUD 快速开发友好；在复杂动态查询上需要额外扩展        |
+| 方式          | 特点与适用场景                                           |
+| ------------- | -------------------------------------------------------- |
+| JDBC Template | 灵活度最高，适合简单查询或对 SQL 完全可控的场景          |
+| MyBatis XML   | 结构清晰，适合复杂 SQL；简单业务场景下需要配置较多代码   |
+| MyBatis-Plus  | CRUD 快速开发友好；在复杂动态查询上需要额外扩展          |
+| Dynamic‑SQL2  | 专注动态 SQL 构建，纯 Java DSL，可组合、可测试、跨库友好 |
 
 Dynamic‑SQL2 的价值在于补足这块“灰色地带”
 
@@ -160,103 +161,6 @@ public class InitializingContext {
 
 ```java
 /**
- * 从多个表中提取用户及其订单相关的信息，包括用户的总花费、订单数量、所购买的产品及其分类等；
- * <p/>
- * SQL生成的如下：
- * <pre>
- * {@code
- * SELECT
- *     u.user_id,
- *     u.name AS user_name,
- *     user_total.total_spent,
- *     user_total.total_orders,
- *     p.product_name,
- *     p.price,
- *     cat.category_name,
- *     p.stock
- * FROM users u
- * -- 子查询：计算每个用户的总花费和订单数量
- * JOIN (
- *     SELECT
- *         o.user_id,
- *         SUM(o.total_amount) AS total_spent,
- *         COUNT(o.order_id) AS total_orders
- *     FROM orders o
- *     GROUP BY o.user_id
- * ) AS user_total ON u.user_id = user_total.user_id  -- 关联用户和子查询结果
- * LEFT JOIN orders o ON u.user_id = o.user_id  -- 左连接订单
- * LEFT JOIN (
- *     SELECT
- *         p.product_id,
- *         p.product_name,
- *         p.price,
- *         p.category_id,
- *         p.stock,  -- 包含 stock 字段
- *         jt.order_id
- *     FROM products p
- *     JOIN (
- *         SELECT
- *             o.order_id,
- *             jt.product_name
- *         FROM orders o
- *         JOIN JSON_TABLE(o.order_details, '$.items[*]'
- *             COLUMNS (product_name VARCHAR(150) PATH '$.product')) AS jt
- *     ) AS jt ON jt.product_name = p.product_name
- * ) AS p ON o.order_id = p.order_id  -- 连接产品
- * LEFT JOIN categories cat ON p.category_id = cat.category_id  -- 关联产品和分类
- * WHERE user_total.total_spent > 100  -- 只选择花费超过 100 的用户
- * ORDER BY user_total.total_spent DESC  -- 按照总花费降序排列
- * LIMIT 0, 500;  -- 限制返回结果的行数
- * }
- * </pre>
- */
-@Test
-void select1() {
-    sqlContext.select()
-            .column(User::getUserId)
-            .column(User::getName, "user_name")
-            .column("user_total", "total_spent")
-            .column("user_total", "total_orders")
-            .column("p", Product::getProductName)
-            .column("p", Product::getPrice)
-            .column("p", Product::getStock)
-            .column(Category::getCategoryName)
-            .from(User.class)
-            .join(select -> select
-                            .column(Order::getUserId)
-                            .column(new Sum(Order::getTotalAmount), "total_spent")
-                            .column(new Count(Order::getOrderId), "total_orders")
-                            .from(Order.class)
-                            .groupBy(Order::getUserId)
-                    , "user_total",
-                    condition -> condition.andEqualTo(User::getUserId, bindAlias("user_total", Order::getUserId))
-            )
-            .leftJoin(Order.class, condition -> condition.andEqualTo(User::getUserId, Order::getUserId))
-            .leftJoin(select -> select
-                    .column(Product::getProductId)
-                    .column(Product::getProductName)
-                    .column(Product::getPrice)
-                    .column(Product::getCategoryId)
-                    .column(Product::getStock)
-                    .column("jt", Order::getOrderId)
-                    .from(Product.class)
-                    .join(select1 -> select1
-                                    .column("o", Order::getOrderId)
-                                    .column("jt", Product::getProductName)
-                                    .from(Order.class, "o")
-                                    .join(() -> new JsonTable("o", "order_details", "$.items[*]",
-                                            JsonColumn.builder().column("product_name").dataType("VARCHAR(150)").jsonPath("$.product").build()
-                                    ), "jt"),
-                            "jt", condition -> condition.andEqualTo(bindAlias("jt", Product::getProductName), Product::getProductName)
-                    ), "p", condition -> condition.andEqualTo(Order::getOrderId, bindAlias("p", Order::getOrderId)))
-            .leftJoin(Category.class, condition -> condition.andEqualTo(bindAlias("p", Category::getCategoryId), Category::getCategoryId))
-            .where(condition -> condition.andGreaterThan(bindAlias("user_total", "total_spent"), 100))
-            .orderBy("user_total", "total_spent", SortOrder.DESC)
-            .limit(0, 500)
-            .fetch().toList();
-}
-
-/**
  * 简单的函数计算
  */
 @Test
@@ -268,6 +172,7 @@ void select2() {
                         nestedSelect.select().column(new Count(1)).from(Student.class);
                     }), 2), "percentage")
             .from(ExamResult.class)
+            //支持非查询列字段排序
             .orderByField(">10%", "5~10%", "0~5%", "0%", "<-10%")
             .fetch().toOne();
     System.out.println(percentage);
@@ -390,6 +295,105 @@ void selectRoundSum() {
             .fetchOriginalMap()
             .toOne();
 }
+
+/**
+ * 复杂查询效果：从多个表中提取用户及其订单相关的信息，包括用户的总花费、订单数量、所购买的产品及其分类等；
+ * <p/>
+ * SQL生成的如下：
+ * <pre>
+ * {@code
+ * SELECT
+ *     u.user_id,
+ *     u.name AS user_name,
+ *     user_total.total_spent,
+ *     user_total.total_orders,
+ *     p.product_name,
+ *     p.price,
+ *     cat.category_name,
+ *     p.stock
+ * FROM users u
+ * -- 子查询：计算每个用户的总花费和订单数量
+ * JOIN (
+ *     SELECT
+ *         o.user_id,
+ *         SUM(o.total_amount) AS total_spent,
+ *         COUNT(o.order_id) AS total_orders
+ *     FROM orders o
+ *     GROUP BY o.user_id
+ * ) AS user_total ON u.user_id = user_total.user_id  -- 关联用户和子查询结果
+ * LEFT JOIN orders o ON u.user_id = o.user_id  -- 左连接订单
+ * LEFT JOIN (
+ *     SELECT
+ *         p.product_id,
+ *         p.product_name,
+ *         p.price,
+ *         p.category_id,
+ *         p.stock,  -- 包含 stock 字段
+ *         jt.order_id
+ *     FROM products p
+ *     JOIN (
+ *         SELECT
+ *             o.order_id,
+ *             jt.product_name
+ *         FROM orders o
+ *         JOIN JSON_TABLE(o.order_details, '$.items[*]'
+ *             COLUMNS (product_name VARCHAR(150) PATH '$.product')) AS jt
+ *     ) AS jt ON jt.product_name = p.product_name
+ * ) AS p ON o.order_id = p.order_id  -- 连接产品
+ * LEFT JOIN categories cat ON p.category_id = cat.category_id  -- 关联产品和分类
+ * WHERE user_total.total_spent > 100  -- 只选择花费超过 100 的用户
+ * ORDER BY user_total.total_spent DESC  -- 按照总花费降序排列
+ * LIMIT 0, 500;  -- 限制返回结果的行数
+ * }
+ * </pre>
+ */
+@Test
+void select1() {
+    sqlContext.select()
+            .column(User::getUserId)
+            .column(User::getName, "user_name")
+            .column("user_total", "total_spent")
+            .column("user_total", "total_orders")
+            .column("p", Product::getProductName)
+            .column("p", Product::getPrice)
+            .column("p", Product::getStock)
+            .column(Category::getCategoryName)
+            .from(User.class)
+            .join(select -> select
+                            .column(Order::getUserId)
+                            .column(new Sum(Order::getTotalAmount), "total_spent")
+                            .column(new Count(Order::getOrderId), "total_orders")
+                            .from(Order.class)
+                            .groupBy(Order::getUserId)
+                    , "user_total",
+                    condition -> condition.andEqualTo(User::getUserId, bindAlias("user_total", Order::getUserId))
+            )
+            .leftJoin(Order.class, condition -> condition.andEqualTo(User::getUserId, Order::getUserId))
+            .leftJoin(select -> select
+                    .column(Product::getProductId)
+                    .column(Product::getProductName)
+                    .column(Product::getPrice)
+                    .column(Product::getCategoryId)
+                    .column(Product::getStock)
+                    .column("jt", Order::getOrderId)
+                    .from(Product.class)
+                    .join(select1 -> select1
+                                    .column("o", Order::getOrderId)
+                                    .column("jt", Product::getProductName)
+                                    .from(Order.class, "o")
+                                    .join(() -> new JsonTable("o", "order_details", "$.items[*]",
+                                            JsonColumn.builder().column("product_name").dataType("VARCHAR(150)").jsonPath("$.product").build()
+                                    ), "jt"),
+                            "jt", condition -> condition.andEqualTo(bindAlias("jt", Product::getProductName), Product::getProductName)
+                    ), "p", condition -> condition.andEqualTo(Order::getOrderId, bindAlias("p", Order::getOrderId)))
+            .leftJoin(Category.class, condition -> condition.andEqualTo(bindAlias("p", Category::getCategoryId), Category::getCategoryId))
+            .where(condition -> condition.andGreaterThan(bindAlias("user_total", "total_spent"), 100))
+            .orderBy("user_total", "total_spent", SortOrder.DESC)
+            .limit(0, 500)
+            .fetch()
+            .toList();
+}
+
 
 /**
  * 仅插入非空字段
