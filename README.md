@@ -73,7 +73,7 @@ Dynamic‑SQL2 的定位不是替代 MyBatis 或 ORM，而是：
 
 你可以这样理解：
 
-- MyBatis：动态能力强，但 XML 复杂、跨库弱
+- MyBatis：动态能力强，但 XML 复杂
 - MyBatis-Plus：简单，但多表和动态 SQL 能力有限
 - JOOQ：强大，但太重、侵入性高
 - QueryDSL：需要生成代码，维护成本高
