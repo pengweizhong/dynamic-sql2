@@ -9,8 +9,8 @@ public class SqlLogContext {
     private final String dataSourceName;
     private final PreparedSql preparedSql;
     private final boolean intercepted;
-    private long startTime;
     //后面跟踪的参数，都是执行后的结果
+    private long startTime;
     private long endTime;
     private Object rawResult;
 

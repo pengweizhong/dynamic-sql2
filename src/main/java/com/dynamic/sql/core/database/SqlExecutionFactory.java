@@ -124,8 +124,8 @@ public class SqlExecutionFactory {
         SqlLogProperties sqlLogProperties = schemaProperties.getSqlLogProperties();
         SqlLogger sqlLogger = sqlLogProperties.getLogger();
         SqlLogContext ctx = new SqlLogContext(sqlExecuteType, dataSourceName, preparedSql, isIntercepted);
-        ctx.setStartTime(System.currentTimeMillis());
         sqlLogger.beforeSql(sqlLogProperties, ctx);
+        ctx.setStartTime(System.currentTimeMillis());
         R rawResult = doSqlExecutor.apply(sqlExecutor);
         ctx.setEndTime(System.currentTimeMillis());
         ctx.setRawResult(rawResult);
