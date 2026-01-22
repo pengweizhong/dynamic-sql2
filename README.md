@@ -1,5 +1,3 @@
-# 🚀 Dynamic-SQL2
-
 <p align="center"> <img src="logo/vertical/fulllogo_transparent_nobuffer.png" width="260" /> </p> <div align="center"><strong>简单 • 灵活 • 安全 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 新一代 Java 动态 SQL 构建框架</strong></div>
 
 # ✨ Dynamic-SQL2 是什么？
