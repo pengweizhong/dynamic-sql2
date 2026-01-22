@@ -1,75 +1,101 @@
+# 🚀 Dynamic-SQL2
 
-<p align="center">
-    <img src="logo/vertical/fulllogo_transparent_nobuffer.png" width="300" />
-</p>
-<div align="center">安全 • 灵活 • 动态SQL构建框架</div>
+<p align="center"> <img src="logo/vertical/fulllogo_transparent_nobuffer.png" width="260" /> </p> <div align="center"><strong>简单 • 灵活 • 安全 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 新一代 Java 动态 SQL 构建框架</strong></div>
 
-# Dynamic-SQL2
+# ✨ Dynamic-SQL2 是什么？
 
-`dynamic-sql2` 是一个灵活、安全的 Java 动态 SQL 构建框架，提供简洁的 DSL 风格接口，帮助开发者动态构建 SQL 查询。该框架支持与
-MySQL、Oracle、DB2 等数据库的无缝集成，支持子查询、窗口函数、公共表表达式（CTE）、递归查询等高级 SQL 特性。
+Dynamic-SQL2 是一个 **纯 Java、低侵入、跨数据库、可组合的动态 SQL 构建框架**。 它提供 **优雅的 DSL 风格 API**，让你可以像写代码一样构建 SQL，同时保持 SQL 的表达力与可控性。
 
-该项目旨在通过 Java API 抽象并屏蔽数据库特定的差异，同时保持可扩展性、灵活性和易用性。
+它不是完整的 ORM，也不是 MyBatis 的替代品，而是：
 
-> 旧版地址： https://github.com/pengweizhong/dynamic-sql
+> **补足传统 ORM 在“动态 SQL + 多表查询 + 跨库兼容 + 类型检查”上的空白和拓展。**
 
-# 特性
+适用于 **企业级业务系统、SaaS 平台、多租户架构、复杂动态查询场景**。
 
-- **动态 SQL 构建**：通过 Java API 动态构建复杂的 SQL 查询。
-- **跨数据库兼容性**：支持 MySQL、Oracle、DB2 等主流数据库。
-- **高级 SQL 支持**：支持子查询、窗口函数、公共表表达式（CTE）和递归查询。
-- **分页功能**：现代化的分页功能，高效处理查询结果。
-- **Spring 集成**：与 Spring、JDBC、MyBatis 灵活搭配
+# 🔥 核心特性
 
-# 为什么需要 Dynamic-SQL2 ？
+- **动态 SQL 构建**：链式 DSL，告别字符串拼接
+- **跨数据库兼容**：内置 MySQL / Oracle / DB2 方言
+- **高级 SQL 支持**：子查询、窗口函数、CTE、递归查询
+- **现代化分页**：支持 List / Map / 一对多结构分页
+- **Spring 友好**：可与 Spring、JDBC、MyBatis 灵活组合
+- **可扩展性强**：自定义函数、条件生成器、值解析器
+- **可测试性强**：SQL 由 Java 构建，天然适合单元测试
+- **专业日志模块**：结构化、可自定义、可读性极高的 SQL 输出
+- **提升团队协作和代码一致性**：遵循统一的 SQL 构建方式，确保代码的一致性和可读性
 
-在开发应用时，特别是在处理数据库交互时，很多场景下需要根据不同的条件动态构建 SQL 查询。  
-为了更加敏捷开发，dynamic-sql2 应运而生，解决了以下几个主要问题：
+# 🎯 为什么需要 Dynamic-SQL2？
 
-1. **减少硬编码 SQL 的重复性**  
-   在传统的开发过程中，每个查询都需要手动编写 SQL 语句，这不仅增加了开发的复杂度，也导致了 SQL 语句的重复性。dynamic-sql2
-   提供了简洁的
-   DSL（领域特定语言）风格接口，使得动态构建 SQL 查询变得更加高效，减少了冗余代码，提升了开发效率。
-2. **提升 SQL 生成的灵活性和可维护性**  
-   动态构建 SQL 查询时，通常会面临不同条件、排序、分页等需求的变化，手动编写 SQL 会导致查询逻辑的分散和代码的复杂化。dynamic-sql2
-   通过链式调用的方式，让开发者可以清晰、灵活地构建查询，避免了大量条件拼接带来的难度和错误。
-3. **增强跨数据库兼容性**  
-   不同的数据库系统有不同的 SQL 语法和特性，开发者通常需要为每种数据库编写不同的 SQL 查询，尤其是当系统支持多个数据库时，维护这些差异化的
-   SQL 查询变得非常繁琐。dynamic-sql2 提供了统一的 SQL 构建方式，可以将数据库特性抽象出来，避免因数据库不同而引发的差异问题，实现“写一次，处处运行”的效果。
-4. **优化复杂 SQL 的编写**  
-   在一些复杂的查询场景中，如需要使用子查询、窗口函数、公共表表达式（CTE）或递归查询等，dynamic-sql2 提供了对这些高级 SQL
-   特性的内置支持，使得开发者能够轻松生成复杂的查询语句。
-5. **简化分页查询的实现**  
-   分页查询是许多应用中的常见需求，传统分页查询往往需要处理复杂的 SQL 语句和大量的边界条件。dynamic-sql2
-   提供了简单易用的分页功能，开发者只需传入页码和每页记录数，框架自动生成分页查询的 SQL，极大地简化了分页查询的实现。
-6. **提升团队协作和代码一致性**  
-   在一个团队中，手写 SQL 查询可能导致代码风格的不一致，给其他开发者带来理解和维护的困难。通过使用 dynamic-sql2，团队成员可以遵循统一的
-   SQL 构建方式，确保代码的一致性和可读性，减少团队内部的沟通成本。
-7. **支持灵活的扩展和定制**  
-   dynamic-sql2 具有很好的扩展性，支持自定义函数、条件生成器等，能够根据项目的不同需求进行定制，适应复杂的业务场景。
-8. **提高代码的测试性和可调试性**  
-   由于 SQL 查询是通过 Java API 构建的，开发者可以轻松进行单元测试，验证 SQL 语句的正确性。dynamic-sql2
-   提供的日志记录和调试支持也使得开发者能够更容易追踪
-   SQL 查询的执行过程和调试问题。
+在真实业务中，SQL 很少是固定的。 随着条件、分页、排序、权限、租户、动态列等需求不断变化，**动态构建 SQL** 成为后端开发的日常工作。
 
-# Dynamic-SQL2 不是什么 ？
+传统方式在不同场景下各有优势，但在“动态 SQL + 多表组合 + 跨库兼容”这一类需求上往往需要额外处理：
 
-动态SQL的定位是面向企业级`SAAS`系统开发，它的设计思想是专注于简化 `SQL` 构建和敏捷开发的轻量级的`ORM`框架，  
-它补充了`Mybatis-plus`和`TK-Mybatis`不能多表连接的空白，并额外添加了许多实际应用场景的API，但仍不如像 `Mybatis` 或 `Hibernate` 那样提供全面的数据库操作。  
-所以它不太适用于复杂的数据分析，即使有时`Dynamic-SQL2`支持特别复杂的SQL，但由于Java臃肿的语法，又想要保持低侵入的编码状态，这是无法避免的；  
-过长的SQL构建语句会比较难以阅读，因此不建议在代码中构建特别复杂的`SQL`。
-# 快速开始
+传统方式的问题：
 
-https://github.com/pengweizhong/dynamic-sql2-spring-boot-starter
+| 方式         | 特点与适用场景                                         |
+| ------------ | ------------------------------------------------------ |
+| 手写 SQL     | 灵活度最高，适合简单查询或对 SQL 完全可控的场景        |
+| MyBatis XML  | 结构清晰，适合复杂 SQL；简单业务场景下需要配置较多代码 |
+| MyBatis-Plus | CRUD 快速开发友好；在复杂动态查询上需要额外扩展        |
 
-# 本地测试
+Dynamic‑SQL2 的价值在于补足这块“灰色地带”
+
+> **让动态 SQL 变得优雅、可维护、可组合、可测试。**
+
+Dynamic‑SQL2 的定位不是替代 MyBatis 或 ORM，也不是为了“减少 SQL”，而是为了：
+
+- **更自由地构建 SQL**（无需 XML、无需注解、无需字符串拼接）
+- **更安全地管理条件**（自动忽略 null、自动参数化）
+- **更高效地复用查询逻辑**（可组合、可抽象、可扩展）
+- **更自然地支持跨数据库**（统一 DSL，方言可扩展）
+
+Dynamic‑SQL2 的定位不是替代 MyBatis 或 ORM，而是：
+
+> **在“动态 SQL + 纯 Java 构建 + 跨库兼容”这一类需求上提供更轻量、更自由、更安全、更直接的解决方案。**
+
+# ❌ Dynamic-SQL2 不是什么？
+
+- 不是全功能 ORM（更多是基于现有框架的低侵入拓展）
+- 不适合超复杂的数据分析（Java DSL 写太长会影响可读性，即使 Dynamic-SQL2 支持）
+- 不追求替代 MyBatis / Hibernate，而是在此基础上的功能增强
+
+# 🛠️ 重复造轮子？
+
+很多人看到“动态 SQL 框架”会下意识觉得是重复造轮子。 但 Dynamic-SQL2 的定位非常明确：
+
+- **动态 SQL 构建**（不是固定 SQL）
+- **纯 Java DSL**（不是 XML、不是注解）
+- **跨数据库兼容**（不是单一方言）
+- **低侵入、轻量化**（不是 ORM 全家桶）
+- **独立框架**（直接基于 JDBC ）
+
+这些组合在一起，其实是一个**很实际、但长期被忽略的需求点，尤其是在敏捷开发的场景**。
+
+你可以这样理解：
+
+- MyBatis：动态能力强，但 XML 复杂、跨库弱
+- MyBatis-Plus：简单，但多表和动态 SQL 能力有限
+- JOOQ：强大，但太重、侵入性高
+- QueryDSL：需要生成代码，维护成本高
+- JDBC Template：灵活，但字符串拼接痛苦
+
+Dynamic-SQL2 的位置刚好在它们之间的“空白地带”：
+
+> **让动态 SQL 更简单，让跨库更自然，让 DSL 更轻量。**
+
+这不是重复，也不是替代，而是补位。
+
+# 📘 快速开发预览（部分API）
+
+> 对于SpringBoot，请参考：https://github.com/pengweizhong/dynamic-sql2-spring-boot-starter
+>
+> 对于Dynamic-SQL2拓展，请参考：https://github.com/pengweizhong/dynamic-sql2-extension
 
 ## 1. 引入依赖
 
 在 `pom.xml` 中添加以下依赖：
 
 ```xml
-
 <dependency>
     <groupId>com.dynamic-sql</groupId>
     <artifactId>dynamic-sql2</artifactId>
@@ -133,7 +159,6 @@ public class InitializingContext {
 ## 3. 使用示例
 
 ```java
-
 /**
  * 从多个表中提取用户及其订单相关的信息，包括用户的总花费、订单数量、所购买的产品及其分类等；
  * <p/>
@@ -272,7 +297,8 @@ void select3() {
                     .column(Product::getProductId)
                     .column(Product::getProductName)
                     .from(Product.class)
-                    .fetch(ProductView.class).toMap(ProductView::getProductId, ProductView::getProductName));
+                    .fetch(ProductView.class)
+                    .toMap(ProductView::getProductId, ProductView::getProductName));
     System.out.println(mapPageInfo);
 }
 
@@ -299,9 +325,9 @@ void select4() {
  */
 @Test
 void selectCollection() {
-   List<CategoryView> list = selectCollectionList();
-   System.out.println(list.size());
-   list.forEach(System.out::println);
+    List<CategoryView> list = selectCollectionList();
+    System.out.println(list.size());
+    list.forEach(System.out::println);
 }
 
 /**
@@ -309,87 +335,150 @@ void selectCollection() {
  */
 @Test
 void selectCollectionPage() {
-   PageInfo<List<CategoryView>> pageInfo = PageHelper.of(1, 10).selectPage(this::selectCollectionList);
-   System.out.println(pageInfo);
+    PageInfo<List<CategoryView>> pageInfo = PageHelper.of(1, 10).selectPage(this::selectCollectionList);
+    System.out.println(pageInfo);
 }
 
 List<CategoryView> selectCollectionList() {
-   return sqlContext.select()
-           .column(Category::getCategoryId)
-           .column(Category::getCategoryName)
-           .column(Category::getDescription)
-           .collectionColumn(
-                   KeyMapping.of(Category::getCategoryId, Product::getCategoryId),
-                   valueMapping -> valueMapping
-                           //-- 如果想在子表中使用关联键，那么直接在类型定义即可，无需重复查询
+    return sqlContext.select()
+            .column(Category::getCategoryId)
+            .column(Category::getCategoryName)
+            .column(Category::getDescription)
+            .collectionColumn(
+                    KeyMapping.of(Category::getCategoryId, Product::getCategoryId),
+                    valueMapping -> valueMapping
+                            //-- 如果想在子表中使用关联键，那么直接在类型定义即可，无需重复查询
 //                                .column(Product::getCategoryId)
-                           .column(Product::getProductId)
-                           .column(Product::getProductName),
-                   "productVOS"
-           )
-           //也可用于数据去重，等效于 Distinct(Category::getCategoryId)，但不推荐这么使用
+                            .column(Product::getProductId)
+                            .column(Product::getProductName),
+                    "productVOS"
+            )
+            //也可用于数据去重，等效于 Distinct(Category::getCategoryId)，但不推荐这么使用
 //                .collectionColumn(
 //                        KeyMapping.of(Category::getCategoryId, Category::getCategoryId),
 //                        valueMapping -> valueMapping,
 //                        "productVOS"
 //                )
-           .from(Category.class)
-           .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
-           .fetch(CategoryView.class)
-           .toList();
+            .from(Category.class)
+            .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
+            .fetch(CategoryView.class)
+            .toList();
+}
+
+/**
+ * 日期函数 DateFormat / Now
+ */
+@Test
+void selectYearMonth() {
+    YearMonth yearMonth = sqlContext.select()
+            .column(new DateFormat(new Now(), "%Y-%m"))
+            .from(Dual.class)
+            .fetch(YearMonth.class)
+            .toOne();
+}
+
+/**
+ * 函数任意嵌套拓展
+ */
+@Test
+void selectRoundSum() {
+    Map<String, Object> result = sqlContext.select()
+            .column(new Round(new Sum(User::getUserId), 3).divide(2))
+            .column(new Round(new Sum(User::getUserId).divide(2), 3))
+            .column(new Round(new Sum(User::getUserId).divide(new Count(User::getUserId)), 3))
+            .from(User.class)
+            .fetchOriginalMap()
+            .toOne();
+}
+
+/**
+ * 仅插入非空字段
+ */
+@Test
+void insertSelective() {
+    Product product = new Product();
+    product.setProductName("菠萝手机-insertSelective");
+    product.setPrice(BigDecimal.valueOf(6.66));
+    product.setStock(666);
+    product.setCreatedAt(new Date());
+    product.setCategoryId(1);
+    // 仅插入非空字段，保持 SQL 简洁
+    int rows = sqlContext.insertSelective(product);
+    System.out.println("影响行数：" + rows);
+}
+
+/**
+ * 根据主键全字段更新
+ */
+@Test
+void updateByPrimaryKey() {
+    Product product = new Product();
+    product.setProductId(20);
+    product.setProductName("New Coffee Maker");
+    product.setCategoryId(4);
+    product.setCreatedAt(new Date());
+    product.setPrice(BigDecimal.TEN);
+    product.setStock(123);
+    // 主键全字段更新
+    int rows = sqlContext.updateByPrimaryKey(product);
+    System.out.println(rows);
+}
+
+
+/**
+ * 自动插入或更新
+ */
+@Test
+void upsertMultiple() {
+    List<Product> products = new ArrayList<>();
+    for (int i = 1; i <= 5; i++) {
+        Product product = new Product();
+        product.setProductName("New Coffee Maker " + i);
+        product.setCategoryId(4);
+        product.setCreatedAt(new Date());
+        product.setPrice(BigDecimal.TEN);
+        product.setStock(123);
+        products.add(product);
+    }
+    // 批量自动插入或更新
+    int rows = sqlContext.upsertMultiple(products);
+    System.out.println(rows);
+}
+
+/**
+ * 根据条件删除
+ */
+@Test
+void delete() {
+    int i = sqlContext.delete(Product.class, where -> {
+        where.andEqualTo(Product::getProductId, 1);
+        where.orCondition(nestedWhere -> {
+            nestedWhere.andEqualTo(Product::getProductId, 3);
+            nestedWhere.orEqualTo(Product::getProductId, 4);
+        });
+    });
+    System.out.println(i);
 }
 
 ```
 
-# 使用方法
+# 🤝 贡献指南
 
-### 1. 构建查询
+欢迎通过 Pull Request 提交改进，也欢迎在 Issues 中反馈使用中的问题或提出新特性建议。 无论是文档、示例、代码优化还是 Bug 修复，都非常欢迎参与。
 
-### 2. 支持的 SQL 特性
+# 📄 许可证
 
-#### 1. 子查询（Subquery）
+本项目基于 **MIT License** 开源，允许自由使用、修改和分发。
 
-#### 2. 窗口函数（Window Functions）
+# 💬 社区交流
 
-#### 3. 公共表表达式（CTE）
+如果你在使用过程中遇到问题，或想与其他开发者交流，可以加入 QQ 群：
 
-### 3. 分页功能
+<p align="left"> <img src="qrcode_1751944202021.jpg" width="320" /> </p>
 
-# 重复造轮子？
-本项目针对“动态 SQL + 纯 Java 构建 + 跨库兼容 + 低侵入”做的优化，实用性强，属于“轻量创新型轮子”，不算重复体力活。  
-主要特点：  
-✅ 轻量级、纯 Java 链式 SQL 构建工具  
-✅ 侧重动态 SQL、跨数据库兼容、低侵入  
-✅ 补足了 MyBatis、JOOQ、QueryDSL、JDBC Template 等现有方案的盲区
-
-> 下列表格由 ChatGPT 生成，仅仅供参考
-
-| 功能/特性       | Dynamic-SQL2 | MyBatis Plus | JOOQ        | QueryDSL   | JDBC Template |
-|-------------|--------------| ------------ |-------------|------------| ------------- |
-| 纯 Java 链式构建 | ✅            | 部分 Lambda 支持 | ✅（生成代码）     | ✅（实体绑定）    | ❌ 手写 SQL      |
-| 动态 SQL 拼接   | ✅ 完全动态       | 部分支持         | 支持但依赖生成     | 一般，灵活度受限   | 手动字符串拼接       |
-| 子查询 / 窗口函数  | ✅ 内置支持       | 需手动拼接        | ✅ 强支持       | 一般         | 手动拼接          |
-| 跨库方言封装      | ✅ 内置         | 手动适配         | ✅ 支持        | 一般，底层依赖数据库 | 手动适配          |
-| 分页、拦截器      | ✅ 内置统一机制     | 需单独配置插件      | 商业版支持       | 需手写        | 手写            |
-| 侵入性         | 低，独立使用       | 中等           | 高，依赖代码生成    | 中等，绑定实体    | 极低，裸 SQL      |
-| 典型应用场景      | 传统业务系统       | 传统业务系统       | 严格类型 SQL 场景 | ORM 查询补充   | 简单小型项目        |
-| 是否全面覆盖复杂 SQL 场景 | ✅ 高度覆盖              | 部分覆盖，复杂 SQL 受限  | ✅ 全面支持               | 部分支持，灵活性不足     | 需手动拼接、易出错 |
-# 贡献
-
-欢迎提交 Pull Request 或在 Issues 中反馈问题。
-
-# 许可证
-
-该项目使用 MIT 许可证。
-
-# QQ交流群
-<p align="left">
-    <img src="qrcode_1751944202021.jpg" width="350" />
-</p>
-
-
-# 开源支持
+# 🧡 开源支持
 
 感谢 [JetBrains](https://www.jetbrains.com/) 提供的开源许可证支持。
 
 ![jetbrains.png](jetbrains.png)
+
