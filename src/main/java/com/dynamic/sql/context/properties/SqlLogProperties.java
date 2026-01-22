@@ -9,8 +9,8 @@
  */
 package com.dynamic.sql.context.properties;
 
+import com.dynamic.sql.enums.LogLevel;
 import com.dynamic.sql.plugins.logger.SqlLogger;
-import jdk.jfr.internal.LogLevel;
 
 import java.util.function.Supplier;
 

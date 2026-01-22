@@ -9,7 +9,7 @@
  */
 package com.dynamic.sql.plugins.debugs;
 
-import jdk.jfr.internal.LogLevel;
+import com.dynamic.sql.enums.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
