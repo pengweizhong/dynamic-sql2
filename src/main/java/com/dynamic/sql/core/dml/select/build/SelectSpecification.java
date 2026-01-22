@@ -25,9 +25,9 @@ import java.util.function.Consumer;
 
 public class SelectSpecification {
     private NestedMeta nestedMeta;
-    private List<ColumnQuery> columFunctions = new ArrayList<>();
-    private List<ColumnQuery> ignoreColumFunctions = new ArrayList<>();
-    private List<JoinTable> joinTables = new ArrayList<>();
+    private final List<ColumnQuery> columFunctions = new ArrayList<>();
+    private final List<ColumnQuery> ignoreColumFunctions = new ArrayList<>();
+    private final List<JoinTable> joinTables = new ArrayList<>();
     private Consumer<GenericWhereCondition> whereCondition;
     private GroupByObject groupByObject;
     private Consumer<HavingCondition<GenericWhereCondition>> havingCondition;
