@@ -2,8 +2,6 @@ package com.dynamic.sql.plugins.logger.impl;
 
 import com.dynamic.sql.context.properties.SqlLogProperties;
 import com.dynamic.sql.plugins.logger.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -39,6 +37,10 @@ public class DefaultSqlLogger extends AbstractSqlLog implements SqlLogger {
             return;
         }
         resolve.afterLog(props, ctx);
+        //打印执行时间
+        if (props.isPrintExecutionTime()) {
+            printSql(props.getLevel(), "{} <--          Time: {}ms", getPrintDataSourceName(props, ctx), ctx.getEndTime() - ctx.getStartTime());
+        }
     }
 
     //    @Override

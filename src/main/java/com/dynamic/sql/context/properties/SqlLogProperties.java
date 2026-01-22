@@ -23,7 +23,7 @@ public class SqlLogProperties {
     /**
      * 是否打印执行耗时
      */
-    private boolean printCost = true;
+    private boolean printExecutionTime = false;
     /**
      * 日志级别（debug/info/trace）
      */
@@ -65,12 +65,12 @@ public class SqlLogProperties {
         this.printResult = printResult;
     }
 
-    public boolean isPrintCost() {
-        return printCost;
+    public boolean isPrintExecutionTime() {
+        return printExecutionTime;
     }
 
-    public void setPrintCost(boolean printCost) {
-        this.printCost = printCost;
+    public void setPrintExecutionTime(boolean printExecutionTime) {
+        this.printExecutionTime = printExecutionTime;
     }
 
     public LogLevel getLevel() {
