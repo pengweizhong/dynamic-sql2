@@ -18,27 +18,22 @@ public class SqlLogResultResolver {
         if (!enabled) {
             return null;
         }
-        try {
-            if (sqlExecuteType == DMLType.SELECT || sqlExecuteType instanceof DDLType) {
-                if (raw instanceof Collection) {
-                    Collection collection = (Collection) raw;
-                    if (collection.size() == 1) {
-                        Object next = collection.iterator().next();
-                        if (next instanceof Map) {
-                            Map<String, Object> map = (Map) next;
-                            Map.Entry<String, Object> entry = map.entrySet().iterator().next();
-                            if (entry.getKey().equalsIgnoreCase("count(1)")) {
-                                return new CountSqlLogResult();
-                            }
+        if (sqlExecuteType == DMLType.SELECT || sqlExecuteType instanceof DDLType) {
+            if (raw instanceof Collection) {
+                Collection collection = (Collection) raw;
+                if (collection.size() == 1) {
+                    Object next = collection.iterator().next();
+                    if (next instanceof Map) {
+                        Map<String, Object> map = (Map) next;
+                        Map.Entry<String, Object> entry = map.entrySet().iterator().next();
+                        if (entry.getKey().toLowerCase().startsWith("count(")) {
+                            return new CountSqlLogResult(Integer.parseInt(entry.getValue().toString()));
                         }
                     }
                 }
-                return new SelectSqlLogResult();
             }
-            throw new UnsupportedOperationException("Unknown SQL type: " + sqlExecuteType);
-        } catch (Exception e) {
-            log.error("Failed to resolve SQL log result.", e);
+            return new SelectSqlLogResult();
         }
-        return null;
+        throw new UnsupportedOperationException("Unknown SQL type: " + sqlExecuteType);
     }
 }

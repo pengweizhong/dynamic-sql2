@@ -29,15 +29,19 @@ import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.interceptor.ExecutionControl;
 import com.dynamic.sql.interceptor.SqlInterceptorChain;
 import com.dynamic.sql.plugins.logger.SqlLogContext;
-import com.dynamic.sql.plugins.logger.SqlLogResultResolver;
 import com.dynamic.sql.plugins.logger.SqlLogger;
+import com.dynamic.sql.plugins.logger.impl.DefaultSqlLogger;
 import com.dynamic.sql.utils.SqlUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.function.Function;
 
 public class SqlExecutionFactory {
+    private static final Logger log = LoggerFactory.getLogger(SqlExecutionFactory.class);
+
     private SqlExecutionFactory() {
     }
 
@@ -123,13 +127,26 @@ public class SqlExecutionFactory {
         }
         SqlLogProperties sqlLogProperties = schemaProperties.getSqlLogProperties();
         SqlLogger sqlLogger = sqlLogProperties.getLogger();
+        if (sqlLogger == null) {
+            sqlLogger = new DefaultSqlLogger();
+            sqlLogProperties.setLogger(sqlLogger);
+            log.info("If no SqlLogger implementation is found, DefaultSqlLogger will be used.");
+        }
         SqlLogContext ctx = new SqlLogContext(sqlExecuteType, dataSourceName, preparedSql, isIntercepted);
-        sqlLogger.beforeSql(sqlLogProperties, ctx);
+        try {
+            sqlLogger.beforeSql(sqlLogProperties, ctx);
+        } catch (Exception e) {
+            log.error("An exception occurred in the SQL logging plugin before execution.", e);
+        }
         ctx.setStartTime(System.currentTimeMillis());
         R rawResult = doSqlExecutor.apply(sqlExecutor);
         ctx.setEndTime(System.currentTimeMillis());
         ctx.setRawResult(rawResult);
-        sqlLogger.afterSql(sqlLogProperties, ctx);
+        try {
+            sqlLogger.afterSql(sqlLogProperties, ctx);
+        } catch (Exception e) {
+            log.error("An exception occurred in the SQL logging plugin after execution.", e);
+        }
         return rawResult;
     }
 
