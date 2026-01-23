@@ -476,7 +476,7 @@ void delete() {
 
 如果你在使用过程中遇到问题，或想与其他开发者交流，可以加入 QQ 群：
 
-<p align="left"> <img src="qrcode_1751944202021.jpg" width="320" /> </p>
+<p align="left"> <img src="QQ.png" width="320" /> </p>
 
 # 🧡 开源支持
 
