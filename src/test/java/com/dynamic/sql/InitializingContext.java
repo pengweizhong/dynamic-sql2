@@ -89,7 +89,8 @@ public class InitializingContext {
         schemaProperties.setCheckSqlInjection(true);
         //打印SQL
         SqlLogProperties sqlLogProperties = new SqlLogProperties();
-        sqlLogProperties.setEnabled(false);
+        sqlLogProperties.setPrintDataSourceName(true);
+        sqlLogProperties.setEnabled(true);
         sqlLogProperties.setPrintExecutionTime(true);
         sqlLogProperties.setLogger(new DefaultSqlLogger());
         sqlLogProperties.setLevel(LogLevel.DEBUG);
