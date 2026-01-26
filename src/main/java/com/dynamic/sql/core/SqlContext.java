@@ -23,10 +23,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * SQL 操作上下文，提供构建和执行 SQL 语句的方法。
+ * SQL 操作上下文接口，提供构建、执行 SQL 语句以及实体映射的统一入口。
  * <p>
- * 该接口定义了一系列方法，用于构建 SQL 查询、插入、更新、删除等等操作。
- * </p>
+ * SqlContext 是整个动态 SQL 框架的核心接口，负责：
+ * <ul>
+ *     <li>构建 SELECT / INSERT / UPDATE / DELETE 等 SQL 操作</li>
+ *     <li>执行 SQL 并将结果映射为实体对象或集合</li>
+ *     <li>支持多数据源环境下的 SQL 执行</li>
+ *     <li>提供表与列的元数据查询能力</li>
+ * </ul>
  */
 public interface SqlContext {
     /**
