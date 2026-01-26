@@ -1559,7 +1559,9 @@ public class SelectTest extends InitializingContext {
     @Test
     void testNestedObjectColumn() {
         UserBO one = sqlContext.select()
-                .allColumn(User.class)
+//                .allColumn(User.class)
+                .column(User::getUserId)
+                .column(User::getName)
                 .nestedColumn(KeyMapping.of(User::getUserId, UserExt::getUserId),
                         valueMapping -> valueMapping
                                 .column(UserExt::getAvatarUrl)
@@ -1567,8 +1569,8 @@ public class SelectTest extends InitializingContext {
                         "userExt"
                 )
                 .from(User.class)
-                .join(UserExt.class, on -> on.andEqualTo(User::getUserId, UserExt::getUserId))
-                .where(where -> where.andEqualTo(User::getUserId, 1))
+                .leftJoin(UserExt.class, on -> on.andEqualTo(User::getUserId, UserExt::getUserId))
+                .where(where -> where.andEqualTo(User::getUserId, 2))
                 .fetch(UserBO.class)
                 .toOne();
         System.out.println(one);

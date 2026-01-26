@@ -151,7 +151,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         //处理映射一对多
         for (Map<String, Object> columnObjectMap : wrapperList) {
             R r = reflectionInstance(childHashMap.keySet(), parentFieldMeta, columnObjectMap, columnNameMap, fieldNameMap);
-            Object nestedInstance = nestedReflectionInstance(targetField.getType(), columnObjectMap, childColumnNameMap, childFieldNameMap);
+            Object nestedInstance = nestedReflectionInstance(targetField.getType(), parentColumn, columnObjectMap, childColumnNameMap, childFieldNameMap);
             ReflectUtils.setFieldValue(r, targetField, nestedInstance);
             collection.add(r);
         }
@@ -180,7 +180,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             } else {
                 r = (R) parentHashMap.get(parentValue);
             }
-            Object child = nestedReflectionInstance(childElementClass, columnObjectMap, childColumnNameMap, childFieldNameMap);
+            Object child = nestedReflectionInstance(childElementClass, parentColumn, columnObjectMap, childColumnNameMap, childFieldNameMap);
             if (child != null) {
                 Collection<Object> childCollection = childHashMap.computeIfAbsent(
                         parentValue,
@@ -288,7 +288,6 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
      * @param columnObjectMap 列名 → 列值的映射（通常来自数据库查询结果）
      * @param columnNameMap   列名 → 字段元信息映射，用于根据列名找到对应字段
      * @param fieldNameMap    字段名 → 字段元信息映射，用于兜底匹配字段
-     * @param <R>             返回实际类型的对象
      * @return 填充后的实体对象实例
      */
     R reflectionInstance(Set<Object> objects,
@@ -325,6 +324,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
     }
 
     Object nestedReflectionInstance(Class<?> childElementClass,
+                                    String parentColumn,
                                     Map<String, Object> columnObjectMap,
                                     Map<String, FieldMeta> childColumnNameMap,
                                     Map<String, FieldMeta> childFieldNameMap) {
@@ -335,7 +335,10 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             if (childColumnMeta != null) {
                 Object value = ConverterUtils.convertToEntityAttribute(childColumnMeta, childColumnMeta.getField().getType(), columnValue);
                 if (value != null) {
-                    isReturnNull.set(false);
+                    //单单映射主键不足以说明对象不为null，必须有其他字段存在值才行
+                    if (!Objects.equals(columnName, parentColumn)) {
+                        isReturnNull.set(false);
+                    }
                     ReflectUtils.setFieldValue(childInstance, childColumnMeta.getField(), value);
                 }
             }
