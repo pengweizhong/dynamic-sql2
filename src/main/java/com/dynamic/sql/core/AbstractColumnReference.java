@@ -421,7 +421,7 @@ public abstract class AbstractColumnReference {
 
     /**
      * @see this#nestedColumn(boolean, KeyMapping, Function, String)
-     * @deprecated 自0.2.1版本起，该方法已被 {@link #nestedColumn(boolean, KeyMapping, Function, String)} 替代。
+     * @deprecated 自0.2.2版本起，该方法已被 {@link #nestedColumn(boolean, KeyMapping, Function, String)} 替代。
      */
     @Deprecated
     public AbstractColumnReference collectionColumn(boolean isEffective, KeyMapping<?, ?> keyMapping,
@@ -442,7 +442,7 @@ public abstract class AbstractColumnReference {
      * @param valueMapper    子表字段的选择器，通过链式调用 column(...) 指定需要查询的子表字段。
      * @param targetProperty 主表实体类中用于接收子表集合的属性名称。
      * @return 字段引用构建器，支持链式调用。
-     * @deprecated 自0.2.1版本起，该方法已被 {@link #nestedColumn(KeyMapping, Function, String)} 替代。
+     * @deprecated 自0.2.2版本起，该方法已被 {@link #nestedColumn(KeyMapping, Function, String)} 替代。
      */
     @Deprecated
     public AbstractColumnReference collectionColumn(KeyMapping<?, ?> keyMapping,
