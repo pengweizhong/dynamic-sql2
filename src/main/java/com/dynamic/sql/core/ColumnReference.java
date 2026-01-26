@@ -18,7 +18,7 @@ import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.column.function.modifiers.Distinct;
 import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
-import com.dynamic.sql.core.dml.select.CollectionColumnMapping;
+import com.dynamic.sql.core.dml.select.NestedColumnMapping;
 import com.dynamic.sql.core.dml.select.TableRelation;
 import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
@@ -142,22 +142,19 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
-    public AbstractColumnReference collectionColumn(KeyMapping<?, ?> keyMapping,
-                                                    Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
-                                                    String targetProperty) {
+    public AbstractColumnReference nestedColumn(KeyMapping<?, ?> keyMapping,
+                                                Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
+                                                String targetProperty) {
         //继续添加字段查询
         valueMapper.apply(this);
         // 注册一对多映射关系
         ColumnReference columnReference = new ColumnReference(new SelectSpecification());
         valueMapper.apply(columnReference);
         List<ColumnQuery> columFunctions = columnReference.getSelectSpecification().getColumFunctions();
-        CollectionColumnMapping collectionColumnMapping = new CollectionColumnMapping(keyMapping.parentKey(), keyMapping.childKey());
-        collectionColumnMapping.setTargetProperty(targetProperty);
-        collectionColumnMapping.addAllChildColumns(columFunctions);
-        //TODO 先简单写不带别名的查询  后面有时间在完善场景，包括不限于多次一对多,对象聚合为一个等等。。。
-//        selectSpecification.getColumFunctions().add(new ColumnWrapper(new Column(null, keyMapping.parentKey()), null, null));
-//        selectSpecification.getColumFunctions().add(new ColumnWrapper(new Column(null, keyMapping.childKey()), null, null));
-        selectSpecification.setCollectionColumnMapping(collectionColumnMapping);
+        NestedColumnMapping mapping = new NestedColumnMapping(keyMapping.parentKey(), keyMapping.childKey());
+        mapping.setTargetProperty(targetProperty);
+        mapping.addAllChildColumns(columFunctions);
+        selectSpecification.setNestedColumnMapping(mapping);
         return this;
     }
 

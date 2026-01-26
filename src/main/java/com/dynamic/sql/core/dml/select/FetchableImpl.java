@@ -17,7 +17,7 @@ public class FetchableImpl implements Fetchable {
 
     private SqlStatementSelectWrapper sqlStatementSelectWrapper;
     private SelectSpecification selectSpecification;
-    private CollectionColumnMapping collectionColumnMapping;
+    private NestedColumnMapping nestedColumnMapping;
     private final boolean isBuildSqlWrapper;
 
     public FetchableImpl(SelectSpecification selectSpecification) {
@@ -45,7 +45,7 @@ public class FetchableImpl implements Fetchable {
         if (isBuildSqlWrapper) {
             SqlSelectBuilder sqlSelectBuilder = SqlUtils.matchSqlSelectBuilder(selectSpecification, new HashMap<>());
             sqlStatementSelectWrapper = sqlSelectBuilder.build(returnClass);
-            collectionColumnMapping = selectSpecification.getCollectionColumnMapping();
+            nestedColumnMapping = selectSpecification.getNestedColumnMapping();
         }
         if (returnClass == null) {
             if (sqlStatementSelectWrapper.getGuessTheTargetClass() == null) {
@@ -56,6 +56,6 @@ public class FetchableImpl implements Fetchable {
         }
         List<Map<String, Object>> wrapperList = SqlExecutionFactory.executorSql(DMLType.SELECT,
                 sqlStatementSelectWrapper, SqlExecutor::executeQuery);
-        return new FetchResultImpl<>(returnClass, wrapperList, collectionColumnMapping);
+        return new FetchResultImpl<>(returnClass, wrapperList, nestedColumnMapping);
     }
 }

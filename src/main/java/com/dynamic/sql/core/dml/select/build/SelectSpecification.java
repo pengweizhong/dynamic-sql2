@@ -11,8 +11,8 @@ package com.dynamic.sql.core.dml.select.build;
 
 
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
-import com.dynamic.sql.core.dml.select.CollectionColumnMapping;
 import com.dynamic.sql.core.dml.select.HavingCondition;
+import com.dynamic.sql.core.dml.select.NestedColumnMapping;
 import com.dynamic.sql.core.dml.select.NestedMeta;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import com.dynamic.sql.core.dml.select.build.join.JoinTable;
@@ -34,7 +34,7 @@ public class SelectSpecification {
     private List<OrderBy> orderBys;
     private LimitInfo limitInfo;
     //一对多映射关系
-    private CollectionColumnMapping collectionColumnMapping;
+    private NestedColumnMapping nestedColumnMapping;
 
     public List<ColumnQuery> getColumFunctions() {
         return columFunctions;
@@ -95,11 +95,11 @@ public class SelectSpecification {
         this.nestedMeta = nestedMeta;
     }
 
-    public CollectionColumnMapping getCollectionColumnMapping() {
-        return collectionColumnMapping;
+    public NestedColumnMapping getNestedColumnMapping() {
+        return nestedColumnMapping;
     }
 
-    public void setCollectionColumnMapping(CollectionColumnMapping collectionColumnMapping) {
-        this.collectionColumnMapping = collectionColumnMapping;
+    public void setNestedColumnMapping(NestedColumnMapping nestedColumnMapping) {
+        this.nestedColumnMapping = nestedColumnMapping;
     }
 }

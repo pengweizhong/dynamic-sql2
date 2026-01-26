@@ -217,4 +217,22 @@ CREATE TABLE `t_department`
     `dept_tag`     varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci         DEFAULT NULL,
     `dept_ldap_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci         DEFAULT NULL COMMENT 'ladp中的id',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB  COMMENT ='部门表';
+) ENGINE = InnoDB COMMENT ='部门表';
+
+
+CREATE TABLE `users_ext`
+(
+    `id`         BIGINT   NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id`    BIGINT   NOT NULL COMMENT '关联 users 表的用户ID',
+    `nickname`   VARCHAR(64)       DEFAULT NULL COMMENT '用户昵称',
+    `avatar_url` VARCHAR(255)      DEFAULT NULL COMMENT '头像地址',
+    `mobile`     VARCHAR(32)       DEFAULT NULL COMMENT '手机号',
+    `email`      VARCHAR(128)      DEFAULT NULL COMMENT '邮箱',
+    `wechat`     VARCHAR(64)       DEFAULT NULL COMMENT '微信号',
+    `qq`         VARCHAR(64)       DEFAULT NULL COMMENT 'QQ号',
+    `extra`      JSON              DEFAULT NULL COMMENT '更多扩展信息(JSON)',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_user_id` (`user_id`)
+) ENGINE = InnoDB COMMENT ='用户拓展信息表';

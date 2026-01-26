@@ -23,10 +23,7 @@ import com.dynamic.sql.entites.*;
 import com.dynamic.sql.entities2.NewTableEntity;
 import com.dynamic.sql.entities2.UserExtEntity;
 import com.dynamic.sql.enums.SortOrder;
-import com.dynamic.sql.model.ColumnMetaData;
-import com.dynamic.sql.model.Dual;
-import com.dynamic.sql.model.KeyMapping;
-import com.dynamic.sql.model.TableMetaData;
+import com.dynamic.sql.model.*;
 import com.dynamic.sql.plugins.pagination.CollectionPage;
 import com.dynamic.sql.plugins.pagination.MapPage;
 import com.dynamic.sql.plugins.pagination.PageHelper;
@@ -1536,6 +1533,45 @@ public class SelectTest extends InitializingContext {
                 .fetch(NewTableEntity.class)
                 .toList();
         list2.forEach(System.out::println);
+    }
+
+    @Test
+    void testNestedCollectionColumn() {
+        List<CategoryView> productVOS = sqlContext.select()
+                .column(Category::getCategoryId)
+                .column(Category::getCategoryName)
+                .column(Category::getDescription)
+                .nestedColumn(
+                        KeyMapping.of(Category::getCategoryId, Product::getCategoryId),
+                        valueMapping -> valueMapping
+                                .column(Product::getProductId)
+                                .column(Product::getProductName),
+                        "productVOS"
+                )
+                .from(Category.class)
+                .join(Product.class, on -> on.andEqualTo(Category::getCategoryId, Product::getCategoryId))
+                .limit(3)
+                .fetch(CategoryView.class)
+                .toList();
+        productVOS.forEach(System.out::println);
+    }
+
+    @Test
+    void testNestedObjectColumn() {
+        UserBO one = sqlContext.select()
+                .allColumn(User.class)
+                .nestedColumn(KeyMapping.of(User::getUserId, UserExt::getUserId),
+                        valueMapping -> valueMapping
+                                .column(UserExt::getAvatarUrl)
+                                .column(UserExt::getQq),
+                        "userExt"
+                )
+                .from(User.class)
+                .join(UserExt.class, on -> on.andEqualTo(User::getUserId, UserExt::getUserId))
+                .where(where -> where.andEqualTo(User::getUserId, 1))
+                .fetch(UserBO.class)
+                .toOne();
+        System.out.println(one);
     }
 }
 

@@ -419,7 +419,11 @@ public abstract class AbstractColumnReference {
         return this;
     }
 
-
+    /**
+     * @see this#nestedColumn(boolean, KeyMapping, Function, String)
+     * @deprecated 自0.2.1版本起，该方法已被 {@link #nestedColumn(boolean, KeyMapping, Function, String)} 替代。
+     */
+    @Deprecated
     public AbstractColumnReference collectionColumn(boolean isEffective, KeyMapping<?, ?> keyMapping,
                                                     Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
                                                     String targetProperty) {
@@ -438,16 +442,45 @@ public abstract class AbstractColumnReference {
      * @param valueMapper    子表字段的选择器，通过链式调用 column(...) 指定需要查询的子表字段。
      * @param targetProperty 主表实体类中用于接收子表集合的属性名称。
      * @return 字段引用构建器，支持链式调用。
+     * @deprecated 自0.2.1版本起，该方法已被 {@link #nestedColumn(KeyMapping, Function, String)} 替代。
      */
-    public abstract AbstractColumnReference collectionColumn(KeyMapping<?, ?> keyMapping,
-                                                             Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
-                                                             String targetProperty);
-
-    //TODO
-    public AbstractColumnReference nestColumn(boolean isEffective) {
-//        return isEffective ? collectionColumn(keyMapping, valueMapper, targetProperty) : this;
-        return null;
+    @Deprecated
+    public AbstractColumnReference collectionColumn(KeyMapping<?, ?> keyMapping,
+                                                    Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
+                                                    String targetProperty) {
+        return this.nestedColumn(keyMapping, valueMapper, targetProperty);
     }
+
+    /**
+     * 根据条件决定是否对当前列引用执行嵌套映射（nested column）操作。
+     */
+    public AbstractColumnReference nestedColumn(boolean isEffective, KeyMapping<?, ?> keyMapping,
+                                                Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
+                                                String targetProperty) {
+        return isEffective ? nestedColumn(keyMapping, valueMapper, targetProperty) : this;
+    }
+
+    /**
+     * 执行“直接嵌套集合或对象”的列引用构建逻辑。
+     * <p>
+     * 该方法用于构建复杂对象结构的字段映射，例如：
+     * <ul>
+     *     <li>实体中包含嵌套对象（如 User → Address）</li>
+     *     <li>实体中包含集合字段（如 User → List&lt;Order&gt;）</li>
+     * </ul>
+     * <p>
+     * 方法会根据 keyMapping 确定父子对象的关联关系，通过 valueMapper 对嵌套列引用进行加工，
+     * 最终将结果绑定到 targetProperty 指定的实体字段上。
+     *
+     * @param keyMapping     主键/外键映射关系，用于确定嵌套对象或集合的关联方式
+     * @param valueMapper    对嵌套列引用进行加工的函数，可用于构建集合、对象或进一步嵌套
+     * @param targetProperty 目标属性名称（实体类字段名），用于将嵌套结果写入对应对象或集合
+     * @return 构建完成的嵌套列引用对象
+     */
+    public abstract AbstractColumnReference nestedColumn(KeyMapping<?, ?> keyMapping,
+                                                         Function<AbstractColumnReference, AbstractColumnReference> valueMapper,
+                                                         String targetProperty);
+
 
     /**
      * 添加另一个列引用到当前查询中。

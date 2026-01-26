@@ -15,13 +15,13 @@ import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionColumnMapping {
+public class NestedColumnMapping {
     private String targetProperty;
     private FieldFn<?, ?> parentKey;
     private FieldFn<?, ?> childKey;
     private List<ColumnQuery> childColumns = new ArrayList<>();
 
-    public CollectionColumnMapping(FieldFn<?, ?> parentKey, FieldFn<?, ?> childKey) {
+    public NestedColumnMapping(FieldFn<?, ?> parentKey, FieldFn<?, ?> childKey) {
         this.parentKey = parentKey;
         this.childKey = childKey;
     }

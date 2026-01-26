@@ -26,12 +26,12 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
 
     private final Class<R> resultClass;
     //    private final HashSet<String> notUsedColumnTips = new HashSet<>();
-    private final CollectionColumnMapping collectionColumnMapping;
+    private final NestedColumnMapping nestedColumnMapping;
 
-    public FetchResultImpl(Class<R> returnClass, List<Map<String, Object>> wrapperList, CollectionColumnMapping collectionColumnMapping) {
+    public FetchResultImpl(Class<R> returnClass, List<Map<String, Object>> wrapperList, NestedColumnMapping nestedColumnMapping) {
         super(wrapperList);
         this.resultClass = returnClass;
-        this.collectionColumnMapping = collectionColumnMapping;
+        this.nestedColumnMapping = nestedColumnMapping;
     }
 
     @Override
@@ -112,27 +112,63 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         Map<String, FieldMeta> columnNameMap = fieldMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
         Map<String, FieldMeta> fieldNameMap = fieldMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
         //是否为一对多关系  不是直接映射后返回
-        if (collectionColumnMapping == null) {
+        if (nestedColumnMapping == null) {
             for (Map<String, Object> columnObjectMap : wrapperList) {
                 collection.add(reflectionInstance(columnObjectMap, columnNameMap, fieldNameMap));
             }
             return collection;
         }
-        String targetProperty = collectionColumnMapping.getTargetProperty();
+        String targetProperty = nestedColumnMapping.getTargetProperty();
         FieldMeta targetFieldMeta = resolveFieldMeta(targetProperty, fieldNameMap, columnNameMap);
         if (targetFieldMeta == null) {
             throw new IllegalArgumentException("Index column [" + targetProperty + "] does not exist");
         }
         //targetFieldMeta 取出的是用户设置的集合字段
         Field targetField = targetFieldMeta.getField();
+        //如果嵌套映射为集合类型
+        if (Collection.class.isAssignableFrom(targetField.getType())) {
+            nestedCollectionColumn(targetField, fieldNameMap, columnNameMap, collection);
+        }
+        //除了集合类型，其他的默认对象
+        else {
+            nestedObjectColumn(targetField, fieldNameMap, columnNameMap, collection);
+        }
+        return collection;
+    }
+
+    private void nestedObjectColumn(Field targetField,
+                                    Map<String, FieldMeta> fieldNameMap,
+                                    Map<String, FieldMeta> columnNameMap,
+                                    Collection<R> collection) {
+        List<FieldMeta> collectionColumnMetas = TableUtils.parseViewClass(targetField.getType()).getViewColumnMetas();
+        Map<String, FieldMeta> childColumnNameMap = collectionColumnMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
+        Map<String, FieldMeta> childFieldNameMap = collectionColumnMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
+        //先默认指定实现，具体细节应当根据用户指定的类型、用户是否已经实例化参数等等进行赋值，目前先这么写死，后期有时间再做变更
+        HashMap<Object, Collection<Object>> childHashMap = new HashMap<>();
+        FieldFn<?, ?> parentKey = nestedColumnMapping.getParentKey();
+        String parentColumn = ReflectUtils.fnToFieldName(parentKey);
+        FieldMeta parentFieldMeta = resolveFieldMeta(parentColumn, fieldNameMap, columnNameMap);
+        //处理映射一对多
+        for (Map<String, Object> columnObjectMap : wrapperList) {
+            R r = reflectionInstance(childHashMap.keySet(), parentFieldMeta, columnObjectMap, columnNameMap, fieldNameMap);
+            Object nestedInstance = nestedReflectionInstance(targetField.getType(), columnObjectMap, childColumnNameMap, childFieldNameMap);
+            ReflectUtils.setFieldValue(r, targetField, nestedInstance);
+            collection.add(r);
+        }
+    }
+
+    private void nestedCollectionColumn(Field targetField,
+                                        Map<String, FieldMeta> fieldNameMap,
+                                        Map<String, FieldMeta> columnNameMap,
+                                        Collection<R> collection) {
         Class<?> childElementClass = ReflectUtils.getUserGenericClassByField(targetField);
         List<FieldMeta> collectionColumnMetas = TableUtils.parseViewClass(childElementClass).getViewColumnMetas();
         Map<String, FieldMeta> childColumnNameMap = collectionColumnMetas.stream().collect(Collectors.toMap(FieldMeta::getColumnName, v -> v));
         Map<String, FieldMeta> childFieldNameMap = collectionColumnMetas.stream().collect(Collectors.toMap(k -> k.getField().getName(), v -> v));
-        //先暴力默认指定实现，具体细节应当根据用户指定的类型、用户是否已经实例化参数等等进行赋值，目前先这么写死，后期有时间再做变更
+        //先默认指定实现，具体细节应当根据用户指定的类型、用户是否已经实例化参数等等进行赋值，目前先这么写死，后期有时间再做变更
         HashMap<Object, Collection<Object>> childHashMap = new HashMap<>();
         HashMap<Object, Object> parentHashMap = new HashMap<>();
-        FieldFn<?, ?> parentKey = collectionColumnMapping.getParentKey();
+        FieldFn<?, ?> parentKey = nestedColumnMapping.getParentKey();
         String parentColumn = ReflectUtils.fnToFieldName(parentKey);
         FieldMeta parentFieldMeta = resolveFieldMeta(parentColumn, fieldNameMap, columnNameMap);
         //处理映射一对多
@@ -144,7 +180,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             } else {
                 r = (R) parentHashMap.get(parentValue);
             }
-            Object child = childReflectionInstance(childElementClass, columnObjectMap, childColumnNameMap, childFieldNameMap);
+            Object child = nestedReflectionInstance(childElementClass, columnObjectMap, childColumnNameMap, childFieldNameMap);
             if (child != null) {
                 Collection<Object> childCollection = childHashMap.computeIfAbsent(
                         parentValue,
@@ -159,7 +195,6 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             }
         }
         collection.addAll((Collection<? extends R>) parentHashMap.values());
-        return collection;
     }
 
     private FieldMeta resolveFieldMeta(String name, Map<String, FieldMeta> fieldNameMap, Map<String, FieldMeta> columnNameMap) {
@@ -238,6 +273,24 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         return reflectionInstance(null, null, columnObjectMap, columnNameMap, fieldNameMap);
     }
 
+    /**
+     * 根据列名与字段元数据，通过反射创建并填充实体主对象实例。对于嵌套对象，还需要再处理子对象的映射。
+     * <p>
+     * 该方法主要用于将数据库查询结果（columnObjectMap）映射为实体类对象：
+     * <ul>
+     *     <li>优先处理 parentFieldMeta 指定的父字段，用于避免循环引用或重复构建对象。</li>
+     *     <li>对所有列进行遍历，根据字段元数据执行类型转换并写入主实体实例。</li>
+     *     <li>通过 objects 集合判断是否存在已处理过的值，用于防止无限递归或重复构造。</li>
+     * </ul>
+     *
+     * @param objects         已构建对象值集合，用于检测循环引用或重复实例化
+     * @param parentFieldMeta 父字段的元信息，用于优先处理父字段映射，可为 null
+     * @param columnObjectMap 列名 → 列值的映射（通常来自数据库查询结果）
+     * @param columnNameMap   列名 → 字段元信息映射，用于根据列名找到对应字段
+     * @param fieldNameMap    字段名 → 字段元信息映射，用于兜底匹配字段
+     * @param <R>             返回实际类型的对象
+     * @return 填充后的实体对象实例
+     */
     R reflectionInstance(Set<Object> objects,
                          FieldMeta parentFieldMeta,
                          Map<String, Object> columnObjectMap,
@@ -271,10 +324,10 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         return instance;
     }
 
-    Object childReflectionInstance(Class<?> childElementClass,
-                                   Map<String, Object> columnObjectMap,
-                                   Map<String, FieldMeta> childColumnNameMap,
-                                   Map<String, FieldMeta> childFieldNameMap) {
+    Object nestedReflectionInstance(Class<?> childElementClass,
+                                    Map<String, Object> columnObjectMap,
+                                    Map<String, FieldMeta> childColumnNameMap,
+                                    Map<String, FieldMeta> childFieldNameMap) {
         Object childInstance = ReflectUtils.instance(childElementClass);
         AtomicBoolean isReturnNull = new AtomicBoolean(true);
         columnObjectMap.forEach((columnName, columnValue) -> {
