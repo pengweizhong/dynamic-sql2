@@ -31,13 +31,17 @@ public @interface DBSource {
      * <br/>默认非默认数据源
      *
      * @return 是否默认数据源
+     * @see com.dynamic.sql.context.properties.SchemaProperties 自0.2.1版本起已废弃该属性，建议使用全局配置方式设置默认数据源
      */
+    @Deprecated
     boolean defaultDB() default false;
 
     /**
      * 将指定路径下的所有表都绑定到当前数据源上
      *
      * @return 需要绑定的包路径
+     * @see com.dynamic.sql.context.properties.SchemaProperties 自0.2.1版本起已废弃该属性，建议使用全局配置方式设置默认数据源
      */
+    @Deprecated
     String[] basePackages() default {};
 }

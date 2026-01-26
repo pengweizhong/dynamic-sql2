@@ -20,7 +20,6 @@ import com.dynamic.sql.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
@@ -97,6 +96,8 @@ public class DataSourceUtils {
             //设置其他参数
             schemaProperties.setDataSourceName(dataSourceMapping.getDataSourceName());
             dataSourceMapping.setAllowDataSourceDefinitionOverriding(sqlContextProperties.isAllowDataSourceDefinitionOverriding());
+            dataSourceMapping.setGlobalDefault(schemaProperties.isGlobalDefault());
+            dataSourceMapping.setBindBasePackages(schemaProperties.getBindBasePackages());
             initDataSource(dataSourceMapping, dbType, schema, version);
             SqlContextHelper.addSchemaProperties(sqlContextProperties);
         } catch (Exception e) {

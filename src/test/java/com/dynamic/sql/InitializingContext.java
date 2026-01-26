@@ -37,6 +37,23 @@ public class InitializingContext {
         sqlContextProperties.setScanDatabasePackage("com.dynamic.sql");
         //提供Mapper代理，但是与Mybatis不兼容，因此推荐使用SqlContext
         sqlContextProperties.setScanMapperPackage("com.dynamic.sql");
+        //第一个数据源配置
+        sqlContextProperties.addSchemaProperties(dataSourceConfig());
+        //第二个数据源配置
+        sqlContextProperties.addSchemaProperties(testDBConfig());
+        //内置分页
+        sqlContextProperties.addInterceptor(new PageInterceptorPlugin());
+        sqlContextProperties.addInterceptor(new ExceptionPlugin(new DefaultSqlErrorHint()));
+        //内置JDBC连接
+        ConnectionHolder.setConnectionHandle(new SimpleConnectionHandle());
+        ConverterUtils.putFetchResultConverter(JsonObject.class, new FetchJsonObjectConverter());
+        //0.1.8起，自定义值库表解析器，这在同一实例相似业务下不同的命令库表命名规则时非常有用
+        ValueParserRegistrar valueParserRegistrar = new ValueParserRegistrar();
+        valueParserRegistrar.register(new DefaultValueParser());
+        sqlContext = SqlContextHelper.createSqlContext(sqlContextProperties);
+    }
+
+    private static SchemaProperties dataSourceConfig() {
         SchemaProperties schemaProperties = new SchemaProperties();
         //本地数据源名称
         schemaProperties.setDataSourceName("dataSource");
@@ -56,16 +73,27 @@ public class InitializingContext {
         sqlLogProperties.setLogger(new DefaultSqlLogger());
         sqlLogProperties.setLevel(LogLevel.INFO);
         schemaProperties.setSqlLogProperties(sqlLogProperties);
-        sqlContextProperties.addSchemaProperties(schemaProperties);
-        //内置分页
-        sqlContextProperties.addInterceptor(new PageInterceptorPlugin());
-        sqlContextProperties.addInterceptor(new ExceptionPlugin(new DefaultSqlErrorHint()));
-        //内置JDBC连接
-        ConnectionHolder.setConnectionHandle(new SimpleConnectionHandle());
-        ConverterUtils.putFetchResultConverter(JsonObject.class, new FetchJsonObjectConverter());
-        //0.1.8起，自定义值库表解析器，这在同一实例相似业务下不同的命令库表命名规则时非常有用
-        ValueParserRegistrar valueParserRegistrar = new ValueParserRegistrar();
-        valueParserRegistrar.register(new DefaultValueParser());
-        sqlContext = SqlContextHelper.createSqlContext(sqlContextProperties);
+        return schemaProperties;
+    }
+
+    private static SchemaProperties testDBConfig() {
+        SchemaProperties schemaProperties = new SchemaProperties();
+        //本地数据源名称
+        schemaProperties.setDataSourceName("testDB");
+        //将实体类绑定到此数据源，除非表注解内另有指定
+        schemaProperties.setBindBasePackages("com.dynamic.sql.entities2");
+        //设置全局默认数据源
+        schemaProperties.setGlobalDefault(false);
+        schemaProperties.setUseSchemaInQuery(true);
+        schemaProperties.setUseAsInQuery(true);
+        schemaProperties.setCheckSqlInjection(true);
+        //打印SQL
+        SqlLogProperties sqlLogProperties = new SqlLogProperties();
+        sqlLogProperties.setEnabled(false);
+        sqlLogProperties.setPrintExecutionTime(true);
+        sqlLogProperties.setLogger(new DefaultSqlLogger());
+        sqlLogProperties.setLevel(LogLevel.DEBUG);
+        schemaProperties.setSqlLogProperties(sqlLogProperties);
+        return schemaProperties;
     }
 }

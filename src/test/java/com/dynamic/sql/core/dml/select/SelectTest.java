@@ -20,6 +20,7 @@ import com.dynamic.sql.core.column.function.windows.aggregate.Max;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
+import com.dynamic.sql.entities2.NewTableEntity;
 import com.dynamic.sql.entities2.UserExtEntity;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.model.ColumnMetaData;
@@ -51,7 +52,7 @@ public class SelectTest extends InitializingContext {
     private static final Logger log = LoggerFactory.getLogger(SelectTest.class);
 
     @Test
-    void testLog() {
+    void printLog() {
         log.trace("这是trace日志");
         log.debug("这是debug日志");
         log.info("这是info日志");
@@ -1514,6 +1515,27 @@ public class SelectTest extends InitializingContext {
                 .fetchOriginalMap()
                 .toList();
         list.forEach(System.out::println);
+    }
+
+    @Test
+    void testLog() {
+        List<User> list = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .where(where -> where.andGreaterThanOrEqualTo(User::getUserId, 0))
+                .limit(10)
+                .fetch(User.class)
+                .toList();
+        list.forEach(System.out::println);
+        System.out.println("------------------");
+        List<NewTableEntity> list2 = sqlContext.select()
+                .allColumn()
+                .from(NewTableEntity.class)
+                .where(where -> where.andGreaterThanOrEqualTo(NewTableEntity::getId, 0))
+                .limit(10)
+                .fetch(NewTableEntity.class)
+                .toList();
+        list2.forEach(System.out::println);
     }
 }
 
