@@ -129,8 +129,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 if (columFunction instanceof NumberColumn || columFunction instanceof Count) {
                     sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version, aliasTableMap)).append(arithmeticSql);
                     parameterBinder.addParameterBinder(arithmeticParameterBinder);
-                    String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
-                    sqlBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, columnAlias)).append(columnSeparator);
+                    String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + SqlUtils.quoteIdentifier(sqlDialect, columnQuery.getAlias());
+                    sqlBuilder.append(columnAlias).append(columnSeparator);
                     continue;
                 }
                 Fn<?, ?> fn = columFunction.getOriginColumnFn();
@@ -154,7 +154,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 //如果用户未设置别名 ，那么应该将字段名设置为别名，方便排序
                 if (StringUtils.isEmpty(columnAlias) && Objects.nonNull(columFunction.getOriginColumnFn())) {
                     columnAlias = ReflectUtils.fnToFieldName(columFunction.getOriginColumnFn());
-                    //加入限定符，防止和关键字冲突
+                    //加入限定符，防止和关键字冲突 只对未指定的列名进行限定
+                    //如果用户指定了别名 则认为用户已经处理好了冲突问题
                     columnAlias = SqlUtils.quoteIdentifier(sqlDialect, columnAlias);
                 }
                 columnAlias = StringUtils.isEmpty(columnAlias) ? "" : syntaxAs() + columnAlias;
@@ -169,7 +170,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     over.setOverClause(parseOrderBy);
                     sqlBuilder.append(" ").append(over.toOverString(sqlDialect));
                 }
-                sqlBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, columnAlias));
+                sqlBuilder.append(columnAlias);
                 //判断是否需要追加分隔逗号
                 if (columFunction instanceof ColumnModifiers) {
                     ColumnModifiers columnModifiers = (ColumnModifiers) columFunction;

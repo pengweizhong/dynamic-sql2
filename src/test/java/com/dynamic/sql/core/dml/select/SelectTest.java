@@ -21,7 +21,6 @@ import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.entites.*;
 import com.dynamic.sql.entities2.NewTableEntity;
-import com.dynamic.sql.entities2.UserExtEntity;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.model.*;
 import com.dynamic.sql.plugins.pagination.CollectionPage;
@@ -1256,10 +1255,10 @@ public class SelectTest extends InitializingContext {
         Map<String, Object> one = sqlContext.select()
                 .column(User::getUserId)
                 .from(User.class)
-                .join(UserExtEntity.class, on -> on.andEqualTo(User::getUserId, UserExtEntity::getUserId))
-                .leftJoin(UserExtEntity.class, "t1", on -> on.andEqualTo(User::getUserId, UserExtEntity::getUserId))
-                .rightJoin(UserExtEntity.class, "t2", on -> on.andEqualTo(User::getUserId, UserExtEntity::getUserId))
-                .innerJoin(UserExtEntity.class, "t3", on -> on.andEqualTo(User::getUserId, UserExtEntity::getUserId))
+                .join(UserExt.class, on -> on.andEqualTo(User::getUserId, UserExt::getUserId))
+                .leftJoin(UserExt.class, "t1", on -> on.andEqualTo(User::getUserId, new Column("t1", UserExt::getUserId)))
+                .rightJoin(UserExt.class, "t2", on -> on.andEqualTo(User::getUserId, new Column("t2", UserExt::getUserId)))
+                .innerJoin(UserExt.class, "t3", on -> on.andEqualTo(User::getUserId, new Column("t3", UserExt::getUserId)))
                 .limit(1)
                 .fetchOriginalMap()
                 .toOne();
