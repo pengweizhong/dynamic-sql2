@@ -292,14 +292,6 @@ public abstract class SqlSelectBuilder {
         return schemaProperties.isUseAsInQuery() ? " " + SqlUtils.getSyntaxAs(sqlDialect) + " " : " ";
     }
 
-    protected String syntaxColumnAlias(String columnAlias) {
-        //Oracle要加限定名  oracle默认模式会将查询结果自动转为大写，导致无法映射字段
-        if (sqlDialect == SqlDialect.ORACLE) {
-            return "\"" + columnAlias + "\"";
-        }
-        return columnAlias;
-    }
-
     public String getDataSourceName() {
         return dataSourceName;
     }

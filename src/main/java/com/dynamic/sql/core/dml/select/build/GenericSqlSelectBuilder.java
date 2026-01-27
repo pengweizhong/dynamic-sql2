@@ -130,7 +130,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version, aliasTableMap)).append(arithmeticSql);
                     parameterBinder.addParameterBinder(arithmeticParameterBinder);
                     String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + columnQuery.getAlias();
-                    sqlBuilder.append(syntaxColumnAlias(columnAlias)).append(columnSeparator);
+                    sqlBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, columnAlias)).append(columnSeparator);
                     continue;
                 }
                 Fn<?, ?> fn = columFunction.getOriginColumnFn();
@@ -154,6 +154,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 //如果用户未设置别名 ，那么应该将字段名设置为别名，方便排序
                 if (StringUtils.isEmpty(columnAlias) && Objects.nonNull(columFunction.getOriginColumnFn())) {
                     columnAlias = ReflectUtils.fnToFieldName(columFunction.getOriginColumnFn());
+                    //加入限定符，防止和关键字冲突
+                    columnAlias = SqlUtils.quoteIdentifier(sqlDialect, columnAlias);
                 }
                 columnAlias = StringUtils.isEmpty(columnAlias) ? "" : syntaxAs() + columnAlias;
                 sqlBuilder.append(functionToString).append(arithmeticSql);
@@ -167,7 +169,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     over.setOverClause(parseOrderBy);
                     sqlBuilder.append(" ").append(over.toOverString(sqlDialect));
                 }
-                sqlBuilder.append(syntaxColumnAlias(columnAlias));
+                sqlBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, columnAlias));
                 //判断是否需要追加分隔逗号
                 if (columFunction instanceof ColumnModifiers) {
                     ColumnModifiers columnModifiers = (ColumnModifiers) columFunction;
@@ -188,7 +190,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
                 Consumer<AbstractColumnReference> nestedColumnReference = nestedColumn.getNestedColumnReference();
                 SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedColumnReference);
-                String columnAliasString = syntaxAs() + syntaxColumnAlias(columnQuery.getAlias());
+                String columnAliasString = syntaxAs() + SqlUtils.quoteIdentifier(sqlDialect, columnQuery.getAlias());
                 sqlBuilder.append("(").append(sqlStatementWrapper.getRawSql()).append(")").append(columnAliasString).append(columnSeparator);
                 parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
             }
@@ -434,7 +436,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             sqlBuilder.append(SqlUtils.quoteIdentifier(sqlDialect, tableAlias))
                     .append(".").append(SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName()))
                     .append(" ").append(SqlUtils.getSyntaxAs(sqlDialect)).append(" ")
-                    .append(syntaxColumnAlias(columnMeta.getField().getName()));
+                    .append(SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getField().getName()));
             if (columnMetas.size() - 1 > i) {
                 sqlBuilder.append(", ");
             }

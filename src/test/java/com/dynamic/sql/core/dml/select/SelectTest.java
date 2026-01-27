@@ -1575,6 +1575,20 @@ public class SelectTest extends InitializingContext {
                 .toOne();
         System.out.println(one);
     }
+
+    @Test
+    void testKeywords() {
+        NewTableEntity one = sqlContext.select()
+//                .column(NewTableEntity::getDescribe, "`describe`")
+//                .column(NewTableEntity::getDescribe, "describe")
+//                .column(NewTableEntity::getDescribe)
+                .allColumn()
+                .from(NewTableEntity.class)
+                .where(where -> where.andEqualTo(NewTableEntity::getId, 1))
+                .fetch()
+                .toOne();
+        System.out.println(one);
+    }
 }
 
 
