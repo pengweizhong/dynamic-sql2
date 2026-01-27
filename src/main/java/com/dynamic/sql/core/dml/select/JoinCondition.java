@@ -101,10 +101,12 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象
      * @return 当前 {@link JoinCondition} 实例
      */
+    @Deprecated
     default JoinCondition join(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
         return innerJoin(cte, onCondition);
     }
 
+    @Deprecated
     default JoinCondition join(boolean isEffective, CteTable cte, Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? innerJoin(cte, onCondition) : this;
     }
@@ -170,7 +172,9 @@ public interface JoinCondition extends Fetchable {
      * @param cte         公共表表达式实例
      * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
+     * @apiNote 由于CTE会使代码结构复杂化，且变得冗长。暂时不计划实现该接口
      */
+    @Deprecated
     JoinCondition innerJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
 
     /**
@@ -248,8 +252,10 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
+    @Deprecated
     JoinCondition leftJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
 
+    @Deprecated
     default JoinCondition leftJoin(boolean isEffective, CteTable cte, Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? leftJoin(cte, onCondition) : this;
     }
@@ -327,9 +333,12 @@ public interface JoinCondition extends Fetchable {
      * @param cte         公共表表达式实例
      * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
+     * 由于CTE会使代码结构复杂化，且变得冗长。暂时不计划实现该接口
      */
+    @Deprecated
     JoinCondition rightJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
 
+    @Deprecated
     default JoinCondition rightJoin(boolean isEffective, CteTable cte, Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? rightJoin(cte, onCondition) : this;
     }
@@ -377,8 +386,10 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition 用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
+    @Deprecated
     JoinCondition fullJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition);
 
+    @Deprecated
     default JoinCondition fullJoin(boolean isEffective, CteTable cte, Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? fullJoin(cte, onCondition) : this;
     }
@@ -407,8 +418,10 @@ public interface JoinCondition extends Fetchable {
      * @param cte 公共表表达式实例
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
+    @Deprecated
     JoinCondition crossJoin(CteTable cte);
 
+    @Deprecated
     default JoinCondition crossJoin(boolean isEffective, CteTable cte) {
         return isEffective ? crossJoin(cte) : this;
     }
