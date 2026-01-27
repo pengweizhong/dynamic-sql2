@@ -1,10 +1,38 @@
-<p align="center"> <img src="logo/vertical/fulllogo_transparent_nobuffer.png" width="260" /> </p> <div align="center"><strong>简单 • 灵活 • 安全 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 新一代 Java 动态 SQL 构建框架</strong></div>
+<p align="center">
+  <img src="logo/vertical/fulllogo_transparent_nobuffer.png" width="260" />
+</p>
+
+
+<div align="center">
+  <strong>简单 • 灵活 • 安全 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 新一代 Java 动态 SQL 构建框架</strong>
+</div>
+
+
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-2ea44f?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Java-8%2B-orange?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Maven%20Central-Available-4CAF50?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Spring%20Boot-2.x%2F3.x%2F4.x-6DB33F?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/MyBatis-Mapper-D32F2F?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/JDBC-Based-795548?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/DynamicSQL-ALL-blueviolet?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Type--Safe-Yes-4CAF50?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/SQL%20Injection-Proof-009688?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Fluent--API-Design-03A9F4?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/XML-None-607D8B?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/ORM-Micro-9C27B0?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Status-Active-4CAF50?style=for-the-badge" />
+</p>
+
+
+
+
 
 # ✨ Dynamic-SQL2 是什么？
 
-Dynamic-SQL2 是一个 **纯 Java、低侵入、跨数据库、可组合的动态 SQL 构建框架**。 它提供 **优雅的 DSL 风格 API**，让你可以像写代码一样构建 SQL，同时保持 SQL 的表达力与可控性。
+`Dynamic-SQL2` 是一个 **纯 Java、低侵入、跨数据库、可组合的动态 SQL 构建框架**。 它提供 **优雅的 DSL 风格 API**，让你可以像写代码一样构建 SQL，同时保持 SQL 的表达力与可控性。
 
-它不是完整的 ORM，也不是 MyBatis 的替代品，而是：
+它不是完整的 ORM，也不是 MyBatis 的替代品，而是定义为 `Lightweight ORM` / `Micro ORM`：
 
 > **补足传统 ORM 在“动态 SQL + 多表查询 + 跨库兼容 + 类型检查”上的空白和拓展。**
 
@@ -41,20 +69,18 @@ Dynamic‑SQL2 的价值在于补足这块“灰色地带”
 
 > **让动态 SQL 变得优雅、可维护、可组合、可测试。**
 
-Dynamic‑SQL2 的定位不是替代 MyBatis 或 ORM，也不是为了“减少 SQL”，而是为了：
+Dynamic‑SQL2 的定位不是替代 MyBatis，也不是为了“减少 SQL”，而是为了：
 
 - **更自由地构建 SQL**（无需 XML、无需注解、无需字符串拼接）
 - **更安全地管理条件**（自动忽略 null、自动参数化）
 - **更高效地复用查询逻辑**（可组合、可抽象、可扩展）
 - **更自然地支持跨数据库**（统一 DSL，方言可扩展）
 
-Dynamic‑SQL2 的定位不是替代 MyBatis 或 ORM，而是：
-
 > **在“动态 SQL + 纯 Java 构建 + 跨库兼容”这一类需求上提供更轻量、更自由、更安全、更直接的解决方案。**
 
 # ❌ Dynamic-SQL2 不是什么？
 
-- 不是全功能 ORM（更多是基于现有框架的低侵入拓展）
+- 不是全功能 ORM，而是 `Lightweight ORM` / `Micro ORM`（更多是基于现有框架的低侵入拓展）
 - 不适合超复杂的数据分析（Java DSL 写太长会影响可读性，即使 Dynamic-SQL2 支持）
 - 不追求替代 MyBatis / Hibernate，而是在此基础上的功能增强
 
@@ -75,7 +101,6 @@ Dynamic‑SQL2 的定位不是替代 MyBatis 或 ORM，而是：
 - MyBatis：动态能力强，但 XML 复杂
 - MyBatis-Plus：简单，但多表和动态 SQL 能力有限
 - JOOQ：强大，但太重、侵入性高
-- QueryDSL：需要生成代码，维护成本高
 - JDBC Template：灵活，但字符串拼接痛苦
 
 Dynamic-SQL2 的位置刚好在它们之间的“空白地带”：
@@ -482,5 +507,4 @@ void delete() {
 
 感谢 [JetBrains](https://www.jetbrains.com/) 提供的开源许可证支持。
 
-![jetbrains.png](jetbrains.png)
-
+![jetbrains.png](./jetbrains.png)
