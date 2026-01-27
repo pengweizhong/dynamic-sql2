@@ -100,7 +100,8 @@ public class SqlUtils {
      */
     public static String quoteIdentifier(SqlDialect sqlDialect, String identifier) {
         if (StringUtils.isEmpty(identifier)) {
-            throw new IllegalArgumentException("Identifier cannot be empty");
+//            throw new IllegalArgumentException("Identifier cannot be empty");
+            return "";
         }
         if (sqlDialect == null) {
             throw new IllegalArgumentException("SqlDialect cannot be null");

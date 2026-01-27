@@ -18,6 +18,7 @@ import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
+import com.dynamic.sql.utils.StringUtils;
 
 import java.util.Map;
 
@@ -45,20 +46,22 @@ public final class Column extends AbstractColumFunction implements TableFunction
         this.columnName = columnName;
     }
 
+    public Column(String columnName) {
+        this.columnFn = null;
+        this.tableAlias = null;
+        this.columnName = columnName;
+    }
+
     @Override
     public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
         if (columnName != null) {
+            if (StringUtils.isEmpty(SqlUtils.quoteIdentifier(sqlDialect, tableAlias))) {
+                return SqlUtils.quoteIdentifier(sqlDialect, columnName);
+            }
             return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." +
                     SqlUtils.quoteIdentifier(sqlDialect, columnName);
         }
-        return SqlUtils.extractQualifiedAlias(tableAlias, columnFn, aliasTableMap, dataSourceName,null);
-//        String filedName = ReflectUtils.fnToFieldName(columnFn);
-//        String classCanonicalName = ReflectUtils.getOriginalClassCanonicalName(columnFn);
-//        TableMeta tableMeta = TableProvider.getTableMeta(classCanonicalName);
-//        ColumnMeta columnMeta = tableMeta.getColumnMeta(filedName);
-//        String tableAliasName = StringUtils.isEmpty(tableAlias) ? tableMeta.getTableAlias() : tableAlias;
-//        return SqlUtils.quoteIdentifier(sqlDialect, tableAliasName) + "." +
-//                SqlUtils.quoteIdentifier(sqlDialect, columnMeta.getColumnName());
+        return SqlUtils.extractQualifiedAlias(tableAlias, columnFn, aliasTableMap, dataSourceName, null);
     }
 
     @Override

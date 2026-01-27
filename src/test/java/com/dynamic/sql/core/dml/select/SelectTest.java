@@ -1273,7 +1273,7 @@ public class SelectTest extends InitializingContext {
         //TODO 修复外部追加where错误
         //TODO 全局配置as 是否生效
         PageInfo<List<Map<String, Object>>> pageInfo = PageHelper.of(1, 3)
-                .applyWhere(whereCondition -> whereCondition.andLessThanOrEqualTo(new Column(User::getUserId), 100))
+                .applyWhere(whereCondition -> whereCondition.andLessThanOrEqualTo(new Column("userId"), 100))
                 .selectPage(() -> sqlContext.select()
                         .allColumn()
                         .from(User.class)
