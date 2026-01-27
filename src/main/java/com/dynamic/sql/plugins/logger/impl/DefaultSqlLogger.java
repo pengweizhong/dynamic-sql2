@@ -10,6 +10,7 @@
 package com.dynamic.sql.plugins.logger.impl;
 
 import com.dynamic.sql.context.properties.SqlLogProperties;
+import com.dynamic.sql.plugins.debugs.SqlDebugger;
 import com.dynamic.sql.plugins.logger.*;
 
 import java.util.List;
@@ -21,6 +22,10 @@ public class DefaultSqlLogger extends AbstractSqlLog implements SqlLogger {
     @Override
     public void beforeSql(SqlLogProperties props, SqlLogContext ctx) {
         if (!props.isEnabled()) {
+            return;
+        }
+        //日志级别判断 避免无效日志输出
+        if (SqlDebugger.isLogLevelDisabled(props.getLevel())) {
             return;
         }
         if (!ctx.isIntercepted()) {
@@ -38,6 +43,10 @@ public class DefaultSqlLogger extends AbstractSqlLog implements SqlLogger {
     @Override
     public void afterSql(SqlLogProperties props, SqlLogContext ctx) {
         if (!props.isEnabled()) {
+            return;
+        }
+        //日志级别判断 避免无效日志输出
+        if (SqlDebugger.isLogLevelDisabled(props.getLevel())) {
             return;
         }
         SqlLogResult resolve = SqlLogResultResolver.resolve(props.isEnabled(), ctx.getSqlExecuteType());
