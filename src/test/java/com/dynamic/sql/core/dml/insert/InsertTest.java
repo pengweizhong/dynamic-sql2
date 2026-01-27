@@ -3,6 +3,7 @@ package com.dynamic.sql.core.dml.insert;
 import com.dynamic.sql.InitializingContext;
 import com.dynamic.sql.entites.Product;
 import com.dynamic.sql.entites.UserAndOrderView;
+import com.dynamic.sql.entities2.NewTableEntity;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -94,5 +95,15 @@ class InsertTest extends InitializingContext {
         UserAndOrderView userAndOrderView = new UserAndOrderView();
         userAndOrderView.setPrice(BigDecimal.ONE);
         sqlContext.insertMultiple(Collections.singleton(userAndOrderView));
+    }
+
+    @Test
+    void insertNotId() {
+        NewTableEntity entity = new NewTableEntity();
+        entity.setId(2);
+        entity.setDescribe("关键字字段测试");
+        entity.setColumn1("xxxxxxxxx");
+        int i = sqlContext.insertSelective(entity);
+        System.out.println(i);
     }
 }
