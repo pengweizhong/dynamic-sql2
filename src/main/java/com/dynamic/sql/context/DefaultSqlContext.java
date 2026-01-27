@@ -24,6 +24,8 @@ import com.dynamic.sql.core.dml.insert.EntitiesInserter;
 import com.dynamic.sql.core.dml.insert.InsertHandler;
 import com.dynamic.sql.core.dml.select.DefaultSelectHandler;
 import com.dynamic.sql.core.dml.select.Select;
+import com.dynamic.sql.core.dml.select.SelectDsl;
+import com.dynamic.sql.core.dml.select.ThenSortOrder;
 import com.dynamic.sql.core.dml.update.EntitiesUpdater;
 import com.dynamic.sql.core.dml.update.UpdateHandler;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
@@ -120,6 +122,16 @@ public class DefaultSqlContext implements SqlContext {
             throw new IllegalArgumentException("sql can not be null");
         }
         return new DefaultSelectHandler().selectList(dataSourceName, sql, returnType, parameterBinder);
+    }
+
+    @Override
+    public <T> ThenSortOrder<T> union(SelectDsl... select) {
+        return null;
+    }
+
+    @Override
+    public <T> ThenSortOrder<T> unionAll(SelectDsl... select) {
+        return null;
     }
 
     @Override

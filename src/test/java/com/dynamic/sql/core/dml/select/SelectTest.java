@@ -1588,6 +1588,73 @@ public class SelectTest extends InitializingContext {
                 .toOne();
         System.out.println(one);
     }
+
+    /**
+     * 计算两种实现方案，应用在不同的场景
+     * <p>
+     * 方案一
+     * <pre>
+     * var q = sqlContext.select()
+     *         .allColumn()
+     *         .from(User.class)
+     *         .unionAll(
+     *             sqlContext.select()
+     *                 .allColumn()
+     *                 .from(Admin.class)
+     *                 .union(
+     *                     sqlContext.select()
+     *                         .allColumn()
+     *                         .from(Guest.class)
+     *                 )
+     *         )
+     *         .orderBy(User::getId)
+     *         .limit(10)
+     *         .offset(20);
+     * </pre>
+     * <pre>
+     * (SELECT ...)
+     * UNION
+     * (
+     *     (SELECT ...)
+     *     UNION ALL
+     *     (SELECT ...)
+     * )
+     * UNION ALL
+     * (SELECT ...);
+     * </pre>
+     * 方案二
+     * <pre>
+     * var q = sqlContext.unionAll(
+     *         sqlContext.select().allColumn().from(User.class),
+     *         sqlContext.select().allColumn().from(Admin.class),
+     *         sqlContext.select().allColumn().from(Guest.class)
+     *     )
+     *     .orderBy(User::getId)
+     *     .limit(10);
+     * </pre>
+     * <pre>
+     * (
+     *     SELECT id, created_at FROM user_log
+     *     UNION ALL
+     *     SELECT id, created_at FROM admin_log
+     *     UNION ALL
+     *     SELECT id, created_at FROM system_log
+     * )
+     * ORDER BY created_at DESC
+     * LIMIT 50;
+     * </pre>
+     */
+    @Test
+    void testUnion() {
+        List<User> list = sqlContext.unionAll(
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2))
+                )
+                .thenOrderBy(User::getUserId)
+                .fetch(User.class)
+                .toList();
+        list.forEach(System.out::println);
+    }
 }
 
 
