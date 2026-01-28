@@ -31,7 +31,7 @@ import java.util.Map;
 
 import static com.dynamic.sql.utils.SqlUtils.matchSqlSelectBuilder;
 
-public class UnionSelect extends ThenSortOrder<Object> implements Fetchable {
+public class UnionSelect extends AbstractUnion {
     private final StringBuilder rawSql = new StringBuilder();
     private final ParameterBinder parameterBinder = new ParameterBinder();
     private final UnionType unionType;
@@ -80,7 +80,6 @@ public class UnionSelect extends ThenSortOrder<Object> implements Fetchable {
 
 
     @Override
-    @SuppressWarnings("unchecked")
     public FetchResult<Object> fetch() {
         throw new UnsupportedOperationException("UnionSelect does not support fetch() without specifying return type. Please use fetch(Class<T> returnClass) instead.");
     }
@@ -118,4 +117,11 @@ public class UnionSelect extends ThenSortOrder<Object> implements Fetchable {
         return new FetchResultImpl<>(returnClass, wrapperList, null);
     }
 
+    public String getRawSql() {
+        return rawSql.toString();
+    }
+
+    public ParameterBinder getParameterBinder() {
+        return parameterBinder;
+    }
 }

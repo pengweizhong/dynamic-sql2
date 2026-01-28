@@ -121,12 +121,12 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public ThenSortOrder<?> union(SelectDsl... select) {
+    public AbstractUnion union(SelectDsl... select) {
         return createUnionSelect(UnionType.UNION, select);
     }
 
     @Override
-    public ThenSortOrder<?> unionAll(SelectDsl... select) {
+    public AbstractUnion unionAll(SelectDsl... select) {
         return createUnionSelect(UnionType.UNION_ALL, select);
     }
 

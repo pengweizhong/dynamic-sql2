@@ -11,8 +11,8 @@ package com.dynamic.sql.core;
 
 
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
+import com.dynamic.sql.core.dml.select.AbstractUnion;
 import com.dynamic.sql.core.dml.select.SelectDsl;
-import com.dynamic.sql.core.dml.select.ThenSortOrder;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.TableMetaData;
@@ -210,7 +210,7 @@ public interface SqlContext {
      * @param select 多个 SELECT DSL 构建器，每个代表一个独立的 SELECT 子句
      * @return 返回可继续追加 ORDER BY / LIMIT / FETCH 的链式对象
      */
-    ThenSortOrder<?> union(SelectDsl... select);
+    AbstractUnion union(SelectDsl... select);
 
     /**
      * 构建 UNION ALL 查询，将多个 SELECT 子句按 {@code UNION ALL} 方式合并（不去重）。
@@ -258,7 +258,7 @@ public interface SqlContext {
      * @param select 多个 SELECT DSL 构建器，每个代表一个独立的 SELECT 子句
      * @return 返回可继续追加 ORDER BY / LIMIT / FETCH 的链式对象
      */
-    ThenSortOrder<?> unionAll(SelectDsl... select);
+    AbstractUnion unionAll(SelectDsl... select);
 
     /**
      * 插入一个实体到数据库，选择性插入非空字段。

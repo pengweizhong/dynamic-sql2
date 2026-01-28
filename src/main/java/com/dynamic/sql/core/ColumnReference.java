@@ -25,10 +25,9 @@ import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import com.dynamic.sql.core.dml.select.build.column.ColumnWrapper;
 import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
-import com.dynamic.sql.core.dml.select.build.join.FromJoin;
-import com.dynamic.sql.core.dml.select.build.join.FromNestedJoin;
-import com.dynamic.sql.core.dml.select.build.join.NestedJoin;
+import com.dynamic.sql.core.dml.select.build.join.*;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
+import com.dynamic.sql.enums.UnionType;
 import com.dynamic.sql.model.KeyMapping;
 import com.dynamic.sql.utils.StringUtils;
 
@@ -210,6 +209,12 @@ public class ColumnReference extends AbstractColumnReference {
     @Override
     public TableRelation<?> from(SelectDsl nestedSelect, String selectAlias) {
         selectSpecification.getJoinTables().add(new FromNestedJoin(new NestedJoin(nestedSelect, selectAlias)));
+        return new TableRelation<>(selectSpecification);
+    }
+
+    @Override
+    public TableRelation<?> fromUnion(SelectDsl[] selectDsl, String selectAlias) {
+        selectSpecification.getJoinTables().add(new FromUnionJoin(new UnionJoin(selectDsl, selectAlias), UnionType.UNION));
         return new TableRelation<>(selectSpecification);
     }
 }

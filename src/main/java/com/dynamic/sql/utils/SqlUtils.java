@@ -30,9 +30,7 @@ import com.dynamic.sql.core.dml.select.NestedMeta;
 import com.dynamic.sql.core.dml.select.Select;
 import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.dml.select.build.*;
-import com.dynamic.sql.core.dml.select.build.join.FromNestedJoin;
-import com.dynamic.sql.core.dml.select.build.join.JoinTable;
-import com.dynamic.sql.core.dml.select.build.join.NestedJoin;
+import com.dynamic.sql.core.dml.select.build.join.*;
 import com.dynamic.sql.core.dml.select.order.CustomOrderBy;
 import com.dynamic.sql.core.dml.select.order.DefaultOrderBy;
 import com.dynamic.sql.core.dml.select.order.OrderBy;
@@ -564,6 +562,14 @@ public class SqlUtils {
             if (joinTable instanceof NestedJoin) {
                 NestedJoin nestedJoin = (NestedJoin) joinTable;
                 sqlDialect = nestedJoinSqlDialect(nestedJoin);
+            }
+            if (joinTable instanceof FromUnionJoin) {
+                FromUnionJoin fromUnionJoin = (FromUnionJoin) joinTable;
+                UnionJoin unionJoin = fromUnionJoin.getUnionJoin();
+                SqlStatementSelectWrapper sqlStatementWrapper = executeNestedSelect(unionJoin.getNestedSelects()[0]);
+                Class<?> guessTheTargetClass = sqlStatementWrapper.getGuessTheTargetClass();
+                fromUnionJoin.setTableClass(guessTheTargetClass);
+                sqlDialect = SchemaContextHolder.getSchemaProperties(sqlStatementWrapper.getDataSourceName()).getSqlDialect();
             }
             if (sqlDialect == null) {
                 sqlDialect = SqlUtils.getSqlDialect(joinTable.getTableClass());

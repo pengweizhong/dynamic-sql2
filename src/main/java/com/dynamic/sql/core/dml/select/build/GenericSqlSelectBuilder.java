@@ -10,7 +10,6 @@
 package com.dynamic.sql.core.dml.select.build;
 
 
-import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.column.AbstractAliasHelper;
 import com.dynamic.sql.core.column.ColumnModifiers;
@@ -24,6 +23,7 @@ import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.SelectDsl;
+import com.dynamic.sql.core.dml.select.UnionSelect;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import com.dynamic.sql.core.dml.select.build.column.ColumnWrapper;
 import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
@@ -286,6 +286,17 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
             return;
         }
+        if (joinTable instanceof FromUnionJoin) {
+            //这里处理union查询
+            FromUnionJoin fromUnionJoin = (FromUnionJoin) joinTable;
+            UnionJoin unionJoin = fromUnionJoin.getUnionJoin();
+            UnionSelect unionSelect = new UnionSelect(fromUnionJoin.getUnionType());
+            unionSelect.parseSelectDsls(unionJoin.getNestedSelects());
+            sqlBuilder.append(" (").append(unionSelect.getRawSql()).append(") ")
+                    .append(syntaxAs()).append(fromUnionJoin.getTableAlias());
+            parameterBinder.addParameterBinder(unionSelect.getParameterBinder());
+            return;
+        }
         if (joinTable instanceof FromJoin) {
             //如果是直接查询的函数表
             if (joinTable.getTableFunction() != null) {
@@ -387,6 +398,14 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         Class<?> tableClass = allColumn.getTableClass();
         if (tableClass != null) {
             appendQueryAllColumnForClass(tableClass);
+            return;
+        }
+        JoinTable joinTable = this.selectSpecification.getJoinTables().get(0);
+        if (joinTable instanceof FromUnionJoin) {
+            if (tableAlias != null) {
+                sqlBuilder.append(tableAlias).append(".");
+            }
+            sqlBuilder.append("*");
             return;
         }
         //都为空则表示匿名引用

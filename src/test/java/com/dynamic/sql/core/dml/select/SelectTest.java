@@ -402,6 +402,28 @@ public class SelectTest extends InitializingContext {
     }
 
     @Test
+    void test10() {
+        List<UserBO> t = sqlContext.select().allColumn().from(
+                        select -> select.allColumn().from(User.class).where(where -> where.andNotEqualTo(User::getUserId, 1))
+                        , "t")
+                .where(where -> where.andEqualTo(new Column("t", User::getUserId), 2))
+                .fetch(UserBO.class).toList();
+        t.forEach(System.out::println);
+    }
+
+    @Test
+    void test11() {
+        List<UserBO> t = sqlContext.select().allColumn().from(
+                        select -> select.allColumn().from(User.class).where(where -> where.andNotEqualTo(User::getUserId, 1))
+                        , "t")
+                //按照习惯来说，应该等同于 new Column("t", User::getUserId)  是否应该支持这种写法呢？
+                //先不支持吧  感觉也是比较合理的   毕竟都不在同一个作用域了
+                .where(where -> where.andEqualTo(User::getUserId, 2))
+                .fetch(UserBO.class).toList();
+        t.forEach(System.out::println);
+    }
+
+    @Test
     void testMax() {
         Integer max = sqlContext.select()
                 .column(new Max(Product::getProductId))
@@ -1592,7 +1614,7 @@ public class SelectTest extends InitializingContext {
     /**
      * 计算两种实现方案，应用在不同的场景
      * <p>
-     * 方案一
+     * 方案一 (这个方案嵌套太复杂，先不考虑实现，估计也用不到)
      * <pre>
      * var q = sqlContext.select()
      *         .allColumn()
@@ -1674,6 +1696,17 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void testUnionAllWhere() {
+        List<UserBO> t = sqlContext.select().allColumn().fromUnion(
+                        new SelectDsl[]{
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2))
+                        }, "t")
+                //TODO
+                .where(where -> where.andEqualTo(new Column("t", UserBO::getUserId), 2))
+                .fetch(UserBO.class)
+                .toList();
+        t.forEach(System.out::println);
     }
 
     @Test
@@ -1690,14 +1723,16 @@ public class SelectTest extends InitializingContext {
 
     @Test
     void testUnionAllPage() {
-        PageInfo<List<User>> pageInfo = PageHelper.of(1, 2).selectPage(
-                () -> sqlContext.unionAll(
-                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
-                                select -> select.allColumn().from(User.class).where(where -> where.andGreaterThan(User::getUserId, 1))
-                        )
-                        .fetch(User.class)
-                        .toList()
-        );
+        PageInfo<List<User>> pageInfo = PageHelper.of(1, 2)
+                .applyWhere(where -> where.andGreaterThan(new Column("userId"), 0))
+                .selectPage(
+                        () -> sqlContext.unionAll(
+                                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                                        select -> select.allColumn().from(User.class).where(where -> where.andGreaterThan(User::getUserId, 1))
+                                )
+                                .fetch(User.class)
+                                .toList()
+                );
         System.out.println(pageInfo.getTotal());
         System.out.println(pageInfo);
     }

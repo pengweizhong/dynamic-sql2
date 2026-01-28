@@ -633,10 +633,12 @@ public abstract class AbstractColumnReference {
      * <p>通过嵌套查询定义子查询作为主表，适合复杂数据源。
      *
      * @param nestedSelect 嵌套查询的定义，接受一个消费者来构建子查询
-     * @param tableAlias   嵌套查询的别名
+     * @param selectAlias  嵌套查询的别名
      * @return {@link TableRelation} 对象，用于定义表关系
      */
-    public abstract TableRelation<?> from(SelectDsl nestedSelect, String tableAlias);
+    public abstract TableRelation<?> from(SelectDsl nestedSelect, String selectAlias);
+
+    public abstract TableRelation<?> fromUnion(SelectDsl[] selectDsl, String selectAlias);
 
     /**
      * 获取当前查询的规范对象。
