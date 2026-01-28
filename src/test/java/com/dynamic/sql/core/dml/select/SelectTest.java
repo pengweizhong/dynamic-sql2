@@ -1652,6 +1652,8 @@ public class SelectTest extends InitializingContext {
                         select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2))
                 )
                 .thenOrderBy(UserBO::getUserId)
+                .thenOrderBy("accountBalance desc")
+                .limit(1)
                 .fetch(UserBO.class)
                 .toList();
         list.forEach(System.out::println);

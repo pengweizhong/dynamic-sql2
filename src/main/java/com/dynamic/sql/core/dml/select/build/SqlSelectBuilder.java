@@ -91,7 +91,7 @@ public abstract class SqlSelectBuilder {
      */
     protected abstract boolean parseFormTables();
 
-    public abstract void parseLimit();
+    public abstract String parseLimit();
 
     public final SqlStatementSelectWrapper build(Class<?> returnClass) {
         //step0 解析表别名
@@ -163,7 +163,7 @@ public abstract class SqlSelectBuilder {
         }
         //step7 解析limit
         if (selectSpecification.getLimitInfo() != null) {
-            parseLimit();
+            sqlBuilder.append(parseLimit());
         }
     }
 

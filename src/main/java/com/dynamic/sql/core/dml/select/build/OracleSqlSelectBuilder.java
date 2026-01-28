@@ -21,8 +21,7 @@ public class OracleSqlSelectBuilder extends GenericSqlSelectBuilder {
     }
 
     @Override
-    public void parseLimit() {
-        //Oracle需要单独处理limit
-        super.parseLimit();
+    public String parseLimit() {
+        throw new UnsupportedOperationException("Oracle SQL uses ROWNUM for pagination, which is handled differently.");
     }
 }

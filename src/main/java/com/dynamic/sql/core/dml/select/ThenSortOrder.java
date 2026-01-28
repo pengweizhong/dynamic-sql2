@@ -12,6 +12,7 @@ package com.dynamic.sql.core.dml.select;
 
 import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.dml.select.build.LimitInfo;
 import com.dynamic.sql.core.dml.select.order.*;
 import com.dynamic.sql.enums.SortOrder;
 
@@ -316,7 +317,9 @@ public class ThenSortOrder<R> implements Fetchable {
      * @return 当前查询构建器的实例
      */
     public Fetchable limit(int offset, int limit) {
-        return tableRelation.limit(offset, limit);
+//        return tableRelation.limit(offset, limit);
+        tableRelation.getSelectSpecification().setLimitInfo(new LimitInfo(offset, limit));
+        return this;
     }
 
     /**
@@ -326,7 +329,9 @@ public class ThenSortOrder<R> implements Fetchable {
      * @return 当前查询构建器的实例
      */
     public Fetchable limit(int limit) {
-        return tableRelation.limit(limit);
+//        return tableRelation.limit(limit);
+        tableRelation.getSelectSpecification().setLimitInfo(new LimitInfo(null, limit));
+        return this;
     }
 
     /**

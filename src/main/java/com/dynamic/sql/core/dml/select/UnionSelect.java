@@ -35,9 +35,7 @@ public class UnionSelect extends ThenSortOrder<Object> implements Fetchable {
     private final StringBuilder rawSql = new StringBuilder();
     private final ParameterBinder parameterBinder = new ParameterBinder();
     private final UnionType unionType;
-    private String dataSourceName;
-    private SqlDialect sqlDialect;
-    private Version version;
+    private NestedMeta nestedMeta;
 
     public UnionSelect(UnionType unionType) {
         super(new TableRelation<>(new SelectSpecification()));
@@ -46,6 +44,9 @@ public class UnionSelect extends ThenSortOrder<Object> implements Fetchable {
 
 
     public void parseSelectDsls(SelectDsl[] selects) {
+        String dataSourceName = null;
+        SqlDialect sqlDialect = null;
+        Version version = null;
         for (int i = 0; i < selects.length; i++) {
             SelectDsl selectDsl = selects[i];
             rawSql.append("( ");
@@ -71,6 +72,10 @@ public class UnionSelect extends ThenSortOrder<Object> implements Fetchable {
                 rawSql.append(SqlUtils.getSyntaxUnion(sqlDialect, unionType)).append(" ");
             }
         }
+        nestedMeta = new NestedMeta();
+        nestedMeta.setVersion(version);
+        nestedMeta.setSqlDialect(sqlDialect);
+        nestedMeta.setDataSourceName(dataSourceName);
     }
 
 
@@ -90,10 +95,6 @@ public class UnionSelect extends ThenSortOrder<Object> implements Fetchable {
         SelectSpecification selectSpecification = tableRelation.getSelectSpecification();
         //step6 解析order by
         if (CollectionUtils.isNotEmpty(selectSpecification.getOrderBys())) {
-            NestedMeta nestedMeta = new NestedMeta();
-            nestedMeta.setVersion(version);
-            nestedMeta.setSqlDialect(sqlDialect);
-            nestedMeta.setDataSourceName(dataSourceName);
             selectSpecification.setNestedMeta(nestedMeta);
             HashMap<String, TableAliasMapping> tableAliasMappingHashMap = new HashMap<>();
             //强制不指定表别名，union语法不允许
@@ -106,9 +107,12 @@ public class UnionSelect extends ThenSortOrder<Object> implements Fetchable {
         }
         //step7 解析limit
         if (selectSpecification.getLimitInfo() != null) {
-//            parseLimit();
+            SqlSelectBuilder sqlSelectBuilder = matchSqlSelectBuilder(selectSpecification, null);
+            rawSql.append(sqlSelectBuilder.parseLimit());
+            SqlStatementSelectWrapper build = sqlSelectBuilder.build(returnClass);
+            parameterBinder.addParameterBinder(build.getParameterBinder());
         }
-        SqlStatementSelectWrapper unionSqlStatementSelectWrapper = new SqlStatementSelectWrapper(dataSourceName, rawSql, parameterBinder, returnClass);
+        SqlStatementSelectWrapper unionSqlStatementSelectWrapper = new SqlStatementSelectWrapper(nestedMeta.getDataSourceName(), rawSql, parameterBinder, returnClass);
         List<Map<String, Object>> wrapperList = SqlExecutionFactory.executorSql(DMLType.SELECT,
                 unionSqlStatementSelectWrapper, SqlExecutor::executeQuery);
         return new FetchResultImpl<>(returnClass, wrapperList, null);

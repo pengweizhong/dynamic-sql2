@@ -342,16 +342,18 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         return sqlStatementWrapper;
     }
 
-    public void parseLimit() {
+    public String parseLimit() {
+        StringBuilder stringBuilder = new StringBuilder();
         LimitInfo limitInfo = selectSpecification.getLimitInfo();
         if (limitInfo == null) {
-            return;
+            return stringBuilder.toString();
         }
-        sqlBuilder.append(" ").append(SqlUtils.getSyntaxLimit(SqlDialect.MYSQL)).append(" ");
+        stringBuilder.append(" ").append(SqlUtils.getSyntaxLimit(SqlDialect.MYSQL)).append(" ");
         if (limitInfo.getOffset() != null) {
-            sqlBuilder.append(registerValueWithKey(parameterBinder, limitInfo.getOffset())).append(", ");
+            stringBuilder.append(registerValueWithKey(parameterBinder, limitInfo.getOffset())).append(", ");
         }
-        sqlBuilder.append(registerValueWithKey(parameterBinder, limitInfo.getLimit()));
+        stringBuilder.append(registerValueWithKey(parameterBinder, limitInfo.getLimit()));
+        return stringBuilder.toString();
     }
 
     private void parseAllColumn(AllColumn allColumn) {
