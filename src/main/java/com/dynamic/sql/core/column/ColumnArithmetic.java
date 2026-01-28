@@ -13,6 +13,7 @@ package com.dynamic.sql.core.column;
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.column.function.ColumFunction;
+import com.dynamic.sql.core.dml.select.SelectDsl;
 
 import java.util.function.Consumer;
 
@@ -48,7 +49,7 @@ public interface ColumnArithmetic {
      * @param nestedSelect 嵌套查询的表达式
      * @return 当前算术运算接口对象，用于链式调用
      */
-    ColumnArithmetic add(Consumer<AbstractColumnReference> nestedSelect);
+    ColumnArithmetic add(SelectDsl nestedSelect);
 
 
     /**
@@ -77,7 +78,7 @@ public interface ColumnArithmetic {
      * @param nestedSelect 嵌套查询的表达式
      * @return 当前算术运算接口对象，用于链式调用
      */
-    ColumnArithmetic subtract(Consumer<AbstractColumnReference> nestedSelect);
+    ColumnArithmetic subtract(SelectDsl nestedSelect);
 
     /**
      * 将当前列的值与指定列相乘。
@@ -105,7 +106,7 @@ public interface ColumnArithmetic {
      * @param nestedSelect 嵌套查询的表达式
      * @return 当前算术运算接口对象，用于链式调用
      */
-    ColumnArithmetic multiply(Consumer<AbstractColumnReference> nestedSelect);
+    ColumnArithmetic multiply(SelectDsl nestedSelect);
 
     /**
      * 将当前列的值与指定列相除。
@@ -133,5 +134,5 @@ public interface ColumnArithmetic {
      * @param nestedSelect 嵌套查询的表达式
      * @return 当前算术运算接口对象，用于链式调用
      */
-    ColumnArithmetic divide(Consumer<AbstractColumnReference> nestedSelect);
+    ColumnArithmetic divide(SelectDsl nestedSelect);
 }

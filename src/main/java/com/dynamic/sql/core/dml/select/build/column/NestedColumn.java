@@ -10,21 +10,19 @@
 package com.dynamic.sql.core.dml.select.build.column;
 
 
-import com.dynamic.sql.core.AbstractColumnReference;
-
-import java.util.function.Consumer;
+import com.dynamic.sql.core.dml.select.SelectDsl;
 
 public class NestedColumn implements ColumnQuery {
     //别名
     private String alias;
     //嵌套列
-    private Consumer<AbstractColumnReference> nestedColumnReference;
+    private SelectDsl nestedColumnReference;
 
     //    public NestedColumn(Consumer<NestedSelect> nestedSelect, String alias) {
 //        this.nestedSelect = nestedSelect;
 //        this.alias = alias;
 //    }
-    public NestedColumn(Consumer<AbstractColumnReference> columnReferenceConsumer, String alias) {
+    public NestedColumn(SelectDsl columnReferenceConsumer, String alias) {
         this.nestedColumnReference = columnReferenceConsumer;
         this.alias = alias;
     }
@@ -34,7 +32,7 @@ public class NestedColumn implements ColumnQuery {
         return alias;
     }
 
-    public Consumer<AbstractColumnReference> getNestedColumnReference() {
+    public SelectDsl getNestedColumnReference() {
         return nestedColumnReference;
     }
 

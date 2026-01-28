@@ -23,6 +23,7 @@ import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
+import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
 import com.dynamic.sql.core.dml.select.build.column.ColumnWrapper;
 import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
@@ -189,7 +190,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             }
             if (columnQuery instanceof NestedColumn) {
                 NestedColumn nestedColumn = (NestedColumn) columnQuery;
-                Consumer<AbstractColumnReference> nestedColumnReference = nestedColumn.getNestedColumnReference();
+                SelectDsl nestedColumnReference = nestedColumn.getNestedColumnReference();
                 SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedColumnReference);
                 String columnAliasString = syntaxAs() + SqlUtils.quoteIdentifier(sqlDialect, columnQuery.getAlias());
                 sqlBuilder.append("(").append(sqlStatementWrapper.getRawSql()).append(")").append(columnAliasString).append(columnSeparator);

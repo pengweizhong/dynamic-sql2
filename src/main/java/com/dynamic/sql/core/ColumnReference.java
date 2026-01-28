@@ -19,6 +19,7 @@ import com.dynamic.sql.core.column.function.modifiers.Distinct;
 import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.core.dml.select.NestedColumnMapping;
+import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.dml.select.TableRelation;
 import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
@@ -132,7 +133,7 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
-    public AbstractColumnReference column(Consumer<AbstractColumnReference> nestedSelect, String columnAlias) {
+    public AbstractColumnReference column(SelectDsl nestedSelect, String columnAlias) {
         if (StringUtils.isBlank(columnAlias)) {
             throw new IllegalArgumentException("Subquery must provide an alias");
         }
@@ -207,7 +208,7 @@ public class ColumnReference extends AbstractColumnReference {
     }
 
     @Override
-    public TableRelation<?> from(Consumer<AbstractColumnReference> nestedSelect, String selectAlias) {
+    public TableRelation<?> from(SelectDsl nestedSelect, String selectAlias) {
         selectSpecification.getJoinTables().add(new FromNestedJoin(new NestedJoin(nestedSelect, selectAlias)));
         return new TableRelation<>(selectSpecification);
     }

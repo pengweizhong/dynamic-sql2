@@ -18,6 +18,7 @@ import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.column.function.windows.aggregate.AggregateFunction;
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.dml.select.NestedMeta;
+import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.LogicalOperatorType;
@@ -238,7 +239,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
         throw new UnsupportedOperationException();
     }
 
-    private StringBuilder nestedSelectSql(Consumer<AbstractColumnReference> nestedSelect) {
+    private StringBuilder nestedSelectSql(SelectDsl nestedSelect) {
         NestedMeta nestedMeta = new NestedMeta();
         nestedMeta.setSqlDialect(sqlDialect());
         nestedMeta.setVersion(version);
@@ -249,7 +250,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition andEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition andEqualTo(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
                 .append(" = (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -257,7 +258,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition orEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition orEqualTo(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" = (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -265,7 +266,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition andNotEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition andNotEqualTo(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
                 .append(" != (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -273,7 +274,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition orNotEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition orNotEqualTo(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" != (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -281,7 +282,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition andGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition andGreaterThan(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
                 .append(" > (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -289,7 +290,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition orGreaterThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition orGreaterThan(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" > (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -297,7 +298,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition andGreaterThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition andGreaterThanOrEqualTo(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
                 .append(" >= (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -305,7 +306,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition orGreaterThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition orGreaterThanOrEqualTo(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" >= (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -313,7 +314,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition andLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition andLessThan(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
                 .append(" < (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -321,7 +322,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition orLessThan(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition orLessThan(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" < (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -329,7 +330,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition andLessThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition andLessThanOrEqualTo(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
                 .append(" <= (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -337,7 +338,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition orLessThanOrEqualTo(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition orLessThanOrEqualTo(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" <= (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -345,7 +346,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition andIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition andIn(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
                 .append(" in (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -353,7 +354,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition orIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition orIn(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" in (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -361,7 +362,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition andNotIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition andNotIn(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(AND)).append(column)
                 .append(" not in (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -369,7 +370,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public <T, F> GenericWhereCondition orNotIn(Fn<T, F> fn, Consumer<AbstractColumnReference> nestedSelect) {
+    public <T, F> GenericWhereCondition orNotIn(Fn<T, F> fn, SelectDsl nestedSelect) {
         String column = extractQualifiedAliasToColumn(fn);
         condition.append(" ").append(logicalOperatorType(OR)).append(column)
                 .append(" not in (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -377,7 +378,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition andExists(Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition andExists(SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND))
                 .append(SqlUtils.getSyntaxExists(matchSqlDialect()))
                 .append(" (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -385,7 +386,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition orExists(Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition orExists(SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(OR))
                 .append(SqlUtils.getSyntaxExists(matchSqlDialect()))
                 .append(" (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -393,7 +394,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition andNotExists(Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition andNotExists(SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND)).append(" not ")
                 .append(SqlUtils.getSyntaxExists(matchSqlDialect()))
                 .append(" (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -401,7 +402,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition orNotExists(Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition orNotExists(SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(OR)).append(" not ")
                 .append(SqlUtils.getSyntaxExists(matchSqlDialect()))
                 .append(" (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -1375,7 +1376,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
 
 
     @Override
-    public GenericWhereCondition andEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition andEqualTo(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" ").append(executeFunctionToString(function)).append(" = ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1391,7 +1392,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition orEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition orEqualTo(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" ").append(executeFunctionToString(function)).append(" = ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1407,7 +1408,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition andNotEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition andNotEqualTo(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" ").append(executeFunctionToString(function)).append(" != ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1423,7 +1424,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition orNotEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition orNotEqualTo(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" ").append(executeFunctionToString(function)).append(" != ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1439,7 +1440,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition andGreaterThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition andGreaterThan(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" ").append(executeFunctionToString(function)).append(" > ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1455,7 +1456,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition orGreaterThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition orGreaterThan(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" ").append(executeFunctionToString(function)).append(" > ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1471,7 +1472,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition andGreaterThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition andGreaterThanOrEqualTo(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" ").append(executeFunctionToString(function)).append(" >= ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1487,7 +1488,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition orGreaterThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition orGreaterThanOrEqualTo(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" ").append(executeFunctionToString(function)).append(" >= ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1503,7 +1504,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition andLessThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition andLessThan(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" ").append(executeFunctionToString(function)).append(" < ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1519,7 +1520,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition orLessThan(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition orLessThan(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" ").append(executeFunctionToString(function)).append(" < ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1535,7 +1536,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition andLessThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition andLessThanOrEqualTo(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" ").append(executeFunctionToString(function)).append(" <= ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1551,7 +1552,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition orLessThanOrEqualTo(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition orLessThanOrEqualTo(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" ").append(executeFunctionToString(function)).append(" <= ")
                 .append(nestedSelectSql(nestedSelect));
@@ -1568,7 +1569,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition andIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition andIn(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND))
                 .append(executeFunctionToString(function))
                 .append(" in (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -1585,7 +1586,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition orIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition orIn(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(OR))
                 .append(executeFunctionToString(function))
                 .append(" in (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -1602,7 +1603,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition andNotIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition andNotIn(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(AND))
                 .append(executeFunctionToString(function))
                 .append(" not in (").append(nestedSelectSql(nestedSelect)).append(")");
@@ -1619,7 +1620,7 @@ public class GenericWhereCondition extends WhereCondition<GenericWhereCondition>
     }
 
     @Override
-    public GenericWhereCondition orNotIn(AggregateFunction function, Consumer<AbstractColumnReference> nestedSelect) {
+    public GenericWhereCondition orNotIn(AggregateFunction function, SelectDsl nestedSelect) {
         condition.append(" ").append(logicalOperatorType(OR))
                 .append(executeFunctionToString(function))
                 .append(" not in (").append(nestedSelectSql(nestedSelect)).append(")");

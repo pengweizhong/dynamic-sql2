@@ -55,7 +55,7 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
-    public JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
+    public JoinCondition innerJoin(SelectDsl nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.INNER, nestedSelect, alias, onCondition));
         return this;
     }
@@ -86,7 +86,7 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
-    public JoinCondition leftJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
+    public JoinCondition leftJoin(SelectDsl nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.LEFT, nestedSelect, alias, onCondition));
         return this;
     }
@@ -117,7 +117,7 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
-    public JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
+    public JoinCondition rightJoin(SelectDsl nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new NestedJoin(JoinTableType.RIGHT, nestedSelect, alias, onCondition));
         return this;
     }

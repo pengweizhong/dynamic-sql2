@@ -14,6 +14,7 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
+import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.dml.select.TableRelation;
 import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.column.ColumnQuery;
@@ -374,7 +375,7 @@ public abstract class AbstractColumnReference {
      * @param columnAlias  列的别名
      * @return 当前列引用的实例，用于链式调用
      */
-    public abstract AbstractColumnReference column(Consumer<AbstractColumnReference> nestedSelect, String columnAlias);
+    public abstract AbstractColumnReference column(SelectDsl nestedSelect, String columnAlias);
 
     /**
      * 条件性地添加一个嵌套查询列到当前查询中。
@@ -384,7 +385,7 @@ public abstract class AbstractColumnReference {
      * @param columnAlias  列的别名
      * @return 当前列引用的实例，用于链式调用
      */
-    public AbstractColumnReference column(boolean isEffective, Consumer<AbstractColumnReference> nestedSelect, String columnAlias) {
+    public AbstractColumnReference column(boolean isEffective, SelectDsl nestedSelect, String columnAlias) {
         return isEffective ? column(nestedSelect, columnAlias) : this;
     }
 
@@ -635,7 +636,7 @@ public abstract class AbstractColumnReference {
      * @param tableAlias   嵌套查询的别名
      * @return {@link TableRelation} 对象，用于定义表关系
      */
-    public abstract TableRelation<?> from(Consumer<AbstractColumnReference> nestedSelect, String tableAlias);
+    public abstract TableRelation<?> from(SelectDsl nestedSelect, String tableAlias);
 
     /**
      * 获取当前查询的规范对象。

@@ -28,6 +28,7 @@ import com.dynamic.sql.core.dml.SqlStatementWrapper;
 import com.dynamic.sql.core.dml.SqlStatementWrapper.BatchType;
 import com.dynamic.sql.core.dml.select.NestedMeta;
 import com.dynamic.sql.core.dml.select.Select;
+import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.dml.select.build.*;
 import com.dynamic.sql.core.dml.select.build.join.FromNestedJoin;
 import com.dynamic.sql.core.dml.select.build.join.JoinTable;
@@ -56,7 +57,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.YearMonth;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -580,18 +580,17 @@ public class SqlUtils {
         }
     }
 
-    public static SqlStatementSelectWrapper executeNestedSelect
-            (Consumer<AbstractColumnReference> nestedSelectConsumer) {
+    public static SqlStatementSelectWrapper executeNestedSelect(SelectDsl nestedSelectConsumer) {
         return executeNestedSelect(null, nestedSelectConsumer);
     }
 
     public static SqlStatementSelectWrapper executeNestedSelect(NestedMeta nestedMeta,
-                                                                Consumer<AbstractColumnReference> nestedSelectConsumer) {
+                                                                SelectDsl nestedSelectConsumer) {
         return executeNestedSelect(nestedMeta, nestedSelectConsumer, new HashMap<>());
     }
 
     public static SqlStatementSelectWrapper executeNestedSelect(NestedMeta nestedMeta,
-                                                                Consumer<AbstractColumnReference> nestedSelectConsumer,
+                                                                SelectDsl nestedSelectConsumer,
                                                                 Map<String, TableAliasMapping> aliasTableMap) {
         Select select = new Select(nestedMeta);
         AbstractColumnReference columnReference = select.loadColumReference();

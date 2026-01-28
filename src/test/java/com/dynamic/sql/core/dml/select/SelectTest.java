@@ -1673,6 +1673,10 @@ public class SelectTest extends InitializingContext {
     }
 
     @Test
+    void testUnionAllWhere() {
+    }
+
+    @Test
     void testUnion() {
         List<User> list = sqlContext.union(
                         select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),

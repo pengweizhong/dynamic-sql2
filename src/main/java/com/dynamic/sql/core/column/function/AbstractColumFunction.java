@@ -14,6 +14,7 @@ import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.ColumnArithmetic;
+import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
@@ -43,7 +44,7 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     }
 
     @Override
-    public AbstractColumFunction subtract(Consumer<AbstractColumnReference> nestedSelect) {
+    public AbstractColumFunction subtract(SelectDsl nestedSelect) {
         SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
 //        arithmeticSql.append(" - (").append(sqlStatementWrapper.getRawSql()).append(")");
 //        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
@@ -75,7 +76,7 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     }
 
     @Override
-    public AbstractColumFunction multiply(Consumer<AbstractColumnReference> nestedSelect) {
+    public AbstractColumFunction multiply(SelectDsl nestedSelect) {
         SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
 //        arithmeticSql.append(" * (").append(sqlStatementWrapper.getRawSql()).append(")");
 //        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
@@ -107,7 +108,7 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     }
 
     @Override
-    public AbstractColumFunction divide(Consumer<AbstractColumnReference> nestedSelect) {
+    public AbstractColumFunction divide(SelectDsl nestedSelect) {
         SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
         arithmetic.getArithmeticSql().append(" / (").append(sqlStatementWrapper.getRawSql()).append(")");
         arithmetic.getArithmeticParameterBinder().addParameterBinder(sqlStatementWrapper.getParameterBinder());
@@ -141,7 +142,7 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     }
 
     @Override
-    public AbstractColumFunction add(Consumer<AbstractColumnReference> nestedSelect) {
+    public AbstractColumFunction add(SelectDsl nestedSelect) {
         SqlStatementSelectWrapper sqlStatementWrapper = SqlUtils.executeNestedSelect(nestedSelect);
 //        arithmeticSql.append(" + (").append(sqlStatementWrapper.getRawSql()).append(")");
 //        arithmeticParameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());

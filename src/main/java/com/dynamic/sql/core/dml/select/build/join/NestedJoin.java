@@ -10,8 +10,8 @@
 package com.dynamic.sql.core.dml.select.build.join;
 
 
-import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
+import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 import com.dynamic.sql.enums.JoinTableType;
@@ -19,17 +19,17 @@ import com.dynamic.sql.enums.JoinTableType;
 import java.util.function.Consumer;
 
 public class NestedJoin extends JoinTable {
-    private final Consumer<AbstractColumnReference> nestedSelect;
+    private final SelectDsl nestedSelect;
     private SqlStatementSelectWrapper sqlStatementWrapper;
     private Consumer<GenericWhereCondition> onCondition;
     private JoinTableType joinTableType;
 
-    public NestedJoin(Consumer<AbstractColumnReference> nestedSelect, String tableAlias) {
+    public NestedJoin(SelectDsl nestedSelect, String tableAlias) {
         super(tableAlias);
         this.nestedSelect = nestedSelect;
     }
 
-    public NestedJoin(JoinTableType joinTableType, Consumer<AbstractColumnReference> nestedSelect,
+    public NestedJoin(JoinTableType joinTableType, SelectDsl nestedSelect,
                       String tableAlias, Consumer<GenericWhereCondition> onCondition) {
         super(tableAlias);
         this.joinTableType = joinTableType;
@@ -57,7 +57,7 @@ public class NestedJoin extends JoinTable {
         return onCondition;
     }
 
-    public Consumer<AbstractColumnReference> getNestedSelect() {
+    public SelectDsl getNestedSelect() {
         return nestedSelect;
     }
 

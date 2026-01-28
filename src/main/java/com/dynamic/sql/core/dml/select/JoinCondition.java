@@ -55,11 +55,11 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象
      * @return 当前 {@link JoinCondition} 实例
      */
-    default JoinCondition join(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
+    default JoinCondition join(SelectDsl nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         return innerJoin(nestedSelect, alias, onCondition);
     }
 
-    default JoinCondition join(boolean isEffective, Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
+    default JoinCondition join(boolean isEffective, SelectDsl nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? innerJoin(nestedSelect, alias, onCondition) : this;
     }
 
@@ -150,7 +150,7 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition innerJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
+    JoinCondition innerJoin(SelectDsl nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 构建一个 INNER JOIN 连接，用于将当前查询与表函数的结果关联。
@@ -220,9 +220,9 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition leftJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
+    JoinCondition leftJoin(SelectDsl nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
 
-    default JoinCondition leftJoin(boolean isEffective, Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
+    default JoinCondition leftJoin(boolean isEffective, SelectDsl nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? leftJoin(nestedSelect, alias, onCondition) : this;
     }
 
@@ -303,9 +303,9 @@ public interface JoinCondition extends Fetchable {
      * @param onCondition  用于构建 ON 条件的 {@link Consumer} 对象，通过 {@link GenericWhereCondition} 接口定义连接条件
      * @return 当前查询上下文的 {@link JoinCondition} 实例，用于继续构建查询链
      */
-    JoinCondition rightJoin(Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
+    JoinCondition rightJoin(SelectDsl nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition);
 
-    default JoinCondition rightJoin(boolean isEffective, Consumer<AbstractColumnReference> nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
+    default JoinCondition rightJoin(boolean isEffective, SelectDsl nestedSelect, String alias, Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? rightJoin(nestedSelect, alias, onCondition) : this;
     }
 
