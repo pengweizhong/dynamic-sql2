@@ -295,4 +295,8 @@ public abstract class SqlSelectBuilder {
     public String getDataSourceName() {
         return dataSourceName;
     }
+
+    public SqlDialect getSqlDialect() {
+        return sqlDialect;
+    }
 }

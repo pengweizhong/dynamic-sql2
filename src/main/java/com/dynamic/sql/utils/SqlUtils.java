@@ -351,6 +351,16 @@ public class SqlUtils {
         }
     }
 
+    public static String getSyntaxUnion(SqlDialect sqlDialect, UnionType unionType) {
+        switch (sqlDialect) {
+            case MYSQL:
+            case MARIADB:
+                return unionType == UnionType.UNION ? "union" : "union all";
+            default:
+                return unionType == UnionType.UNION ? "UNION" : "UNION ALL";
+        }
+    }
+
     public static String getSyntaxAs(SqlDialect sqlDialect) {
         switch (sqlDialect) {
             case MYSQL:

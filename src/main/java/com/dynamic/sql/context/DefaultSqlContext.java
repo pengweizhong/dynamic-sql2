@@ -1,6 +1,3 @@
-package com.dynamic.sql.context;
-
-
 /*
  * Copyright (c) 2024 PengWeizhong. All Rights Reserved.
  *
@@ -10,6 +7,7 @@ package com.dynamic.sql.context;
  *
  * See the LICENSE file in the project root for more information.
  */
+package com.dynamic.sql.context;
 
 import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
@@ -22,13 +20,11 @@ import com.dynamic.sql.core.dml.delete.DeleteHandler;
 import com.dynamic.sql.core.dml.delete.EntitiesDeleter;
 import com.dynamic.sql.core.dml.insert.EntitiesInserter;
 import com.dynamic.sql.core.dml.insert.InsertHandler;
-import com.dynamic.sql.core.dml.select.DefaultSelectHandler;
-import com.dynamic.sql.core.dml.select.Select;
-import com.dynamic.sql.core.dml.select.SelectDsl;
-import com.dynamic.sql.core.dml.select.ThenSortOrder;
+import com.dynamic.sql.core.dml.select.*;
 import com.dynamic.sql.core.dml.update.EntitiesUpdater;
 import com.dynamic.sql.core.dml.update.UpdateHandler;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.enums.UnionType;
 import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.TableMetaData;
 import com.dynamic.sql.utils.CollectionUtils;
@@ -125,13 +121,13 @@ public class DefaultSqlContext implements SqlContext {
     }
 
     @Override
-    public <T> ThenSortOrder<T> union(SelectDsl... select) {
-        return null;
+    public Fetchable union(SelectDsl... select) {
+        return createUnionSelect(UnionType.UNION, select);
     }
 
     @Override
-    public <T> ThenSortOrder<T> unionAll(SelectDsl... select) {
-        return null;
+    public Fetchable unionAll(SelectDsl... select) {
+        return createUnionSelect(UnionType.UNION_ALL, select);
     }
 
     @Override
@@ -296,5 +292,14 @@ public class DefaultSqlContext implements SqlContext {
     @Override
     public List<ColumnMetaData> getAllColumnMetaData(String dataSourceName, String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) {
         return new ColumnMetaDataHelper(dataSourceName, catalog, schemaPattern, tableNamePattern, columnNamePattern).getAllTableMetaData();
+    }
+
+    private UnionSelect createUnionSelect(UnionType unionType, SelectDsl... selects) {
+        if (selects == null || selects.length == 0) {
+            throw new IllegalArgumentException("The query statement cannot be empty");
+        }
+        UnionSelect unionSelect = new UnionSelect(unionType);
+        unionSelect.parseSelectDsls(selects);
+        return unionSelect;
     }
 }

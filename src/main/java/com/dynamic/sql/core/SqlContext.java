@@ -11,8 +11,8 @@ package com.dynamic.sql.core;
 
 
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
+import com.dynamic.sql.core.dml.select.Fetchable;
 import com.dynamic.sql.core.dml.select.SelectDsl;
-import com.dynamic.sql.core.dml.select.ThenSortOrder;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.TableMetaData;
@@ -166,9 +166,9 @@ public interface SqlContext {
      */
     <T> List<T> selectList(String dataSourceName, String sql, Class<T> returnType, ParameterBinder parameterBinder);
 
-    <T> ThenSortOrder<T> union(SelectDsl... select);
+    Fetchable union(SelectDsl... select);
 
-    <T> ThenSortOrder<T> unionAll(SelectDsl... select);
+    Fetchable unionAll(SelectDsl... select);
 
     /**
      * 插入一个实体到数据库，选择性插入非空字段。
