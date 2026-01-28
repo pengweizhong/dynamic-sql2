@@ -18,8 +18,12 @@ import com.dynamic.sql.enums.SortOrder;
 public class ThenSortOrder<R> implements Fetchable {
 
     private TableRelation<R> tableRelation;
+
     //根据排序入口处全局控制是否追加排序
     //private boolean condition;
+    protected ThenSortOrder(TableRelation<R> tableRelation) {
+        this.tableRelation = tableRelation;
+    }
 
     public ThenSortOrder(boolean condition, TableRelation<R> tableRelation, OrderBy orderBy) {
         this.tableRelation = tableRelation;
@@ -371,4 +375,7 @@ public class ThenSortOrder<R> implements Fetchable {
         return this;
     }
 
+    protected TableRelation<R> getTableRelation() {
+        return tableRelation;
+    }
 }

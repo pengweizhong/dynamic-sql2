@@ -21,7 +21,6 @@ public class TableAliasMapping {
     private boolean isNestedJoin;
 
     public TableAliasMapping() {
-        this.alias = alias;
     }
 
     public TableAliasMapping(String alias, boolean isNestedJoin) {

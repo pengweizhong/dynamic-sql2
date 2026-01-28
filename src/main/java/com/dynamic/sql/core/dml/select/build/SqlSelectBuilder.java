@@ -55,7 +55,7 @@ public abstract class SqlSelectBuilder {
     //是否是子查询
     private Boolean isFromNestedSelect;
 
-    protected <C extends WhereCondition<C>> SqlSelectBuilder(SelectSpecification selectSpecification) {
+    public <C extends WhereCondition<C>> SqlSelectBuilder(SelectSpecification selectSpecification) {
         this.selectSpecification = selectSpecification;
         NestedMeta nestedMeta = selectSpecification.getNestedMeta();
         //是否传递了嵌套查询的元数据？
@@ -91,7 +91,7 @@ public abstract class SqlSelectBuilder {
      */
     protected abstract boolean parseFormTables();
 
-    protected abstract void parseLimit();
+    public abstract void parseLimit();
 
     public final SqlStatementSelectWrapper build(Class<?> returnClass) {
         //step0 解析表别名
@@ -200,7 +200,7 @@ public abstract class SqlSelectBuilder {
         parameterBinder.addParameterBinder(whereParameterBinder);
     }
 
-    protected String parseOrderBy(List<OrderBy> orderBys, Class<?> returnClass) {
+    public String parseOrderBy(List<OrderBy> orderBys, Class<?> returnClass) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(" ").append(SqlUtils.getSyntaxOrderBy(sqlDialect));
         for (int i = 0; i < orderBys.size(); i++) {
@@ -298,5 +298,13 @@ public abstract class SqlSelectBuilder {
 
     public SqlDialect getSqlDialect() {
         return sqlDialect;
+    }
+
+    public Version getVersion() {
+        return version;
+    }
+
+    public void setIsFromNestedSelect(boolean isFromNestedSelect) {
+        this.isFromNestedSelect = isFromNestedSelect;
     }
 }

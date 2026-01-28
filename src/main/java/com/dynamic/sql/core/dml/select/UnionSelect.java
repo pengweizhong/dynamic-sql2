@@ -10,14 +10,18 @@
 package com.dynamic.sql.core.dml.select;
 
 import com.dynamic.sql.core.AbstractColumnReference;
+import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.database.SqlExecutionFactory;
 import com.dynamic.sql.core.database.SqlExecutor;
+import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.SqlSelectBuilder;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.DMLType;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.enums.UnionType;
+import com.dynamic.sql.model.TableAliasMapping;
+import com.dynamic.sql.utils.CollectionUtils;
 import com.dynamic.sql.utils.SqlUtils;
 import com.dynamic.sql.utils.StringUtils;
 
@@ -27,14 +31,16 @@ import java.util.Map;
 
 import static com.dynamic.sql.utils.SqlUtils.matchSqlSelectBuilder;
 
-public class UnionSelect implements Fetchable {
+public class UnionSelect extends ThenSortOrder<Object> implements Fetchable {
     private final StringBuilder rawSql = new StringBuilder();
     private final ParameterBinder parameterBinder = new ParameterBinder();
     private final UnionType unionType;
     private String dataSourceName;
     private SqlDialect sqlDialect;
+    private Version version;
 
     public UnionSelect(UnionType unionType) {
+        super(new TableRelation<>(new SelectSpecification()));
         this.unionType = unionType;
     }
 
@@ -53,6 +59,9 @@ public class UnionSelect implements Fetchable {
             if (sqlDialect == null) {
                 sqlDialect = sqlSelectBuilder.getSqlDialect();
             }
+            if (version == null) {
+                version = sqlSelectBuilder.getVersion();
+            }
             SqlStatementSelectWrapper build = sqlSelectBuilder.build(null);
             parameterBinder.addParameterBinder(build.getParameterBinder());
             rawSql.append(build.getRawSql());
@@ -66,7 +75,8 @@ public class UnionSelect implements Fetchable {
 
 
     @Override
-    public <R> FetchResult<R> fetch() {
+    @SuppressWarnings("unchecked")
+    public FetchResult<Object> fetch() {
         throw new UnsupportedOperationException("UnionSelect does not support fetch() without specifying return type. Please use fetch(Class<T> returnClass) instead.");
     }
 
@@ -74,6 +84,29 @@ public class UnionSelect implements Fetchable {
     public <T> FetchResult<T> fetch(Class<T> returnClass) {
         if (returnClass == null) {
             throw new NullPointerException("returnClass is null");
+        }
+        //检测是否构建了OrderBy
+        TableRelation<Object> tableRelation = getTableRelation();
+        SelectSpecification selectSpecification = tableRelation.getSelectSpecification();
+        //step6 解析order by
+        if (CollectionUtils.isNotEmpty(selectSpecification.getOrderBys())) {
+            NestedMeta nestedMeta = new NestedMeta();
+            nestedMeta.setVersion(version);
+            nestedMeta.setSqlDialect(sqlDialect);
+            nestedMeta.setDataSourceName(dataSourceName);
+            selectSpecification.setNestedMeta(nestedMeta);
+            HashMap<String, TableAliasMapping> tableAliasMappingHashMap = new HashMap<>();
+            //强制不指定表别名，union语法不允许
+            tableAliasMappingHashMap.put("***", new TableAliasMapping(null, true));
+            SqlSelectBuilder sqlSelectBuilder = matchSqlSelectBuilder(selectSpecification, tableAliasMappingHashMap);
+            sqlSelectBuilder.setIsFromNestedSelect(true);
+            rawSql.append(sqlSelectBuilder.parseOrderBy(selectSpecification.getOrderBys(), returnClass));
+            SqlStatementSelectWrapper build = sqlSelectBuilder.build(returnClass);
+            parameterBinder.addParameterBinder(build.getParameterBinder());
+        }
+        //step7 解析limit
+        if (selectSpecification.getLimitInfo() != null) {
+//            parseLimit();
         }
         SqlStatementSelectWrapper unionSqlStatementSelectWrapper = new SqlStatementSelectWrapper(dataSourceName, rawSql, parameterBinder, returnClass);
         List<Map<String, Object>> wrapperList = SqlExecutionFactory.executorSql(DMLType.SELECT,

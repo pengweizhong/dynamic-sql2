@@ -42,6 +42,7 @@ import com.dynamic.sql.enums.*;
 import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.table.ColumnMeta;
+import com.dynamic.sql.table.FieldMeta;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
 import com.dynamic.sql.table.view.ViewColumnMeta;
@@ -123,14 +124,18 @@ public class SqlUtils {
      * @param tableMeta                  原始表meta
      */
     public static String extractQualifiedAlias(String originalClassCanonicalName, Map<String, TableAliasMapping> aliasTableMap, TableMeta tableMeta) {
-        if (aliasTableMap == null) {
+        if (aliasTableMap == null && tableMeta != null) {
             return tableMeta.getTableAlias();
         }
         TableAliasMapping alias = aliasTableMap.get(originalClassCanonicalName);
         if (alias != null) {
-            return alias.getAlias();
+            String alias1 = alias.getAlias();
+            if (alias1 == null && tableMeta != null) {
+                return tableMeta.getTableAlias();
+            }
+            return alias1;
         }
-        return tableMeta.getTableAlias();
+        return tableMeta != null ? ifAbsentAlias(tableMeta.getTableAlias(), null, aliasTableMap) : null;
     }
 
     public static <T, F> String extractQualifiedAlias(Fn<T, F> field, Map<String, TableAliasMapping> aliasTableMap, String dataSourceName) {
@@ -202,11 +207,17 @@ public class SqlUtils {
         //最后匹配全局的表别名，通常默认别名就是表名
         tableAlias = ifAbsentAlias(tableAlias, tableMeta.getTableAlias(), aliasTableMap);
         TableAliasMapping aliasMapping = aliasTableMap.get(tableAlias);
-        String column = SqlUtils.quoteIdentifier(sqlDialect, aliasMapping != null && aliasMapping.isNestedJoin() ? columnMeta.getField().getName() : columnMeta.getColumnName());
+        String column = matchBestColumnName(aliasMapping, columnMeta, sqlDialect);
+        column = SqlUtils.quoteIdentifier(sqlDialect, column);
+//        String column = SqlUtils.quoteIdentifier(sqlDialect, aliasMapping != null && aliasMapping.isNestedJoin() ? columnMeta.getField().getName() : columnMeta.getColumnName());
         if (isNeedAlias(sqlExecuteType)) {
             return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." + column;
         }
         return column;
+    }
+
+    private static String matchBestColumnName(TableAliasMapping aliasMapping, ColumnMeta columnMeta, SqlDialect sqlDialect) {
+        return aliasMapping != null && aliasMapping.isNestedJoin() ? columnMeta.getField().getName() : columnMeta.getColumnName();
     }
 
     /**
@@ -226,7 +237,7 @@ public class SqlUtils {
             return aliasTableMap.get("***").getAlias();
         }
         //如果有通用别名
-        if (oriAlias == null && aliasTableMap != null) {
+        if (oriAlias == null) {
             if (aliasTableMap.get("**") != null) {
                 return aliasTableMap.get("**").getAlias();
             }
@@ -270,7 +281,15 @@ public class SqlUtils {
             if (defaultOrderBy.getFieldFn() != null) {
                 String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(defaultOrderBy.getFieldFn());
                 TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
-                ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(defaultOrderBy.getFieldFn()));
+                FieldMeta fieldMeta;
+                if (tableMeta != null) {
+                    fieldMeta = tableMeta.getColumnMetaByFieldName(ReflectUtils.fnToFieldName(defaultOrderBy.getFieldFn()));
+                } else {
+                    Class<?> aClass = ReflectUtils.loadClass(originalClassCanonicalName);
+                    ViewMeta viewMeta = TableProvider.getViewMeta(aClass);
+                    fieldMeta = viewMeta.getViewColumnMetaByFieldName(ReflectUtils.fnToFieldName(defaultOrderBy.getFieldFn()));
+                }
+//                ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(defaultOrderBy.getFieldFn()));
                 String tableAlias = extractQualifiedAlias(originalClassCanonicalName, aliasTableMap, tableMeta);
                 //进行排序（ORDER BY）时，是否使用 原始列名 还是 别名，取决于 SQL 的结构和查询的阶段。
                 //子查询不需要限定表别名，因为字段别名已经是唯一的了
@@ -279,17 +298,18 @@ public class SqlUtils {
                     if (defaultOrderBy.getTableAlias() != null) {
                         sqlBuilder.append(quoteIdentifier(sqlDialect, defaultOrderBy.getTableAlias())).append(".");
                     }
-                    sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getField().getName()));
+                    sqlBuilder.append(quoteIdentifier(sqlDialect, fieldMeta.getField().getName()));
                     return sqlBuilder.toString();
                 }
                 if (defaultOrderBy.getTableAlias() != null) {
                     sqlBuilder.append(quoteIdentifier(sqlDialect, defaultOrderBy.getTableAlias())).append(".");
                 } else if (defaultOrderBy.getTableAlias() == null && aliasTableMap != null && tableAlias != null) {
                     sqlBuilder.append(quoteIdentifier(sqlDialect, tableAlias)).append(".");
-                } else {
-                    sqlBuilder.append(quoteIdentifier(sqlDialect, tableMeta.getTableAlias())).append(".");
                 }
-                sqlBuilder.append(quoteIdentifier(sqlDialect, columnMeta.getColumnName()));
+//                else {
+//                    sqlBuilder.append(quoteIdentifier(sqlDialect, tableMeta.getTableAlias())).append(".");
+//                }
+                sqlBuilder.append(quoteIdentifier(sqlDialect, fieldMeta.getColumnName()));
             } else if (defaultOrderBy.getColumFunction() != null) {
                 ColumFunction columFunction = defaultOrderBy.getColumFunction();
                 String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);

@@ -1646,12 +1646,13 @@ public class SelectTest extends InitializingContext {
      */
     @Test
     void testUnionAll() {
-        List<User> list = sqlContext.unionAll(
+        List<UserBO> list = sqlContext.unionAll(
                         select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
                         select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
                         select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2))
                 )
-                .fetch(User.class)
+                .thenOrderBy(UserBO::getUserId)
+                .fetch(UserBO.class)
                 .toList();
         list.forEach(System.out::println);
     }
@@ -1666,6 +1667,20 @@ public class SelectTest extends InitializingContext {
                 .fetch(User.class)
                 .toList();
         list.forEach(System.out::println);
+    }
+
+    @Test
+    void testUnionAllPage() {
+        PageInfo<List<User>> pageInfo = PageHelper.of(1, 2).selectPage(
+                () -> sqlContext.unionAll(
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                                select -> select.allColumn().from(User.class).where(where -> where.andGreaterThan(User::getUserId, 1))
+                        )
+                        .fetch(User.class)
+                        .toList()
+        );
+        System.out.println(pageInfo.getTotal());
+        System.out.println(pageInfo);
     }
 }
 
