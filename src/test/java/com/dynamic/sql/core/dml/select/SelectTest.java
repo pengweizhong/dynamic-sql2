@@ -1647,12 +1647,25 @@ public class SelectTest extends InitializingContext {
     @Test
     void testUnionAll() {
         List<UserBO> list = sqlContext.unionAll(
-                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
-                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1).limit(1)),
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)).orderBy(UserBO::getStatus),
                         select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2))
                 )
                 .thenOrderBy(UserBO::getUserId)
                 .thenOrderBy("accountBalance desc")
+                .limit(1)
+                .fetch(UserBO.class)
+                .toList();
+        list.forEach(System.out::println);
+    }
+
+    @Test
+    void testUnionAll2() {
+        List<UserBO> list = sqlContext.unionAll(
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1))
+                )
+                .thenOrderBy(UserBO::getUserId)
+                .thenOrderBy("registrationDate desc")
                 .limit(1)
                 .fetch(UserBO.class)
                 .toList();

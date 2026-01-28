@@ -296,7 +296,7 @@ public class DefaultSqlContext implements SqlContext {
 
     private UnionSelect createUnionSelect(UnionType unionType, SelectDsl... selects) {
         if (selects == null || selects.length == 0) {
-            throw new IllegalArgumentException("The query statement cannot be empty");
+            throw new IllegalArgumentException("UNION requires at least one SelectDsl. Please provide at least one SELECT clause.");
         }
         UnionSelect unionSelect = new UnionSelect(unionType);
         unionSelect.parseSelectDsls(selects);

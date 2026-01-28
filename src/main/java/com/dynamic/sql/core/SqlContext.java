@@ -166,8 +166,98 @@ public interface SqlContext {
      */
     <T> List<T> selectList(String dataSourceName, String sql, Class<T> returnType, ParameterBinder parameterBinder);
 
+    /**
+     * 构建 UNION 查询，将多个 SELECT 子句按 {@code UNION} 方式合并（自动去重）。
+     *
+     * <p>该方法采用“批量合并”模式，每个 {@link SelectDsl} 参数代表一个独立的
+     * SELECT 子句，框架会将所有 SELECT 自动包装为子查询并使用 UNION 连接：
+     *
+     * <pre>
+     * (
+     *     SELECT ...
+     *     UNION
+     *     SELECT ...
+     *     UNION
+     *     SELECT ...
+     * )
+     * </pre>
+     *
+     * <b>使用示例</b>
+     * <pre>
+     * var q = sqlContext.union(
+     *         select -> select.allColumn().from(User.class),
+     *         select -> select.allColumn().from(Admin.class),
+     *         select -> select.allColumn().from(Guest.class)
+     *     )
+     *     .thenOrderBy(User::getId)
+     *     .limit(10);
+     * </pre>
+     *
+     * <b>内部 ORDER BY / LIMIT 说明</b>
+     * <ul>
+     *     <li>内部 SELECT 可以包含 LIMIT（局部截断）。</li>
+     *     <li>内部 ORDER BY 仅对该子查询有效，不影响最终 UNION 的排序。</li>
+     *     <li>最终排序必须在最外层调用 {@code thenOrderBy()}。</li>
+     * </ul>
+     *
+     * <b>注意事项</b>
+     * <ul>
+     *     <li>UNION 会对结果去重，如需保留重复行请使用 {@link #unionAll(SelectDsl...)}。</li>
+     *     <li>每个 SELECT 会被自动包裹为子查询：( SELECT ... )。</li>
+     *     <li>至少提供一个 SELECT 语句</li>
+     * </ul>
+     *
+     * @param select 多个 SELECT DSL 构建器，每个代表一个独立的 SELECT 子句
+     * @return 返回可继续追加 ORDER BY / LIMIT / FETCH 的链式对象
+     */
     ThenSortOrder<?> union(SelectDsl... select);
 
+    /**
+     * 构建 UNION ALL 查询，将多个 SELECT 子句按 {@code UNION ALL} 方式合并（不去重）。
+     *
+     * <p>每个 {@link SelectDsl} 参数代表一个独立的 SELECT 子句，框架会将其包装为：
+     *
+     * <pre>
+     * (
+     *     SELECT ...
+     *     UNION ALL
+     *     SELECT ...
+     *     UNION ALL
+     *     SELECT ...
+     * )
+     * </pre>
+     *
+     * <b>使用示例</b>
+     * <pre>
+     * List<UserBO> list = sqlContext.unionAll(
+     *         select -> select.allColumn().from(User.class).where(w -> w.andEqualTo(User::getUserId, 1)),
+     *         select -> select.allColumn().from(User.class).where(w -> w.andEqualTo(User::getUserId, 1)),
+     *         select -> select.allColumn().from(User.class).where(w -> w.andEqualTo(User::getUserId, 2))
+     *     )
+     *     .thenOrderBy(UserBO::getUserId)
+     *     .thenOrderBy("accountBalance desc")
+     *     .limit(1)
+     *     .fetch(UserBO.class)
+     *     .toList();
+     * </pre>
+     *
+     * <b>内部 ORDER BY / LIMIT 说明</b>
+     * <ul>
+     *     <li>内部 SELECT 可以包含 LIMIT（局部截断）。</li>
+     *     <li>内部 ORDER BY 仅对该子查询有效，不影响最终 UNION ALL 的排序。</li>
+     *     <li>最终排序必须在最外层调用 {@code thenOrderBy()}。</li>
+     * </ul>
+     *
+     * <b>注意事项</b>
+     * <ul>
+     *     <li>UNION ALL 不会去重，性能优于 UNION。</li>
+     *     <li>每个 SELECT 会被自动包裹为子查询：( SELECT ... )。</li>
+     *     <li>至少提供一个 SELECT 语句</li>
+     * </ul>
+     *
+     * @param select 多个 SELECT DSL 构建器，每个代表一个独立的 SELECT 子句
+     * @return 返回可继续追加 ORDER BY / LIMIT / FETCH 的链式对象
+     */
     ThenSortOrder<?> unionAll(SelectDsl... select);
 
     /**

@@ -200,7 +200,6 @@ public class MysqlWhereCondition extends GenericWhereCondition {
 
     @Override
     public GenericWhereCondition limit(int offset, int limit) {
-        condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" limit ").append(registerValueWithKey(parameterBinder, null, offset))
                 .append(", ").append(registerValueWithKey(parameterBinder, null, limit));
         return this;
