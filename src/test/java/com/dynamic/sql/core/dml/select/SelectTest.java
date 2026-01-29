@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
@@ -1903,6 +1904,31 @@ public class SelectTest extends InitializingContext {
         t.forEach(System.out::println);
     }
 
+    @Test
+    void testMathematicalOperations() {
+        BigDecimal decimal = sqlContext.select()
+                .column(new Column(Product::getPrice).divide(10))
+                .from(Product.class)
+                .where(where -> where.andEqualTo(Product::getProductId, 2))
+                .fetch(BigDecimal.class)
+                .toOne();
+        System.out.println(decimal);
+    }
+
+    @Test
+    void testMathematicalOperations2() {
+        BigDecimal decimal = sqlContext.select()
+                .column(new Column(Product::getPrice).multiply(
+//                        (SelectDsl) select -> select.column(User::getAccountBalance).from(User.class).where(where -> where.andEqualTo(User::getUserId, 3))
+                        select -> {
+                            select.column(User::getAccountBalance).from(User.class).where(where -> where.andEqualTo(User::getUserId, 3));
+                        }
+                )).from(Product.class)
+                .where(where -> where.andEqualTo(Product::getProductId, 2))
+                .fetch(BigDecimal.class)
+                .toOne();
+        System.out.println(decimal);
+    }
 }
 
 
