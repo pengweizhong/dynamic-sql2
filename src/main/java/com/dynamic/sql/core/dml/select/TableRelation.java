@@ -65,8 +65,14 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
-    public JoinCondition joinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    public JoinCondition innerJoinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new UnionJoin(JoinTableType.INNER, selectDsls, alias, onCondition, UnionType.UNION));
+        return this;
+    }
+
+    @Override
+    public JoinCondition leftJoinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        selectSpecification.getJoinTables().add(new UnionJoin(JoinTableType.LEFT, selectDsls, alias, onCondition, UnionType.UNION));
         return this;
     }
 

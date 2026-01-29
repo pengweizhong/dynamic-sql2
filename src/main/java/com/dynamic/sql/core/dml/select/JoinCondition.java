@@ -94,10 +94,25 @@ public interface JoinCondition extends Fetchable {
     }
 
     default JoinCondition joinUnion(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
-        return isEffective ? joinUnion(selectDsls, alias, onCondition) : this;
+        return isEffective ? innerJoinUnion(selectDsls, alias, onCondition) : this;
     }
 
-    JoinCondition joinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+    default JoinCondition joinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return innerJoinUnion(selectDsls, alias, onCondition);
+    }
+
+
+    default JoinCondition innerJoinUnion(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? innerJoinUnion(selectDsls, alias, onCondition) : this;
+    }
+
+    JoinCondition innerJoinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+
+    default JoinCondition leftJoinUnion(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? leftJoinUnion(selectDsls, alias, onCondition) : this;
+    }
+
+    JoinCondition leftJoinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 使用 CTE 表进行 INNER JOIN。

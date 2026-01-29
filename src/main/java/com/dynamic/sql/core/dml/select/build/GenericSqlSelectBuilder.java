@@ -317,7 +317,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             NestedJoin nestedJoin = (NestedJoin) joinTable;
             SqlStatementSelectWrapper sqlStatementWrapper = parseNestedJoinSqlStatementWrapper(nestedJoin);
             sqlBuilder.append(" ").append(syntaxJoin).append(" (").append(sqlStatementWrapper.getRawSql()).append(") ")
-                    .append(syntaxAs()).append(nestedJoin.getTableAlias());
+                    .append(syntaxAs()).append(SqlUtils.quoteIdentifier(sqlDialect, nestedJoin.getTableAlias()));
             parameterBinder.addParameterBinder(sqlStatementWrapper.getParameterBinder());
             //拼接On条件
             appendOnCondition(joinTable);
@@ -327,7 +327,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             TableFunctionJoin tableFunctionJoin = (TableFunctionJoin) joinTable;
             TableFunction tableFunction = tableFunctionJoin.getTableFunction().get();
             String functionToString = tableFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap));
-            sqlBuilder.append(" ").append(syntaxJoin).append(functionToString).append(syntaxAs()).append(tableFunctionJoin.getTableAlias());
+            sqlBuilder.append(" ").append(syntaxJoin).append(functionToString).append(syntaxAs())
+                    .append(SqlUtils.quoteIdentifier(sqlDialect, tableFunctionJoin.getTableAlias()));
             parameterBinder.addParameterBinder(tableFunction.parameterBinder());
             //拼接On条件
             appendOnCondition(joinTable);
@@ -338,8 +339,10 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             UnionSelect unionSelect = new UnionSelect(unionJoin.getUnionType());
             unionSelect.parseSelectDsls(unionJoin.getNestedSelects());
             sqlBuilder.append(" ").append(syntaxJoin).append(" (").append(unionSelect.getRawSql()).append(") ")
-                    .append(syntaxAs()).append(unionJoin.getTableAlias());
+                    .append(syntaxAs()).append(SqlUtils.quoteIdentifier(sqlDialect, unionJoin.getTableAlias()));
             parameterBinder.addParameterBinder(unionSelect.getParameterBinder());
+            //拼接On条件
+            appendOnCondition(joinTable);
             return;
         }
         // INNER, LEFT, RIGHT, FULL, CROSS, SELF;
