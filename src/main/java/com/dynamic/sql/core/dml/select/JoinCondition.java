@@ -1,7 +1,6 @@
 package com.dynamic.sql.core.dml.select;
 
 
-import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
@@ -93,6 +92,12 @@ public interface JoinCondition extends Fetchable {
     default JoinCondition join(boolean isEffective, Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? innerJoin(tableFunction, alias, onCondition) : this;
     }
+
+    default JoinCondition joinUnion(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? joinUnion(selectDsls, alias, onCondition) : this;
+    }
+
+    JoinCondition joinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 使用 CTE 表进行 INNER JOIN。

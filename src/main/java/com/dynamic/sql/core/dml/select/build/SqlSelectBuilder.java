@@ -96,12 +96,12 @@ public abstract class SqlSelectBuilder {
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(joinTable -> {
             String key;
-            if (
-                    joinTable instanceof FromNestedJoin ||
-                            joinTable instanceof FromUnionJoin ||
-                            joinTable instanceof NestedJoin ||
-                            joinTable instanceof TableFunctionJoin ||
-                            joinTable.getTableFunction() != null
+            if (joinTable instanceof FromNestedJoin ||
+                    joinTable instanceof FromUnionJoin ||
+                    joinTable instanceof TableFunctionJoin ||
+                    joinTable instanceof NestedJoin ||
+                    joinTable instanceof UnionJoin ||
+                    joinTable.getTableFunction() != null
             ) {
                 key = joinTable.getTableAlias();
                 isFromNestedSelect = Boolean.TRUE;
@@ -117,7 +117,7 @@ public abstract class SqlSelectBuilder {
             if (alias == null) {
                 TableAliasMapping aliasMapping = new TableAliasMapping();
                 aliasMapping.setAlias(joinTable.getTableAlias());
-                aliasMapping.setIsNestedJoin(joinTable instanceof NestedJoin || joinTable instanceof FromNestedJoin || joinTable instanceof FromUnionJoin);
+                aliasMapping.setIsNestedJoin(joinTable instanceof NestedJoin || joinTable instanceof FromNestedJoin || joinTable instanceof FromUnionJoin || joinTable instanceof UnionJoin);
                 aliasTableMap.put(key, aliasMapping);
             }
         });

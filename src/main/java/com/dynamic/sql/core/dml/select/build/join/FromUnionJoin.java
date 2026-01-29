@@ -10,24 +10,17 @@
 package com.dynamic.sql.core.dml.select.build.join;
 
 
-import com.dynamic.sql.enums.UnionType;
-
 public class FromUnionJoin extends FromJoin {
     private final UnionJoin unionJoin;
-    private final UnionType unionType;
 
-    public FromUnionJoin(UnionJoin nestedJoin, UnionType unionType) {
+
+    public FromUnionJoin(UnionJoin nestedJoin) {
         super((Class<?>) null, nestedJoin.getTableAlias());
         this.unionJoin = nestedJoin;
-        this.unionType = unionType;
     }
 
     public UnionJoin getUnionJoin() {
         return unionJoin;
-    }
-
-    public UnionType getUnionType() {
-        return unionType;
     }
 
     public void setTableClass(Class<?> tableClass) {

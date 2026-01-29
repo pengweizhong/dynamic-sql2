@@ -10,7 +10,6 @@
 package com.dynamic.sql.core.dml.select;
 
 
-import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.GroupFn;
@@ -26,6 +25,7 @@ import com.dynamic.sql.core.dml.select.order.CustomOrderBy;
 import com.dynamic.sql.core.dml.select.order.DefaultOrderBy;
 import com.dynamic.sql.enums.JoinTableType;
 import com.dynamic.sql.enums.SortOrder;
+import com.dynamic.sql.enums.UnionType;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -36,11 +36,9 @@ import java.util.function.Supplier;
  */
 public class TableRelation<R> implements JoinCondition {
     private final SelectSpecification selectSpecification;
-    //    private final ThenSortOrder<R> thenSortOrder;
 
     public TableRelation(SelectSpecification selectSpecification) {
         this.selectSpecification = selectSpecification;
-//        this.thenSortOrder = new ThenSortOrder<>(true, this, null);
     }
 
     @Override
@@ -64,13 +62,16 @@ public class TableRelation<R> implements JoinCondition {
     public JoinCondition innerJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
         selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.INNER, tableFunction, alias, onCondition));
         return this;
-//        throw new UnsupportedOperationException("Not yet implemented, to be improved later");
+    }
+
+    @Override
+    public JoinCondition joinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        selectSpecification.getJoinTables().add(new UnionJoin(JoinTableType.INNER, selectDsls, alias, onCondition, UnionType.UNION));
+        return this;
     }
 
     @Override
     public JoinCondition innerJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
-//        selectSpecification.getJoinTables().add(new InnerJoin(cte, onCondition));
-//        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
@@ -93,15 +94,11 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition leftJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
-//        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.LEFT, tableFunction, alias, onCondition));
-//        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
     public JoinCondition leftJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
-//        selectSpecification.getJoinTables().add(new LeftJoin(cte, onCondition));
-//        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
@@ -124,15 +121,11 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition rightJoin(Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
-//        selectSpecification.getJoinTables().add(new TableFunctionJoin(JoinTableType.RIGHT, tableFunction, alias, onCondition));
-//        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
     @Override
     public JoinCondition rightJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
-//        selectSpecification.getJoinTables().add(new RightJoin(cte, onCondition));
-//        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 
@@ -149,8 +142,6 @@ public class TableRelation<R> implements JoinCondition {
 
     @Override
     public JoinCondition fullJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
-//        selectSpecification.getJoinTables().add(new FullJoin(cte, onCondition));
-//        return this;
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
 

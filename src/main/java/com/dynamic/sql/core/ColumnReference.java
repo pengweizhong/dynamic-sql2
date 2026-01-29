@@ -214,13 +214,13 @@ public class ColumnReference extends AbstractColumnReference {
 
     @Override
     public TableRelation<?> fromUnion(SelectDsl[] selectDsl, String selectAlias) {
-        selectSpecification.getJoinTables().add(new FromUnionJoin(new UnionJoin(selectDsl, selectAlias), UnionType.UNION));
+        selectSpecification.getJoinTables().add(new FromUnionJoin(new UnionJoin(selectDsl, selectAlias, UnionType.UNION)));
         return new TableRelation<>(selectSpecification);
     }
 
     @Override
     public TableRelation<?> fromUnionAll(SelectDsl[] selectDsl, String selectAlias) {
-        selectSpecification.getJoinTables().add(new FromUnionJoin(new UnionJoin(selectDsl, selectAlias), UnionType.UNION_ALL));
+        selectSpecification.getJoinTables().add(new FromUnionJoin(new UnionJoin(selectDsl, selectAlias, UnionType.UNION_ALL)));
         return new TableRelation<>(selectSpecification);
     }
 }

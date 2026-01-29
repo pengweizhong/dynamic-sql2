@@ -15,6 +15,7 @@ import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 import com.dynamic.sql.enums.JoinTableType;
+import com.dynamic.sql.enums.UnionType;
 
 import java.util.function.Consumer;
 
@@ -23,18 +24,21 @@ public class UnionJoin extends JoinTable {
     private SqlStatementSelectWrapper sqlStatementWrapper;
     private Consumer<GenericWhereCondition> onCondition;
     private JoinTableType joinTableType;
+    private final UnionType unionType;
 
-    public UnionJoin(SelectDsl[] nestedSelects, String tableAlias) {
+    public UnionJoin(SelectDsl[] nestedSelects, String tableAlias, UnionType unionType) {
         super(tableAlias);
         this.nestedSelects = nestedSelects;
+        this.unionType = unionType;
     }
 
     public UnionJoin(JoinTableType joinTableType, SelectDsl[] nestedSelects,
-                     String tableAlias, Consumer<GenericWhereCondition> onCondition) {
+                     String tableAlias, Consumer<GenericWhereCondition> onCondition, UnionType unionType) {
         super(tableAlias);
         this.joinTableType = joinTableType;
         this.nestedSelects = nestedSelects;
         this.onCondition = onCondition;
+        this.unionType = unionType;
     }
 
     @Override
@@ -68,4 +72,9 @@ public class UnionJoin extends JoinTable {
     public void setSqlStatementWrapper(SqlStatementSelectWrapper sqlStatementWrapper) {
         this.sqlStatementWrapper = sqlStatementWrapper;
     }
+
+    public UnionType getUnionType() {
+        return unionType;
+    }
+
 }

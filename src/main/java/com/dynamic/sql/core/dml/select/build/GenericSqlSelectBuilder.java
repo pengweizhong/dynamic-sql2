@@ -288,10 +288,9 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             return;
         }
         if (joinTable instanceof FromUnionJoin) {
-            //这里处理union查询
             FromUnionJoin fromUnionJoin = (FromUnionJoin) joinTable;
             UnionJoin unionJoin = fromUnionJoin.getUnionJoin();
-            UnionSelect unionSelect = new UnionSelect(fromUnionJoin.getUnionType());
+            UnionSelect unionSelect = new UnionSelect(unionJoin.getUnionType());
             unionSelect.parseSelectDsls(unionJoin.getNestedSelects());
             sqlBuilder.append(" (").append(unionSelect.getRawSql()).append(") ")
                     .append(syntaxAs()).append(fromUnionJoin.getTableAlias());
@@ -332,6 +331,15 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             parameterBinder.addParameterBinder(tableFunction.parameterBinder());
             //拼接On条件
             appendOnCondition(joinTable);
+            return;
+        }
+        if (joinTable instanceof UnionJoin) {
+            UnionJoin unionJoin = (UnionJoin) joinTable;
+            UnionSelect unionSelect = new UnionSelect(unionJoin.getUnionType());
+            unionSelect.parseSelectDsls(unionJoin.getNestedSelects());
+            sqlBuilder.append(" ").append(syntaxJoin).append(" (").append(unionSelect.getRawSql()).append(") ")
+                    .append(syntaxAs()).append(unionJoin.getTableAlias());
+            parameterBinder.addParameterBinder(unionSelect.getParameterBinder());
             return;
         }
         // INNER, LEFT, RIGHT, FULL, CROSS, SELF;
@@ -406,7 +414,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             return;
         }
         JoinTable joinTable = this.selectSpecification.getJoinTables().get(0);
-        if (joinTable instanceof FromUnionJoin) {
+        if (joinTable instanceof UnionJoin) {
             if (tableAlias != null) {
                 sqlBuilder.append(tableAlias).append(".");
             }
