@@ -120,6 +120,33 @@ public interface JoinCondition extends Fetchable {
 
     JoinCondition rightJoinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
 
+    default JoinCondition joinUnionAll(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? innerJoinUnionAll(selectDsls, alias, onCondition) : this;
+    }
+
+    default JoinCondition joinUnionAll(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return innerJoinUnionAll(selectDsls, alias, onCondition);
+    }
+
+
+    default JoinCondition innerJoinUnionAll(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? innerJoinUnionAll(selectDsls, alias, onCondition) : this;
+    }
+
+    JoinCondition innerJoinUnionAll(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+
+    default JoinCondition leftJoinUnionAll(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? leftJoinUnionAll(selectDsls, alias, onCondition) : this;
+    }
+
+    JoinCondition leftJoinUnionAll(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+
+    default JoinCondition rightJoinUnionAll(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        return isEffective ? rightJoinUnionAll(selectDsls, alias, onCondition) : this;
+    }
+
+    JoinCondition rightJoinUnionAll(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+
     /**
      * 使用 CTE 表进行 INNER JOIN。
      *

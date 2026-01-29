@@ -1807,6 +1807,79 @@ public class SelectTest extends InitializingContext {
         t.forEach(System.out::println);
     }
 
+    @Test
+    void joinUnionAll() {
+        List<UserBO> t = sqlContext.select()
+                .allColumn("t")
+                .fromUnionAll(
+                        new SelectDsl[]{
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2)),
+                        }, "t")
+                .join(User.class, on -> on.andEqualTo(User::getUserId, new Column("t", User::getUserId)))
+                .where(where -> where
+                        .andEqualTo(new Column("t", UserBO::getGender), "Male")
+                        .andEqualTo(User::getUserId, 2)
+                )
+                .fetch(UserBO.class)
+                .toList();
+        t.forEach(System.out::println);
+    }
+
+    @Test
+    void joinUnion2All() {
+        List<UserBO> t = sqlContext.select()
+                .allColumn("t")
+                .from(User.class)
+                .joinUnionAll(new SelectDsl[]{
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2)),
+                }, "t", on -> on.andEqualTo(User::getUserId, new Column("t", User::getUserId)))
+                .where(where -> where
+                        .andEqualTo(new Column("t", UserBO::getGender), "Male")
+                        .andEqualTo(User::getUserId, 2)
+                )
+                .fetch(UserBO.class)
+                .toList();
+        t.forEach(System.out::println);
+    }
+
+    @Test
+    void leftJoinUnionAll() {
+        List<UserBO> t = sqlContext.select()
+                .allColumn("t")
+                .from(User.class)
+                .leftJoinUnionAll(new SelectDsl[]{
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2)),
+                }, "t", on -> on.andEqualTo(User::getUserId, new Column("t", User::getUserId)))
+                .where(where -> where
+                        .andEqualTo(new Column("t", UserBO::getGender), "Male")
+                        .andEqualTo(User::getUserId, 2)
+                )
+                .fetch(UserBO.class)
+                .toList();
+        t.forEach(System.out::println);
+    }
+
+    @Test
+    void rightJoinUnionAll() {
+        List<UserBO> t = sqlContext.select()
+                .allColumn()
+                .from(User.class)
+                .rightJoinUnionAll(new SelectDsl[]{
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2)),
+                }, "t", on -> on.andEqualTo(User::getUserId, new Column("t", User::getUserId)))
+                .where(where -> where
+                        .andEqualTo(new Column("t", UserBO::getGender), "Male")
+                        .andEqualTo(User::getUserId, 2)
+                )
+                .fetch(UserBO.class)
+                .toList();
+        t.forEach(System.out::println);
+    }
+
 }
 
 
