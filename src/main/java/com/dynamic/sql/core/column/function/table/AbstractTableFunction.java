@@ -37,7 +37,7 @@ public abstract class AbstractTableFunction implements TableFunction {
     }
 
     @Override
-    public Fn<?, ?> getOriginColumnFn() {
-        return tableFunction.getOriginColumnFn();
+    public Fn<?, ?> originColumn() {
+        return tableFunction.originColumn();
     }
 }

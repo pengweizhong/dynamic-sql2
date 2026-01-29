@@ -11,16 +11,13 @@ package com.dynamic.sql.core.column.function.modifiers;
 
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.ColumnModifiers;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
-import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.StringUtils;
-
-import java.util.Map;
 
 
 public class Distinct extends ColumnFunctionDecorator implements ColumnModifiers {
@@ -43,34 +40,33 @@ public class Distinct extends ColumnFunctionDecorator implements ColumnModifiers
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
-        String functionToString = delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
-        //如果是需要去重所有列  就要求sql在组装时不得DISTINCT追加逗号
-        shouldAppendDelimiter = !StringUtils.isBlank(functionToString);
-        if (shouldAppendDelimiter) {//NOSONAR
-            if (sqlDialect == SqlDialect.ORACLE) {
-                return "DISTINCT(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
-            }
-            if (sqlDialect == SqlDialect.MYSQL) {
-                return "distinct(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
-            }
-        } else {
-            if (sqlDialect == SqlDialect.ORACLE) {
-                return "DISTINCT";
-            }
-            if (sqlDialect == SqlDialect.MYSQL) {
-                return "distinct";
-            }
-
-        }
-        throw ExceptionUtils.unsupportedFunctionException("distinct", sqlDialect);
-    }
-
-    @Override
     public boolean shouldAppendDelimiter() {
         if (shouldAppendDelimiter == null) {
             throw new IllegalStateException("You need to call the getFunctionToString function first");
         }
         return shouldAppendDelimiter;
+    }
+
+    @Override
+    public String render(RenderContext context) {
+        String functionToString = delegateFunction.render(context);
+        //如果是需要去重所有列  就要求sql在组装时不得DISTINCT追加逗号
+        shouldAppendDelimiter = !StringUtils.isBlank(functionToString);
+        if (shouldAppendDelimiter) {//NOSONAR
+            if (context.getSqlDialect() == SqlDialect.ORACLE) {
+                return "DISTINCT(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
+            }
+            if (context.getSqlDialect() == SqlDialect.MYSQL) {
+                return "distinct(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
+            }
+        } else {
+            if (context.getSqlDialect() == SqlDialect.ORACLE) {
+                return "DISTINCT";
+            }
+            if (context.getSqlDialect() == SqlDialect.MYSQL) {
+                return "distinct";
+            }
+        }
+        throw ExceptionUtils.unsupportedFunctionException("distinct", context.getSqlDialect());
     }
 }

@@ -11,12 +11,7 @@ package com.dynamic.sql.core.column.function;
 
 
 import com.dynamic.sql.core.Fn;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
-import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.model.TableAliasMapping;
-
-import java.util.Map;
 
 /**
  * 匿名函数，当明确不需要函数调用时使用，此类存在的目的是为了统一函数调用行为
@@ -40,22 +35,22 @@ public class AnonymousFunction extends AbstractColumFunction {
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
+    public String getTableAlias() {
         return "";
     }
 
     @Override
-    public Fn<?, ?> getOriginColumnFn() {
+    public Fn<?, ?> originColumn() {
         return null;
     }
 
     @Override
-    public ParameterBinder getParameterBinder() {
+    public ParameterBinder parameterBinder() {
         return null;
     }
 
     @Override
-    public String getTableAlias() {
+    public String render(RenderContext context) {
         return "";
     }
 }

@@ -12,15 +12,14 @@ package com.dynamic.sql.core.column.function;
 
 import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.Fn;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
-import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.model.Arithmetic;
 
 import java.io.Serializable;
 
-public abstract class ColumnFunctionDecorator extends AbstractColumFunction
+public abstract class ColumnFunctionDecorator
+        extends AbstractColumFunction
         implements Serializable {
     //count 1
     protected Integer value;
@@ -56,13 +55,13 @@ public abstract class ColumnFunctionDecorator extends AbstractColumFunction
 //    }
 
     @Override
-    public Fn<?, ?> getOriginColumnFn() {
-        return delegateFunction.getOriginColumnFn();
+    public Fn<?, ?> originColumn() {
+        return delegateFunction.originColumn();
     }
 
     @Override
-    public ParameterBinder getParameterBinder() {
-        return parameterBinder.addParameterBinder(delegateFunction.getParameterBinder());
+    public ParameterBinder parameterBinder() {
+        return parameterBinder.addParameterBinder(delegateFunction.parameterBinder());
     }
 
     @Override
@@ -73,11 +72,9 @@ public abstract class ColumnFunctionDecorator extends AbstractColumFunction
     /**
      * 如果当前列列函数支持数学运算，则应追加此方法。
      *
-     * @param sqlDialect 数据库类型
-     * @param version    版本号
      * @return 常规加减乘除运算后的结果
      */
-    protected String appendArithmeticSql(SqlDialect sqlDialect, Version version) {
+    protected String appendArithmeticSql(RenderContext context) {
         Arithmetic arithmetic = getArithmetic();
         if (arithmetic == null) {
             return "";
@@ -87,8 +84,8 @@ public abstract class ColumnFunctionDecorator extends AbstractColumFunction
             parameterBinder.addParameterBinder(arithmetic.getArithmeticParameterBinder());
             return arithmetic.getArithmeticSql().toString();
         }
-        String functionToString = columFunctionArithmetic.getFunctionToString(sqlDialect, version, aliasTableMap);
-        parameterBinder.addParameterBinder(columFunctionArithmetic.getParameterBinder());
-        return arithmetic.getArithmeticSql().append(functionToString).toString();
+        String render = columFunctionArithmetic.render(context);
+        parameterBinder.addParameterBinder(columFunctionArithmetic.parameterBinder());
+        return arithmetic.getArithmeticSql().append(render).toString();
     }
 }

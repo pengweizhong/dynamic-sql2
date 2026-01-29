@@ -11,15 +11,12 @@ package com.dynamic.sql.core.column.function.scalar.string;
 
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
-import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
-
-import java.util.Map;
 
 public class Md5 extends ColumnFunctionDecorator {
     String string;
@@ -42,21 +39,20 @@ public class Md5 extends ColumnFunctionDecorator {
 
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
-        if (sqlDialect == SqlDialect.MYSQL) {
+    public String render(RenderContext context) {
+        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
             if (string != null) {
                 return "md5(" + SqlUtils.registerValueWithKey(parameterBinder, string) + ")";
             }
-            return "md5(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")";
+            return "md5(" + delegateFunction.render(context) + ")";
         }
-        if (sqlDialect == SqlDialect.ORACLE) {
+        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
             //Oracle 11g 及以上版本支持该功能。
-            if (version.getMajorVersion() < 11) {
-                throw ExceptionUtils.unsupportedFunctionException("RAWTOHEX", version, sqlDialect);
+            if (context.getVersion().getMajorVersion() < 11) {
+                throw ExceptionUtils.unsupportedFunctionException("RAWTOHEX", context.getVersion(), context.getSqlDialect());
             }
-            return "RAWTOHEX(DBMS_CRYPTO.HASH(UTL_RAW.CAST_TO_RAW(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + "), 2)) ";
+            return "RAWTOHEX(DBMS_CRYPTO.HASH(UTL_RAW.CAST_TO_RAW(" + delegateFunction.render(context) + "), 2)) ";
         }
-        throw ExceptionUtils.unsupportedFunctionException("md5", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("md5", context.getSqlDialect());
     }
-
 }

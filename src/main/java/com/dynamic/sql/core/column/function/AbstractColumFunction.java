@@ -10,7 +10,6 @@
 package com.dynamic.sql.core.column.function;
 
 
-import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.ColumnArithmetic;
@@ -23,17 +22,16 @@ import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.Map;
-import java.util.function.Consumer;
 
 public abstract class AbstractColumFunction implements ColumFunction, ColumnArithmetic {
     //函数嵌套引用
     protected AbstractColumFunction delegateFunction;
     //    protected final StringBuilder arithmeticSql = new StringBuilder();
 //    protected final ParameterBinder arithmeticParameterBinder = new ParameterBinder();
-    protected Map<String, TableAliasMapping> aliasTableMap;
-    protected String dataSourceName;
-    protected SqlDialect sqlDialect;
-    protected Version version;
+    private Map<String, TableAliasMapping> aliasTableMap;
+    private String dataSourceName;
+    //    private SqlDialect sqlDialect;
+//    private Version version;
     private Arithmetic arithmetic = new Arithmetic(new StringBuilder(), new ParameterBinder());
 
     @Override
@@ -203,14 +201,14 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
     public void setDataSourceName(String dataSourceName) {
         this.dataSourceName = dataSourceName;
     }
-
-    public void setSqlDialect(SqlDialect sqlDialect) {
-        this.sqlDialect = sqlDialect;
-    }
-
-    public void setVersion(Version version) {
-        this.version = version;
-    }
+//
+//    public void setSqlDialect(SqlDialect sqlDialect) {
+//        this.sqlDialect = sqlDialect;
+//    }
+//
+//    public void setVersion(Version version) {
+//        this.version = version;
+//    }
 
     public Arithmetic getArithmetic() {
         return arithmetic;

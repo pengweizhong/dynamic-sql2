@@ -14,6 +14,7 @@ import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
@@ -37,13 +38,13 @@ public class Max extends ColumnFunctionDecorator implements AggregateFunction, W
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
-        if (sqlDialect == SqlDialect.ORACLE) {
-            return "MAX(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
+    public String render(RenderContext context) {
+        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+            return "MAX(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
-        if (sqlDialect == SqlDialect.MYSQL) {
-            return "max(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")".concat(appendArithmeticSql(sqlDialect, version));
+        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+            return "max(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
-        throw ExceptionUtils.unsupportedFunctionException("max", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("max", context.getSqlDialect());
     }
 }

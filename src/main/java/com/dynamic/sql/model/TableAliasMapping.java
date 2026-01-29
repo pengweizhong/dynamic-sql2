@@ -43,5 +43,4 @@ public class TableAliasMapping {
     public void setIsNestedJoin(boolean nestedJoin) {
         isNestedJoin = nestedJoin;
     }
-
 }

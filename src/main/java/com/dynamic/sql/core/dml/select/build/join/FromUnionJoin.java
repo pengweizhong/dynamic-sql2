@@ -15,7 +15,6 @@ import com.dynamic.sql.enums.UnionType;
 public class FromUnionJoin extends FromJoin {
     private final UnionJoin unionJoin;
     private final UnionType unionType;
-    private Class<?> tableClass;//从第一个查询中获取有效的表类型
 
     public FromUnionJoin(UnionJoin nestedJoin, UnionType unionType) {
         super((Class<?>) null, nestedJoin.getTableAlias());
@@ -31,11 +30,7 @@ public class FromUnionJoin extends FromJoin {
         return unionType;
     }
 
-    public Class<?> getTableClass() {
-        return tableClass;
-    }
-
     public void setTableClass(Class<?> tableClass) {
-        this.tableClass = tableClass;
+        super.tableClass = tableClass;
     }
 }

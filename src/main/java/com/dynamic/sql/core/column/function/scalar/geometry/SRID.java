@@ -11,15 +11,12 @@ package com.dynamic.sql.core.column.function.scalar.geometry;
 
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
-import com.dynamic.sql.model.TableAliasMapping;
-
-import java.util.Map;
 
 
 public class SRID extends ColumnFunctionDecorator implements ScalarFunction {
@@ -37,10 +34,10 @@ public class SRID extends ColumnFunctionDecorator implements ScalarFunction {
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
-        if (sqlDialect == SqlDialect.MYSQL) {
-            return "ST_SRID(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ")";
+    public String render(RenderContext context) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
+            return "ST_SRID(" + delegateFunction.render(context) + ")";
         }
-        throw ExceptionUtils.unsupportedFunctionException("SRID", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("SRID", context.getSqlDialect());
     }
 }

@@ -10,16 +10,13 @@
 package com.dynamic.sql.core.column.function.scalar.geometry;
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.model.Point;
-import com.dynamic.sql.model.TableAliasMapping;
-
-import java.util.Map;
+import com.dynamic.sql.utils.ExceptionUtils;
 
 public class Distance extends ColumnFunctionDecorator implements ScalarFunction {
     public Distance(AbstractColumFunction delegateFunction) {
@@ -41,16 +38,15 @@ public class Distance extends ColumnFunctionDecorator implements ScalarFunction 
 
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
-        if (sqlDialect == SqlDialect.MYSQL) {
+    public String render(RenderContext context) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             if (otherPoint == null) {
-                return "ST_Distance(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap)
-                        + ",  ST_GeomFromText('" + thisPoint.toPointString() + "', " + thisPoint.getSrid() + "))".concat(appendArithmeticSql(sqlDialect, version));
+                return "ST_Distance(" + delegateFunction.render(context)
+                        + ",  ST_GeomFromText('" + thisPoint.toPointString() + "', " + thisPoint.getSrid() + "))".concat(appendArithmeticSql(context));
             }
             return "ST_Distance(ST_GeomFromText('" + thisPoint.toPointString() + "', " + thisPoint.getSrid() + ")"
-                    + ",  ST_GeomFromText('" + otherPoint.toPointString() + "', " + otherPoint.getSrid() + "))".concat(appendArithmeticSql(sqlDialect, version));
+                    + ",  ST_GeomFromText('" + otherPoint.toPointString() + "', " + otherPoint.getSrid() + "))".concat(appendArithmeticSql(context));
         }
-        throw ExceptionUtils.unsupportedFunctionException("ST_Distance", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("ST_Distance", context.getSqlDialect());
     }
-
 }

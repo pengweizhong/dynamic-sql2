@@ -10,15 +10,12 @@
 package com.dynamic.sql.core.column.function.scalar.datetime;
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
-import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
-
-import java.util.Map;
 
 public class DateFormat extends ColumnFunctionDecorator implements DatetimeFunction {
 
@@ -40,11 +37,11 @@ public class DateFormat extends ColumnFunctionDecorator implements DatetimeFunct
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
-        if (sqlDialect == SqlDialect.MYSQL) {
+    public String render(RenderContext context) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             String key = SqlUtils.registerValueWithKey(parameterBinder, formatPattern);
-            return "DATE_FORMAT(" + delegateFunction.getFunctionToString(sqlDialect, version, aliasTableMap) + ", " + key + ")";
+            return "DATE_FORMAT(" + delegateFunction.render(context) + ", " + key + ")";
         }
-        throw ExceptionUtils.unsupportedFunctionException("DATE_FORMAT", sqlDialect);
+        throw ExceptionUtils.unsupportedFunctionException("DATE_FORMAT", context.getSqlDialect());
     }
 }

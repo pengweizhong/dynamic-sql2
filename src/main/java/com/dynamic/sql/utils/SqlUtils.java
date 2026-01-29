@@ -19,6 +19,7 @@ import com.dynamic.sql.core.column.AbstractAliasHelper;
 import com.dynamic.sql.core.column.AbstractAliasHelper.TableAliasImpl;
 import com.dynamic.sql.core.column.function.AnonymousFunction;
 import com.dynamic.sql.core.column.function.ColumFunction;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.condition.impl.dialect.MysqlWhereCondition;
@@ -151,6 +152,12 @@ public class SqlUtils {
     public static <T, F> String extractQualifiedAlias(String tableAlias, Fn<T, F> field, Map<String, TableAliasMapping> aliasTableMap, String dataSourceName, SqlExecuteType sqlExecuteType) {
         Fn fn = field;
         aliasTableMap = aliasTableMap == null ? new HashMap<>() : aliasTableMap;
+        DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
+        if (dataSourceMeta == null) {
+            throw new DynamicSqlException("DataSource not found: " + dataSourceName);
+        }
+        DbType dbType = dataSourceMeta.getDbType();
+        SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
         //如果内嵌了表别名，则此处的表别名优先级最高
         if (field instanceof AbstractAliasHelper) {
             AbstractAliasHelper abstractAlias = (AbstractAliasHelper) field;
@@ -159,9 +166,6 @@ public class SqlUtils {
                 if (abstractAlias.getFnColumn() != null) {
                     fn = abstractAlias.getFnColumn();
                 } else {
-                    DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
-                    DbType dbType = dataSourceMeta.getDbType();
-                    SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
                     tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
                     if (isNeedAlias(sqlExecuteType)) {
                         return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, abstractAlias.getColumnName());
@@ -176,9 +180,7 @@ public class SqlUtils {
             if (groupFn.getFn() != null) {
                 fn = groupFn.getFn();
             } else {
-                DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(dataSourceName);
-                DbType dbType = dataSourceMeta.getDbType();
-                SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
+
                 if (isNeedAlias(sqlExecuteType)) {
                     tableAlias = SqlUtils.quoteIdentifier(sqlDialect, tableAlias);
                     return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, groupFn.getColumnName());
@@ -192,15 +194,24 @@ public class SqlUtils {
             TableAliasMapping aliasMapping = aliasTableMap.get(originalClassCanonicalName);
             if (aliasMapping != null) {
                 tableAlias = aliasMapping.getAlias();
+            } else {
+                //如果没有找到表元数据，说明是一个临时类，尝试从绑定的别名中获取
+                //如果只有一个别名映射关系，则直接使用
+                Map.Entry<String, TableAliasMapping> next = aliasTableMap.entrySet().iterator().next();
+                TableAliasMapping value = next.getValue();
+                tableAlias = value.getAlias();
+                //直接使用临时类的字段名作为列名
+                String fieldName = ReflectUtils.fnToFieldName(field);
+                return tableAlias + "." + SqlUtils.quoteIdentifier(sqlDialect, fieldName);
             }
         }
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
         if (tableMeta == null) {
             throw new DynamicSqlException("Table mapping failed to load: " + originalClassCanonicalName);
         }
-        DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
-        DbType dbType = dataSourceMeta.getDbType();
-        SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
+//        DataSourceMeta dataSourceMeta = DataSourceProvider.getDataSourceMeta(tableMeta.getBindDataSourceName());
+//        DbType dbType = dataSourceMeta.getDbType();
+//        SqlDialect sqlDialect = SqlDialect.valueOf(dbType.name());
         ColumnMeta columnMeta = tableMeta.getColumnMeta(ReflectUtils.fnToFieldName(fn));
         //最后匹配全局的表别名，通常默认别名就是表名
         tableAlias = ifAbsentAlias(tableAlias, tableMeta.getTableAlias(), aliasTableMap);
@@ -310,8 +321,8 @@ public class SqlUtils {
                 sqlBuilder.append(quoteIdentifier(sqlDialect, fieldMeta.getColumnName()));
             } else if (defaultOrderBy.getColumFunction() != null) {
                 ColumFunction columFunction = defaultOrderBy.getColumFunction();
-                String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
-                parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+                String functionToString = columFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap));
+                parameterBinder.addParameterBinder(columFunction.parameterBinder());
                 sqlBuilder.append(functionToString);
             } else {
                 if (StringUtils.isNotBlank(orderBy.getTableAlias())) {
@@ -602,6 +613,7 @@ public class SqlUtils {
         AbstractColumnReference columnReference = select.loadColumReference();
         nestedSelectConsumer.accept(columnReference);
         SqlSelectBuilder nestedSqlBuilder = matchSqlSelectBuilder(select.getSelectSpecification(), aliasTableMap);
+        //传递数据源，如果有的话
         return nestedSqlBuilder.build(null);
     }
 
@@ -658,7 +670,7 @@ public class SqlUtils {
                 if (formattedParameter instanceof AnonymousFunction) {
                     AnonymousFunction anonymousFunction = (AnonymousFunction) formattedParameter;
                     PreparedSql functionPreparedSql = parsePreparedObject(new StringBuilder(anonymousFunction.getFunctionToString()),
-                            anonymousFunction.getParameterBinder());
+                            anonymousFunction.parameterBinder());
                     params.addAll(functionPreparedSql.getParams());
                     modifiedSql.replace(start, end, functionPreparedSql.getSql());
                 } else {
@@ -673,11 +685,15 @@ public class SqlUtils {
     }
 
     public static String registerValueWithKey(ParameterBinder parameters, Object value) {
-        return registerValueWithKey(parameters, null, value);
+        return registerValueWithKey(parameters, null, value, null);
     }
 
     @SuppressWarnings("all")
-    public static String registerValueWithKey(ParameterBinder parameters, Fn<?, ?> fn, Object value) {
+//    public static String registerValueWithKey(ParameterBinder parameters, Fn<?, ?> fn, Object value) {
+//        return registerValueWithKey(parameters, fn, value, null);
+//    }
+
+    public static String registerValueWithKey(ParameterBinder parameters, Fn<?, ?> fn, Object value, SqlDialect sqlDialect) {
         String key = generateBindingKey();
         //允许参数为null
         if (value == null) {
@@ -702,9 +718,20 @@ public class SqlUtils {
         String originalClassCanonicalName = ReflectUtils.getOriginalClassCanonicalName(fn);
         String fieldName = ReflectUtils.fnToFieldName(fn);
         TableMeta tableMeta = TableProvider.getTableMeta(originalClassCanonicalName);
-        ColumnMeta columnMeta = tableMeta.getColumnMeta(fieldName);
-        SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
-        parameters.add(key, ConverterUtils.convertToDatabaseColumn(schemaProperties.getSqlDialect(), columnMeta, value));
+        FieldMeta fieldMeta;
+        SqlDialect sqlDialect1 = sqlDialect;
+        if (tableMeta == null) {
+            if (sqlDialect == null) {
+                throw new DynamicSqlException(String.format("Can't register value with key: %s, Because it cannot match any data source.", key));
+            }
+            ViewMeta viewMeta = TableProvider.getViewMeta(ReflectUtils.loadClass(originalClassCanonicalName));
+            fieldMeta = viewMeta.getViewColumnMetaByFieldName(fieldName);
+        } else {
+            fieldMeta = tableMeta.getColumnMetaByFieldName(fieldName);
+            SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(tableMeta.getBindDataSourceName());
+            sqlDialect1 = schemaProperties.getSqlDialect();
+        }
+        parameters.add(key, ConverterUtils.convertToDatabaseColumn(sqlDialect1, fieldMeta, value));
         return key;
     }
 

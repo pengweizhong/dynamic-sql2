@@ -14,6 +14,7 @@ import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.ColumFunction;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.enums.LogicalOperatorType;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.model.TableAliasMapping;
@@ -59,7 +60,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
 
     public <T, F> GenericWhereCondition matches(LogicalOperatorType logicalOperatorType, Fn<T, F> fn, String regex) {
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
-        String key = registerValueWithKey(parameterBinder, fn, regex);
+        String key = registerValueWithKey(parameterBinder, fn, regex, sqlDialect());
         condition.append(" ").append(logicalOperatorType(logicalOperatorType));
         //使用 REGEXP_LIKE (MySQL 8.0+)
         if (version.isGreaterThanOrEqual(new Version(8, 0, 0))) {
@@ -73,7 +74,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     public GenericWhereCondition matches(LogicalOperatorType logicalOperatorType, Column column, String regex) {
-        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString = column.render(new RenderContext(dataSourceName, sqlDialect(), version, aliasTableMap));
         String key = registerValueWithKey(parameterBinder, regex);
         condition.append(" ").append(logicalOperatorType(logicalOperatorType));
         //使用 REGEXP_LIKE (MySQL 8.0+)
@@ -98,19 +99,19 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     }
 
     public <T, F> GenericWhereCondition matchesFunction(LogicalOperatorType logicalOperatorType, Fn<T, F> fn, ColumFunction columFunction) {
-        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        parameterBinder.addParameterBinder(columFunction.parameterBinder());
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         condition.append(" ").append(logicalOperatorType(logicalOperatorType));
         //使用 REGEXP_LIKE (MySQL 8.0+)
         if (version.isGreaterThanOrEqual(new Version(8, 0, 0))) {
             condition.append(" regexp_like(").append(column).append(", ")
-                    .append(registerValueWithKey(parameterBinder, fn, columFunction.getFunctionToString(sqlDialect(), version, aliasTableMap)))
+                    .append(registerValueWithKey(parameterBinder, fn, columFunction.render(new RenderContext(dataSourceName, sqlDialect(), version, aliasTableMap)), sqlDialect()))
                     .append(")");
             return this;
         }
         //使用 REGEXP (MySQL 5.7+)
         condition.append(" ").append(column).append(" regexp ").append(registerValueWithKey(parameterBinder, fn,
-                columFunction.getFunctionToString(sqlDialect(), version, aliasTableMap)));
+                columFunction.render(new RenderContext(dataSourceName, sqlDialect(), version, aliasTableMap)), sqlDialect()));
 
         return this;
     }
@@ -118,7 +119,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     @Override
     public <T, F> GenericWhereCondition andFindInSet(Fn<T, F> fn, Object item) {
         condition.append(" ").append(logicalOperatorType(AND));
-        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
+        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item, sqlDialect()))
                 .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
         return this;
     }
@@ -126,7 +127,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     @Override
     public GenericWhereCondition andFindInSet(Column column, Object value) {
         condition.append(" ").append(logicalOperatorType(AND));
-        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString = column.render(new RenderContext(dataSourceName, sqlDialect(), version, aliasTableMap));
         String key = registerValueWithKey(parameterBinder, value);
         condition.append(" find_in_set(").append(key)
                 .append(", ").append(functionToString).append(")");
@@ -138,8 +139,8 @@ public class MysqlWhereCondition extends GenericWhereCondition {
         condition.append(" ").append(logicalOperatorType(AND));
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         //REPLACE(str, from_str, to_str)
-        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
-                .append(", ").append("replace(").append(column).append(", ").append(registerValueWithKey(parameterBinder, null, separator))
+        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item, sqlDialect()))
+                .append(", ").append("replace(").append(column).append(", ").append(registerValueWithKey(parameterBinder, null, separator, sqlDialect()))
                 .append(", ',')").append(")");
         return this;
     }
@@ -147,7 +148,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     @Override
     public <T, F> GenericWhereCondition orFindInSet(Fn<T, F> fn, Object item) {
         condition.append(" ").append(logicalOperatorType(OR));
-        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
+        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item, sqlDialect()))
                 .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
         return this;
     }
@@ -155,7 +156,7 @@ public class MysqlWhereCondition extends GenericWhereCondition {
     @Override
     public GenericWhereCondition orFindInSet(Column column, Object value) {
         condition.append(" ").append(logicalOperatorType(OR));
-        String functionToString = column.getFunctionToString(sqlDialect(), version, aliasTableMap);
+        String functionToString = column.render(new RenderContext(dataSourceName, sqlDialect(), version, aliasTableMap));
         String key = registerValueWithKey(parameterBinder, value);
         condition.append(" find_in_set(").append(key)
                 .append(", ").append(functionToString).append(")");
@@ -167,28 +168,28 @@ public class MysqlWhereCondition extends GenericWhereCondition {
         condition.append(" ").append(logicalOperatorType(OR));
         String column = SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName);
         //REPLACE(str, from_str, to_str)
-        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item))
-                .append(", ").append("replace(").append(column).append(", ").append(registerValueWithKey(parameterBinder, null, separator))
+        condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn, item, sqlDialect()))
+                .append(", ").append("replace(").append(column).append(", ").append(registerValueWithKey(parameterBinder, null, separator, sqlDialect()))
                 .append(", ',')").append(")");
         return this;
     }
 
     @Override
     public <T, F> GenericWhereCondition andFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
-        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        parameterBinder.addParameterBinder(columFunction.parameterBinder());
         condition.append(" ").append(logicalOperatorType(AND));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn,
-                        columFunction.getFunctionToString(sqlDialect(), version, aliasTableMap)))
+                        columFunction.render(new RenderContext(dataSourceName, sqlDialect(), version, aliasTableMap)), sqlDialect()))
                 .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
         return this;
     }
 
     @Override
     public <T, F> GenericWhereCondition orFindInSet(Fn<T, F> fn, ColumFunction columFunction) {
-        parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+        parameterBinder.addParameterBinder(columFunction.parameterBinder());
         condition.append(" ").append(logicalOperatorType(OR));
         condition.append(" find_in_set(").append(registerValueWithKey(parameterBinder, fn,
-                        columFunction.getFunctionToString(sqlDialect(), version, aliasTableMap)))
+                        columFunction.render(new RenderContext(dataSourceName, sqlDialect(), version, aliasTableMap)), sqlDialect()))
                 .append(", ").append(SqlUtils.extractQualifiedAlias(fn, aliasTableMap, dataSourceName)).append(")");
         return this;
     }
@@ -200,8 +201,8 @@ public class MysqlWhereCondition extends GenericWhereCondition {
 
     @Override
     public GenericWhereCondition limit(int offset, int limit) {
-        condition.append(" limit ").append(registerValueWithKey(parameterBinder, null, offset))
-                .append(", ").append(registerValueWithKey(parameterBinder, null, limit));
+        condition.append(" limit ").append(registerValueWithKey(parameterBinder, null, offset, sqlDialect()))
+                .append(", ").append(registerValueWithKey(parameterBinder, null, limit, sqlDialect()));
         return this;
     }
 

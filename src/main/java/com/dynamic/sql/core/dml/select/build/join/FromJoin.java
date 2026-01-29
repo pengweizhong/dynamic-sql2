@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class FromJoin extends JoinTable {
-    private Class<?> tableClass;
+    protected Class<?> tableClass;
     private CteTable cteTable;
     private Supplier<TableFunction> tableFunction;
 

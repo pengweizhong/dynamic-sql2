@@ -15,15 +15,13 @@ import com.dynamic.sql.context.properties.SchemaProperties;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.ColumFunction;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.condition.Condition;
 import com.dynamic.sql.core.condition.WhereCondition;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.dml.select.HavingCondition;
 import com.dynamic.sql.core.dml.select.NestedMeta;
-import com.dynamic.sql.core.dml.select.build.join.FromNestedJoin;
-import com.dynamic.sql.core.dml.select.build.join.JoinTable;
-import com.dynamic.sql.core.dml.select.build.join.NestedJoin;
-import com.dynamic.sql.core.dml.select.build.join.TableFunctionJoin;
+import com.dynamic.sql.core.dml.select.build.join.*;
 import com.dynamic.sql.core.dml.select.order.NullsFirst;
 import com.dynamic.sql.core.dml.select.order.NullsLast;
 import com.dynamic.sql.core.dml.select.order.OrderBy;
@@ -98,8 +96,13 @@ public abstract class SqlSelectBuilder {
         List<JoinTable> joinTables = selectSpecification.getJoinTables();
         joinTables.forEach(joinTable -> {
             String key;
-            if (joinTable instanceof FromNestedJoin || joinTable instanceof NestedJoin
-                    || joinTable instanceof TableFunctionJoin || joinTable.getTableFunction() != null) {
+            if (
+                    joinTable instanceof FromNestedJoin ||
+                            joinTable instanceof FromUnionJoin ||
+                            joinTable instanceof NestedJoin ||
+                            joinTable instanceof TableFunctionJoin ||
+                            joinTable.getTableFunction() != null
+            ) {
                 key = joinTable.getTableAlias();
                 isFromNestedSelect = Boolean.TRUE;
             } else {
@@ -114,7 +117,7 @@ public abstract class SqlSelectBuilder {
             if (alias == null) {
                 TableAliasMapping aliasMapping = new TableAliasMapping();
                 aliasMapping.setAlias(joinTable.getTableAlias());
-                aliasMapping.setIsNestedJoin(joinTable instanceof NestedJoin || joinTable instanceof FromNestedJoin);
+                aliasMapping.setIsNestedJoin(joinTable instanceof NestedJoin || joinTable instanceof FromNestedJoin || joinTable instanceof FromUnionJoin);
                 aliasTableMap.put(key, aliasMapping);
             }
         });
@@ -181,8 +184,8 @@ public abstract class SqlSelectBuilder {
             }
             if (group instanceof ColumFunction) {
                 ColumFunction columFunction = (ColumFunction) group;
-                sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version, aliasTableMap));
-                ParameterBinder whereParameterBinder = columFunction.getParameterBinder();
+                sqlBuilder.append(columFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap)));
+                ParameterBinder whereParameterBinder = columFunction.parameterBinder();
                 parameterBinder.addParameterBinder(whereParameterBinder);
             }
             if (i < groupByFields.size() - 1) {

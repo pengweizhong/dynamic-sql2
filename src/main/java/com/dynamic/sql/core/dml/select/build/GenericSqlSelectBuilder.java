@@ -18,6 +18,7 @@ import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.conventional.NumberColumn;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumFunction;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
@@ -80,7 +81,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
 //            sqlBuilder.append(columnSeparator);
             if (columnQuery instanceof ColumFunction) {
                 ColumFunction columFunction = (ColumFunction) columnQuery;
-                String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
+                String functionToString = columFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap));
                 sqlBuilder.append(functionToString);
                 continue;
             }
@@ -105,8 +106,8 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     AbstractColumFunction abstractColumFunction = (AbstractColumFunction) columFunction;
                     abstractColumFunction.setAliasTableMap(aliasTableMap);
                     abstractColumFunction.setDataSourceName(dataSourceName);
-                    abstractColumFunction.setSqlDialect(sqlDialect);
-                    abstractColumFunction.setVersion(version);
+//                    abstractColumFunction.setSqlDialect(sqlDialect);
+//                    abstractColumFunction.setVersion(version);
 //                    AbstractColumFunction delegateFunction = abstractColumFunction.getDelegateFunction();
 //                    while (delegateFunction != null) {
 //                        //判断动态函数，如果有则运算
@@ -116,9 +117,9 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
 ////                            arithmeticSql.append(delegateFunction.getArithmeticSql()).append(functionToString);
 ////                        } else {
 ////                            arithmeticSql.append(delegateFunction.getArithmeticSql());
-////                            parameterBinder.addParameterBinder(delegateFunction.getArithmeticParameterBinder());
+////                            parameterBinder.addParameterBinder(delegateFunction.getArithmeticgetParameterBinder());
 ////                        }
-//                        delegateFunction.setArithmetic(new Arithmetic(delegateFunction.getArithmeticSql(), delegateFunction.getArithmeticParameterBinder()));
+//                        delegateFunction.setArithmetic(new Arithmetic(delegateFunction.getArithmeticSql(), delegateFunction.getArithmeticgetParameterBinder()));
 //                        delegateFunction = delegateFunction.getDelegateFunction();
 //                    }
                     Arithmetic arithmetic = abstractColumFunction.getArithmetic();
@@ -128,15 +129,15 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 }
                 //数字列不需要关心别名问题
                 if (columFunction instanceof NumberColumn || columFunction instanceof Count) {
-                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version, aliasTableMap)).append(arithmeticSql);
+                    sqlBuilder.append(columFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap))).append(arithmeticSql);
                     parameterBinder.addParameterBinder(arithmeticParameterBinder);
                     String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + SqlUtils.quoteIdentifier(sqlDialect, columnQuery.getAlias());
                     sqlBuilder.append(columnAlias).append(columnSeparator);
                     continue;
                 }
-                Fn<?, ?> fn = columFunction.getOriginColumnFn();
+                Fn<?, ?> fn = columFunction.originColumn();
                 if (columFunction instanceof AbstractAliasHelper) {
-                    sqlBuilder.append(columFunction.getFunctionToString(sqlDialect, version, aliasTableMap)).append(arithmeticSql);
+                    sqlBuilder.append(columFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap))).append(arithmeticSql);
                     parameterBinder.addParameterBinder(arithmeticParameterBinder);
                     if (StringUtils.isNotBlank(columnQuery.getAlias())) {
                         sqlBuilder.append(syntaxAs()).append(columnQuery.getAlias());
@@ -149,12 +150,12 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     tableAlias = aliasTableMap.get(ReflectUtils.getOriginalClassCanonicalName(fn)).getAlias();
                 }
                 columFunction.setTableAlias(tableAlias);
-                String functionToString = columFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
+                String functionToString = columFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap));
                 //拼接别名，
                 String columnAlias = columnQuery.getAlias();
                 //如果用户未设置别名 ，那么应该将字段名设置为别名，方便排序
-                if (StringUtils.isEmpty(columnAlias) && Objects.nonNull(columFunction.getOriginColumnFn())) {
-                    columnAlias = ReflectUtils.fnToFieldName(columFunction.getOriginColumnFn());
+                if (StringUtils.isEmpty(columnAlias) && Objects.nonNull(columFunction.originColumn())) {
+                    columnAlias = ReflectUtils.fnToFieldName(columFunction.originColumn());
                     //加入限定符，防止和关键字冲突 只对未指定的列名进行限定
                     //如果用户指定了别名 则认为用户已经处理好了冲突问题
                     columnAlias = SqlUtils.quoteIdentifier(sqlDialect, columnAlias);
@@ -183,7 +184,7 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 } else {
                     sqlBuilder.append(columnSeparator);
                 }
-                parameterBinder.addParameterBinder(columFunction.getParameterBinder());
+                parameterBinder.addParameterBinder(columFunction.parameterBinder());
                 parameterBinder.addParameterBinder(arithmeticParameterBinder);
 
 
@@ -217,12 +218,12 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         for (ColumnQuery columFunction : selectSpecification.getIgnoreColumFunctions()) {
             ColumnWrapper ignoreColumnWrapper = (ColumnWrapper) columFunction;
             Column ignoreColumn = (Column) ignoreColumnWrapper.getColumFunction();
-            String ignoreClassName = ReflectUtils.getOriginalClassCanonicalName(ignoreColumn.getOriginColumnFn());
-            String className = ReflectUtils.getOriginalClassCanonicalName(column.getOriginColumnFn());
+            String ignoreClassName = ReflectUtils.getOriginalClassCanonicalName(ignoreColumn.originColumn());
+            String className = ReflectUtils.getOriginalClassCanonicalName(column.originColumn());
             // 检查列函数是否与给定的函数匹配
             if (Objects.equals(ignoreClassName, className)) {
-                String ignoreField = ReflectUtils.fnToFieldName(ignoreColumn.getOriginColumnFn());
-                String field = ReflectUtils.fnToFieldName(column.getOriginColumnFn());
+                String ignoreField = ReflectUtils.fnToFieldName(ignoreColumn.originColumn());
+                String field = ReflectUtils.fnToFieldName(column.originColumn());
                 if (Objects.equals(ignoreField, field)) {
                     return true;
                 }
@@ -238,9 +239,9 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         for (ColumnQuery columFunction : selectSpecification.getIgnoreColumFunctions()) {
             ColumnWrapper ignoreColumnWrapper = (ColumnWrapper) columFunction;
             Column ignoreColumn = (Column) ignoreColumnWrapper.getColumFunction();
-            String ignoreClassName = ReflectUtils.getOriginalClassCanonicalName(ignoreColumn.getOriginColumnFn());
+            String ignoreClassName = ReflectUtils.getOriginalClassCanonicalName(ignoreColumn.originColumn());
             if (Objects.equals(ignoreClassName, tableClasspath)) {
-                String ignoreField = ReflectUtils.fnToFieldName(ignoreColumn.getOriginColumnFn());
+                String ignoreField = ReflectUtils.fnToFieldName(ignoreColumn.originColumn());
                 if (Objects.equals(ignoreField, columnMeta.getField().getName())) {
                     return true;
                 }
@@ -301,7 +302,11 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
             //如果是直接查询的函数表
             if (joinTable.getTableFunction() != null) {
                 TableFunction tableFunction = joinTable.getTableFunction().get();
-                sqlBuilder.append(tableFunction.getFunctionToString(sqlDialect, version, aliasTableMap))
+                if (tableFunction instanceof Column) {
+                    Column column = (Column) tableFunction;
+                    column.setDataSourceName(dataSourceName);
+                }
+                sqlBuilder.append(tableFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap)))
                         .append(syntaxAs()).append(joinTable.getTableAlias());
                 return;
             }
@@ -322,9 +327,9 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
         if (joinTable instanceof TableFunctionJoin) {
             TableFunctionJoin tableFunctionJoin = (TableFunctionJoin) joinTable;
             TableFunction tableFunction = tableFunctionJoin.getTableFunction().get();
-            String functionToString = tableFunction.getFunctionToString(sqlDialect, version, aliasTableMap);
+            String functionToString = tableFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap));
             sqlBuilder.append(" ").append(syntaxJoin).append(functionToString).append(syntaxAs()).append(tableFunctionJoin.getTableAlias());
-            parameterBinder.addParameterBinder(tableFunction.getParameterBinder());
+            parameterBinder.addParameterBinder(tableFunction.parameterBinder());
             //拼接On条件
             appendOnCondition(joinTable);
             return;

@@ -159,13 +159,15 @@ public class SelectTest extends InitializingContext {
                 .column(User::getUserId)
                 .column(User::getName, "user_name")
                 .from(User.class, "us")
-                .where(whereCondition -> {
-                    whereCondition.andExists(select -> select
-                            .column(new NumberColumn(1))
-                            .from(() -> new JsonTable(User::getDetails, "$.items[*]",
-                                    JsonTable.JsonColumn.builder().column("value").dataType("VARCHAR(50)").jsonPath("$").build()
-                            ), "jt"));
-                }).fetch(UserAndOrderView.class).toList();
+                .where(whereCondition -> whereCondition
+                        .andExists(select -> select
+                                .column(new NumberColumn(1))
+                                .from(() -> new JsonTable(User::getDetails, "$.items[*]",
+                                        JsonColumn.builder().column("value").dataType("VARCHAR(50)").jsonPath("$").build()
+                                ), "jt")
+                        ))
+                .fetch(UserAndOrderView.class)
+                .toList();
         System.out.println(list);
     }
 
@@ -1703,7 +1705,11 @@ public class SelectTest extends InitializingContext {
                                 select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2))
                         }, "t")
                 //TODO
-                .where(where -> where.andEqualTo(new Column("t", UserBO::getUserId), 2))
+                .where(where -> where
+                        .andEqualTo(UserBO::getGender, "Male")
+                        .andEqualTo(UserBO::getUserId, 2)
+                        .andEqualTo(User::getUserId, 2)
+                )
                 .fetch(UserBO.class)
                 .toList();
         t.forEach(System.out::println);

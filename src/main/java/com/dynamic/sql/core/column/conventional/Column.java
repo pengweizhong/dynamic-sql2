@@ -11,16 +11,12 @@ package com.dynamic.sql.core.column.conventional;
 
 
 import com.dynamic.sql.core.Fn;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
-import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
 import com.dynamic.sql.utils.StringUtils;
-
-import java.util.Map;
 
 public final class Column extends AbstractColumFunction implements TableFunction {
 
@@ -53,28 +49,6 @@ public final class Column extends AbstractColumFunction implements TableFunction
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
-        if (columnName != null) {
-            if (StringUtils.isEmpty(SqlUtils.quoteIdentifier(sqlDialect, tableAlias))) {
-                return SqlUtils.quoteIdentifier(sqlDialect, columnName);
-            }
-            return SqlUtils.quoteIdentifier(sqlDialect, tableAlias) + "." +
-                    SqlUtils.quoteIdentifier(sqlDialect, columnName);
-        }
-        return SqlUtils.extractQualifiedAlias(tableAlias, columnFn, aliasTableMap, dataSourceName, null);
-    }
-
-    @Override
-    public Fn<?, ?> getOriginColumnFn() {
-        return columnFn;
-    }
-
-    @Override
-    public ParameterBinder getParameterBinder() {
-        return null;
-    }
-
-    @Override
     public String getTableAlias() {
         return tableAlias;
     }
@@ -84,4 +58,25 @@ public final class Column extends AbstractColumFunction implements TableFunction
         this.tableAlias = tableAlias;
     }
 
+    @Override
+    public Fn<?, ?> originColumn() {
+        return columnFn;
+    }
+
+    @Override
+    public ParameterBinder parameterBinder() {
+        return null;
+    }
+
+    @Override
+    public String render(RenderContext context) {
+        if (columnName != null) {
+            if (StringUtils.isEmpty(SqlUtils.quoteIdentifier(context.getSqlDialect(), tableAlias))) {
+                return SqlUtils.quoteIdentifier(context.getSqlDialect(), columnName);
+            }
+            return SqlUtils.quoteIdentifier(context.getSqlDialect(), tableAlias) + "." +
+                    SqlUtils.quoteIdentifier(context.getSqlDialect(), columnName);
+        }
+        return SqlUtils.extractQualifiedAlias(tableAlias, columnFn, context.getAliasTableMap(), context.getDataSourceName(), null);
+    }
 }

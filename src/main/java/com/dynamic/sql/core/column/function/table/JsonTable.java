@@ -11,17 +11,14 @@ package com.dynamic.sql.core.column.function.table;
 
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.Version;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
-import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static com.dynamic.sql.core.column.AbstractAliasHelper.bindAlias;
 
@@ -94,9 +91,14 @@ public class JsonTable extends AbstractTableFunction {
     }
 
     @Override
-    public String getFunctionToString(SqlDialect sqlDialect, Version version, Map<String, TableAliasMapping> aliasTableMap) throws UnsupportedOperationException {
+    public ParameterBinder parameterBinder() {
+        return parameterBinder;
+    }
+
+    @Override
+    public String render(RenderContext context) {
         StringBuilder sb = new StringBuilder();
-        sb.append("json_table(").append(tableFunction.getFunctionToString(sqlDialect, version, aliasTableMap))
+        sb.append("json_table(").append(tableFunction.render(context))
                 .append(", '").append(path).append("' columns(");
 
         for (int i = 0; i < columns.size(); i++) {
@@ -107,11 +109,6 @@ public class JsonTable extends AbstractTableFunction {
         }
         sb.append("))");
         return sb.toString();
-    }
-
-    @Override
-    public ParameterBinder getParameterBinder() {
-        return parameterBinder;
     }
 
     /**

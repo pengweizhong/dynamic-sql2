@@ -28,7 +28,7 @@ public class DataSourceProvider {//NOSONAR
 
 
     public static DataSourceMeta getDataSourceMeta(String dataSourceName) {
-        if (DATA_SOURCE_META_MAP.isEmpty()) {
+        if (DATA_SOURCE_META_MAP.isEmpty() || dataSourceName == null) {
             return null;
         }
         return DATA_SOURCE_META_MAP.get(dataSourceName);
