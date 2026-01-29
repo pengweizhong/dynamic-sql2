@@ -77,6 +77,12 @@ public class TableRelation<R> implements JoinCondition {
     }
 
     @Override
+    public JoinCondition rightJoinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+        selectSpecification.getJoinTables().add(new UnionJoin(JoinTableType.RIGHT, selectDsls, alias, onCondition, UnionType.UNION));
+        return this;
+    }
+
+    @Override
     public JoinCondition innerJoin(CteTable cte, Consumer<GenericWhereCondition> onCondition) {
         throw new UnsupportedOperationException("Not yet implemented, to be improved later");
     }
