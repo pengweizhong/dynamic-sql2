@@ -669,17 +669,17 @@ public abstract class AbstractColumnReference {
     public abstract TableRelation<?> fromUnion(SelectDsl[] selectDsl, String selectAlias);
 
     /**
-     * 构建 UNION 查询的表关系。
+     * 构建 UNION ALL 查询的表关系。
      * <p>
-     * 该方法用于将多个子查询（SELECT DSL）通过 UNION 组合成一个虚拟表，
+     * 该方法用于将多个子查询（SELECT DSL）通过 UNION ALL 组合成一个虚拟表，
      * 并在 FROM 子句中以指定别名引用。例如：
      *
      * <pre>
      *     FROM (
      *         SELECT ... FROM ...
-     *         UNION
+     *         UNION ALL
      *         SELECT ... FROM ...
-     *         UNION
+     *         UNION ALL
      *         SELECT ... FROM ...
      *     ) AS t
      * </pre>
@@ -688,12 +688,12 @@ public abstract class AbstractColumnReference {
      * 可能的使用场景：
      * <ul>
      *     <li>将多个条件不同的查询合并为一个结果集</li>
-     *     <li>构建动态 UNION 查询</li>
+     *     <li>构建动态 UNION ALL 查询</li>
      *     <li>在 FROM 中使用虚拟表继续进行过滤、排序等操作</li>
      * </ul>
      *
      * @param selectDsl   多个子查询的 DSL 数组，每个元素代表一个 SELECT 语句
-     * @param selectAlias UNION 结果集在 FROM 子句中的别名
+     * @param selectAlias UNION ALL 结果集在 FROM 子句中的别名
      * @return {@link TableRelation} 对象，用于定义表关系
      */
     public abstract TableRelation<?> fromUnionAll(SelectDsl[] selectDsl, String selectAlias);
