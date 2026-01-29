@@ -1590,7 +1590,7 @@ public class SelectTest extends InitializingContext {
     /**
      * 计算两种实现方案，应用在不同的场景
      * <p>
-     * 方案一 (这个方案嵌套太复杂，先不考虑实现，估计也用不到)
+     * 方案一
      * <pre>
      * var q = sqlContext.select()
      *         .allColumn()
@@ -1817,6 +1817,29 @@ public class SelectTest extends InitializingContext {
                                 select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2)),
                         }, "t")
                 .join(User.class, on -> on.andEqualTo(User::getUserId, new Column("t", User::getUserId)))
+                .where(where -> where
+                        .andEqualTo(new Column("t", UserBO::getGender), "Male")
+                        .andEqualTo(User::getUserId, 2)
+                )
+                .fetch(UserBO.class)
+                .toList();
+        t.forEach(System.out::println);
+    }
+
+    @Test
+    void joinUnionAll2() {
+        List<UserBO> t = sqlContext.select()
+                .allColumn("t")
+                .fromUnionAll(
+                        new SelectDsl[]{
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2)),
+                        }, "t")
+                .join(User.class, on -> on.andEqualTo(User::getUserId, new Column("t", User::getUserId)))
+                .leftJoinUnion(new SelectDsl[]{
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 3)),
+                        select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 4)),
+                }, "s", on -> on.andEqualTo(User::getUserId, new Column("s", User::getUserId)))
                 .where(where -> where
                         .andEqualTo(new Column("t", UserBO::getGender), "Male")
                         .andEqualTo(User::getUserId, 2)

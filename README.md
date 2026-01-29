@@ -123,7 +123,7 @@ Dynamic-SQL2 的位置刚好在它们之间的“空白地带”：
 <dependency>
     <groupId>com.dynamic-sql</groupId>
     <artifactId>dynamic-sql2</artifactId>
-    <version>0.2.3</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -417,6 +417,48 @@ void select1() {
             .toList();
 }
 
+/**
+ * 支持扁平化 union
+ */
+@Test
+void testUnion() {
+    List<UserBO> list = sqlContext.union(
+                    select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1).limit(1)),
+                    select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)).orderBy(UserBO::getStatus),
+                    select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2))
+            )
+            .thenOrderBy(UserBO::getUserId)
+            .limit(1)
+            .fetch(UserBO.class)
+            .toList();
+    list.forEach(System.out::println);
+}
+
+/**
+ * 支持嵌套式 union
+ */
+@Test
+void joinUnionAll() {
+    List<UserBO> t = sqlContext.select()
+            .allColumn("t")
+            .fromUnionAll(
+                    new SelectDsl[]{
+                            select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                            select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2)),
+                    }, "t")
+            .join(User.class, on -> on.andEqualTo(User::getUserId, new Column("t", User::getUserId)))
+            .leftJoinUnion(new SelectDsl[]{
+                    select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 3)),
+                    select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 4)),
+            }, "s", on -> on.andEqualTo(User::getUserId, new Column("s", User::getUserId)))
+            .where(where -> where
+                    .andEqualTo(new Column("t", UserBO::getGender), "Male")
+                    .andEqualTo(User::getUserId, 2)
+            )
+            .fetch(UserBO.class)
+            .toList();
+    t.forEach(System.out::println);
+}
 
 /**
  * 仅插入非空字段
