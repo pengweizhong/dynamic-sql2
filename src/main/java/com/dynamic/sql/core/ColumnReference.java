@@ -217,4 +217,10 @@ public class ColumnReference extends AbstractColumnReference {
         selectSpecification.getJoinTables().add(new FromUnionJoin(new UnionJoin(selectDsl, selectAlias), UnionType.UNION));
         return new TableRelation<>(selectSpecification);
     }
+
+    @Override
+    public TableRelation<?> fromUnionAll(SelectDsl[] selectDsl, String selectAlias) {
+        selectSpecification.getJoinTables().add(new FromUnionJoin(new UnionJoin(selectDsl, selectAlias), UnionType.UNION_ALL));
+        return new TableRelation<>(selectSpecification);
+    }
 }

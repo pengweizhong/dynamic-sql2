@@ -1418,32 +1418,6 @@ public class SelectTest extends InitializingContext {
         }
     }
 
-    @Test
-    void testNestSelect() {
-//        //OrderVO
-//        OrderVO one = sqlContext.select()
-//                .nestColumn()
-//                .from(Order.class)
-//                .join(User.class, on -> on.andEqualTo(User::getUserId, Order::getUserId))
-//                .where(whereCondition -> whereCondition.andEqualTo(Order::getOrderId, 1))
-//                .fetch(OrderVO.class)
-//                .toOne();
-//        System.out.println(one);
-    }
-
-//    @Test
-//    void testGroupBy() {
-//        List<Map<String, Object>> list = sqlContext.select()
-//                .column(User::getUserId)
-//                .column(Order::getOrderId)
-//                .from(User.class)
-//                .join(Order.class, on -> on.andEqualTo(User::getUserId, User::getUserId))
-//                .where()
-//                .groupBy(User::getUserId, Order::getOrderId)
-//                .fetchOriginalMap()
-//                .toList();
-//        System.out.println(list);
-//    }
 
     @Test
     void testFetchList() {
@@ -1697,25 +1671,6 @@ public class SelectTest extends InitializingContext {
     }
 
     @Test
-    void testUnionAllWhere() {
-        List<UserBO> t = sqlContext.select().allColumn().fromUnion(
-                        new SelectDsl[]{
-                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
-                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
-                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2))
-                        }, "t")
-                //TODO
-                .where(where -> where
-                        .andEqualTo(UserBO::getGender, "Male")
-                        .andEqualTo(UserBO::getUserId, 2)
-                        .andEqualTo(User::getUserId, 2)
-                )
-                .fetch(UserBO.class)
-                .toList();
-        t.forEach(System.out::println);
-    }
-
-    @Test
     void testUnion() {
         List<User> list = sqlContext.union(
                         select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
@@ -1741,6 +1696,42 @@ public class SelectTest extends InitializingContext {
                 );
         System.out.println(pageInfo.getTotal());
         System.out.println(pageInfo);
+    }
+
+    @Test
+    void fromUnion() {
+        List<UserBO> t = sqlContext.select().allColumn().fromUnion(
+                        new SelectDsl[]{
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2))
+                        }, "t")
+                .where(where -> where
+                        .andEqualTo(UserBO::getGender, "Male")
+                        .andEqualTo(UserBO::getUserId, 2)
+                        .andEqualTo(User::getUserId, 2)
+                )
+                .fetch(UserBO.class)
+                .toList();
+        t.forEach(System.out::println);
+    }
+
+    @Test
+    void fromUnionAll() {
+        List<UserBO> t = sqlContext.select().allColumn().fromUnionAll(
+                        new SelectDsl[]{
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 1)),
+                                select -> select.allColumn().from(User.class).where(where -> where.andEqualTo(User::getUserId, 2))
+                        }, "t")
+                .where(where -> where
+                        .andEqualTo(UserBO::getGender, "Male")
+                        .andEqualTo(UserBO::getUserId, 2)
+                        .andEqualTo(User::getUserId, 2)
+                )
+                .fetch(UserBO.class)
+                .toList();
+        t.forEach(System.out::println);
     }
 }
 
