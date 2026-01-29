@@ -89,63 +89,351 @@ public interface JoinCondition extends Fetchable {
         return innerJoin(tableFunction, alias, onCondition);
     }
 
+    /**
+     * 条件式 JOIN：当 isEffective 为 true 时执行 JOIN，否则忽略该 JOIN。
+     *
+     * @param isEffective   是否生效（false 时直接返回当前 JoinCondition，不执行 JOIN）
+     * @param tableFunction 表级函数（TableFunction），作为 JOIN 的右表
+     * @param alias         右表别名
+     * @param onCondition   JOIN 的 ON 条件构造器
+     * @return JoinCondition，用于继续构建查询
+     */
     default JoinCondition join(boolean isEffective, Supplier<TableFunction> tableFunction, String alias, Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? innerJoin(tableFunction, alias, onCondition) : this;
     }
 
-    default JoinCondition joinUnion(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    /**
+     * 条件式 INNER JOIN UNION。
+     * <p>当 isEffective 为 true 时执行 JOIN，否则忽略。</p>
+     */
+    default JoinCondition joinUnion(boolean isEffective,
+                                    SelectDsl[] selectDsls,
+                                    String alias,
+                                    Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? innerJoinUnion(selectDsls, alias, onCondition) : this;
     }
 
-    default JoinCondition joinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    /**
+     * INNER JOIN UNION。
+     * <p>始终执行 UNION JOIN。</p>
+     */
+    default JoinCondition joinUnion(SelectDsl[] selectDsls,
+                                    String alias,
+                                    Consumer<GenericWhereCondition> onCondition) {
         return innerJoinUnion(selectDsls, alias, onCondition);
     }
 
-
-    default JoinCondition innerJoinUnion(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    /**
+     * 条件式 INNER JOIN UNION。
+     * <p>根据 isEffective 决定是否执行 JOIN。</p>
+     */
+    default JoinCondition innerJoinUnion(boolean isEffective,
+                                         SelectDsl[] selectDsls,
+                                         String alias,
+                                         Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? innerJoinUnion(selectDsls, alias, onCondition) : this;
     }
 
-    JoinCondition innerJoinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+    /**
+     * INNER JOIN UNION 的核心实现。
+     * <p>
+     * 将多个 SelectDsl 通过 UNION 组合成一个子查询，并以 alias 作为虚拟表名参与 INNER JOIN。
+     * 该方法是 joinUnion 系列方法的最终执行入口，负责生成完整的 JOIN + UNION SQL 结构。
+     * </p>
+     *
+     * <p>生成的 SQL 结构示例：</p>
+     * <pre>
+     * SELECT ...
+     * FROM user u
+     * INNER JOIN (
+     *      (SELECT ... FROM user WHERE user_id = 1)
+     *      UNION
+     *      (SELECT ... FROM user WHERE user_id = 2)
+     * ) AS t
+     * ON u.user_id = t.user_id
+     * </pre>
+     *
+     * <p>使用场景：</p>
+     * <ul>
+     *     <li>在 JOIN 中使用 UNION 结果作为虚拟表</li>
+     *     <li>动态构建多条件、多来源的子查询并参与关联</li>
+     *     <li>支持链式 where/orderBy/fetch 等后续操作</li>
+     * </ul>
+     *
+     * @param selectDsls  多个 SELECT DSL，将通过 UNION 组合成虚拟表
+     * @param alias       虚拟表别名
+     * @param onCondition JOIN 的 ON 条件构造器
+     * @return JoinCondition，用于继续构建查询
+     */
+    JoinCondition innerJoinUnion(SelectDsl[] selectDsls,
+                                 String alias,
+                                 Consumer<GenericWhereCondition> onCondition);
 
-    default JoinCondition leftJoinUnion(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    /**
+     * 条件式 LEFT JOIN UNION。
+     * <p>isEffective 为 true 时执行 LEFT JOIN，否则忽略。</p>
+     */
+    default JoinCondition leftJoinUnion(boolean isEffective,
+                                        SelectDsl[] selectDsls,
+                                        String alias,
+                                        Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? leftJoinUnion(selectDsls, alias, onCondition) : this;
     }
 
-    JoinCondition leftJoinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+    /**
+     * LEFT JOIN UNION 的核心实现。
+     * <p>
+     * 将多个 SelectDsl 通过 UNION 组合成一个子查询，并以 alias 作为虚拟表名参与 LEFT JOIN。
+     * 这是 leftJoinUnion 系列方法的最终执行入口，负责生成完整的
+     * <code>LEFT JOIN (subquery UNION subquery ...) AS alias</code> 结构。
+     * </p>
+     *
+     * <p>生成的 SQL 结构示例：</p>
+     * <pre>
+     * SELECT t.*
+     * FROM users u
+     * LEFT JOIN (
+     *      (SELECT ... FROM users WHERE user_id = 1)
+     *      UNION
+     *      (SELECT ... FROM users WHERE user_id = 2)
+     * ) AS t
+     * ON u.user_id = t.user_id
+     * WHERE t.gender = 'Male'
+     *   AND u.user_id = 2;
+     * </pre>
+     *
+     * <p>使用场景：</p>
+     * <ul>
+     *     <li>需要将多个查询结果合并后作为虚拟表参与 LEFT JOIN</li>
+     *     <li>需要保留左表全部记录（即使 UNION 子查询无匹配）</li>
+     *     <li>支持链式 where/orderBy/fetch 等后续操作</li>
+     * </ul>
+     *
+     * @param selectDsls  多个 SELECT DSL，将通过 UNION 组合成虚拟表
+     * @param alias       虚拟表别名
+     * @param onCondition LEFT JOIN 的 ON 条件构造器
+     * @return JoinCondition，用于继续构建查询
+     */
+    JoinCondition leftJoinUnion(SelectDsl[] selectDsls,
+                                String alias,
+                                Consumer<GenericWhereCondition> onCondition);
 
-    default JoinCondition rightJoinUnion(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    /**
+     * 条件式 RIGHT JOIN UNION。
+     * <p>isEffective 为 true 时执行 RIGHT JOIN，否则忽略。</p>
+     */
+    default JoinCondition rightJoinUnion(boolean isEffective,
+                                         SelectDsl[] selectDsls,
+                                         String alias,
+                                         Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? rightJoinUnion(selectDsls, alias, onCondition) : this;
     }
 
-    JoinCondition rightJoinUnion(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+    /**
+     * RIGHT JOIN UNION 的核心实现。
+     * <p>
+     * 将多个 SelectDsl 通过 UNION 组合成一个子查询，并以 alias 作为虚拟表名参与 RIGHT JOIN。
+     * 这是 rightJoinUnion 系列方法的最终执行入口，负责生成完整的
+     * <code>RIGHT JOIN (subquery UNION subquery ...) AS alias</code> 结构。
+     * </p>
+     *
+     * <p>生成的 SQL 结构示例：</p>
+     * <pre>
+     * SELECT ...
+     * FROM users u
+     * RIGHT JOIN (
+     *      (SELECT ... FROM users WHERE user_id = 1)
+     *      UNION
+     *      (SELECT ... FROM users WHERE user_id = 2)
+     * ) AS t
+     * ON u.user_id = t.user_id
+     * WHERE ...
+     * </pre>
+     *
+     * <p>使用场景：</p>
+     * <ul>
+     *     <li>需要保留 UNION 子查询的全部记录（右表优先）</li>
+     *     <li>需要将多个查询结果合并后作为虚拟表参与 RIGHT JOIN</li>
+     *     <li>支持链式 where/orderBy/fetch 等后续操作</li>
+     * </ul>
+     *
+     * @param selectDsls  多个 SELECT DSL，将通过 UNION 组合成虚拟表
+     * @param alias       虚拟表别名
+     * @param onCondition RIGHT JOIN 的 ON 条件构造器
+     * @return JoinCondition，用于继续构建查询
+     */
+    JoinCondition rightJoinUnion(SelectDsl[] selectDsls,
+                                 String alias,
+                                 Consumer<GenericWhereCondition> onCondition);
 
-    default JoinCondition joinUnionAll(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    /**
+     * 条件式 INNER JOIN UNION ALL。
+     * <p>isEffective 为 true 时执行 JOIN，否则忽略。</p>
+     */
+    default JoinCondition joinUnionAll(boolean isEffective,
+                                       SelectDsl[] selectDsls,
+                                       String alias,
+                                       Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? innerJoinUnionAll(selectDsls, alias, onCondition) : this;
     }
 
-    default JoinCondition joinUnionAll(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    /**
+     * INNER JOIN UNION ALL。
+     * <p>始终执行 UNION ALL JOIN。</p>
+     */
+    default JoinCondition joinUnionAll(SelectDsl[] selectDsls,
+                                       String alias,
+                                       Consumer<GenericWhereCondition> onCondition) {
         return innerJoinUnionAll(selectDsls, alias, onCondition);
     }
 
-
-    default JoinCondition innerJoinUnionAll(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    /**
+     * 条件式 INNER JOIN UNION ALL。
+     * <p>根据 isEffective 决定是否执行 JOIN。</p>
+     */
+    default JoinCondition innerJoinUnionAll(boolean isEffective,
+                                            SelectDsl[] selectDsls,
+                                            String alias,
+                                            Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? innerJoinUnionAll(selectDsls, alias, onCondition) : this;
     }
 
-    JoinCondition innerJoinUnionAll(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+    /**
+     * INNER JOIN UNION ALL 的核心实现。
+     * <p>
+     * 将多个 SelectDsl 通过 UNION ALL 组合成一个子查询，并以 alias 作为虚拟表名参与 INNER JOIN。
+     * 这是 joinUnionAll 系列方法的最终执行入口，负责生成完整的
+     * <code>INNER JOIN (subquery UNION ALL subquery ...) AS alias</code> 结构。
+     * </p>
+     *
+     * <p>生成的 SQL 结构示例：</p>
+     * <pre>
+     * SELECT ...
+     * FROM users u
+     * INNER JOIN (
+     *      (SELECT ... FROM users WHERE user_id = 1)
+     *      UNION ALL
+     *      (SELECT ... FROM users WHERE user_id = 2)
+     * ) AS t
+     * ON u.user_id = t.user_id
+     * WHERE t.gender = 'Male'
+     *   AND u.user_id = 2;
+     * </pre>
+     *
+     * <p>使用场景：</p>
+     * <ul>
+     *     <li>需要将多个查询结果合并（不去重）后作为虚拟表参与 INNER JOIN</li>
+     *     <li>需要保留所有记录（UNION ALL 性质）</li>
+     *     <li>支持链式 where/orderBy/fetch 等后续操作</li>
+     * </ul>
+     *
+     * @param selectDsls  多个 SELECT DSL，将通过 UNION ALL 组合成虚拟表
+     * @param alias       虚拟表别名
+     * @param onCondition INNER JOIN 的 ON 条件构造器
+     * @return JoinCondition，用于继续构建查询
+     */
+    JoinCondition innerJoinUnionAll(SelectDsl[] selectDsls,
+                                    String alias,
+                                    Consumer<GenericWhereCondition> onCondition);
 
-    default JoinCondition leftJoinUnionAll(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    /**
+     * 条件式 LEFT JOIN UNION ALL。
+     * <p>isEffective 为 true 时执行 LEFT JOIN，否则忽略。</p>
+     */
+    default JoinCondition leftJoinUnionAll(boolean isEffective,
+                                           SelectDsl[] selectDsls,
+                                           String alias,
+                                           Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? leftJoinUnionAll(selectDsls, alias, onCondition) : this;
     }
 
-    JoinCondition leftJoinUnionAll(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+    /**
+     * LEFT JOIN UNION ALL 的核心实现。
+     * <p>
+     * 将多个 SelectDsl 通过 UNION ALL 组合成一个子查询，并以 alias 作为虚拟表名参与 LEFT JOIN。
+     * 这是 leftJoinUnionAll 系列方法的最终执行入口，负责生成完整的
+     * <code>LEFT JOIN (subquery UNION ALL subquery ...) AS alias</code> 结构。
+     * </p>
+     *
+     * <p>生成的 SQL 结构示例（参考测试用例 leftJoinUnionAll）：</p>
+     * <pre>
+     * SELECT ...
+     * FROM users u
+     * LEFT JOIN (
+     *      (SELECT ... FROM users WHERE user_id = 1)
+     *      UNION ALL
+     *      (SELECT ... FROM users WHERE user_id = 2)
+     * ) AS t
+     * ON u.user_id = t.user_id
+     * WHERE t.gender = 'Male'
+     *   AND u.user_id = 2;
+     * </pre>
+     *
+     * <p>使用场景：</p>
+     * <ul>
+     *     <li>需要将多个查询结果合并（不去重）后作为虚拟表参与 LEFT JOIN</li>
+     *     <li>需要保留左表全部记录（即使 UNION ALL 子查询无匹配）</li>
+     *     <li>支持链式 where/orderBy/fetch 等后续操作</li>
+     * </ul>
+     *
+     * @param selectDsls  多个 SELECT DSL，将通过 UNION ALL 组合成虚拟表
+     * @param alias       虚拟表别名
+     * @param onCondition LEFT JOIN 的 ON 条件构造器
+     * @return JoinCondition，用于继续构建查询
+     */
+    JoinCondition leftJoinUnionAll(SelectDsl[] selectDsls,
+                                   String alias,
+                                   Consumer<GenericWhereCondition> onCondition);
 
-    default JoinCondition rightJoinUnionAll(boolean isEffective, SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition) {
+    /**
+     * 条件式 RIGHT JOIN UNION ALL。
+     * <p>isEffective 为 true 时执行 RIGHT JOIN，否则忽略。</p>
+     */
+    default JoinCondition rightJoinUnionAll(boolean isEffective,
+                                            SelectDsl[] selectDsls,
+                                            String alias,
+                                            Consumer<GenericWhereCondition> onCondition) {
         return isEffective ? rightJoinUnionAll(selectDsls, alias, onCondition) : this;
     }
 
-    JoinCondition rightJoinUnionAll(SelectDsl[] selectDsls, String alias, Consumer<GenericWhereCondition> onCondition);
+    /**
+     * RIGHT JOIN UNION ALL 的核心实现。
+     * <p>
+     * 将多个 SelectDsl 通过 UNION ALL 组合成一个子查询，并以 alias 作为虚拟表名参与 RIGHT JOIN。
+     * 这是 rightJoinUnionAll 系列方法的最终执行入口，负责生成完整的
+     * <code>RIGHT JOIN (subquery UNION ALL subquery ...) AS alias</code> 结构。
+     * </p>
+     *
+     * <p>生成的 SQL 结构示例（参考测试用例 rightJoinUnionAll）：</p>
+     * <pre>
+     * SELECT ...
+     * FROM users u
+     * RIGHT JOIN (
+     *      (SELECT ... FROM users WHERE user_id = 1)
+     *      UNION ALL
+     *      (SELECT ... FROM users WHERE user_id = 2)
+     * ) AS t
+     * ON u.user_id = t.user_id
+     * WHERE t.gender = 'Male'
+     *   AND u.user_id = 2;
+     * </pre>
+     *
+     * <p>使用场景：</p>
+     * <ul>
+     *     <li>需要保留 UNION ALL 子查询的全部记录（右表优先）</li>
+     *     <li>需要将多个查询结果合并后作为虚拟表参与 RIGHT JOIN</li>
+     *     <li>适用于右表为主、左表为辅的关联场景</li>
+     *     <li>支持链式 where/orderBy/fetch 等后续操作</li>
+     * </ul>
+     *
+     * @param selectDsls  多个 SELECT DSL，将通过 UNION ALL 组合成虚拟表
+     * @param alias       虚拟表别名
+     * @param onCondition RIGHT JOIN 的 ON 条件构造器
+     * @return JoinCondition，用于继续构建查询
+     */
+    JoinCondition rightJoinUnionAll(SelectDsl[] selectDsls,
+                                    String alias,
+                                    Consumer<GenericWhereCondition> onCondition);
 
     /**
      * 使用 CTE 表进行 INNER JOIN。

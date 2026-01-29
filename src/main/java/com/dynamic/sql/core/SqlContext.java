@@ -167,7 +167,7 @@ public interface SqlContext {
     <T> List<T> selectList(String dataSourceName, String sql, Class<T> returnType, ParameterBinder parameterBinder);
 
     /**
-     * 构建 UNION 查询，将多个 SELECT 子句按 {@code UNION} 方式合并（自动去重）。
+     * 构建扁平化 UNION 查询，将多个 SELECT 子句按 {@code UNION} 方式合并（自动去重）。
      *
      * <p>该方法采用“批量合并”模式，每个 {@link SelectDsl} 参数代表一个独立的
      * SELECT 子句，框架会将所有 SELECT 自动包装为子查询并使用 UNION 连接：
@@ -193,27 +193,25 @@ public interface SqlContext {
      *     .limit(10);
      * </pre>
      *
-     * <b>内部 ORDER BY / LIMIT 说明</b>
-     * <ul>
-     *     <li>内部 SELECT 可以包含 LIMIT（局部截断）。</li>
-     *     <li>内部 ORDER BY 仅对该子查询有效，不影响最终 UNION 的排序。</li>
-     *     <li>最终排序必须在最外层调用 {@code thenOrderBy()}。</li>
-     * </ul>
-     *
      * <b>注意事项</b>
      * <ul>
      *     <li>UNION 会对结果去重，如需保留重复行请使用 {@link #unionAll(SelectDsl...)}。</li>
      *     <li>每个 SELECT 会被自动包裹为子查询：( SELECT ... )。</li>
      *     <li>至少提供一个 SELECT 语句</li>
+     *     <li>如需嵌套式 UNION，则需调用下方@see</li>
      * </ul>
      *
      * @param select 多个 SELECT DSL 构建器，每个代表一个独立的 SELECT 子句
      * @return 返回可继续追加 ORDER BY / LIMIT / FETCH 的链式对象
+     * @see com.dynamic.sql.core.AbstractColumnReference#fromUnion(SelectDsl[], String)
+     * @see com.dynamic.sql.core.dml.select.JoinCondition#joinUnion(SelectDsl[], String, java.util.function.Consumer)
+     * @see com.dynamic.sql.core.dml.select.JoinCondition#leftJoinUnion(SelectDsl[], String, Consumer)
+     * @see com.dynamic.sql.core.dml.select.JoinCondition#rightJoinUnion(SelectDsl[], String, Consumer)
      */
     AbstractUnion union(SelectDsl... select);
 
     /**
-     * 构建 UNION ALL 查询，将多个 SELECT 子句按 {@code UNION ALL} 方式合并（不去重）。
+     * 构建扁平化 UNION ALL 查询，将多个 SELECT 子句按 {@code UNION ALL} 方式合并（不去重）。
      *
      * <p>每个 {@link SelectDsl} 参数代表一个独立的 SELECT 子句，框架会将其包装为：
      *
@@ -241,22 +239,20 @@ public interface SqlContext {
      *     .toList();
      * </pre>
      *
-     * <b>内部 ORDER BY / LIMIT 说明</b>
-     * <ul>
-     *     <li>内部 SELECT 可以包含 LIMIT（局部截断）。</li>
-     *     <li>内部 ORDER BY 仅对该子查询有效，不影响最终 UNION ALL 的排序。</li>
-     *     <li>最终排序必须在最外层调用 {@code thenOrderBy()}。</li>
-     * </ul>
-     *
      * <b>注意事项</b>
      * <ul>
      *     <li>UNION ALL 不会去重，性能优于 UNION。</li>
      *     <li>每个 SELECT 会被自动包裹为子查询：( SELECT ... )。</li>
      *     <li>至少提供一个 SELECT 语句</li>
+     *     <li>如需嵌套式 UNION ALL，则需调用下方@see</li>
      * </ul>
      *
      * @param select 多个 SELECT DSL 构建器，每个代表一个独立的 SELECT 子句
      * @return 返回可继续追加 ORDER BY / LIMIT / FETCH 的链式对象
+     * @see com.dynamic.sql.core.AbstractColumnReference#fromUnionAll(SelectDsl[], String)
+     * @see com.dynamic.sql.core.dml.select.JoinCondition#joinUnionAll(SelectDsl[], String, java.util.function.Consumer)
+     * @see com.dynamic.sql.core.dml.select.JoinCondition#leftJoinUnionAll(SelectDsl[], String, Consumer)
+     * @see com.dynamic.sql.core.dml.select.JoinCondition#rightJoinUnionAll(SelectDsl[], String, Consumer)
      */
     AbstractUnion unionAll(SelectDsl... select);
 
