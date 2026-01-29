@@ -23,7 +23,7 @@ import com.dynamic.sql.utils.ExceptionUtils;
 public class Truncate extends ColumnFunctionDecorator implements NumberFunction {
 
     //保留小数位数
-    private int scale;
+    private final int scale;
 
     public Truncate(AbstractColumFunction delegateFunction, int scale) {
         super(delegateFunction);
@@ -37,10 +37,10 @@ public class Truncate extends ColumnFunctionDecorator implements NumberFunction 
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             return "TRUNCATE(" + delegateFunction.render(context) + ", " + scale + ")".concat(appendArithmeticSql(context));
         }
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             return "truncate(" + delegateFunction.render(context) + ", " + scale + ")".concat(appendArithmeticSql(context));
         }
         throw ExceptionUtils.unsupportedFunctionException("TRUNCATE", context.getSqlDialect());

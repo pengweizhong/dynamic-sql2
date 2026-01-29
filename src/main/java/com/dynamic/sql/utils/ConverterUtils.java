@@ -246,7 +246,7 @@ public class ConverterUtils {
                 byte[] bytes = (byte[]) value;
                 Byte[] byteArrayObject = new Byte[bytes.length];
                 for (int i = 0; i < bytes.length; i++) {
-                    byteArrayObject[i] = Byte.valueOf(bytes[i]);
+                    byteArrayObject[i] = bytes[i];
                 }
                 return (T) byteArrayObject;
             }

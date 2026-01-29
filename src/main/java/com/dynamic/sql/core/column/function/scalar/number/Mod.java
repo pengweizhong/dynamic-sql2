@@ -22,7 +22,7 @@ import com.dynamic.sql.utils.ExceptionUtils;
  */
 public class Mod extends ColumnFunctionDecorator implements NumberFunction {
 
-    private int divisor;
+    private final int divisor;
 
     public Mod(AbstractColumFunction delegateFunction, int divisor) {
         super(delegateFunction);
@@ -36,10 +36,10 @@ public class Mod extends ColumnFunctionDecorator implements NumberFunction {
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             return "MOD(" + delegateFunction.render(context) + ", " + divisor + ")".concat(appendArithmeticSql(context));
         }
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             return "mod(" + delegateFunction.render(context) + ", " + divisor + ")".concat(appendArithmeticSql(context));
         }
         throw ExceptionUtils.unsupportedFunctionException("MOD", context.getSqlDialect());

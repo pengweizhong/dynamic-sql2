@@ -25,11 +25,11 @@ public abstract class AbstractTableFunction implements TableFunction {
     public <T, F> AbstractTableFunction(Fn<T, F> field) {
         Fn<T, F> oriFn = field;
         if (field instanceof AbstractAliasHelper) {
-            AbstractAliasHelper abstractAlias = (AbstractAliasHelper) field;
+            AbstractAliasHelper abstractAlias = (AbstractAliasHelper) field;//NOSONAR
             if (abstractAlias.getColumnName() != null) {
                 this.tableFunction = new Column(abstractAlias.getTableAlias(), abstractAlias.getColumnName());
             } else {
-                this.tableFunction = new Column(abstractAlias.getTableAlias(), abstractAlias.getFnColumn());
+                this.tableFunction = new Column(abstractAlias.getTableAlias(), abstractAlias.getFnColumn());//NOSONAR
             }
         } else {
             this.tableFunction = new Column(null, oriFn);

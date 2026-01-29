@@ -21,7 +21,7 @@ import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
 
 public final class NumberColumn implements ColumFunction, ColumnQuery {
 
-    private int numberColumn;
+    private final int numberColumn;
 
     public NumberColumn(int num) {
         this.numberColumn = num;

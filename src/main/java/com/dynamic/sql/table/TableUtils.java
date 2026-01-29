@@ -299,12 +299,10 @@ public class TableUtils {
     }
 
     public static Function<Field, Boolean> filterFieldTypeRules() {
-        return field -> {
-            return !Modifier.isFinal(field.getModifiers())
-                    && !Modifier.isStatic(field.getModifiers())
-                    && !Modifier.isNative(field.getModifiers())
-                    && !Modifier.isTransient(field.getModifiers());
-        };
+        return field -> !Modifier.isFinal(field.getModifiers())
+                && !Modifier.isStatic(field.getModifiers())
+                && !Modifier.isNative(field.getModifiers())
+                && !Modifier.isTransient(field.getModifiers());
     }
 
 

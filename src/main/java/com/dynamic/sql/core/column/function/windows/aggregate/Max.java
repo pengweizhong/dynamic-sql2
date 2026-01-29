@@ -11,16 +11,12 @@ package com.dynamic.sql.core.column.function.windows.aggregate;
 
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
-import com.dynamic.sql.model.TableAliasMapping;
-
-import java.util.Map;
 
 
 public class Max extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
@@ -39,10 +35,10 @@ public class Max extends ColumnFunctionDecorator implements AggregateFunction, W
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             return "MAX(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             return "max(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
         throw ExceptionUtils.unsupportedFunctionException("max", context.getSqlDialect());

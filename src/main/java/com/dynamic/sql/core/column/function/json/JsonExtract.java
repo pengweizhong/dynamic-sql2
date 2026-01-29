@@ -22,7 +22,7 @@ import com.dynamic.sql.utils.ExceptionUtils;
  * 提取 JSON 数据中的值
  */
 public class JsonExtract extends ColumnFunctionDecorator implements TableFunction {
-    private String jsonPath;
+    private final String jsonPath;
 
     public JsonExtract(AbstractColumFunction delegateFunction, String jsonPath) {
         super(delegateFunction);

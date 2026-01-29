@@ -111,9 +111,7 @@ public class DataSourceProvider {//NOSONAR
 
     public static Map<String, String[]> getDataSourceBoundPath() {
         HashMap<String, String[]> hashMap = new HashMap<>();
-        DATA_SOURCE_META_MAP.forEach((key, value) -> {
-            hashMap.put(key, value.getBindBasePackages());
-        });
+        DATA_SOURCE_META_MAP.forEach((key, value) -> hashMap.put(key, value.getBindBasePackages()));
         return hashMap;
     }
 

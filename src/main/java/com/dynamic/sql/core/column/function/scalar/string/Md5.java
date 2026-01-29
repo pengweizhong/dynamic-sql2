@@ -40,13 +40,13 @@ public class Md5 extends ColumnFunctionDecorator {
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             if (string != null) {
                 return "md5(" + SqlUtils.registerValueWithKey(parameterBinder, string) + ")";
             }
             return "md5(" + delegateFunction.render(context) + ")";
         }
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             //Oracle 11g 及以上版本支持该功能。
             if (context.getVersion().getMajorVersion() < 11) {
                 throw ExceptionUtils.unsupportedFunctionException("RAWTOHEX", context.getVersion(), context.getSqlDialect());
