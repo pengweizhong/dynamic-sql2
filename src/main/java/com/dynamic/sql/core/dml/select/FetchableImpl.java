@@ -7,6 +7,7 @@ import com.dynamic.sql.core.dml.select.build.SelectSpecification;
 import com.dynamic.sql.core.dml.select.build.SqlSelectBuilder;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.enums.DMLType;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.HashMap;
@@ -49,7 +50,7 @@ public class FetchableImpl implements Fetchable {
         }
         if (returnClass == null) {
             if (sqlStatementSelectWrapper.getGuessTheTargetClass() == null) {
-                throw new IllegalStateException("The query result object cannot be inferred from the context. " +
+                throw new DynamicSqlException("The query result object cannot be inferred from the context. " +
                         "Please declare the return type.");
             }
             returnClass = (Class<T>) sqlStatementSelectWrapper.getGuessTheTargetClass();

@@ -14,6 +14,7 @@ import com.dynamic.sql.core.dml.select.build.join.FullJoin;
 import com.dynamic.sql.core.dml.select.build.join.JoinTable;
 import com.dynamic.sql.core.dml.select.build.join.LeftJoin;
 import com.dynamic.sql.core.dml.select.build.join.RightJoin;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.TableAliasMapping;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class MysqlSqlSelectBuilder extends GenericSqlSelectBuilder {
         }
         //处于性能考虑、实现难度、引用场景等，Mysql下全连接只支持两个表
         if (joinTables.size() != 2) {
-            throw new IllegalStateException("MySQL full join only supports two tables.");
+            throw new DynamicSqlException("MySQL full join only supports two tables.");
         }
         //先解析Form
         parseJoinTable(joinTables.get(0));

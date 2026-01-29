@@ -13,6 +13,7 @@ package com.dynamic.sql.utils;
 import com.dynamic.sql.core.column.function.AnonymousFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.plugins.conversion.AttributeConverterModel;
 import com.dynamic.sql.plugins.conversion.FetchResultConverter;
@@ -170,7 +171,7 @@ public class ConverterUtils {
                 try {
                     return (T) clob.getSubString(1, ((Long) clob.length()).intValue());
                 } catch (Exception e) {
-                    throw new IllegalStateException("Clob cannot be written to String", e);
+                    throw new DynamicSqlException("Clob cannot be written to String", e);
                 }
             }
             return (T) value.toString();

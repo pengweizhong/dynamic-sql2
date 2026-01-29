@@ -14,6 +14,7 @@ import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.datasource.DataSourceProvider;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
@@ -72,7 +73,7 @@ public class DefaultSelectHandler implements SelectHandler {
             //校验数据源
             List<String> dataSourceNameList = DataSourceProvider.getDataSourceNameList();
             if (!dataSourceNameList.contains(dataSourceName)) {
-                throw new IllegalArgumentException(dataSourceName + " does not exist");
+                throw new DynamicSqlException(dataSourceName + " does not exist");
             }
             return dataSourceName;
         }

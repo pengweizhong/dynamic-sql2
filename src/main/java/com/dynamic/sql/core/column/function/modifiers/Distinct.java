@@ -16,6 +16,7 @@ import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.utils.StringUtils;
 
@@ -42,7 +43,7 @@ public class Distinct extends ColumnFunctionDecorator implements ColumnModifiers
     @Override
     public boolean shouldAppendDelimiter() {
         if (shouldAppendDelimiter == null) {
-            throw new IllegalStateException("You need to call the getFunctionToString function first");
+            throw new DynamicSqlException("You need to call the getFunctionToString function first");
         }
         return shouldAppendDelimiter;
     }

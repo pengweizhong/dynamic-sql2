@@ -2,6 +2,7 @@ package com.dynamic.sql.core.dml.select;
 
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.plugins.conversion.FetchResultConverter;
 import com.dynamic.sql.table.FieldMeta;
@@ -41,7 +42,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             return null;
         }
         if (rs.size() > 1) {
-            throw new IllegalStateException("Expected one result, but found: " + rs.size());
+            throw new DynamicSqlException("Expected one result, but found: " + rs.size());
         }
         return rs.iterator().next();
     }
@@ -121,7 +122,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         String targetProperty = nestedColumnMapping.getTargetProperty();
         FieldMeta targetFieldMeta = resolveFieldMeta(targetProperty, fieldNameMap, columnNameMap);
         if (targetFieldMeta == null) {
-            throw new IllegalArgumentException("Index column [" + targetProperty + "] does not exist");
+            throw new DynamicSqlException("Index column [" + targetProperty + "] does not exist");
         }
         //targetFieldMeta 取出的是用户设置的集合字段
         Field targetField = targetFieldMeta.getField();
@@ -239,7 +240,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
     private Collection<R> convertToSystemClass(Collection<R> collection) {
         for (Map<String, Object> stringObjectMap : wrapperList) {
             if (stringObjectMap.size() > 1) {
-                throw new IllegalStateException("Expecting to return one column of results, but querying multiple columns: "
+                throw new DynamicSqlException("Expecting to return one column of results, but querying multiple columns: "
                         + StringUtils.join(", ", stringObjectMap.keySet()));
             }
             if (stringObjectMap.isEmpty()) {
@@ -365,7 +366,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         TableMeta tableMeta = TableProvider.getTableMeta(resultClass);
         if (tableMeta == null) {
             if (resultClass.getClassLoader() == null) {
-                throw new IllegalStateException(resultClass.getCanonicalName() + " cannot be mapped to " + converterTips);
+                throw new DynamicSqlException(resultClass.getCanonicalName() + " cannot be mapped to " + converterTips);
             }
             fieldMetas = TableUtils.parseViewClass(resultClass).getViewColumnMetas();
         } else {

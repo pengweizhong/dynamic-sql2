@@ -19,6 +19,7 @@ import com.dynamic.sql.core.database.parser.AbstractDialectParser;
 import com.dynamic.sql.core.dml.SqlStatementWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.table.ColumnMeta;
 import com.dynamic.sql.table.FieldMeta;
 import com.dynamic.sql.utils.ConverterUtils;
@@ -116,7 +117,7 @@ public class MysqlParser extends AbstractDialectParser {
         sql.append(" where ");
         ColumnMeta columnMeta = tableMeta.getColumnPrimaryKey();
         if (columnMeta == null) {
-            throw new IllegalStateException("The `" + tableMeta.getTableName() + "` table does not declare a primary key value");
+            throw new DynamicSqlException("The `" + tableMeta.getTableName() + "` table does not declare a primary key value");
         }
         sql.append(SqlUtils.quoteIdentifier(schemaProperties.getSqlDialect(), columnMeta.getColumnName()));
         if (params.size() > 1) {
@@ -207,7 +208,7 @@ public class MysqlParser extends AbstractDialectParser {
             }
         }
         if (parameterBinders.isEmpty()) {
-            throw new IllegalArgumentException("All upsert parameters are null");
+            throw new DynamicSqlException("All upsert parameters are null");
         }
         Iterator<String> iterator = columns.iterator();
         sql.append(" (");
@@ -285,7 +286,7 @@ public class MysqlParser extends AbstractDialectParser {
             }
         }
         if (parameterBinder.isEmpty()) {
-            throw new IllegalStateException("The `" + tableMeta.getTableName() + "` table has no columns that need to be updated");
+            throw new DynamicSqlException("The `" + tableMeta.getTableName() + "` table has no columns that need to be updated");
         }
         sql.setLength(sql.length() - 2);
         if (whereCondition == null) {

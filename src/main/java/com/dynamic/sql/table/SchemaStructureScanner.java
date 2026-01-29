@@ -5,6 +5,7 @@ import com.dynamic.sql.anno.Column;
 import com.dynamic.sql.anno.Table;
 import com.dynamic.sql.anno.View;
 import com.dynamic.sql.datasource.DataSourceProvider;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.plugins.resolve.ValueParserManager;
 import com.dynamic.sql.table.cte.CTEEntityMapping;
 import com.dynamic.sql.table.view.ViewColumnMeta;
@@ -48,7 +49,7 @@ public class SchemaStructureScanner {
                 tableEntityMappings.add(parseTableEntityMapping(annotatedClass));
             }
         } catch (Exception e) {
-            throw new IllegalStateException("An exception occurred while retrieving entities.", e);
+            throw new DynamicSqlException("An exception occurred while retrieving entities.", e);
         }
         return tableEntityMappings;
     }
@@ -104,14 +105,14 @@ public class SchemaStructureScanner {
     public static String matchBestDataSourceName(Class<?> annotatedClass, String inLineDataSourceName) {
         if (StringUtils.isNotBlank(inLineDataSourceName)) {
             if (!DataSourceProvider.existDataSource(inLineDataSourceName)) {
-                throw new IllegalArgumentException("DataSource '" + inLineDataSourceName + "' does not exist. " +
+                throw new DynamicSqlException("DataSource '" + inLineDataSourceName + "' does not exist. " +
                         "Please check that the data source has been initialized correctly");
             }
             return inLineDataSourceName;
         }
         Map<String, String[]> bindPath = DataSourceProvider.getDataSourceBoundPath();
         if (bindPath.isEmpty()) {
-            throw new NoSuchElementException("No data source has been initialized");
+            throw new DynamicSqlException("No data source has been initialized");
         }
         //检查表前缀是否匹配
         String thisTablePath = annotatedClass.getCanonicalName();
@@ -135,7 +136,7 @@ public class SchemaStructureScanner {
         if (StringUtils.isNotBlank(defaultDataSourceName)) {
             return defaultDataSourceName;
         }
-        throw new NoSuchElementException("Table class '" + annotatedClass.getCanonicalName()
+        throw new DynamicSqlException("Table class '" + annotatedClass.getCanonicalName()
                 + "' cannot be matched to any data source");
     }
 

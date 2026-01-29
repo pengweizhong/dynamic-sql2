@@ -9,8 +9,10 @@ import com.dynamic.sql.core.database.SqlExecutor;
 import com.dynamic.sql.core.database.parser.AbstractDialectParser;
 import com.dynamic.sql.core.database.parser.InsertParser;
 import com.dynamic.sql.enums.DMLType;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Consumer;
@@ -37,8 +39,8 @@ public class EntitiesInserter {
         Object next = getLocalEntities().iterator().next();
         TableMeta tableMeta = TableProvider.getTableMeta(next.getClass());
         if (tableMeta == null) {
-            throw new IllegalStateException("Class `" + next.getClass().getCanonicalName()
-                    + "` is not managed or cached by Dynamic-SQL");
+            throw new DynamicSqlException("Class `" + next.getClass().getCanonicalName()
+                    + "` is not managed or cached by Dynamic-SQL, or it inserts data into a non-physical table.");
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);

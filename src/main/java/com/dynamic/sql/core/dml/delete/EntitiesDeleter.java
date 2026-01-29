@@ -18,6 +18,7 @@ import com.dynamic.sql.core.database.SqlExecutor;
 import com.dynamic.sql.core.database.parser.AbstractDialectParser;
 import com.dynamic.sql.core.dml.ParseWhereHandler;
 import com.dynamic.sql.enums.DMLType;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.table.TableMeta;
 import com.dynamic.sql.table.TableProvider;
 import org.slf4j.Logger;
@@ -45,8 +46,8 @@ public class EntitiesDeleter extends ParseWhereHandler {
     private AbstractDialectParser getDialectParser(Collection<?> params) {
         TableMeta tableMeta = TableProvider.getTableMeta(entityClass);
         if (tableMeta == null) {
-            throw new IllegalStateException("Class `" + entityClass.getCanonicalName()
-                    + "` is not managed or cached by Dynamic-SQL");
+            throw new DynamicSqlException("Class `" + entityClass.getCanonicalName()
+                    + "` is not managed or cached by Dynamic-SQL, or a non-physical table has been deleted.");
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);
@@ -69,8 +70,8 @@ public class EntitiesDeleter extends ParseWhereHandler {
     public int delete(Function<SqlExecutor, Integer> doSqlExecutor) {
         TableMeta tableMeta = TableProvider.getTableMeta(entityClass);
         if (tableMeta == null) {
-            throw new IllegalStateException("Class `" + entityClass.getCanonicalName()
-                    + "` is not managed or cached by Dynamic-SQL");
+            throw new DynamicSqlException("Class `" + entityClass.getCanonicalName()
+                    + "` is not managed or cached by Dynamic-SQL, or a non-physical table has been deleted.");
         }
         String dataSourceName = tableMeta.getBindDataSourceName();
         SchemaProperties schemaProperties = SchemaContextHolder.getSchemaProperties(dataSourceName);

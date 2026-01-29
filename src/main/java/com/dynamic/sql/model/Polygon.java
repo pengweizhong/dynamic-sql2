@@ -9,6 +9,7 @@
  */
 package com.dynamic.sql.model;
 
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.utils.CollectionUtils;
 import com.dynamic.sql.utils.WKBUtils;
@@ -32,7 +33,7 @@ public class Polygon implements Iterable<Point>, AttributeConverter<Polygon, byt
 
     public Polygon(boolean autoClose, Point x, Point y, Point z, Point... others) {
         if (x == null || y == null || z == null) {
-            throw new IllegalArgumentException("First three points (x, y, z) must not be null");
+            throw new DynamicSqlException("First three points (x, y, z) must not be null");
         }
         int n = others == null ? 0 : others.length;
         // 使用ArrayList初始化，可以直接计算需要的大小
@@ -55,12 +56,12 @@ public class Polygon implements Iterable<Point>, AttributeConverter<Polygon, byt
 
     public Polygon(boolean autoClose, Collection<? extends Point> points) {
         if (CollectionUtils.isEmpty(points) || points.size() < 3) {
-            throw new IllegalArgumentException("The Points collection provides at least three points");
+            throw new DynamicSqlException("The Points collection provides at least three points");
         }
         List<Point> pointsClone = new ArrayList<>(points.size());
         for (Point point : points) {
             if (point == null) {
-                throw new IllegalArgumentException("Point must not be null");
+                throw new DynamicSqlException("Point must not be null");
             }
             pointsClone.add(point);
         }
@@ -78,7 +79,7 @@ public class Polygon implements Iterable<Point>, AttributeConverter<Polygon, byt
                 // 自动闭合
                 points.add(firstPoint);
             } else {
-                throw new IllegalArgumentException("The closing point must be the same as the starting point");
+                throw new DynamicSqlException("The closing point must be the same as the starting point");
             }
         }
     }

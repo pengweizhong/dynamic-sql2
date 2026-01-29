@@ -28,6 +28,7 @@ import com.dynamic.sql.core.dml.select.build.column.NestedColumn;
 import com.dynamic.sql.core.dml.select.build.join.*;
 import com.dynamic.sql.core.dml.select.cte.CteTable;
 import com.dynamic.sql.enums.UnionType;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.KeyMapping;
 import com.dynamic.sql.utils.StringUtils;
 
@@ -134,7 +135,7 @@ public class ColumnReference extends AbstractColumnReference {
     @Override
     public AbstractColumnReference column(SelectDsl nestedSelect, String columnAlias) {
         if (StringUtils.isBlank(columnAlias)) {
-            throw new IllegalArgumentException("Subquery must provide an alias");
+            throw new DynamicSqlException("Subquery must provide an alias");
         }
         NestedColumn nestedColumn = new NestedColumn(nestedSelect, columnAlias);
         selectSpecification.getColumFunctions().add(nestedColumn);

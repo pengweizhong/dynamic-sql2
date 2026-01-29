@@ -75,7 +75,7 @@ public class SqlUtils {
      */
     public static String getSqlTypeQuotes(SqlDialect sqlDialect) {
         if (sqlDialect == null) {
-            throw new IllegalArgumentException("Get Sql type quotes not accepting null values");
+            throw new DynamicSqlException("Get Sql type quotes not accepting null values");
         }
         switch (sqlDialect) {
             case MYSQL:
@@ -87,7 +87,7 @@ public class SqlUtils {
             case SQLSERVER:
                 return "[]";
             default:
-                throw new IllegalArgumentException("Get Sql type quotes not accepting " + sqlDialect);
+                throw new DynamicSqlException("Get Sql type quotes not accepting " + sqlDialect);
         }
     }
 

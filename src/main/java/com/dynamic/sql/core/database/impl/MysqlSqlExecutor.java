@@ -12,6 +12,7 @@ package com.dynamic.sql.core.database.impl;
 import com.dynamic.sql.core.database.AbstractSqlExecutor;
 import com.dynamic.sql.core.database.PreparedSql;
 import com.dynamic.sql.core.database.RootExecutor;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.model.TableMetaData;
 import org.slf4j.Logger;
@@ -122,7 +123,7 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
             }
             return metaDataList;
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new DynamicSqlException(e);
         }
     }
 
@@ -155,7 +156,7 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
             }
             return metaDataList;
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new DynamicSqlException(e);
         }
     }
 }

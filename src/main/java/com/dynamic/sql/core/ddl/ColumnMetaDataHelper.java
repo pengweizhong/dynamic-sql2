@@ -13,6 +13,7 @@ import com.dynamic.sql.core.database.SqlExecutionFactory;
 import com.dynamic.sql.core.dml.SqlStatementWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.DDLType;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.utils.StringUtils;
 
@@ -27,7 +28,7 @@ public class ColumnMetaDataHelper extends MetaDataHelper {
     public ColumnMetaDataHelper(String dataSourceName, String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) {
         super(dataSourceName, catalog);
         if (StringUtils.isEmpty(tableNamePattern)) {
-            throw new InvalidParameterException("tableNamePattern is invalid");
+            throw new DynamicSqlException("tableNamePattern is invalid");
         }
         this.schemaPattern = schemaPattern;
         this.tableNamePattern = tableNamePattern;

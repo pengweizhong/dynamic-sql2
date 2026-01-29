@@ -17,6 +17,7 @@ import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.dml.select.build.SqlStatementSelectWrapper;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.Arithmetic;
 import com.dynamic.sql.model.TableAliasMapping;
 import com.dynamic.sql.utils.SqlUtils;
@@ -186,14 +187,14 @@ public abstract class AbstractColumFunction implements ColumFunction, ColumnArit
 
     public void setAliasTableMap(Map<String, TableAliasMapping> aliasTableMap) {
         if (aliasTableMap == null) {
-            throw new IllegalStateException("Parameters must be set before calling: aliasTableMap");
+            throw new DynamicSqlException("Parameters must be set before calling: aliasTableMap");
         }
         this.aliasTableMap = aliasTableMap;
     }
 
     public String getDataSourceName() {
         if (dataSourceName == null) {
-            throw new IllegalStateException("Parameters must be set before calling: dataSourceName");
+            throw new DynamicSqlException("Parameters must be set before calling: dataSourceName");
         }
         return dataSourceName;
     }

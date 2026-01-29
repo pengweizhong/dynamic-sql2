@@ -9,6 +9,7 @@
  */
 package com.dynamic.sql.core.dml.select;
 
+import com.dynamic.sql.exception.DynamicSqlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public abstract class AbstractFetchResult<R> implements FetchResult<R> {
     @Override
     public <K, V, M extends Map<K, V>> M toMap(Function<R, ? extends K> keyMapper, Function<R, ? extends V> valueMapper) {
         return toMap(keyMapper, valueMapper, (u1, u2) -> {
-            throw new IllegalStateException("Duplicate values encountered for the same key: value1=" + u1 + ", value2=" + u2);
+            throw new DynamicSqlException("Duplicate values encountered for the same key: value1=" + u1 + ", value2=" + u2);
         });
     }
 

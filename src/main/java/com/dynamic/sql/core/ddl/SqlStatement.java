@@ -18,6 +18,7 @@ import com.dynamic.sql.datasource.DataSourceProvider;
 import com.dynamic.sql.enums.DDLType;
 import com.dynamic.sql.enums.DMLType;
 import com.dynamic.sql.enums.SqlExecuteType;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.utils.StringUtils;
 
 import java.util.HashMap;
@@ -37,7 +38,7 @@ public class SqlStatement {
 
     public SqlStatement(String dataSourceName, String sql, ParameterBinder parameterBinder) {
         if (StringUtils.isEmpty(sql)) {
-            throw new IllegalArgumentException("SQL statement cannot be null or empty");
+            throw new DynamicSqlException("SQL statement cannot be null or empty");
         }
         this.dataSourceName = dataSourceName;
         this.sql = sql.trim();
@@ -60,12 +61,12 @@ public class SqlStatement {
         SqlStatementWrapper sqlStatementWrapper = new SqlStatementWrapper(getDataSourceName(), new StringBuilder(sql), getParameterBinder());
         String sqlType = parseSqlType(sql);
         if (sqlType == null) {
-            throw new IllegalStateException("Unable to determine SQL type for statement: " + sql);
+            throw new DynamicSqlException("Unable to determine SQL type for statement: " + sql);
         }
         try {
             return executeSqlByType(sqlType, sqlStatementWrapper, returnType);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to execute SQL: " + sql, e);
+            throw new DynamicSqlException("Failed to execute SQL: " + sql, e);
         }
     }
 
@@ -73,17 +74,17 @@ public class SqlStatement {
         SqlStatementWrapper sqlStatementWrapper = new SqlStatementWrapper(getDataSourceName(), new StringBuilder(sql), getParameterBinder());
         String sqlType = parseSqlType(sql);
         if (sqlType == null) {
-            throw new IllegalStateException("Unable to determine SQL type for statement: " + sql);
+            throw new DynamicSqlException("Unable to determine SQL type for statement: " + sql);
         }
         if (!Objects.equals(sqlType, DMLType.SELECT.name())) {
-            throw new IllegalStateException("Only accepting SQL queries: " + sql);
+            throw new DynamicSqlException("Only accepting SQL queries: " + sql);
         }
         try {
             List<Map<String, Object>> maps = SqlExecutionFactory.executorSql(DMLType.SELECT, sqlStatementWrapper, SqlExecutor::executeQuery);
             FetchResultImpl<T> tFetchResult = new FetchResultImpl<>(returnType, maps, null);
             return tFetchResult.toList(listSupplier);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to execute SQL: " + sql, e);
+            throw new DynamicSqlException("Failed to execute SQL: " + sql, e);
         }
     }
 
@@ -149,7 +150,7 @@ public class SqlStatement {
             try {
                 return DDLType.valueOf(typeName); // 尝试解析为 DDL 类型
             } catch (IllegalArgumentException e2) {
-                throw new IllegalStateException("Unknown SQL type: " + typeName);
+                throw new DynamicSqlException("Unknown SQL type: " + typeName);
             }
         }
     }

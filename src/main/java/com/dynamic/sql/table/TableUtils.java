@@ -17,6 +17,7 @@ import com.dynamic.sql.context.SchemaContextHolder;
 import com.dynamic.sql.context.properties.SchemaProperties;
 import com.dynamic.sql.enums.GenerationType;
 import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.plugins.conversion.DefaultAttributeConverter;
 import com.dynamic.sql.table.cte.CTEColumnMeta;
@@ -46,7 +47,7 @@ public class TableUtils {
 
     public static void scanAndInitTable(String... packagePath) {
         if (packagePath == null || packagePath.length == 0) {
-            throw new IllegalArgumentException("The package path to search must be provided");
+            throw new DynamicSqlException("The package path to search must be provided");
         }
         List<TableEntityMapping> tableEntities = new ArrayList<>();
         for (String path : packagePath) {
@@ -66,7 +67,7 @@ public class TableUtils {
 
     public static void scanAndInitCTETableInfo(String... packagePath) {
         if (packagePath == null || packagePath.length == 0) {
-            throw new IllegalArgumentException("The package path to search must be provided");
+            throw new DynamicSqlException("The package path to search must be provided");
         }
         for (String path : packagePath) {
             List<CTEEntityMapping> cteEntities = SchemaStructureScanner.findCTEEntities(path);
@@ -142,11 +143,11 @@ public class TableUtils {
         tableMeta.setSchema(tableEntity.getSchema());
         tableMeta.setTableName(tableEntity.getTableName());
         if (StringUtils.isBlank(tableMeta.getTableName())) {
-            throw new IllegalArgumentException("The table name is empty");
+            throw new DynamicSqlException("The table name is empty");
         }
         tableMeta.setTableAlias(tableEntity.getTableAlias());
         if (StringUtils.isBlank(tableMeta.getTableAlias())) {
-            throw new IllegalArgumentException("The table alias is empty");
+            throw new DynamicSqlException("The table alias is empty");
         }
         tableMeta.setBindDataSourceName(tableEntity.getBindDataSourceName());
         List<ColumnMetaSymbol> columnMetaSymbols = fields.stream()

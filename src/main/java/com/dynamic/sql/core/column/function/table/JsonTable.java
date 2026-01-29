@@ -14,6 +14,7 @@ import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class JsonTable extends AbstractTableFunction {
         super(tableFunction);
         this.path = path;
         if (jsonColumn == null || jsonColumn.length <= 0) {
-            throw new IllegalArgumentException("The extracted Json column must be declared");
+            throw new DynamicSqlException("The extracted Json column must be declared");
         }
         columns.addAll(Arrays.asList(jsonColumn));
     }
@@ -58,7 +59,7 @@ public class JsonTable extends AbstractTableFunction {
         super(fn);
         this.path = path;
         if (jsonColumn == null || jsonColumn.length <= 0) {
-            throw new IllegalArgumentException("The extracted Json column must be declared");
+            throw new DynamicSqlException("The extracted Json column must be declared");
         }
         columns.addAll(Arrays.asList(jsonColumn));
     }
@@ -67,7 +68,7 @@ public class JsonTable extends AbstractTableFunction {
         super(bindAlias(tableAlias, fn));
         this.path = path;
         if (jsonColumn == null || jsonColumn.length <= 0) {
-            throw new IllegalArgumentException("The extracted Json column must be declared");
+            throw new DynamicSqlException("The extracted Json column must be declared");
         }
         columns.addAll(Arrays.asList(jsonColumn));
     }
@@ -76,7 +77,7 @@ public class JsonTable extends AbstractTableFunction {
         super(bindAlias(null, columnName));
         this.path = path;
         if (jsonColumn == null || jsonColumn.length <= 0) {
-            throw new IllegalArgumentException("The extracted Json column must be declared");
+            throw new DynamicSqlException("The extracted Json column must be declared");
         }
         columns.addAll(Arrays.asList(jsonColumn));
     }
@@ -85,7 +86,7 @@ public class JsonTable extends AbstractTableFunction {
         super(bindAlias(tableAlias, columnName));
         this.path = path;
         if (jsonColumn == null || jsonColumn.length <= 0) {
-            throw new IllegalArgumentException("The extracted Json column must be declared");
+            throw new DynamicSqlException("The extracted Json column must be declared");
         }
         columns.addAll(Arrays.asList(jsonColumn));
     }
@@ -115,7 +116,7 @@ public class JsonTable extends AbstractTableFunction {
      * <pre>
      *     {@code
      *             if (jsonColumn == null && jsonColumn.length <= 0) {
-     *             throw new IllegalArgumentException("The extracted Json column must be declared");
+     *             throw new DynamicSqlException("The extracted Json column must be declared");
      *         }
      *     }
      * </pre>
