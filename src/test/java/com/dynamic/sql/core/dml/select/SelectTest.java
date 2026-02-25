@@ -11,6 +11,7 @@ import com.dynamic.sql.core.column.function.scalar.datetime.DateFormat;
 import com.dynamic.sql.core.column.function.scalar.datetime.Now;
 import com.dynamic.sql.core.column.function.scalar.number.Round;
 import com.dynamic.sql.core.column.function.scalar.string.Length;
+import com.dynamic.sql.core.column.function.string.GroupConcat;
 import com.dynamic.sql.core.column.function.table.JsonTable;
 import com.dynamic.sql.core.column.function.table.JsonTable.JsonColumn;
 import com.dynamic.sql.core.column.function.windows.DenseRank;
@@ -1928,6 +1929,44 @@ public class SelectTest extends InitializingContext {
                 .fetch(BigDecimal.class)
                 .toOne();
         System.out.println(decimal);
+    }
+
+    @Test
+    void testGroupConcat() {
+        String one = sqlContext.select()
+                .column(new GroupConcat(User::getName), "names")
+                .from(User.class)
+                .where(where -> where.andIn(User::getName, Arrays.asList("Bob Smith", "Charlie Davis", "Alice Johnson", "Jerry777")))
+                .fetch(String.class)
+                .toOne();
+        System.out.println(one);
+    }
+
+    @Test
+    void testGroupConcat2() {
+        String one = sqlContext.select()
+                .column(new GroupConcat(User::getName, ", "), "names")
+                .from(User.class)
+                .where(where -> where.andIn(User::getName, Arrays.asList("Bob Smith", "Charlie Davis", "Alice Johnson", "Jerry777")))
+                .fetch(String.class)
+                .toOne();
+        System.out.println(one);
+    }
+
+    @Test
+    void testGroupConcat3() {
+        //GROUP_CONCAT( DISTINCT users.name ORDER BY users.age ASC, users.id DESC SEPARATOR '; ' )
+        String one = sqlContext.select()
+                .column(new GroupConcat(new GroupConcat.GroupConcatOptions()
+                        .distinct(User::getName)
+                        .orderBy(User::getUserId, SortOrder.DESC)
+                        .thenOrderBy(User::getName, SortOrder.ASC)
+                        .separator("、")), "names")
+                .from(User.class)
+                .where(where -> where.andIn(User::getName, Arrays.asList("Bob Smith", "Charlie Davis", "Alice Johnson", "Jerry777")))
+                .fetch(String.class)
+                .toOne();
+        System.out.println(one);
     }
 }
 

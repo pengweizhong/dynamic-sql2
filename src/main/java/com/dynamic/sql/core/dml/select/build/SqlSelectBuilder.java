@@ -53,6 +53,13 @@ public abstract class SqlSelectBuilder {
     //是否是子查询
     private Boolean isFromNestedSelect;
 
+    public <C extends WhereCondition<C>> SqlSelectBuilder(SelectSpecification selectSpecification, Version version, SqlDialect sqlDialect, String dataSourceName) {
+        this.selectSpecification = selectSpecification;
+        this.version = version;
+        this.sqlDialect = sqlDialect;
+        this.dataSourceName = dataSourceName;
+    }
+
     public <C extends WhereCondition<C>> SqlSelectBuilder(SelectSpecification selectSpecification) {
         this.selectSpecification = selectSpecification;
         NestedMeta nestedMeta = selectSpecification.getNestedMeta();
