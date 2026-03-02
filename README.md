@@ -123,7 +123,7 @@ Dynamic-SQL2 的位置刚好在它们之间的“空白地带”：
 <dependency>
     <groupId>com.dynamic-sql</groupId>
     <artifactId>dynamic-sql2</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 </dependency>
 ```
 
