@@ -23,6 +23,7 @@ import com.dynamic.sql.table.FieldMeta;
 
 import javax.annotation.Nonnull;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Clob;
 import java.sql.Timestamp;
 import java.time.*;
@@ -202,6 +203,9 @@ public class ConverterUtils {
         }
         if (fieldType == AtomicLong.class) {
             return (T) new AtomicLong(toLong(value));
+        }
+        if (fieldType == BigInteger.class) {
+            return (T) new BigInteger(value.toString());
         }
         if (fieldType == LocalDateTime.class) {
             if (value instanceof Timestamp) {
