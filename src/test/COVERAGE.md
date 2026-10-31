@@ -27,6 +27,7 @@
 - LINESTRING、MULTIPOINT、MULTILINESTRING、MULTIPOLYGON、GEOMETRY、GEOMETRYCOLLECTION：原始空间二进制读写；这不表示框架已提供对应的高级 Java 几何模型。
 - GEOMETRY 的更新包含 POINT → LINESTRING，验证通用几何列可以切换实际类型。
 - 空间类型闭环使用 SRID 0；另验证 POINT 使用 SRID 3857 的插入、更新和读取。Polygon 大小端、SRID 字节序和损坏载荷由独立单元测试检查。
+- 空间标量函数已在 SELECT 中执行验证：ST_Contains 命中/未命中、ST_Distance、ST_Distance_Sphere、ST_AsText 和 ST_SRID。
 
 ## 非法输入与操作语义
 
@@ -36,15 +37,15 @@
 - DECIMAL、MEDIUMINT、无符号整数越界。
 - 非法 JSON、ENUM、SET。
 
-额外用例验证：全量/选择性插入的 NULL 与默认值，选择性更新跳过 NULL 与强制清空的区别，通用类型的 `insertBatch`/`insertMultiple`，JSON null/SQL NULL/空对象/空数组，以及跨 JVM 时区的 TIMESTAMP 新增与更新。
+额外用例验证：全量/选择性插入的 NULL 与默认值，选择性更新跳过 NULL 与强制清空的区别，通用类型的 `insertBatch`/`insertMultiple`，两类批量 API 遇到唯一键冲突时的事务内部分执行差异、保存点回滚与连接恢复；批量失败分别在 `rewriteBatchedStatements` 开关下验证。另覆盖 JSON null/SQL NULL/空对象/空数组，以及跨 JVM 时区的 TIMESTAMP 新增与更新。
 
 ## 尚未宣称覆盖的范围
 
 - 所有可能值和 SQL 模式；非法输入在严格模式验证。排序规则验证当前仅针对 `utf8mb4_bin` 的大小写区分与尾随空格保留。
 - LONGTEXT/LONGBLOB 的物理容量上限、GB 级压力和流式读写；MEDIUMTEXT/MEDIUMBLOB 的 16 MiB 上限现已覆盖。
-- BIT 以所有 Java 数值类型写入、JSON 对应任意自定义 Java 对象、更大行数的批量压力及失败批次在不同驱动配置下的部分执行行为。
+- BIT 以所有 Java 数值类型写入、JSON 对应任意自定义 Java 对象、更大行数的批量压力，以及 `continueBatchOnError` 等未覆盖 Connector/J 配置下失败批次的部分执行行为。
 - YEAR=0000 的 SQL 年份语义通过数值零验证；其他数据库是否允许该值需按能力单独定义。
-- 带孔 Polygon 的高级模型、空间索引、SRID 4326 的实库轴序/地理运算、全部空间谓词。
+- 带孔 Polygon 的高级模型、空间索引、SRID 4326 的实库轴序/地理运算；框架目前只公开并测试上述空间标量函数，未覆盖任意空间谓词组合。
 - 框架自动识别并排除任意生成列；本轮实体明确省略生成列，另用 JDBC 核对生成结果。
 - Oracle、DB2 及国产数据库；MySQL 专属用例不作为其他方言契约。
 
@@ -52,8 +53,8 @@
 
 ## 本轮验证结果
 
-- 默认客户端预编译、UTC JVM：含批量矩阵、LOB 物理边界、排序规则与非零 SRID 用例，150 项通过。
-- 服务端预编译、Asia/Shanghai JVM：同一组 150 项通过，零失败、零跳过。
+- 默认客户端预编译、UTC JVM：完整 `mysql-it` 152 项通过，其中 MySQL 集成类 138 项。
+- 服务端预编译、Asia/Shanghai JVM：完整 `mysql-it` 152 项通过，其中 MySQL 集成类 138 项。
 - 默认无需数据库的测试：14 项。
 
 所有 MySQL 用例均回滚测试写入；测试报告的通过数只说明上述明确定义的场景，不等同于穷尽 MySQL 的所有类型组合。

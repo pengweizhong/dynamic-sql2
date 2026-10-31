@@ -268,6 +268,80 @@ class MySqlContractTest extends DatabaseContract {
         assertEquals(1,context().deleteByPrimaryKey(com.dynamic.sql.testing.model.MysqlSpatialSample.class,94800L));
     }
 
+    /** 空间函数必须能嵌入 SELECT 并返回可映射的标量结果。 */
+    @Test void spatialScalarFunctionsRenderExecutableSql() {
+        Class<com.dynamic.sql.testing.model.MysqlSpatialSample> entity = com.dynamic.sql.testing.model.MysqlSpatialSample.class;
+        assertEquals(Boolean.TRUE, context().select()
+                .column(new com.dynamic.sql.core.column.function.scalar.geometry.Contains(
+                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPolygonValue,
+                        new com.dynamic.sql.model.Point(1, 1)))
+                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .fetch(Boolean.class).toOne());
+        assertEquals(Boolean.FALSE, context().select()
+                .column(new com.dynamic.sql.core.column.function.scalar.geometry.Contains(
+                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPolygonValue,
+                        new com.dynamic.sql.model.Point(5, 5)))
+                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .fetch(Boolean.class).toOne());
+        assertEquals(5.0, context().select()
+                .column(new com.dynamic.sql.core.column.function.scalar.geometry.Distance(
+                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPointValue,
+                        new com.dynamic.sql.model.Point(13, 24)))
+                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .fetch(Double.class).toOne(), 1e-10);
+        assertEquals(0, context().select()
+                .column(new com.dynamic.sql.core.column.function.scalar.geometry.SRID(
+                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPointValue))
+                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .fetch(Integer.class).toOne());
+        assertEquals("POINT(10 20)", context().select()
+                .column(new com.dynamic.sql.core.column.function.scalar.geometry.AsText(
+                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPointValue))
+                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .fetch(String.class).toOne());
+        assertTrue(context().select()
+                .column(new com.dynamic.sql.core.column.function.scalar.geometry.DistanceSphere(
+                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPointValue,
+                        new com.dynamic.sql.model.Point(10, 21)))
+                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .fetch(Double.class).toOne() > 100_000.0);
+    }
+
+    /** 批量语句遇到唯一键冲突后可由调用方回滚保存点，确保部分成功不会污染后续事务操作。 */
+    @Test void failedBatchCanBeRolledBackToSavepoint() throws Exception {
+        for (boolean multiple : new boolean[]{false, true}) {
+            Savepoint savepoint = transaction.setSavepoint();
+            final boolean useMultiple = multiple;
+            long id = multiple ? 94911L : 94910L;
+            TypeSample valid = new TypeSample();
+            valid.setId(id); valid.setSampleName("batch-failure-" + id); valid.setDefaultValue("explicit");
+            TypeSample duplicate = new TypeSample();
+            duplicate.setId(id + 1); duplicate.setSampleName("unicode-escape"); duplicate.setDefaultValue("explicit");
+            try {
+                RuntimeException error = assertThrows(RuntimeException.class, () -> {
+                    if (useMultiple) context().insertMultiple(java.util.Arrays.asList(valid, duplicate));
+                    else context().insertBatch(java.util.Arrays.asList(valid, duplicate));
+                });
+                assertEquals(1062, sqlCause(error).getErrorCode());
+                //改写批处理时逐条批量语句会被合并；不改写时前序语句可能已成功，均需保存点回滚。
+                boolean rewrittenBatch = transaction.getMetaData().getURL().contains("rewriteBatchedStatements=true");
+                long expectedRows = useMultiple || rewrittenBatch ? 0L : 1L;
+                assertEquals(expectedRows, context().selectOne(
+                        "SELECT COUNT(*) FROM ds_type_sample WHERE id IN (" + id + "," + (id + 1) + ")", Long.class));
+            } finally {
+                transaction.rollback(savepoint);
+                transaction.releaseSavepoint(savepoint);
+            }
+            assertEquals(Long.valueOf(0), context().selectOne(
+                    "SELECT COUNT(*) FROM ds_type_sample WHERE id IN (" + id + "," + (id + 1) + ")", Long.class));
+        }
+        //回滚后连接仍可执行读写，确认失败批次没有使事务连接失效。
+        TypeSample recovered = new TypeSample();
+        recovered.setId(94912L); recovered.setSampleName("batch-recovered"); recovered.setDefaultValue("explicit");
+        assertEquals(1, context().insertSelective(recovered));
+        assertEquals(1, context().deleteByPrimaryKey(TypeSample.class, 94912L));
+    }
+
     /** MEDIUMTEXT 验证 16 MiB 上限、框架读取、边界更新及超限更新的原值保护。 */
     @Test void mediumTextPhysicalSizeBoundary() throws Exception {
         final int maximum=16777215;

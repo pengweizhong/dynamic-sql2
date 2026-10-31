@@ -18,8 +18,6 @@ import com.dynamic.sql.model.Point;
 import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.utils.SqlUtils;
 
-import static com.dynamic.sql.utils.SqlUtils.registerValueWithKey;
-
 public class Contains extends ColumnFunctionDecorator implements ScalarFunction {
 
     private final Point point;
@@ -33,8 +31,7 @@ public class Contains extends ColumnFunctionDecorator implements ScalarFunction 
     public String render(RenderContext context) {
         if (context.getSqlDialect() == SqlDialect.MYSQL) {
             String name = SqlUtils.extractQualifiedAlias(delegateFunction.originColumn(), context.getAliasTableMap(), context.getDataSourceName());
-            registerValueWithKey(parameterBinder, delegateFunction.originColumn(), value, context.getSqlDialect());
-            return "ST_Contains(" + name + ", ST_PointFromText('" + point.toPointString() + "'," + point.getSrid() + "));";
+            return "ST_Contains(" + name + ", ST_PointFromText('" + point.toPointString() + "'," + point.getSrid() + "))";
         }
         throw ExceptionUtils.unsupportedFunctionException("ST_Contains", context.getSqlDialect());
     }
