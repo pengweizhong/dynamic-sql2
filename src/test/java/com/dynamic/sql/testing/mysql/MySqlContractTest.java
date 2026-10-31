@@ -722,4 +722,44 @@ class MySqlContractTest extends DatabaseContract {
         assertEquals(java.util.Arrays.asList(2L, 1L), counts);
     }
 
+    /** HAVING 在分组后筛选，WHERE 参数与聚合阈值必须保持正确绑定顺序。 */
+    @Test void queryHavingFiltersGroups() {
+        assertEquals(java.util.Arrays.asList(20L), context().select().column(Account::getDepartmentId)
+                .from(Account.class).where(w -> w.andEqualTo(Account::getStatus, "ACTIVE"))
+                .groupBy(Account::getDepartmentId)
+                .having(h -> h.andGreaterThan(new com.dynamic.sql.core.column.function.windows.aggregate.Count(1), 1))
+                .fetch(Long.class).toList());
+    }
+
+    /** IN 子查询同时绑定内外层参数，只返回研发部门中的正常账户。 */
+    @Test void queryNestedInBindsBothScopes() {
+        assertEquals(java.util.Arrays.asList(100L, 101L), context().select().column(Account::getId)
+                .from(Account.class).where(w -> w.andEqualTo(Account::getStatus, "ACTIVE")
+                        .andIn(Account::getDepartmentId, nested -> nested.column(Department::getId)
+                                .from(Department.class).where(d -> d.andEqualTo(Department::getName, "研发"))))
+                .orderBy(Account::getId).fetch(Long.class).toList());
+    }
+
+    /** UNION 消除重叠记录，而 UNION ALL 必须保留两个分支各自的记录。 */
+    @Test void queryUnionDistinguishesDuplicates() {
+        com.dynamic.sql.core.dml.select.SelectDsl first = q -> q.column(Account::getId).from(Account.class)
+                .where(w -> w.andIn(Account::getId, java.util.Arrays.asList(100L, 101L)));
+        com.dynamic.sql.core.dml.select.SelectDsl second = q -> q.column(Account::getId).from(Account.class)
+                .where(w -> w.andIn(Account::getId, java.util.Arrays.asList(101L, 102L)));
+        java.util.List<Long> unique = context().union(first, second).fetch(Long.class).toList();
+        java.util.Collections.sort(unique);
+        assertEquals(java.util.Arrays.asList(100L, 101L, 102L), unique);
+        java.util.List<Long> all = context().unionAll(first, second).fetch(Long.class).toList();
+        java.util.Collections.sort(all);
+        assertEquals(java.util.Arrays.asList(100L, 101L, 101L, 102L), all);
+    }
+
+    /** 窗口编号按唯一主键排序，结果映射为标量时不应遗漏或合并行。 */
+    @Test void queryRowNumberWindow() {
+        assertEquals(java.util.Arrays.asList(1L, 2L, 3L, 4L), context().select()
+                .column(new com.dynamic.sql.core.column.function.windows.RowNumber(),
+                        over -> over.orderBy(Account::getId), "sequence")
+                .from(Account.class).orderBy(Account::getId).fetch(Long.class).toList());
+    }
+
 }
