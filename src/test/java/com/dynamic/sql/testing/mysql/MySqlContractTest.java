@@ -762,4 +762,60 @@ class MySqlContractTest extends DatabaseContract {
                 .from(Account.class).orderBy(Account::getId).fetch(Long.class).toList());
     }
 
+    /** 子查询无结果时，IN 不匹配任何行，而 NOT EXISTS 保留外层结果。 */
+    @Test void queryEmptySubquerySemantics() {
+        com.dynamic.sql.core.dml.select.SelectDsl missing = q -> q.column(Department::getId)
+                .from(Department.class).where(w -> w.andEqualTo(Department::getName, "不存在的部门"));
+        assertTrue(context().select().column(Account::getId).from(Account.class)
+                .where(w -> w.andIn(Account::getDepartmentId, missing)).fetch(Long.class).toList().isEmpty());
+        assertEquals(java.util.Arrays.asList(100L, 101L, 102L, 103L), context().select()
+                .column(Account::getId).from(Account.class).where(w -> w.andNotExists(missing))
+                .orderBy(Account::getId).fetch(Long.class).toList());
+        assertTrue(context().select().column(Account::getId).from(Account.class)
+                .where(w -> w.andExists(missing)).fetch(Long.class).toList().isEmpty());
+    }
+
+    /** NOT IN 遵循 SQL 三值逻辑，外层 NULL 部门不应被当作普通不匹配值返回。 */
+    @Test void queryNotInSubqueryExcludesOuterNull() {
+        assertEquals(java.util.Arrays.asList(102L), context().select().column(Account::getId)
+                .from(Account.class).where(w -> w.andNotIn(Account::getDepartmentId,
+                        q -> q.column(Department::getId).from(Department.class)
+                                .where(d -> d.andEqualTo(Department::getName, "研发"))))
+                .fetch(Long.class).toList());
+    }
+
+    /** 左关联保留没有账户的部门，并通过右表主键为空筛选未关联记录。 */
+    @Test void queryLeftJoinFindsEmptyDepartments() {
+        assertEquals(java.util.Arrays.asList(10L, 40L), context().select().column(Department::getId)
+                .from(Department.class)
+                .leftJoin(Account.class, on -> on.andEqualTo(Department::getId, Account::getDepartmentId))
+                .where(w -> w.andIsNull(Account::getId)).orderBy(Department::getId)
+                .fetch(Long.class).toList());
+    }
+
+    /** 模糊匹配和降序排序同时验证，查询仍需保留精确的返回顺序。 */
+    @Test void queryLikeAndDescendingOrder() {
+        assertEquals(java.util.Arrays.asList(103L, 102L, 101L, 100L), context().select()
+                .column(Account::getId).from(Account.class)
+                .orderBy(Account::getId, com.dynamic.sql.enums.SortOrder.DESC).fetch(Long.class).toList());
+        assertEquals(java.util.Arrays.asList(100L), context().select().column(Account::getId)
+                .from(Account.class).where(w -> w.andLike(Account::getLoginName, "ali%"))
+                .fetch(Long.class).toList());
+    }
+
+    /** 金额聚合保留定点精度，空结果集的 SUM 返回 NULL 而 COUNT 返回零。 */
+    @Test void queryDecimalAggregatesAndEmptyInput() {
+        BigDecimal total = context().select()
+                .column(new com.dynamic.sql.core.column.function.windows.aggregate.Sum(Account::getBalance))
+                .from(Account.class).fetch(BigDecimal.class).toOne();
+        assertEquals(0, new BigDecimal("89.7500").compareTo(total));
+        assertNull(context().select()
+                .column(new com.dynamic.sql.core.column.function.windows.aggregate.Sum(Account::getBalance))
+                .from(Account.class).where(w -> w.andEqualTo(Account::getId, -1L))
+                .fetch(BigDecimal.class).toOne());
+        assertEquals(Long.valueOf(0), context().select()
+                .column(new com.dynamic.sql.core.column.function.windows.aggregate.Count(1))
+                .from(Account.class).where(w -> w.andEqualTo(Account::getId, -1L)).fetch(Long.class).toOne());
+    }
+
 }
