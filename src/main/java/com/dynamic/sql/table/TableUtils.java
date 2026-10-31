@@ -277,6 +277,7 @@ public class TableUtils {
             if (generatedValue != null) {
                 GeneratedStrategy generatedStrategy = new GeneratedStrategy();
                 generatedStrategy.setStrategy(generatedValue.strategy());
+                generatedStrategy.setGenerator(generatedValue.generator());
                 if (generatedValue.strategy().equals(GenerationType.SEQUENCE)) {
                     //序列名必须取自注解，元数据此时尚未初始化，不能读取自身空值。
                     generatedStrategy.setSequenceName(generatedValue.sequenceName());

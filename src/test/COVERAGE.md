@@ -138,3 +138,7 @@ C01～C05 完成算术表达式、公共参数绑定、CASE/空值条件、类�
 ## 主键生成策略验证
 
 新增 GeneratedValueTest 三项元数据单元测试，先复现并修复序列名丢失；新增批量主键回填测试，分别核对 insertBatch 与 insertMultiple 的不同主键及其业务记录。默认配置完整 mysql-it 471 项通过；服务端预编译加 rewriteBatchedStatements 的两项主键集成测试通过，零失败、零跳过。AUTO 自增功能正常，未调整策略枚举；Oracle 序列执行仍需对应实库验证。
+
+## 雪花及可扩展应用主键
+
+新增 SNOWFLAKE、CUSTOM 和按名称注册的 IdGenerator。普通/选择性/两种批量插入及 upsert 共用 SQL 解析前生成入口，保留显式主键；测试 Long/String 映射、线程唯一性、节点与位布局、最大时间、回拨恢复、耗尽等待及失败上下文清理。默认与服务端预编译完整 mysql-it 均为 482 项通过，零失败、零跳过。使用及集群节点约束见 [主键生成说明](../../docs/ID_GENERATION.md)。

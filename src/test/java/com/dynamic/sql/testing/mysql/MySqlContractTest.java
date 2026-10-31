@@ -3,6 +3,10 @@ package com.dynamic.sql.testing.mysql;
 import com.dynamic.sql.context.SqlContextHelper;
 import com.dynamic.sql.context.properties.*;
 import com.dynamic.sql.core.SqlContext;
+import com.dynamic.sql.plugins.id.IdGenerators;
+import com.dynamic.sql.core.dml.insert.EntitiesInserter;
+import com.dynamic.sql.plugins.id.SnowflakeIdGenerator;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
@@ -94,6 +98,12 @@ class MySqlContractTest extends DatabaseContract {
      * 从环境变量读取连接配置，注册专用数据源，仅扫描新测试实体。
      */
     @BeforeAll static void initialize() throws Exception {
+        IdGenerators.register("mysql-snowflake",new SnowflakeIdGenerator(19));
+        AtomicLong customIds=new AtomicLong(98000000);
+        IdGenerators.register("mysql-custom",context->{
+            CustomKeyDepartment entity=(CustomKeyDepartment)context.getEntity();
+            return "reject-null-id".equals(entity.getName()) ? null : customIds.incrementAndGet();
+        });
         String url = required("DS_TEST_URL");
         source = new MysqlDataSource();
         source.setURL(url);
@@ -1252,6 +1262,56 @@ class MySqlContractTest extends DatabaseContract {
             assertEquals(second.getLoginName(),context().selectByPrimaryKey(Account.class,second.getId()).getLoginName());
             assertEquals(2,context().deleteByPrimaryKey(Account.class,Arrays.asList(first.getId(),second.getId())));
         }
+    }
+
+    /** 普通、选择性和两种批量路径均在 SQL 构建前生成雪花主键。 */
+    @Test void snowflakeIdsCoverInsertPathsAndPreserveExplicitKeys() {
+        SnowflakeDepartment first=new SnowflakeDepartment();first.setName("snowflake-full");
+        assertEquals(1,context().insert(first));assertNotNull(first.getId());
+        assertEquals(first,context().selectByPrimaryKey(SnowflakeDepartment.class,first.getId()));
+        SnowflakeDepartment second=new SnowflakeDepartment();second.setName("snowflake-selective");
+        assertEquals(1,context().insertSelective(second));
+        for(boolean multiple:new boolean[]{false,true}) {
+            SnowflakeDepartment a=new SnowflakeDepartment();a.setName("snowflake-batch-a");
+            SnowflakeDepartment b=new SnowflakeDepartment();b.setName("snowflake-batch-b");
+            assertEquals(2,multiple ? context().insertMultiple(Arrays.asList(a,b)) : context().insertBatch(Arrays.asList(a,b)));
+            assertNotNull(a.getId());assertNotNull(b.getId());assertNotEquals(a.getId(),b.getId());
+            assertEquals(a,context().selectByPrimaryKey(SnowflakeDepartment.class,a.getId()));
+            assertEquals(b,context().selectByPrimaryKey(SnowflakeDepartment.class,b.getId()));
+        }
+        SnowflakeDepartment upsert=new SnowflakeDepartment();upsert.setName("snowflake-upsert-new");
+        context().upsert(upsert);assertNotNull(upsert.getId());
+        assertEquals(upsert,context().selectByPrimaryKey(SnowflakeDepartment.class,upsert.getId()));
+        SnowflakeDepartment selective=new SnowflakeDepartment();selective.setName("snowflake-upsert-selective");
+        context().upsertSelective(selective);assertNotNull(selective.getId());
+        SnowflakeDepartment a=new SnowflakeDepartment();a.setName("snowflake-upsert-multiple-a");
+        SnowflakeDepartment b=new SnowflakeDepartment();b.setName("snowflake-upsert-multiple-b");
+        context().upsertMultiple(Arrays.asList(a,b));assertNotNull(a.getId());assertNotNull(b.getId());
+        assertEquals(a,context().selectByPrimaryKey(SnowflakeDepartment.class,a.getId()));
+        assertEquals(b,context().selectByPrimaryKey(SnowflakeDepartment.class,b.getId()));
+        Long original=first.getId();first.setName("snowflake-upsert");
+        context().upsertSelective(first);assertEquals(original,first.getId());
+        SnowflakeDepartment explicit=new SnowflakeDepartment();explicit.setId(98001000L);explicit.setName("explicit");
+        assertEquals(1,context().insertSelective(explicit));assertEquals(Long.valueOf(98001000),explicit.getId());
+    }
+
+    /** 自定义生成器与字符串雪花 ID 都通过同一扩展入口转换并写入。 */
+    @Test void customAndStringIdsUseGeneratorExtension() {
+        CustomKeyDepartment custom=new CustomKeyDepartment();custom.setName("custom-id");
+        assertEquals(1,context().insertSelective(custom));assertTrue(custom.getId()>98000000L);
+        assertEquals(custom,context().selectByPrimaryKey(CustomKeyDepartment.class,custom.getId()));
+        StringSnowflakeDepartment string=new StringSnowflakeDepartment();string.setName("string-snowflake");
+        assertEquals(1,context().insertSelective(string));assertTrue(Long.parseLong(string.getId())>0);
+        assertEquals(string,context().selectByPrimaryKey(StringSnowflakeDepartment.class,string.getId()));
+    }
+
+    /** 扩展生成器返回空值时不得执行插入，失败后清理当前线程的实体上下文。 */
+    @Test void nullGeneratorResultFailsBeforeSqlAndClearsContext() {
+        CustomKeyDepartment entity=new CustomKeyDepartment();entity.setName("reject-null-id");
+        assertThrows(IllegalStateException.class,()->context().insertSelective(entity));
+        assertNull(entity.getId());assertNull(EntitiesInserter.getLocalEntities());
+        assertEquals(Long.valueOf(0),context().selectOne(
+                "SELECT COUNT(*) FROM ds_department WHERE name='reject-null-id'",Long.class));
     }
 
 }

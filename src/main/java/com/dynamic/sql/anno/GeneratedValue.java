@@ -20,14 +20,14 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 主键值自动生成类型，只有在属性被注解{@code Id}修饰过，该自增策略才会生效。
- * 当主键上加入此注解后，新增的主键会自动映射到对象的主键字段上。便于后续的业务操作
+ * 主键生成策略，仅对带 {@code Id} 的字段生效。
+ * AUTO 使用数据库生成并回填；应用侧策略在 SQL 构建前填充空主键，保留显式主键。
  */
 @Target({FIELD})
 @Retention(RUNTIME)
 public @interface GeneratedValue {
     /**
-     * 自增策略，默认使用数据库自增机制
+     * 主键生成策略，默认使用数据库自增机制
      */
     GenerationType strategy() default AUTO;
 
@@ -36,4 +36,7 @@ public @interface GeneratedValue {
      * {@link this#strategy()} 为 SEQUENCE，该序列名才会生效
      */
     String sequenceName() default "";
+
+    /** 应用生成器名称；SNOWFLAKE 默认使用 snowflake，CUSTOM 必须显式配置。 */
+    String generator() default "";
 }

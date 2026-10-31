@@ -26,4 +26,10 @@ public enum GenerationType {
      * @see GeneratedValue#sequenceName()
      */
     SEQUENCE,
+
+    /** 应用侧雪花 ID，使用显式注册的线程安全生成器。 */
+    SNOWFLAKE,
+
+    /** 应用侧自定义主键算法，由注解名称选择扩展生成器。 */
+    CUSTOM,
 }

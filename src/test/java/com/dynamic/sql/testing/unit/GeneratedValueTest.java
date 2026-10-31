@@ -17,6 +17,8 @@ class GeneratedValueTest {
         @Id @GeneratedValue(strategy=GenerationType.AUTO) Long explicitId;
         @Id @GeneratedValue(strategy=GenerationType.SEQUENCE,sequenceName="seq_sample_id") Long sequenceId;
         @GeneratedValue(strategy=GenerationType.SEQUENCE,sequenceName="ignored") Long ordinary;
+        @Id @GeneratedValue(strategy=GenerationType.SNOWFLAKE,generator="worker") Long snowflake;
+        @Id @GeneratedValue(strategy=GenerationType.CUSTOM,generator="business") Long custom;
     }
 
     /** 默认及显式 AUTO 都表示数据库生成主键，序列名不应被误填。 */
@@ -36,6 +38,13 @@ class GeneratedValueTest {
     /** 普通字段上的 GeneratedValue 不能启用主键生成。 */
     @Test void onlyPrimaryKeyUsesGeneration() throws Exception {
         assertNull(column("ordinary").getGeneratedStrategy());
+    }
+
+    /** 应用生成器名称与策略必须保存在元数据，不能与序列名混用。 */
+    @Test void preservesApplicationGeneratorConfiguration() throws Exception {
+        assertEquals(GenerationType.SNOWFLAKE,column("snowflake").getGeneratedStrategy().getStrategy());
+        assertEquals("worker",column("snowflake").getGeneratedStrategy().getGenerator());
+        assertEquals("business",column("custom").getGeneratedStrategy().getGenerator());
     }
 
     /** 直接隔离列解析步骤，避免静态数据源注册影响元数据断言。 */
