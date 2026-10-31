@@ -602,4 +602,61 @@ class MySqlContractTest extends DatabaseContract {
             assertEquals(3819,check.getErrorCode());
         }
     }
+    /** 条件修改和删除必须只影响匹配行，未命中操作返回零且不改变其他账户。 */
+    @Test void conditionalBusinessWritesPreserveOtherAccounts() {
+        Account patch = new Account(); patch.setDisplayName("条件更新");
+        assertEquals(2, context().updateSelective(patch, w -> w.andEqualTo(Account::getDepartmentId, 20L)));
+        assertEquals("条件更新", context().selectByPrimaryKey(Account.class, 100L).getDisplayName());
+        assertEquals("条件更新", context().selectByPrimaryKey(Account.class, 101L).getDisplayName());
+        assertEquals("王五", context().selectByPrimaryKey(Account.class, 102L).getDisplayName());
+        assertEquals(0, context().updateSelective(patch, w -> w.andEqualTo(Account::getId, -1L)));
+        assertEquals(0, context().delete(Account.class, w -> w.andEqualTo(Account::getId, -1L)));
+        Account temporary = new Account(); temporary.setLoginName("conditional-delete");
+        assertEquals(1, context().insertSelective(temporary));
+        assertEquals(1, context().delete(Account.class, w -> w.andEqualTo(Account::getLoginName, "conditional-delete")));
+        assertNull(context().selectByPrimaryKey(Account.class, temporary.getId()));
+    }
+
+    /** 多步骤业务操作回滚到保存点后恢复金额和明细，连接仍能继续执行事务。 */
+    @Test void businessSavepointRestoresMultipleWrites() throws Exception {
+        Savepoint savepoint = transaction.setSavepoint();
+        BigDecimal before = context().selectByPrimaryKey(Account.class, 100L).getBalance();
+        Account patch = new Account(); patch.setId(100L); patch.setBalance(before.subtract(BigDecimal.TEN));
+        assertEquals(1, context().updateSelectiveByPrimaryKey(patch));
+        Department department = new Department(); department.setId(95000L); department.setName("事务部门");
+        assertEquals(1, context().insertSelective(department));
+        transaction.rollback(savepoint); transaction.releaseSavepoint(savepoint);
+        assertEquals(before, context().selectByPrimaryKey(Account.class, 100L).getBalance());
+        assertNull(context().selectByPrimaryKey(Department.class, 95000L));
+    }
+
+    /** 唯一业务键冲突必须保留已有账户，同时允许事务在错误后继续执行。 */
+    @Test void uniqueBusinessKeyFailurePreservesOriginal() {
+        Account original = context().selectByPrimaryKey(Account.class, 100L);
+        Account duplicate = new Account(); duplicate.setLoginName(original.getLoginName());
+        duplicate.setBalance(new BigDecimal("999.00"));
+        assertEquals(1062, sqlCause(assertThrows(RuntimeException.class,
+                () -> context().insertSelective(duplicate))).getErrorCode());
+        assertEquals(original, context().selectByPrimaryKey(Account.class, 100L));
+        Account recovered = new Account(); recovered.setLoginName("unique-recovery");
+        assertEquals(1, context().insertSelective(recovered));
+        assertEquals(1, context().deleteByPrimaryKey(Account.class, recovered.getId()));
+    }
+
+    /** 同一业务主键先新增再更新，批量 upsert 同时覆盖已存在与不存在的记录。 */
+    @Test void upsertBusinessLifecycle() {
+        Department first = new Department(); first.setId(95100L); first.setName("初始部门");
+        context().upsertSelective(first);
+        assertEquals("初始部门", context().selectByPrimaryKey(Department.class, 95100L).getName());
+        first.setName("更新部门");
+        context().upsertSelective(first);
+        assertEquals("更新部门", context().selectByPrimaryKey(Department.class, 95100L).getName());
+        Department second = new Department(); second.setId(95101L); second.setName("新部门");
+        first.setName("批量更新");
+        context().upsertMultiple(java.util.Arrays.asList(first, second));
+        assertEquals("批量更新", context().selectByPrimaryKey(Department.class, 95100L).getName());
+        assertEquals("新部门", context().selectByPrimaryKey(Department.class, 95101L).getName());
+        assertEquals(2, context().deleteByPrimaryKey(Department.class, java.util.Arrays.asList(95100L, 95101L)));
+    }
+
 }
