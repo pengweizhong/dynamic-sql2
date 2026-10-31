@@ -126,3 +126,7 @@ MysqlSpatialSample.lineValue 已由 byte[] 改为框架 LineString。新增对�
 MysqlSpatialSample 的八种空间字段均已使用标准对象，新增 Geometry、MultiPoint、MultiLineString、MultiPolygon、GeometryCollection。原矩阵完整验证对象 CRUD，补充直接构造业务对象的新增/更新和结构化几何单元测试。最终服务端预编译完整 mysql-it 301 项通过，零失败、零跳过。
 
 源码和新测试统一优先使用头部 import 与短类名；反射字符串中的类全名保持必要的完整形式，history 不改动。
+
+## 列函数 P0 基线完成
+
+C01～C05 完成算术表达式、公共参数绑定、CASE/空值条件、类型转换及 JSON 路径与版本修复；增加 40 项 MySQL 集成动态场景和 6 项单元测试，覆盖 SELECT、WHERE、HAVING、ORDER BY、嵌套、别名和重复执行。默认客户端预编译及服务端预编译配置完整 mysql-it 均通过 347 项。具体实施与兼容变化见 [列函数待办](COLUMN_FUNCTION_TODO.md) 的 P0 完成记录。

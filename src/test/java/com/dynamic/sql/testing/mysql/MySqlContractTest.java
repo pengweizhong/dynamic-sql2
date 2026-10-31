@@ -3,6 +3,7 @@ package com.dynamic.sql.testing.mysql;
 import com.dynamic.sql.context.SqlContextHelper;
 import com.dynamic.sql.context.properties.*;
 import com.dynamic.sql.core.SqlContext;
+import java.util.stream.Stream;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.scalar.geometry.Area;
@@ -1218,6 +1219,11 @@ class MySqlContractTest extends DatabaseContract {
         assertEquals(row.getGeometryValue(),read.getGeometryValue());
         assertEquals(row.getCollectionValue(),read.getCollectionValue());
         assertEquals(1,context().deleteByPrimaryKey(MysqlSpatialSample.class,95400L));
+    }
+
+    /** P0 表达式按独立动态用例展示结果，覆盖算术、条件、转换及 JSON。 */
+    @TestFactory Stream<DynamicTest> p0ExpressionMatrix() {
+        return P0ExpressionMatrix.cases(context());
     }
 
 }

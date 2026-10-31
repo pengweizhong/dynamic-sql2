@@ -44,3 +44,11 @@
 ## 经纬度函数语义修正
 
 Longitude/Latitude 原调用 ST_X/ST_Y，无法表达地理 SRS 的真实经纬度。现改为 ST_Longitude/ST_Latitude，并新增 X/Y 承接笛卡尔分量读取；这是有行为变化的修正。缺少第二几何入参的 Distance/DistanceSphere 旧单表达式构造器现在立即抛出英文 IllegalArgumentException，避免执行时空指针，通用二元表达式支持仍待补充。
+
+## 列函数 P0 修复
+
+- 算术表达式重载原有部分仅返回 this，列引用还在渲染前解析；现按顺序保存操作数，渲染时解析列与绑定值，并提供 Group 控制优先级。
+- 原函数算术渲染可能将右侧表达式反复追加到可变 SQL；改为不修改结构的重复渲染。
+- SubString、DateFormat 原在每次 render 注册新参数；改用统一的稳定绑定模型，并保持首个列表达式的实体映射来源。
+- CASE 原为整文件注释，转换包只有接口；现实现两种 CASE 及常用条件函数、白名单类型转换。
+- JsonExtract 路径原直接拼接，旧版本判断使用错误的组合条件，Oracle JSON_VALUE 无法保留提取对象语义；现绑定路径、按 5.7.8 比较版本，并拒绝未实现的方言。

@@ -79,13 +79,8 @@ public abstract class ColumnFunctionDecorator
         if (arithmetic == null) {
             return "";
         }
-        ColumFunction columFunctionArithmetic = arithmetic.getColumFunctionArithmetic();
-        if (columFunctionArithmetic == null) {
-            parameterBinder.addParameterBinder(arithmetic.getArithmeticParameterBinder());
-            return arithmetic.getArithmeticSql().toString();
-        }
-        String render = columFunctionArithmetic.render(context);
-        parameterBinder.addParameterBinder(columFunctionArithmetic.parameterBinder());
-        return arithmetic.getArithmeticSql().append(render).toString();
+        String sql=arithmetic.render(context);
+        parameterBinder.addParameterBinder(arithmetic.getArithmeticParameterBinder());
+        return sql;
     }
 }

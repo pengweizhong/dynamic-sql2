@@ -65,18 +65,18 @@ public final class Column extends AbstractColumFunction implements TableFunction
 
     @Override
     public ParameterBinder parameterBinder() {
-        return null;
+        return getArithmetic().getArithmeticParameterBinder();
     }
 
     @Override
     public String render(RenderContext context) {
         if (columnName != null) {
             if (StringUtils.isEmpty(SqlUtils.quoteIdentifier(context.getSqlDialect(), tableAlias))) {
-                return SqlUtils.quoteIdentifier(context.getSqlDialect(), columnName);
+                return SqlUtils.quoteIdentifier(context.getSqlDialect(), columnName) + getArithmetic().render(context);
             }
             return SqlUtils.quoteIdentifier(context.getSqlDialect(), tableAlias) + "." +
-                    SqlUtils.quoteIdentifier(context.getSqlDialect(), columnName);
+                    SqlUtils.quoteIdentifier(context.getSqlDialect(), columnName) + getArithmetic().render(context);
         }
-        return SqlUtils.extractQualifiedAlias(tableAlias, columnFn, context.getAliasTableMap(), context.getDataSourceName(), null);
+        return SqlUtils.extractQualifiedAlias(tableAlias, columnFn, context.getAliasTableMap(), context.getDataSourceName(), null) + getArithmetic().render(context);
     }
 }
