@@ -19,6 +19,9 @@ import com.dynamic.sql.utils.ExceptionUtils;
 
 /** 读取地理坐标系中的纬度；笛卡尔坐标分量请使用 Y。 */
 public class Latitude extends ColumnFunctionDecorator implements ScalarFunction {
+    private String coordinate;
+    /** 设置坐标分量，地理范围及轴序由数据库检查。 */
+    public Latitude(AbstractColumFunction geometry, double coordinate) { super(geometry); this.coordinate = com.dynamic.sql.utils.SqlUtils.registerValueWithKey(parameterBinder, coordinate); }
     public Latitude(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }
@@ -34,7 +37,7 @@ public class Latitude extends ColumnFunctionDecorator implements ScalarFunction 
     @Override
     public String render(RenderContext context) {
         if (context.getSqlDialect() == SqlDialect.MYSQL) {
-            return "ST_Latitude(" + delegateFunction.render(context) + ")";
+            return "ST_Latitude(" + delegateFunction.render(context) + (coordinate == null ? "" : ", " + coordinate) + ")";
         }
         throw ExceptionUtils.unsupportedFunctionException("ST_Latitude", context.getSqlDialect());
     }

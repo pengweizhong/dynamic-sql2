@@ -104,3 +104,15 @@
 ## 空间关系表达式扩展
 
 新增参数绑定的 GeomFromText，以及 Contains、Within、Intersects、Disjoint、Equals、Touches、Crosses、Overlaps 双几何表达式和双字段入口；Contains 保留原字段与 Point 构造器。16 个动态用例分别覆盖命中与未命中，重复执行同一表达式确认参数没有累积。真实 MySQL 默认配置完整 mysql-it 216 项通过，其中集成类 202 项，零失败、零跳过。双字段入口、NULL、不同 SRID 和错误几何输入的独立断言仍需补充；其他方言明确拒绝，不宣称支持。
+
+## 空间关系边界验证
+
+新增 19 个场景：八种关系函数的左右 NULL 共 16 组；双字段与带别名字段比较并验证空列；不同 SRID 的 3033 错误、非法 WKT 的 3037 错误及 Java 空操作数拒绝；Envelope/ConvexHull 嵌套 Area 确认面积。默认客户端预编译完整 mysql-it 235 项通过，其中集成类 221 项，零失败、零跳过。本批没有新增框架修复；服务端预编译尚未重跑此批新增场景。
+
+## 距离、WKB 与 SRID 设置
+
+新增通用双表达式 Distance/DistanceSphere、参数化 GeomFromWKB，以及 SRID 表达式设置重载。新增三个实库测试验证距离、线串标准 WKB 构造与 SRID 设置不改变坐标。完整 mysql-it 238 项通过。原建议范围逐项进度见 [空间函数进度](GEOMETRY_PROGRESS.md)。
+
+## 空间函数剩余类别完成
+
+坐标转换、几何集合运算、缓冲区策略、线和环及集合成员访问、九种 MBR 关系、GeoJSON、GeoHash、简化、验证、插值和高级距离均已提供基础实现与实库断言；补齐坐标设置、SRID 字段设置和距离可选参数。新增 51 个集成动态场景与 3 个无需数据库测试，两种预编译配置完整 mysql-it 均通过 292 项。逐项状态及支持边界以 [空间函数进度](GEOMETRY_PROGRESS.md) 最新表格为准，前面历史批次的“待实现”描述已被本轮结果更新。

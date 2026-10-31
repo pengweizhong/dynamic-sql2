@@ -19,6 +19,9 @@ import com.dynamic.sql.utils.ExceptionUtils;
 
 /** 读取点的第二坐标分量，不解释为纬度；当前仅支持 MySQL，其他方言明确拒绝。 */
 public class Y extends ColumnFunctionDecorator implements ScalarFunction {
+    private String coordinate;
+    /** 设置坐标分量，地理范围及轴序由数据库检查。 */
+    public Y(AbstractColumFunction geometry, double coordinate) { super(geometry); this.coordinate = com.dynamic.sql.utils.SqlUtils.registerValueWithKey(parameterBinder, coordinate); }
     public Y(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }
@@ -34,7 +37,7 @@ public class Y extends ColumnFunctionDecorator implements ScalarFunction {
     @Override
     public String render(RenderContext context) {
         if (context.getSqlDialect() == SqlDialect.MYSQL) {
-            return "ST_Y(" + delegateFunction.render(context) + ")";
+            return "ST_Y(" + delegateFunction.render(context) + (coordinate == null ? "" : ", " + coordinate) + ")";
         }
         throw ExceptionUtils.unsupportedFunctionException("ST_Y", context.getSqlDialect());
     }

@@ -28,6 +28,6 @@ abstract class BinaryGeometryFunction extends ColumnFunctionDecorator implements
     /** 每次返回独立参数容器，避免重复读取绑定信息时不断追加参数。 */
     @Override public ParameterBinder parameterBinder() {
         return new ParameterBinder().addParameterBinder(delegateFunction.parameterBinder())
-                .addParameterBinder(right.parameterBinder());
+                .addParameterBinder(right.parameterBinder()).addParameterBinder(parameterBinder);
     }
 }

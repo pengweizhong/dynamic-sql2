@@ -1012,4 +1012,99 @@ class MySqlContractTest extends DatabaseContract {
         }));
     }
 
+    /** 每个关系函数分别检查左右 SQL NULL，不能把未知关系错误映射为 false。 */
+    @TestFactory java.util.stream.Stream<DynamicTest> geometryRelationNullMatrix() {
+        java.util.List<DynamicTest> tests = new java.util.ArrayList<>();
+        for (String name : new String[]{"Contains","Within","Intersects","Disjoint","Equals","Touches","Crosses","Overlaps"}) {
+            for (boolean leftNull : new boolean[]{false,true}) {
+                tests.add(DynamicTest.dynamicTest("geometry.null." + name + "." + leftNull, () -> {
+                    Class<?> type = Class.forName("com.dynamic.sql.core.column.function.scalar.geometry." + name);
+                    com.dynamic.sql.core.column.function.AbstractColumFunction function =
+                            (com.dynamic.sql.core.column.function.AbstractColumFunction) type.getConstructor(
+                                    com.dynamic.sql.core.column.function.AbstractColumFunction.class,
+                                    com.dynamic.sql.core.column.function.AbstractColumFunction.class).newInstance(
+                                    new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText(leftNull ? null : "POINT(1 1)"),
+                                    new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText(leftNull ? "POINT(1 1)" : null));
+                    assertNull(geometryScalar(function, Boolean.class, 2L));
+                }));
+            }
+        }
+        return tests.stream();
+    }
+
+    /** 双实体字段入口与带别名表达式均可解析，并保留原列的 SQL NULL。 */
+    @Test void geometryRelationsCompareColumns() {
+        assertEquals(Boolean.TRUE, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Equals(
+                MysqlSpatialSample::getPointValue, MysqlSpatialSample::getPointValue), Boolean.class, 2L));
+        assertNull(geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Equals(
+                MysqlSpatialSample::getPointValue, MysqlSpatialSample::getPointValue), Boolean.class, 1L));
+        assertEquals(Boolean.TRUE, context().select().column(
+                new com.dynamic.sql.core.column.function.scalar.geometry.Equals(
+                        new com.dynamic.sql.core.column.conventional.Column("g", MysqlSpatialSample::getPointValue),
+                        new com.dynamic.sql.core.column.conventional.Column("g", MysqlSpatialSample::getPointValue)))
+                .from(MysqlSpatialSample.class, "g")
+                .where(w -> w.andEqualTo(new com.dynamic.sql.core.column.conventional.Column("g", MysqlSpatialSample::getId), 2L))
+                .fetch(Boolean.class).toOne());
+    }
+
+    /** 不同坐标系不得隐式混算，非法 WKT 必须作为参数交由数据库拒绝。 */
+    @Test void geometryRejectsInvalidOperands() {
+        RuntimeException mismatch = assertThrows(RuntimeException.class, () -> geometryScalar(
+                new com.dynamic.sql.core.column.function.scalar.geometry.Intersects(
+                        new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(1 1)", 0),
+                        new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(1 1)", 4326)),
+                Boolean.class, 2L));
+        assertEquals(3033, sqlCause(mismatch).getErrorCode());
+        RuntimeException invalid = assertThrows(RuntimeException.class, () -> geometryScalar(
+                new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(invalid)"),
+                byte[].class, 2L));
+        assertEquals(3037, sqlCause(invalid).getErrorCode());
+        assertThrows(NullPointerException.class, () -> new com.dynamic.sql.core.column.function.scalar.geometry.Intersects(
+                (com.dynamic.sql.core.column.function.AbstractColumFunction)null,
+                new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(1 1)")));
+    }
+
+    /** 补齐包围矩形与凸包的嵌套函数测试，以面积独立验证几何结果。 */
+    @Test void geometryEnvelopeAndConvexHull() {
+        assertEquals(16.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Area(
+                new com.dynamic.sql.core.column.function.scalar.geometry.Envelope(MysqlSpatialSample::getPolygonValue)), Double.class, 2L), 1e-10);
+        assertEquals(16.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Area(
+                new com.dynamic.sql.core.column.function.scalar.geometry.ConvexHull(MysqlSpatialSample::getPolygonValue)), Double.class, 2L), 1e-10);
+    }
+
+    /** 双表达式距离支持参数化几何，平面距离与球面距离分别验证。 */
+    @Test void geometryDistancesAcceptExpressions() {
+        assertEquals(5.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Distance(
+                new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(0 0)"),
+                new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(3 4)")), Double.class, 2L), 1e-10);
+        assertEquals(0.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.DistanceSphere(
+                new com.dynamic.sql.core.column.conventional.Column(MysqlSpatialSample::getPointValue),
+                new com.dynamic.sql.core.column.conventional.Column(MysqlSpatialSample::getPointValue)), Double.class, 2L), 1e-10);
+    }
+
+    /** 标准 WKB 经构造函数转换为数据库几何；线串二进制不冒充 Java 线串模型。 */
+    @Test void geometryWkbLineConstruction() {
+        byte[] wkb = geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.AsBinary(
+                MysqlSpatialSample::getLineValue), byte[].class, 2L);
+        assertEquals(Math.sqrt(2)*2, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Length(
+                new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromWKB(wkb)), Double.class, 2L), 1e-10);
+        assertNull(geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromWKB(null), byte[].class, 2L));
+    }
+
+    /** 设置 SRID 仅更改标识，原始坐标分量保持不变。 */
+    @Test void geometrySridSetterPreservesCoordinates() {
+        com.dynamic.sql.core.column.function.AbstractColumFunction geometry =
+                new com.dynamic.sql.core.column.function.scalar.geometry.SRID(
+                        new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(10 20)"), 3857);
+        assertEquals(Integer.valueOf(3857), geometryScalar(
+                new com.dynamic.sql.core.column.function.scalar.geometry.SRID(geometry), Integer.class, 2L));
+        assertEquals(10.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.X(geometry), Double.class, 2L), 1e-10);
+        assertEquals(20.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Y(geometry), Double.class, 2L), 1e-10);
+    }
+
+    /** 空间剩余函数逐项独立核对，并复用同一函数对象检查参数稳定性。 */
+    @TestFactory java.util.stream.Stream<DynamicTest> geometryCompletionMatrix() {
+        return GeometryCompletionMatrix.cases(context(), transaction);
+    }
+
 }
