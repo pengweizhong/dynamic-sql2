@@ -180,6 +180,12 @@ public class ConverterUtils {
 //        if (fieldType == Byte.class || fieldType == byte.class || fieldType == Byte[].class || fieldType == byte[].class) {
 //            return toByte(value, fieldType);
 //        }
+        if (fieldType == Short.class || fieldType == short.class) {
+            return (T) Short.valueOf(ifBooleanToNumber(value).toString());
+        }
+        if (fieldType == Byte.class || fieldType == byte.class) {
+            return (T) Byte.valueOf(ifBooleanToNumber(value).toString());
+        }
         if (fieldType == Integer.class || fieldType == int.class) {
             return (T) toInteger(value);
         }

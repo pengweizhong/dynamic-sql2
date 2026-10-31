@@ -16,6 +16,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <test.excludedGroups>integration</test.excludedGroups>
         <test.lombok.version>1.18.30</test.lombok.version>
     </properties>
 
@@ -112,15 +113,28 @@
             <version>2.13.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.11.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
-            <!-- skipTests -->
+            <!-- Default tests run without a database; mysql-it enables integration tests. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <excludedGroups>${test.excludedGroups}</excludedGroups>
+                    <failIfNoTests>true</failIfNoTests>
+                    <includes>
+                        <include>com/dynamic/sql/testing/**/*Test.java</include>
+                    </includes>
+                    <reuseForks>false</reuseForks>
+                    <argLine>-Duser.timezone=UTC</argLine>
                 </configuration>
             </plugin>
             <!-- Generate source code JAR -->
@@ -204,6 +218,12 @@
                 <configuration>
                     <source>8</source>
                     <target>8</target>
+                    <testIncludes>
+                        <testInclude>com/dynamic/sql/testing/**/*.java</testInclude>
+                    </testIncludes>
+                    <testExcludes>
+                        <testExclude>history/**</testExclude>
+                    </testExcludes>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -220,4 +240,12 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>mysql-it</id>
+            <properties>
+                <test.excludedGroups>none</test.excludedGroups>
+            </properties>
+        </profile>
+    </profiles>
 </project>
