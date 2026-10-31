@@ -234,6 +234,102 @@ class MySqlContractTest extends DatabaseContract {
         } finally { java.util.TimeZone.setDefault(previous); }
     }
 
+    /** 验证 binary 排序规则的大小写语义，并保留 VARCHAR/TEXT 的尾随空格。 */
+    @Test void binaryCollationAndTrailingSpaces() throws Exception {
+        TypeSample row=new TypeSample(); row.setId(94700L); row.setSampleName("collation-case");
+        row.setVarcharValue("Case"); row.setTextValue("尾随空格 ");
+        assertEquals(1,context().insertSelective(row));
+        assertEquals(Long.valueOf(0),context().selectOne("SELECT COUNT(*) FROM ds_type_sample WHERE id=94700 AND varchar_value='case'",Long.class));
+        assertEquals(Long.valueOf(1),context().selectOne("SELECT COUNT(*) FROM ds_type_sample WHERE id=94700 AND varchar_value='Case'",Long.class));
+        assertEquals("尾随空格 ",context().selectByPrimaryKey(TypeSample.class,94700L).getTextValue());
+        try(Statement statement=transaction.createStatement();ResultSet result=statement.executeQuery(
+                "SELECT COLLATION_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='ds_type_sample' AND COLUMN_NAME='varchar_value'")) {
+            assertTrue(result.next()); assertEquals("utf8mb4_bin",result.getString(1));
+        }
+        assertEquals(1,context().deleteByPrimaryKey(TypeSample.class,94700L));
+    }
+
+    /** 非零 SRID 在框架 Point 转换、数据库存储和实体读取之间保持一致。 */
+    @Test void nonzeroSpatialSridRoundTrip() throws Exception {
+        com.dynamic.sql.testing.model.MysqlSpatialSample row=new com.dynamic.sql.testing.model.MysqlSpatialSample();
+        row.setId(94800L); row.setPointValue(new com.dynamic.sql.model.Point(116.3,39.9,3857));
+        assertEquals(1,context().insertSelective(row));
+        try(Statement statement=transaction.createStatement();ResultSet result=statement.executeQuery(
+                "SELECT ST_SRID(point_value),ST_X(point_value),ST_Y(point_value) FROM ds_mysql_spatial_sample WHERE id=94800")) {
+            assertTrue(result.next()); assertEquals(3857,result.getInt(1));
+            assertEquals(116.3,result.getDouble(2),1e-10); assertEquals(39.9,result.getDouble(3),1e-10);
+        }
+        com.dynamic.sql.model.Point fetched=context().selectByPrimaryKey(
+                com.dynamic.sql.testing.model.MysqlSpatialSample.class,94800L).getPointValue();
+        assertEquals(3857,fetched.getSrid()); assertEquals(116.3,fetched.getLongitude(),1e-10); assertEquals(39.9,fetched.getLatitude(),1e-10);
+        row.setPointValue(new com.dynamic.sql.model.Point(120.1,30.2,3857));
+        assertEquals(1,context().updateSelectiveByPrimaryKey(row));
+        assertEquals(120.1,context().selectByPrimaryKey(com.dynamic.sql.testing.model.MysqlSpatialSample.class,94800L).getPointValue().getLongitude(),1e-10);
+        assertEquals(1,context().deleteByPrimaryKey(com.dynamic.sql.testing.model.MysqlSpatialSample.class,94800L));
+    }
+
+    /** MEDIUMTEXT 验证 16 MiB 上限、框架读取、边界更新及超限更新的原值保护。 */
+    @Test void mediumTextPhysicalSizeBoundary() throws Exception {
+        final int maximum=16777215;
+        Savepoint savepoint=transaction.setSavepoint();
+        try {
+            MysqlTypeSample row=new MysqlTypeSample(); row.setId(94600L); row.setMediumText(repeat('m',maximum));
+            assertEquals(1,context().insertSelective(row));
+            assertEquals(maximum,context().selectByPrimaryKey(MysqlTypeSample.class,94600L).getMediumText().length());
+            assertEquals((long)maximum,context().selectOne("SELECT OCTET_LENGTH(medium_text) FROM ds_mysql_type_sample WHERE id=94600",Long.class));
+            MysqlTypeSample update=new MysqlTypeSample(); update.setId(94600L); update.setMediumText(repeat('u',maximum-1));
+            assertEquals(1,context().updateSelectiveByPrimaryKey(update));
+            assertEquals((long)maximum-1,context().selectOne("SELECT OCTET_LENGTH(medium_text) FROM ds_mysql_type_sample WHERE id=94600",Long.class));
+            String stored=context().selectByPrimaryKey(MysqlTypeSample.class,94600L).getMediumText();
+            assertEquals(maximum-1,stored.length()); assertEquals('u',stored.charAt(0));
+            update.setMediumText(repeat('x',maximum+1));
+            SQLException error=sqlCause(assertThrows(RuntimeException.class,()->context().updateSelectiveByPrimaryKey(update)));
+            assertEquals(1406,error.getErrorCode());
+            assertEquals((long)maximum-1,context().selectOne("SELECT OCTET_LENGTH(medium_text) FROM ds_mysql_type_sample WHERE id=94600",Long.class));
+            assertEquals(1,context().deleteByPrimaryKey(MysqlTypeSample.class,94600L));
+        } finally { transaction.rollback(savepoint); transaction.releaseSavepoint(savepoint); }
+    }
+
+    /** MEDIUMBLOB 验证 16 MiB 上限、零字节和高位字节、边界更新及超限更新保护。 */
+    @Test void mediumBlobPhysicalSizeBoundary() throws Exception {
+        final int maximum=16777215;
+        Savepoint savepoint=transaction.setSavepoint();
+        try {
+            MysqlTypeSample row=new MysqlTypeSample(); row.setId(94601L); row.setMediumBlob(pattern(maximum));
+            assertEquals(1,context().insertSelective(row));
+            assertEquals(maximum,context().selectByPrimaryKey(MysqlTypeSample.class,94601L).getMediumBlob().length);
+            assertEquals((long)maximum,context().selectOne("SELECT OCTET_LENGTH(medium_blob) FROM ds_mysql_type_sample WHERE id=94601",Long.class));
+            MysqlTypeSample update=new MysqlTypeSample(); update.setId(94601L); update.setMediumBlob(pattern(maximum-1));
+            assertEquals(1,context().updateSelectiveByPrimaryKey(update));
+            byte[] stored=context().selectByPrimaryKey(MysqlTypeSample.class,94601L).getMediumBlob();
+            assertEquals(maximum-1,stored.length); assertEquals((byte)0,stored[0]);
+            assertEquals((byte)((maximum-2)&0xff),stored[stored.length-1]);
+            update.setMediumBlob(pattern(maximum+1));
+            SQLException error=sqlCause(assertThrows(RuntimeException.class,()->context().updateSelectiveByPrimaryKey(update)));
+            assertEquals(1406,error.getErrorCode());
+            assertEquals((long)maximum-1,context().selectOne("SELECT OCTET_LENGTH(medium_blob) FROM ds_mysql_type_sample WHERE id=94601",Long.class));
+            assertEquals(1,context().deleteByPrimaryKey(MysqlTypeSample.class,94601L));
+        } finally { transaction.rollback(savepoint); transaction.releaseSavepoint(savepoint); }
+    }
+
+    /** 大样本按字节循环生成，覆盖所有二进制值且不依赖随机数。 */
+    private static byte[] pattern(int length) {
+        byte[] value=new byte[length]; for(int i=0;i<length;i++) value[i]=(byte)i; return value;
+    }
+
+    /** 从框架异常链中提取数据库异常，确认失败来自预期的 MySQL 字段容量限制。 */
+    private static SQLException sqlCause(Throwable error) {
+        Throwable cause=error;
+        while(cause!=null && !(cause instanceof SQLException)) cause=cause.getCause();
+        assertNotNull(cause,"Expected a JDBC exception");
+        return (SQLException)cause;
+    }
+
+    /** 创建用于物理字段容量边界的 ASCII 内容，字符数与 UTF-8 字节数相同。 */
+    private static String repeat(char value,int length) {
+        char[] chars=new char[length]; java.util.Arrays.fill(chars,value); return new String(chars);
+    }
+
     @Override protected SqlContext context() { return sqlContext; }
 
     /**

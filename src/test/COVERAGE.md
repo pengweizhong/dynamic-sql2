@@ -18,7 +18,7 @@
 | 位串 | BIT(1)、BIT(8)、BIT(64) | 0、非零位串、64 位全 1、NULL；多位 BIT 以 byte[] 写入 |
 | 年份/时长 | YEAR、MySQL TIME | 1901、2155、额外 YEAR=0 回归、负微秒时长、±838:59:59、NULL |
 | 枚举/集合/JSON | ENUM、SET、JSON | 字符串映射、组合集合、JSON 对象/数组、SQL NULL；额外区分 JSON null 和空容器 |
-| MySQL 文本/二进制 | TINYTEXT、MEDIUMTEXT、LONGTEXT、TINYBLOB、MEDIUMBLOB、LONGBLOB | 短类型长度边界、空内容、较长文本、70000 字节二进制、NULL |
+| MySQL 文本/二进制 | TINYTEXT、MEDIUMTEXT、LONGTEXT、TINYBLOB、MEDIUMBLOB、LONGBLOB | TINYTEXT/TINYBLOB 边界、MEDIUMTEXT/MEDIUMBLOB 16 MiB 最大值与超限拒绝、70000 字节读写、NULL |
 | 生成列 | base_amount → doubled_amount | 更新输入后核对生成值，输入 NULL 后核对生成值 NULL；生成列未列入可写实体 |
 
 以上共 40 个普通/专属字段。空间 `SpatialCrudMatrix` 再覆盖 8 个字段，执行同样的增查改、置空、删除闭环：
@@ -26,7 +26,7 @@
 - POINT、POLYGON：框架内置 Java 模型转换，JDBC 独立比较规范化 WKT 和 SRID。
 - LINESTRING、MULTIPOINT、MULTILINESTRING、MULTIPOLYGON、GEOMETRY、GEOMETRYCOLLECTION：原始空间二进制读写；这不表示框架已提供对应的高级 Java 几何模型。
 - GEOMETRY 的更新包含 POINT → LINESTRING，验证通用几何列可以切换实际类型。
-- 空间实库场景使用 SRID 0；非零 SRID、大小端和损坏载荷由独立 Polygon 单元测试检查。
+- 空间类型闭环使用 SRID 0；另验证 POINT 使用 SRID 3857 的插入、更新和读取。Polygon 大小端、SRID 字节序和损坏载荷由独立单元测试检查。
 
 ## 非法输入与操作语义
 
@@ -40,9 +40,9 @@
 
 ## 尚未宣称覆盖的范围
 
-- 所有可能值、所有 SQL 模式和字符排序规则；目前非法输入用例固定当前连接为严格模式。
-- MEDIUM/LONG LOB 的物理最大容量、GB 级压力和流式读写；本轮只覆盖功能性较大样本。
-- BIT 以所有 Java 数值类型写入、JSON 对应任意自定义 Java 对象、所有类型组合的批量操作。
+- 所有可能值和 SQL 模式；非法输入在严格模式验证。排序规则验证当前仅针对 `utf8mb4_bin` 的大小写区分与尾随空格保留。
+- LONGTEXT/LONGBLOB 的物理容量上限、GB 级压力和流式读写；MEDIUMTEXT/MEDIUMBLOB 的 16 MiB 上限现已覆盖。
+- BIT 以所有 Java 数值类型写入、JSON 对应任意自定义 Java 对象、更大行数的批量压力及失败批次在不同驱动配置下的部分执行行为。
 - YEAR=0000 的 SQL 年份语义通过数值零验证；其他数据库是否允许该值需按能力单独定义。
 - 带孔 Polygon 的高级模型、空间索引、SRID 4326 的实库轴序/地理运算、全部空间谓词。
 - 框架自动识别并排除任意生成列；本轮实体明确省略生成列，另用 JDBC 核对生成结果。
@@ -52,8 +52,8 @@
 
 ## 本轮验证结果
 
-- 默认客户端预编译、UTC JVM：普通 CRUD 矩阵完成时 106 项通过；追加批量矩阵后为 146 项。
-- 服务端预编译、Asia/Shanghai JVM：追加批量矩阵后为 146 项，零失败、零跳过。
+- 默认客户端预编译、UTC JVM：含批量矩阵、LOB 物理边界、排序规则与非零 SRID 用例，150 项通过。
+- 服务端预编译、Asia/Shanghai JVM：同一组 150 项通过，零失败、零跳过。
 - 默认无需数据库的测试：14 项。
 
 所有 MySQL 用例均回滚测试写入；测试报告的通过数只说明上述明确定义的场景，不等同于穷尽 MySQL 的所有类型组合。
