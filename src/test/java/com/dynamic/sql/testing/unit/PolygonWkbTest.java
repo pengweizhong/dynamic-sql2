@@ -1,12 +1,14 @@
 package com.dynamic.sql.testing.unit;
 
+import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.Point;
 import com.dynamic.sql.model.Polygon;
 import com.dynamic.sql.utils.WKBUtils;
-import org.junit.jupiter.api.Test;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
 
 /** 使用独立构造的二进制验证空间转换，不能只用框架自身的写入结果检验自身读取。 */
 class PolygonWkbTest {
@@ -40,7 +42,7 @@ class PolygonWkbTest {
         byte[] count=binary(ByteOrder.LITTLE_ENDIAN); ByteBuffer.wrap(count).order(ByteOrder.LITTLE_ENDIAN).putInt(13,Integer.MAX_VALUE);
         assertThrows(IllegalArgumentException.class,()->WKBUtils.readPolygonFromWkbBytes(count));
         byte[] open=binary(ByteOrder.LITTLE_ENDIAN); ByteBuffer.wrap(open).order(ByteOrder.LITTLE_ENDIAN).putDouble(17+3*16,99);
-        assertThrows(com.dynamic.sql.exception.DynamicSqlException.class,()->WKBUtils.readPolygonFromWkbBytes(open));
+        assertThrows(DynamicSqlException.class,()->WKBUtils.readPolygonFromWkbBytes(open));
     }
 
     //SRID 固定小端；标准 WKB 载荷包含字节序、类型、单环点数和坐标。

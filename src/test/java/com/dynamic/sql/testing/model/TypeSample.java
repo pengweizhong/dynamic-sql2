@@ -1,7 +1,12 @@
 package com.dynamic.sql.testing.model;
 
 import com.dynamic.sql.anno.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import lombok.Data;
+
 
 /**
  * 通用字段类型测试实体，物理数据库类型由各方言脚本定义。
@@ -21,7 +26,7 @@ public class TypeSample {
     //BIGINT 边界及超过浮点精确表示范围的整数。
     private Long longValue;
     //高精度定点数，读取时保留精度和小数位。
-    private java.math.BigDecimal decimalValue;
+    private BigDecimal decimalValue;
     //单精度浮点数，测试采用容差比较。
     private Float floatValue;
     //双精度浮点数，测试采用容差比较。
@@ -41,13 +46,13 @@ public class TypeSample {
     //二进制大字段，验证原始字节不被转码。
     private byte[] blobValue;
     //日期，覆盖闰日和日期边界。
-    private java.time.LocalDate dateValue;
+    private LocalDate dateValue;
     //一天内的时间，使用 LocalTime 验证 TIME(6) 微秒。
-    private java.time.LocalTime timeValue;
+    private LocalTime timeValue;
     //无时区日期时间，保持数据库原始字段值。
-    private java.time.LocalDateTime datetimeValue;
+    private LocalDateTime datetimeValue;
     //映射为数据库会话中的本地时间，不将其当成 UTC Instant。
-    private java.time.LocalDateTime timestampValue;
+    private LocalDateTime timestampValue;
     //数据库默认值，验证选择性插入时未指定列的行为。
     private String defaultValue;
 }

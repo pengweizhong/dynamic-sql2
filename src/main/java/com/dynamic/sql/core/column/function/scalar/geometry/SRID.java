@@ -9,8 +9,8 @@
  */
 package com.dynamic.sql.core.column.function.scalar.geometry;
 
-
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.RenderContext;
@@ -23,7 +23,7 @@ public class SRID extends ColumnFunctionDecorator implements ScalarFunction {
     //设置 SRID 只修改坐标系标识，不执行坐标转换。
     private Integer targetSrid;
     /** 字段设置 SRID 的便捷入口，保持与表达式入口相同语义。 */
-    public <T,F> SRID(FieldFn<T,F> field, int srid) { this(new com.dynamic.sql.core.column.conventional.Column(field), srid); }
+    public <T,F> SRID(FieldFn<T,F> field, int srid) { this(new Column(field), srid); }
 
 
     /** 设置表达式的 SRID；坐标转换应使用独立的 Transform 函数。 */

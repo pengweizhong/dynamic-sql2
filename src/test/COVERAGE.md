@@ -23,8 +23,8 @@
 
 以上共 40 个普通/专属字段。空间 `SpatialCrudMatrix` 再覆盖 8 个字段，执行同样的增查改、置空、删除闭环：
 
-- POINT、POLYGON：框架内置 Java 模型转换，JDBC 独立比较规范化 WKT 和 SRID。
-- LINESTRING、MULTIPOINT、MULTILINESTRING、MULTIPOLYGON、GEOMETRY、GEOMETRYCOLLECTION：原始空间二进制读写；这不表示框架已提供对应的高级 Java 几何模型。
+- POINT、LINESTRING、POLYGON：框架内置 Java 模型转换，JDBC 独立比较规范化 WKT 和 SRID。
+- MULTIPOINT、MULTILINESTRING、MULTIPOLYGON、GEOMETRY、GEOMETRYCOLLECTION：原始空间二进制读写；这不表示框架已提供对应的高级 Java 几何模型。
 - GEOMETRY 的更新包含 POINT → LINESTRING，验证通用几何列可以切换实际类型。
 - 空间类型闭环使用 SRID 0；另验证 POINT 使用 SRID 3857 的插入、更新和读取。Polygon 大小端、SRID 字节序和损坏载荷由独立单元测试检查。
 - 空间标量函数已在 SELECT 中执行验证：ST_Contains 命中/未命中、ST_Distance、ST_Distance_Sphere、ST_AsText 和 ST_SRID。
@@ -116,3 +116,13 @@
 ## 空间函数剩余类别完成
 
 坐标转换、几何集合运算、缓冲区策略、线和环及集合成员访问、九种 MBR 关系、GeoJSON、GeoHash、简化、验证、插值和高级距离均已提供基础实现与实库断言；补齐坐标设置、SRID 字段设置和距离可选参数。新增 51 个集成动态场景与 3 个无需数据库测试，两种预编译配置完整 mysql-it 均通过 292 项。逐项状态及支持边界以 [空间函数进度](GEOMETRY_PROGRESS.md) 最新表格为准，前面历史批次的“待实现”描述已被本轮结果更新。
+
+## LineString 对象映射
+
+MysqlSpatialSample.lineValue 已由 byte[] 改为框架 LineString。新增对象转换器及独立二进制单元测试，原空间 CRUD 矩阵改用对象核对，并额外验证直接创建业务对象、SRID 3857、更新及标量映射。最终服务端预编译、Asia/Shanghai JVM 完整 mysql-it 297 项通过，零失败、零跳过。
+
+## 全空间对象与代码引用整理
+
+MysqlSpatialSample 的八种空间字段均已使用标准对象，新增 Geometry、MultiPoint、MultiLineString、MultiPolygon、GeometryCollection。原矩阵完整验证对象 CRUD，补充直接构造业务对象的新增/更新和结构化几何单元测试。最终服务端预编译完整 mysql-it 301 项通过，零失败、零跳过。
+
+源码和新测试统一优先使用头部 import 与短类名；反射字符串中的类全名保持必要的完整形式，history 不改动。

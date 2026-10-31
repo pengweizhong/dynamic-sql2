@@ -2,7 +2,11 @@ package com.dynamic.sql.testing.model;
 
 import com.dynamic.sql.anno.Id;
 import com.dynamic.sql.anno.Table;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.Year;
 import lombok.Data;
+
 
 /**
  * MySQL 专属可写类型实体；生成列不作为可写属性，使用 JDBC 独立核对其结果。
@@ -28,7 +32,7 @@ public class MysqlTypeSample {
     //无符号 INT。
     private Long unsignedInt;
     //无符号 BIGINT。
-    private java.math.BigInteger unsignedBig;
+    private BigInteger unsignedBig;
     //单比特值。
     private Integer bitFlag;
     //八位位串。
@@ -36,7 +40,7 @@ public class MysqlTypeSample {
     //六十四位位串。
     private byte[] bitWide;
     //年份，不作为完整日期处理。
-    private java.time.Year yearValue;
+    private Year yearValue;
     //MySQL 时长，允许负数及超过一天。
     private String durationValue;
     //数据库枚举文本。
@@ -58,5 +62,5 @@ public class MysqlTypeSample {
     //长二进制。
     private byte[] longBlob;
     //生成列表达式的输入值。
-    private java.math.BigDecimal baseAmount;
+    private BigDecimal baseAmount;
 }

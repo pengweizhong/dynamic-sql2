@@ -5,6 +5,8 @@ import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.model.Point;
+import com.dynamic.sql.utils.SqlUtils;
+
 
 /** ST_Distance_Sphere 距离表达式，支持列、构造函数及其他几何表达式组合。 */
 public class DistanceSphere extends BinaryGeometryFunction {
@@ -12,7 +14,7 @@ public class DistanceSphere extends BinaryGeometryFunction {
     /** 指定距离单位或球半径，参数有效性由 MySQL 检查。 */
     public DistanceSphere(AbstractColumFunction left, AbstractColumFunction right, double radius) {
         this(left, right);
-        option = com.dynamic.sql.utils.SqlUtils.registerValueWithKey(parameterBinder, radius);
+        option = SqlUtils.registerValueWithKey(parameterBinder, radius);
     }
 
     /** 两个任意几何表达式，保留左右操作数的参数绑定顺序。 */

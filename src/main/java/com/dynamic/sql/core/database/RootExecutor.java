@@ -20,11 +20,13 @@ import com.dynamic.sql.utils.CollectionUtils;
 import com.dynamic.sql.utils.ConverterUtils;
 import com.dynamic.sql.utils.ReflectUtils;
 import com.dynamic.sql.utils.SqlUtils;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.sql.*;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
-import java.util.*;
 
 public class RootExecutor {
     private RootExecutor() {
@@ -129,7 +131,7 @@ public class RootExecutor {
         if (bytes == null) return null;
         if ((bytes.length == 8 || bytes.length == 12) && bytes[0] == 1) {
             //二进制载荷依次为：符号、四字节天数、小时、分钟、秒，以及可选的四字节微秒。
-            java.nio.ByteBuffer payload = java.nio.ByteBuffer.wrap(bytes).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+            ByteBuffer payload = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
             long days = Integer.toUnsignedLong(payload.getInt(1));
             long hours = days * 24 + Byte.toUnsignedInt(bytes[5]);
             String value = String.format(Locale.ROOT, "-%02d:%02d:%02d", hours,

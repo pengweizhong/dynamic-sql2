@@ -23,9 +23,26 @@
 
 这些数字包括其他业务测试，不能作为空间函数覆盖百分比。新增函数范围以本表为准；未新增 ST_Collect 聚合、专用几何构造同义函数及所有可选参数重载。空间函数返回二进制几何时，调用方需选择合适的映射，不能将任意几何结果直接映射成 Point。
 
-## lineValue 支持边界
+## 空间字段对象映射
 
-lineValue 仍为 byte[]，已验证 MySQL 内部空间二进制的 CRUD 与 Length。AsBinary → 标准 WKB → GeomFromWKB → Length 查询链路已验证。标准 WKB 需通过构造函数转为数据库几何，不能直接当作内部格式写入 lineValue；Java LineString 模型尚未实现。
+MysqlSpatialSample 的空间字段均已采用框架对象：
+
+| 字段 | 对象类型 |
+| --- | --- |
+| pointValue | Point |
+| lineValue | LineString |
+| polygonValue | Polygon |
+| multiPointValue | MultiPoint |
+| multiLineValue | MultiLineString |
+| multiPolygonValue | MultiPolygon |
+| geometryValue | Geometry |
+| collectionValue | GeometryCollection |
+
+通用 Geometry 保存结构化坐标、环和成员，支持七种二维基本几何及集合递归编解码；带孔多边形可以通过 Geometry 的环访问器读取。各集合类型检查载荷类型与成员 SRID。Point/Polygon 原有模型约束继续适用，Polygon 本身仍只支持单环。
+
+八种字段 CRUD 均走对象转换并以 JDBC WKT/SRID 核对，新增测试直接构造所有业务对象并验证写入及更新。独立单元测试覆盖大端载荷、错误类型、超大计数、截断、尾随垃圾与防御性复制。最终服务端预编译、Asia/Shanghai JVM 完整 mysql-it **301 项通过**。
+
+标准 WKB 仍需通过 GeomFromWKB 转换，不与 MySQL 内部 SRID 头格式混用。
 
 ## 跨数据库适配
 

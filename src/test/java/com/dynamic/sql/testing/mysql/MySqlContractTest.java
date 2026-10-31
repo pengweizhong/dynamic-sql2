@@ -1,18 +1,81 @@
 package com.dynamic.sql.testing.mysql;
 
+import com.dynamic.sql.context.SqlContextHelper;
 import com.dynamic.sql.context.properties.*;
 import com.dynamic.sql.core.SqlContext;
+import com.dynamic.sql.core.column.conventional.Column;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.function.scalar.geometry.Area;
+import com.dynamic.sql.core.column.function.scalar.geometry.AsBinary;
+import com.dynamic.sql.core.column.function.scalar.geometry.AsText;
+import com.dynamic.sql.core.column.function.scalar.geometry.Centroid;
+import com.dynamic.sql.core.column.function.scalar.geometry.Contains;
+import com.dynamic.sql.core.column.function.scalar.geometry.ConvexHull;
+import com.dynamic.sql.core.column.function.scalar.geometry.Dimension;
+import com.dynamic.sql.core.column.function.scalar.geometry.Distance;
+import com.dynamic.sql.core.column.function.scalar.geometry.DistanceSphere;
+import com.dynamic.sql.core.column.function.scalar.geometry.Envelope;
+import com.dynamic.sql.core.column.function.scalar.geometry.Equals;
+import com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText;
+import com.dynamic.sql.core.column.function.scalar.geometry.GeomFromWKB;
+import com.dynamic.sql.core.column.function.scalar.geometry.GeometryType;
+import com.dynamic.sql.core.column.function.scalar.geometry.Intersects;
+import com.dynamic.sql.core.column.function.scalar.geometry.IsEmpty;
+import com.dynamic.sql.core.column.function.scalar.geometry.IsSimple;
+import com.dynamic.sql.core.column.function.scalar.geometry.IsValid;
+import com.dynamic.sql.core.column.function.scalar.geometry.Latitude;
+import com.dynamic.sql.core.column.function.scalar.geometry.Length;
+import com.dynamic.sql.core.column.function.scalar.geometry.Longitude;
+import com.dynamic.sql.core.column.function.scalar.geometry.SRID;
+import com.dynamic.sql.core.column.function.scalar.geometry.SwapXY;
+import com.dynamic.sql.core.column.function.scalar.geometry.X;
+import com.dynamic.sql.core.column.function.scalar.geometry.Y;
+import com.dynamic.sql.core.column.function.windows.RowNumber;
+import com.dynamic.sql.core.column.function.windows.aggregate.Count;
+import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
+import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
+import com.dynamic.sql.core.database.PreparedSql;
+import com.dynamic.sql.core.database.RootExecutor;
+import com.dynamic.sql.core.dml.select.AbstractUnion;
+import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.datasource.*;
 import com.dynamic.sql.datasource.connection.*;
+import com.dynamic.sql.enums.SortOrder;
+import com.dynamic.sql.exception.DynamicSqlException;
+import com.dynamic.sql.model.LineString;
+import com.dynamic.sql.model.Geometry;
+import com.dynamic.sql.model.MultiPoint;
+import com.dynamic.sql.model.MultiLineString;
+import com.dynamic.sql.model.MultiPolygon;
+import com.dynamic.sql.model.GeometryCollection;
+import com.dynamic.sql.model.Polygon;
+import com.dynamic.sql.model.Point;
 import com.dynamic.sql.table.TableUtils;
 import com.dynamic.sql.testing.contract.DatabaseContract;
 import com.dynamic.sql.testing.model.*;
+import com.dynamic.sql.testing.model.MysqlSpatialSample;
 import com.mysql.cj.jdbc.MysqlDataSource;
-import org.junit.jupiter.api.*;
-import javax.sql.DataSource;
-import java.sql.*;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.*;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Year;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import javax.sql.DataSource;
+import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
+
 
 /**
  * MySQL 集成测试，复用通用契约并补充驱动和方言专属行为验证。
@@ -64,7 +127,7 @@ class MySqlContractTest extends DatabaseContract {
         properties.addSchemaProperties(schema);
         DataSourceUtils.checkAndSave(properties,new DataSourceMapping("contract",source,true,new String[]{"com.dynamic.sql.testing.model"}));
         TableUtils.scanAndInitTable("com.dynamic.sql.testing.model");
-        sqlContext = com.dynamic.sql.context.SqlContextHelper.createSqlContextConfigurer(properties).getSqlContext();
+        sqlContext = SqlContextHelper.createSqlContextConfigurer(properties).getSqlContext();
     }
 
     /**
@@ -99,17 +162,17 @@ class MySqlContractTest extends DatabaseContract {
     }
 
     /** 每个字段均通过两种批量写入 API 验证，之后独立核对并批量删除。 */
-    @TestFactory java.util.stream.Stream<DynamicTest> batchTypeMatrix() {
+    @TestFactory Stream<DynamicTest> batchTypeMatrix() {
         return TypeCrudMatrix.batchCases(context(),transaction);
     }
 
     /** 空间类型的框架 CRUD 闭环，包含原生模型与二进制映射。 */
-    @TestFactory java.util.stream.Stream<DynamicTest> spatialCrudMatrix() {
+    @TestFactory Stream<DynamicTest> spatialCrudMatrix() {
         return SpatialCrudMatrix.cases(context(),transaction);
     }
 
     /** 非法输入同时验证新增和更新失败后的数据完整性。 */
-    @TestFactory java.util.stream.Stream<DynamicTest> invalidTypeMatrix() {
+    @TestFactory Stream<DynamicTest> invalidTypeMatrix() {
         return InvalidTypeMatrix.cases(context(),transaction);
     }
 
@@ -121,7 +184,7 @@ class MySqlContractTest extends DatabaseContract {
         TypeSample patch=new TypeSample(); patch.setId(94000L); patch.setLongValue(43L);
         assertEquals(1,context().updateSelectiveByPrimaryKey(patch));
         assertEquals("keep",context().selectByPrimaryKey(TypeSample.class,94000L).getVarcharValue());
-        context().updateSelectiveByPrimaryKey(patch,java.util.Collections.singletonList(TypeSample::getVarcharValue));
+        context().updateSelectiveByPrimaryKey(patch,Collections.singletonList(TypeSample::getVarcharValue));
         try (Statement s=transaction.createStatement(); ResultSet r=s.executeQuery("SELECT varchar_value,long_value,sample_name FROM ds_type_sample WHERE id=94000")) {
             assertTrue(r.next()); assertNull(r.getString(1)); assertEquals(43,r.getLong(2)); assertEquals("null-update",r.getString(3));
         }
@@ -134,8 +197,8 @@ class MySqlContractTest extends DatabaseContract {
             TypeSample b=context().selectByPrimaryKey(TypeSample.class,3L);
             long base=multiple ? 94110L : 94100L;
             a.setId(base); b.setId(base+1); a.setSampleName("batch-"+base); b.setSampleName("batch-"+(base+1));
-            if (multiple) context().insertMultiple(java.util.Arrays.asList(a,b));
-            else context().insertBatch(java.util.Arrays.asList(a,b));
+            if (multiple) context().insertMultiple(Arrays.asList(a,b));
+            else context().insertBatch(Arrays.asList(a,b));
             try (PreparedStatement s=transaction.prepareStatement("SELECT long_value,decimal_value,blob_value,time_value,timestamp_value FROM ds_type_sample WHERE id IN (?,?) ORDER BY id")) {
                 s.setLong(1,base); s.setLong(2,base+1);
                 try (ResultSet r=s.executeQuery()) {
@@ -143,13 +206,13 @@ class MySqlContractTest extends DatabaseContract {
                     while(r.next()) {
                         count++; assertEquals(9007199254740993L,r.getLong(1)); assertEquals(a.getDecimalValue(),r.getBigDecimal(2));
                         assertArrayEquals(a.getBlobValue(),r.getBytes(3));
-                        assertEquals(a.getTimeValue(),r.getObject(4,java.time.LocalTime.class));
-                        assertEquals(a.getTimestampValue(),r.getObject(5,java.time.LocalDateTime.class));
+                        assertEquals(a.getTimeValue(),r.getObject(4,LocalTime.class));
+                        assertEquals(a.getTimestampValue(),r.getObject(5,LocalDateTime.class));
                     }
                     assertEquals(2,count);
                 }
             }
-            assertEquals(2,context().deleteByPrimaryKey(TypeSample.class,java.util.Arrays.asList(base,base+1)));
+            assertEquals(2,context().deleteByPrimaryKey(TypeSample.class,Arrays.asList(base,base+1)));
         }
     }
 
@@ -180,15 +243,15 @@ class MySqlContractTest extends DatabaseContract {
 
     /** MySQL YEAR 允许数值零，不能因驱动的日期映射误变为其他年份。 */
     @Test void mysqlYearZeroRemainsZero() throws Exception {
-        MysqlTypeSample row=new MysqlTypeSample(); row.setId(94300L); row.setYearValue(java.time.Year.of(0));
+        MysqlTypeSample row=new MysqlTypeSample(); row.setId(94300L); row.setYearValue(Year.of(0));
         assertEquals(1,context().insertSelective(row));
         try(Statement statement=transaction.createStatement();ResultSet result=statement.executeQuery("SELECT year_value+0 FROM ds_mysql_type_sample WHERE id=94300")) {
             assertTrue(result.next()); assertEquals(0,result.getInt(1));
         }
-        assertEquals(java.time.Year.of(0),context().selectByPrimaryKey(MysqlTypeSample.class,94300L).getYearValue());
-        row.setYearValue(java.time.Year.of(2155));
+        assertEquals(Year.of(0),context().selectByPrimaryKey(MysqlTypeSample.class,94300L).getYearValue());
+        row.setYearValue(Year.of(2155));
         assertEquals(1,context().updateSelectiveByPrimaryKey(row));
-        assertEquals(java.time.Year.of(2155),context().selectByPrimaryKey(MysqlTypeSample.class,94300L).getYearValue());
+        assertEquals(Year.of(2155),context().selectByPrimaryKey(MysqlTypeSample.class,94300L).getYearValue());
         assertEquals(1,context().deleteByPrimaryKey(MysqlTypeSample.class,94300L));
     }
 
@@ -215,23 +278,23 @@ class MySqlContractTest extends DatabaseContract {
 
     /** JVM 时区变化时，TIMESTAMP 的新增和更新仍按连接的 UTC 会话表达本地时间。 */
     @Test void timestampWritesAndUpdatesIgnoreJvmDefaultZone() throws Exception {
-        java.util.TimeZone previous=java.util.TimeZone.getDefault();
+        TimeZone previous=TimeZone.getDefault();
         try {
             for(String zone:new String[]{"UTC","Asia/Shanghai","America/New_York"}) {
-                java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone(zone));
+                TimeZone.setDefault(TimeZone.getTimeZone(zone));
                 TypeSample row=new TypeSample(); row.setId(94500L); row.setSampleName("timestamp-write");
-                java.time.LocalDateTime first=java.time.LocalDateTime.of(2024,2,29,10,20,30,123456000);
-                java.time.LocalDateTime second=first.plusHours(1);
+                LocalDateTime first=LocalDateTime.of(2024,2,29,10,20,30,123456000);
+                LocalDateTime second=first.plusHours(1);
                 row.setTimestampValue(first); assertEquals(1,context().insertSelective(row));
                 assertEquals(first,context().selectByPrimaryKey(TypeSample.class,94500L).getTimestampValue(),zone);
                 row.setTimestampValue(second); assertEquals(1,context().updateSelectiveByPrimaryKey(row));
                 try(Statement statement=transaction.createStatement();ResultSet result=statement.executeQuery("SELECT timestamp_value FROM ds_type_sample WHERE id=94500")) {
-                    assertTrue(result.next()); assertEquals(second,result.getObject(1,java.time.LocalDateTime.class),zone);
+                    assertTrue(result.next()); assertEquals(second,result.getObject(1,LocalDateTime.class),zone);
                 }
                 assertEquals(second,context().selectByPrimaryKey(TypeSample.class,94500L).getTimestampValue(),zone);
                 assertEquals(1,context().deleteByPrimaryKey(TypeSample.class,94500L));
             }
-        } finally { java.util.TimeZone.setDefault(previous); }
+        } finally { TimeZone.setDefault(previous); }
     }
 
     /** 验证 binary 排序规则的大小写语义，并保留 VARCHAR/TEXT 的尾随空格。 */
@@ -251,59 +314,59 @@ class MySqlContractTest extends DatabaseContract {
 
     /** 非零 SRID 在框架 Point 转换、数据库存储和实体读取之间保持一致。 */
     @Test void nonzeroSpatialSridRoundTrip() throws Exception {
-        com.dynamic.sql.testing.model.MysqlSpatialSample row=new com.dynamic.sql.testing.model.MysqlSpatialSample();
-        row.setId(94800L); row.setPointValue(new com.dynamic.sql.model.Point(116.3,39.9,3857));
+        MysqlSpatialSample row=new MysqlSpatialSample();
+        row.setId(94800L); row.setPointValue(new Point(116.3,39.9,3857));
         assertEquals(1,context().insertSelective(row));
         try(Statement statement=transaction.createStatement();ResultSet result=statement.executeQuery(
                 "SELECT ST_SRID(point_value),ST_X(point_value),ST_Y(point_value) FROM ds_mysql_spatial_sample WHERE id=94800")) {
             assertTrue(result.next()); assertEquals(3857,result.getInt(1));
             assertEquals(116.3,result.getDouble(2),1e-10); assertEquals(39.9,result.getDouble(3),1e-10);
         }
-        com.dynamic.sql.model.Point fetched=context().selectByPrimaryKey(
-                com.dynamic.sql.testing.model.MysqlSpatialSample.class,94800L).getPointValue();
+        Point fetched=context().selectByPrimaryKey(
+                MysqlSpatialSample.class,94800L).getPointValue();
         assertEquals(3857,fetched.getSrid()); assertEquals(116.3,fetched.getLongitude(),1e-10); assertEquals(39.9,fetched.getLatitude(),1e-10);
-        row.setPointValue(new com.dynamic.sql.model.Point(120.1,30.2,3857));
+        row.setPointValue(new Point(120.1,30.2,3857));
         assertEquals(1,context().updateSelectiveByPrimaryKey(row));
-        assertEquals(120.1,context().selectByPrimaryKey(com.dynamic.sql.testing.model.MysqlSpatialSample.class,94800L).getPointValue().getLongitude(),1e-10);
-        assertEquals(1,context().deleteByPrimaryKey(com.dynamic.sql.testing.model.MysqlSpatialSample.class,94800L));
+        assertEquals(120.1,context().selectByPrimaryKey(MysqlSpatialSample.class,94800L).getPointValue().getLongitude(),1e-10);
+        assertEquals(1,context().deleteByPrimaryKey(MysqlSpatialSample.class,94800L));
     }
 
     /** 空间函数必须能嵌入 SELECT 并返回可映射的标量结果。 */
     @Test void spatialScalarFunctionsRenderExecutableSql() {
-        Class<com.dynamic.sql.testing.model.MysqlSpatialSample> entity = com.dynamic.sql.testing.model.MysqlSpatialSample.class;
+        Class<MysqlSpatialSample> entity = MysqlSpatialSample.class;
         assertEquals(Boolean.TRUE, context().select()
-                .column(new com.dynamic.sql.core.column.function.scalar.geometry.Contains(
-                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPolygonValue,
-                        new com.dynamic.sql.model.Point(1, 1)))
-                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .column(new Contains(
+                        MysqlSpatialSample::getPolygonValue,
+                        new Point(1, 1)))
+                .from(entity).where(w -> w.andEqualTo(MysqlSpatialSample::getId, 2L))
                 .fetch(Boolean.class).toOne());
         assertEquals(Boolean.FALSE, context().select()
-                .column(new com.dynamic.sql.core.column.function.scalar.geometry.Contains(
-                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPolygonValue,
-                        new com.dynamic.sql.model.Point(5, 5)))
-                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .column(new Contains(
+                        MysqlSpatialSample::getPolygonValue,
+                        new Point(5, 5)))
+                .from(entity).where(w -> w.andEqualTo(MysqlSpatialSample::getId, 2L))
                 .fetch(Boolean.class).toOne());
         assertEquals(5.0, context().select()
-                .column(new com.dynamic.sql.core.column.function.scalar.geometry.Distance(
-                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPointValue,
-                        new com.dynamic.sql.model.Point(13, 24)))
-                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .column(new Distance(
+                        MysqlSpatialSample::getPointValue,
+                        new Point(13, 24)))
+                .from(entity).where(w -> w.andEqualTo(MysqlSpatialSample::getId, 2L))
                 .fetch(Double.class).toOne(), 1e-10);
         assertEquals(0, context().select()
-                .column(new com.dynamic.sql.core.column.function.scalar.geometry.SRID(
-                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPointValue))
-                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .column(new SRID(
+                        MysqlSpatialSample::getPointValue))
+                .from(entity).where(w -> w.andEqualTo(MysqlSpatialSample::getId, 2L))
                 .fetch(Integer.class).toOne());
         assertEquals("POINT(10 20)", context().select()
-                .column(new com.dynamic.sql.core.column.function.scalar.geometry.AsText(
-                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPointValue))
-                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .column(new AsText(
+                        MysqlSpatialSample::getPointValue))
+                .from(entity).where(w -> w.andEqualTo(MysqlSpatialSample::getId, 2L))
                 .fetch(String.class).toOne());
         assertTrue(context().select()
-                .column(new com.dynamic.sql.core.column.function.scalar.geometry.DistanceSphere(
-                        com.dynamic.sql.testing.model.MysqlSpatialSample::getPointValue,
-                        new com.dynamic.sql.model.Point(10, 21)))
-                .from(entity).where(w -> w.andEqualTo(com.dynamic.sql.testing.model.MysqlSpatialSample::getId, 2L))
+                .column(new DistanceSphere(
+                        MysqlSpatialSample::getPointValue,
+                        new Point(10, 21)))
+                .from(entity).where(w -> w.andEqualTo(MysqlSpatialSample::getId, 2L))
                 .fetch(Double.class).toOne() > 100_000.0);
     }
 
@@ -319,8 +382,8 @@ class MySqlContractTest extends DatabaseContract {
             duplicate.setId(id + 1); duplicate.setSampleName("unicode-escape"); duplicate.setDefaultValue("explicit");
             try {
                 RuntimeException error = assertThrows(RuntimeException.class, () -> {
-                    if (useMultiple) context().insertMultiple(java.util.Arrays.asList(valid, duplicate));
-                    else context().insertBatch(java.util.Arrays.asList(valid, duplicate));
+                    if (useMultiple) context().insertMultiple(Arrays.asList(valid, duplicate));
+                    else context().insertBatch(Arrays.asList(valid, duplicate));
                 });
                 assertEquals(1062, sqlCause(error).getErrorCode());
                 //改写批处理时逐条批量语句会被合并；不改写时前序语句可能已成功，均需保存点回滚。
@@ -401,7 +464,7 @@ class MySqlContractTest extends DatabaseContract {
 
     /** 创建用于物理字段容量边界的 ASCII 内容，字符数与 UTF-8 字节数相同。 */
     private static String repeat(char value,int length) {
-        char[] chars=new char[length]; java.util.Arrays.fill(chars,value); return new String(chars);
+        char[] chars=new char[length]; Arrays.fill(chars,value); return new String(chars);
     }
 
     @Override protected SqlContext context() { return sqlContext; }
@@ -409,7 +472,7 @@ class MySqlContractTest extends DatabaseContract {
     /**
      * 每种类型独立展示执行结果；动态用例通过保存点隔离，不复用其他用例写入的数据。
      */
-    @TestFactory java.util.stream.Stream<DynamicTest> typeCrudMatrix() {
+    @TestFactory Stream<DynamicTest> typeCrudMatrix() {
         return TypeCrudMatrix.cases(context(), transaction);
     }
 
@@ -426,8 +489,8 @@ class MySqlContractTest extends DatabaseContract {
      * 回归检查：BIT(64) 最高位不得溢出，BIT(8) 原始字节不得改变。
      */
     @Test void wideBitKeepsAllUnsignedBits() {
-        assertEquals(new java.math.BigInteger("18446744073709551615"),
-                context().selectOne("SELECT bit_wide FROM ds_mysql_type_sample WHERE id=3",java.math.BigInteger.class));
+        assertEquals(new BigInteger("18446744073709551615"),
+                context().selectOne("SELECT bit_wide FROM ds_mysql_type_sample WHERE id=3",BigInteger.class));
         assertArrayEquals(new byte[]{(byte)170},context().selectOne(
                 "SELECT bit_mask FROM ds_mysql_type_sample WHERE id=3",byte[].class));
     }
@@ -436,8 +499,8 @@ class MySqlContractTest extends DatabaseContract {
      * 标量 LocalTime 查询必须保留 TIME(6) 微秒，不能只保证实体查询正确。
      */
     @Test void localTimeScalarKeepsMicroseconds() {
-        assertEquals(java.time.LocalTime.of(23,59,59,123456000),context().selectOne(
-                "SELECT time_value FROM ds_type_sample WHERE id=3",java.time.LocalTime.class));
+        assertEquals(LocalTime.of(23,59,59,123456000),context().selectOne(
+                "SELECT time_value FROM ds_type_sample WHERE id=3",LocalTime.class));
     }
 
     /**
@@ -445,14 +508,14 @@ class MySqlContractTest extends DatabaseContract {
      */
     @Test void timestampLocalMappingUsesSessionTimeNotJvmTime() {
         //默认时区属于 JVM 全局状态，必须在 finally 中恢复，不允许与其他用例并行。
-        java.util.TimeZone previous=java.util.TimeZone.getDefault();
+        TimeZone previous=TimeZone.getDefault();
         try {
             for (String zone : new String[]{"UTC","Asia/Shanghai","America/New_York"}) {
-                java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone(zone));
-                assertEquals(java.time.LocalDateTime.of(2024,2,29,23,59,59,123456000),context().selectOne(
-                        "SELECT timestamp_value FROM ds_type_sample WHERE id=3",java.time.LocalDateTime.class),zone);
+                TimeZone.setDefault(TimeZone.getTimeZone(zone));
+                assertEquals(LocalDateTime.of(2024,2,29,23,59,59,123456000),context().selectOne(
+                        "SELECT timestamp_value FROM ds_type_sample WHERE id=3",LocalDateTime.class),zone);
             }
-        } finally { java.util.TimeZone.setDefault(previous); }
+        } finally { TimeZone.setDefault(previous); }
     }
 
     /**
@@ -468,10 +531,10 @@ class MySqlContractTest extends DatabaseContract {
                     try (Statement statement=connection.createStatement()) {
                         statement.executeUpdate("UPDATE ds_mysql_type_sample SET tiny_boolean=2 WHERE id=3");
                     }
-                    java.util.List<java.util.Map<String,Object>> rows = com.dynamic.sql.core.database.RootExecutor.executeQuery(
-                            connection,new com.dynamic.sql.core.database.PreparedSql(
+                    List<Map<String,Object>> rows = RootExecutor.executeQuery(
+                            connection,new PreparedSql(
                             "SELECT tiny_boolean,tiny_value,bit_flag,bit_wide FROM ds_mysql_type_sample WHERE id IN (1,3) ORDER BY id",
-                            java.util.Collections.emptyList()),true);
+                            Collections.emptyList()),true);
                     assertNull(rows.get(0).get("tiny_boolean"));
                     assertNull(rows.get(0).get("tiny_value"));
                     assertNull(rows.get(0).get("bit_flag"));
@@ -488,13 +551,13 @@ class MySqlContractTest extends DatabaseContract {
      * 同时验证时间 NULL、列别名和原始 Map，防止精度修复破坏已有 JDBC 返回类型。
      */
     @Test void temporalNullsAliasesAndLegacyResults() {
-        assertNull(context().selectOne("SELECT time_value FROM ds_type_sample WHERE id=1",java.time.LocalTime.class));
-        assertNull(context().selectOne("SELECT timestamp_value FROM ds_type_sample WHERE id=1",java.time.LocalDateTime.class));
+        assertNull(context().selectOne("SELECT time_value FROM ds_type_sample WHERE id=1",LocalTime.class));
+        assertNull(context().selectOne("SELECT timestamp_value FROM ds_type_sample WHERE id=1",LocalDateTime.class));
         TypeSample aliased=context().selectOne("SELECT time_value AS timeValue, timestamp_value AS timestampValue FROM ds_type_sample WHERE id=3",TypeSample.class);
-        assertEquals(java.time.LocalTime.of(23,59,59,123456000),aliased.getTimeValue());
-        assertEquals(java.time.LocalDateTime.of(2024,2,29,23,59,59,123456000),aliased.getTimestampValue());
-        assertInstanceOf(java.sql.Time.class,context().selectOne("SELECT time_value FROM ds_type_sample WHERE id=3",java.util.Map.class).get("time_value"));
-        assertInstanceOf(java.sql.Timestamp.class,context().selectOne("SELECT timestamp_value FROM ds_type_sample WHERE id=3",java.util.Map.class).get("timestamp_value"));
+        assertEquals(LocalTime.of(23,59,59,123456000),aliased.getTimeValue());
+        assertEquals(LocalDateTime.of(2024,2,29,23,59,59,123456000),aliased.getTimestampValue());
+        assertInstanceOf(Time.class,context().selectOne("SELECT time_value FROM ds_type_sample WHERE id=3",Map.class).get("time_value"));
+        assertInstanceOf(Timestamp.class,context().selectOne("SELECT timestamp_value FROM ds_type_sample WHERE id=3",Map.class).get("timestamp_value"));
     }
 
     /**
@@ -503,8 +566,8 @@ class MySqlContractTest extends DatabaseContract {
     @Test void mysqlDurationsAreNotWrappedIntoLocalTime() {
         assertTrue(context().selectOne("SELECT duration_value FROM ds_mysql_type_sample WHERE id=3",String.class).startsWith("838:59:59"));
         assertTrue(context().selectOne("SELECT duration_value FROM ds_mysql_type_sample WHERE id=4",String.class).startsWith("-838:59:59"));
-        assertThrows(java.time.format.DateTimeParseException.class,()->context().selectOne(
-                "SELECT duration_value FROM ds_mysql_type_sample WHERE id=3",java.time.LocalTime.class));
+        assertThrows(DateTimeParseException.class,()->context().selectOne(
+                "SELECT duration_value FROM ds_mysql_type_sample WHERE id=3",LocalTime.class));
     }
 
     /**
@@ -513,10 +576,10 @@ class MySqlContractTest extends DatabaseContract {
     @Test void localTimestampReflectsDatabaseSessionZone() throws Exception {
         try (Statement statement=transaction.createStatement()) {
             statement.execute("SET time_zone = '+08:00'");
-            assertEquals(java.time.LocalDateTime.of(2024,3,1,7,59,59,123456000),context().selectOne(
-                    "SELECT timestamp_value FROM ds_type_sample WHERE id=3",java.time.LocalDateTime.class));
-            assertEquals(java.time.LocalDateTime.of(2024,2,29,23,59,59,123456000),context().selectOne(
-                    "SELECT datetime_value FROM ds_type_sample WHERE id=3",java.time.LocalDateTime.class));
+            assertEquals(LocalDateTime.of(2024,3,1,7,59,59,123456000),context().selectOne(
+                    "SELECT timestamp_value FROM ds_type_sample WHERE id=3",LocalDateTime.class));
+            assertEquals(LocalDateTime.of(2024,2,29,23,59,59,123456000),context().selectOne(
+                    "SELECT datetime_value FROM ds_type_sample WHERE id=3",LocalDateTime.class));
         }
     }
 
@@ -541,7 +604,7 @@ class MySqlContractTest extends DatabaseContract {
         try (Statement s=transaction.createStatement(); ResultSet r=s.executeQuery(
                 "SELECT time_value FROM ds_type_sample WHERE id=3")) {
             assertTrue(r.next());
-            assertEquals(java.time.LocalTime.of(23,59,59,123456000),r.getObject(1,java.time.LocalTime.class));
+            assertEquals(LocalTime.of(23,59,59,123456000),r.getObject(1,LocalTime.class));
         }
     }
 
@@ -653,19 +716,19 @@ class MySqlContractTest extends DatabaseContract {
         assertEquals("更新部门", context().selectByPrimaryKey(Department.class, 95100L).getName());
         Department second = new Department(); second.setId(95101L); second.setName("新部门");
         first.setName("批量更新");
-        context().upsertMultiple(java.util.Arrays.asList(first, second));
+        context().upsertMultiple(Arrays.asList(first, second));
         assertEquals("批量更新", context().selectByPrimaryKey(Department.class, 95100L).getName());
         assertEquals("新部门", context().selectByPrimaryKey(Department.class, 95101L).getName());
-        assertEquals(2, context().deleteByPrimaryKey(Department.class, java.util.Arrays.asList(95100L, 95101L)));
+        assertEquals(2, context().deleteByPrimaryKey(Department.class, Arrays.asList(95100L, 95101L)));
     }
 
     /** 每种查询条件独立执行，使用固定主键集合确认结果而非仅检查行数。 */
-    @TestFactory java.util.stream.Stream<DynamicTest> queryPredicateMatrix() {
-        java.util.List<DynamicTest> tests = new java.util.ArrayList<>();
+    @TestFactory Stream<DynamicTest> queryPredicateMatrix() {
+        List<DynamicTest> tests = new ArrayList<>();
         queryCase(tests, "equal", w -> w.andEqualTo(Account::getLoginName, "alice"), 100L);
         queryCase(tests, "notEqual", w -> w.andNotEqualTo(Account::getStatus, "ACTIVE"), 102L);
-        queryCase(tests, "in", w -> w.andIn(Account::getId, java.util.Arrays.asList(100L, 102L)), 100L, 102L);
-        queryCase(tests, "notIn", w -> w.andNotIn(Account::getId, java.util.Arrays.asList(100L, 102L)), 101L, 103L);
+        queryCase(tests, "in", w -> w.andIn(Account::getId, Arrays.asList(100L, 102L)), 100L, 102L);
+        queryCase(tests, "notIn", w -> w.andNotIn(Account::getId, Arrays.asList(100L, 102L)), 101L, 103L);
         queryCase(tests, "betweenInclusive", w -> w.andBetween(Account::getId, 101L, 102L), 101L, 102L);
         queryCase(tests, "greaterThan", w -> w.andGreaterThan(Account::getBalance, BigDecimal.ZERO), 100L);
         queryCase(tests, "null", w -> w.andIsNull(Account::getDepartmentId), 103L);
@@ -677,19 +740,19 @@ class MySqlContractTest extends DatabaseContract {
     }
 
     /** 所有条件走 DSL 参数绑定，并通过排序保证结果断言稳定。 */
-    private void queryCase(java.util.List<DynamicTest> tests, String name,
-            java.util.function.Consumer<com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition> predicate,
+    private void queryCase(List<DynamicTest> tests, String name,
+            Consumer<GenericWhereCondition> predicate,
             Long... expected) {
         tests.add(DynamicTest.dynamicTest("query." + name, () -> {
-            java.util.List<Long> actual = context().select().column(Account::getId).from(Account.class)
+            List<Long> actual = context().select().column(Account::getId).from(Account.class)
                     .where(predicate).orderBy(Account::getId).fetch(Long.class).toList();
-            assertEquals(java.util.Arrays.asList(expected), actual);
+            assertEquals(Arrays.asList(expected), actual);
         }));
     }
 
     /** 去重投影应消除重复部门，分页越过结果末尾应返回空集合。 */
     @Test void queryDistinctAndPaginationEdges() {
-        assertEquals(java.util.Arrays.asList(20L, 30L), context().select().distinct()
+        assertEquals(Arrays.asList(20L, 30L), context().select().distinct()
                 .column(Account::getDepartmentId).from(Account.class)
                 .where(w -> w.andIsNotNull(Account::getDepartmentId))
                 .orderBy(Account::getDepartmentId).fetch(Long.class).toList());
@@ -705,35 +768,35 @@ class MySqlContractTest extends DatabaseContract {
                 .where(w -> w.andEqualTo(Account::getId, -1L)).fetch(Long.class).toOne());
         assertEquals(Long.valueOf(100), context().select().column(Account::getId).from(Account.class)
                 .where(w -> w.andEqualTo(Account::getId, 100L)).fetch(Long.class).toOne());
-        assertThrows(com.dynamic.sql.exception.DynamicSqlException.class,
+        assertThrows(DynamicSqlException.class,
                 () -> context().select().column(Account::getId).from(Account.class).fetch(Long.class).toOne());
     }
 
     /** 聚合结果既检查整体总数，也检查分组结果，避免重复行被错误合并。 */
     @Test void queryCountAndGrouping() {
         assertEquals(Long.valueOf(4), context().select()
-                .column(new com.dynamic.sql.core.column.function.windows.aggregate.Count(1))
+                .column(new Count(1))
                 .from(Account.class).fetch(Long.class).toOne());
-        java.util.List<Long> counts = context().select()
-                .column(new com.dynamic.sql.core.column.function.windows.aggregate.Count(1))
+        List<Long> counts = context().select()
+                .column(new Count(1))
                 .from(Account.class).where(w -> w.andIsNotNull(Account::getDepartmentId))
                 .groupBy(Account::getDepartmentId).orderBy(Account::getDepartmentId)
                 .fetch(Long.class).toList();
-        assertEquals(java.util.Arrays.asList(2L, 1L), counts);
+        assertEquals(Arrays.asList(2L, 1L), counts);
     }
 
     /** HAVING 在分组后筛选，WHERE 参数与聚合阈值必须保持正确绑定顺序。 */
     @Test void queryHavingFiltersGroups() {
-        assertEquals(java.util.Arrays.asList(20L), context().select().column(Account::getDepartmentId)
+        assertEquals(Arrays.asList(20L), context().select().column(Account::getDepartmentId)
                 .from(Account.class).where(w -> w.andEqualTo(Account::getStatus, "ACTIVE"))
                 .groupBy(Account::getDepartmentId)
-                .having(h -> h.andGreaterThan(new com.dynamic.sql.core.column.function.windows.aggregate.Count(1), 1))
+                .having(h -> h.andGreaterThan(new Count(1), 1))
                 .fetch(Long.class).toList());
     }
 
     /** IN 子查询同时绑定内外层参数，只返回研发部门中的正常账户。 */
     @Test void queryNestedInBindsBothScopes() {
-        assertEquals(java.util.Arrays.asList(100L, 101L), context().select().column(Account::getId)
+        assertEquals(Arrays.asList(100L, 101L), context().select().column(Account::getId)
                 .from(Account.class).where(w -> w.andEqualTo(Account::getStatus, "ACTIVE")
                         .andIn(Account::getDepartmentId, nested -> nested.column(Department::getId)
                                 .from(Department.class).where(d -> d.andEqualTo(Department::getName, "研发"))))
@@ -742,33 +805,33 @@ class MySqlContractTest extends DatabaseContract {
 
     /** UNION 消除重叠记录，而 UNION ALL 必须保留两个分支各自的记录。 */
     @Test void queryUnionDistinguishesDuplicates() {
-        com.dynamic.sql.core.dml.select.SelectDsl first = q -> q.column(Account::getId).from(Account.class)
-                .where(w -> w.andIn(Account::getId, java.util.Arrays.asList(100L, 101L)));
-        com.dynamic.sql.core.dml.select.SelectDsl second = q -> q.column(Account::getId).from(Account.class)
-                .where(w -> w.andIn(Account::getId, java.util.Arrays.asList(101L, 102L)));
-        java.util.List<Long> unique = context().union(first, second).fetch(Long.class).toList();
-        java.util.Collections.sort(unique);
-        assertEquals(java.util.Arrays.asList(100L, 101L, 102L), unique);
-        java.util.List<Long> all = context().unionAll(first, second).fetch(Long.class).toList();
-        java.util.Collections.sort(all);
-        assertEquals(java.util.Arrays.asList(100L, 101L, 101L, 102L), all);
+        SelectDsl first = q -> q.column(Account::getId).from(Account.class)
+                .where(w -> w.andIn(Account::getId, Arrays.asList(100L, 101L)));
+        SelectDsl second = q -> q.column(Account::getId).from(Account.class)
+                .where(w -> w.andIn(Account::getId, Arrays.asList(101L, 102L)));
+        List<Long> unique = context().union(first, second).fetch(Long.class).toList();
+        Collections.sort(unique);
+        assertEquals(Arrays.asList(100L, 101L, 102L), unique);
+        List<Long> all = context().unionAll(first, second).fetch(Long.class).toList();
+        Collections.sort(all);
+        assertEquals(Arrays.asList(100L, 101L, 101L, 102L), all);
     }
 
     /** 窗口编号按唯一主键排序，结果映射为标量时不应遗漏或合并行。 */
     @Test void queryRowNumberWindow() {
-        assertEquals(java.util.Arrays.asList(1L, 2L, 3L, 4L), context().select()
-                .column(new com.dynamic.sql.core.column.function.windows.RowNumber(),
+        assertEquals(Arrays.asList(1L, 2L, 3L, 4L), context().select()
+                .column(new RowNumber(),
                         over -> over.orderBy(Account::getId), "sequence")
                 .from(Account.class).orderBy(Account::getId).fetch(Long.class).toList());
     }
 
     /** 子查询无结果时，IN 不匹配任何行，而 NOT EXISTS 保留外层结果。 */
     @Test void queryEmptySubquerySemantics() {
-        com.dynamic.sql.core.dml.select.SelectDsl missing = q -> q.column(Department::getId)
+        SelectDsl missing = q -> q.column(Department::getId)
                 .from(Department.class).where(w -> w.andEqualTo(Department::getName, "不存在的部门"));
         assertTrue(context().select().column(Account::getId).from(Account.class)
                 .where(w -> w.andIn(Account::getDepartmentId, missing)).fetch(Long.class).toList().isEmpty());
-        assertEquals(java.util.Arrays.asList(100L, 101L, 102L, 103L), context().select()
+        assertEquals(Arrays.asList(100L, 101L, 102L, 103L), context().select()
                 .column(Account::getId).from(Account.class).where(w -> w.andNotExists(missing))
                 .orderBy(Account::getId).fetch(Long.class).toList());
         assertTrue(context().select().column(Account::getId).from(Account.class)
@@ -777,7 +840,7 @@ class MySqlContractTest extends DatabaseContract {
 
     /** NOT IN 遵循 SQL 三值逻辑，外层 NULL 部门不应被当作普通不匹配值返回。 */
     @Test void queryNotInSubqueryExcludesOuterNull() {
-        assertEquals(java.util.Arrays.asList(102L), context().select().column(Account::getId)
+        assertEquals(Arrays.asList(102L), context().select().column(Account::getId)
                 .from(Account.class).where(w -> w.andNotIn(Account::getDepartmentId,
                         q -> q.column(Department::getId).from(Department.class)
                                 .where(d -> d.andEqualTo(Department::getName, "研发"))))
@@ -786,7 +849,7 @@ class MySqlContractTest extends DatabaseContract {
 
     /** 左关联保留没有账户的部门，并通过右表主键为空筛选未关联记录。 */
     @Test void queryLeftJoinFindsEmptyDepartments() {
-        assertEquals(java.util.Arrays.asList(10L, 40L), context().select().column(Department::getId)
+        assertEquals(Arrays.asList(10L, 40L), context().select().column(Department::getId)
                 .from(Department.class)
                 .leftJoin(Account.class, on -> on.andEqualTo(Department::getId, Account::getDepartmentId))
                 .where(w -> w.andIsNull(Account::getId)).orderBy(Department::getId)
@@ -795,10 +858,10 @@ class MySqlContractTest extends DatabaseContract {
 
     /** 模糊匹配和降序排序同时验证，查询仍需保留精确的返回顺序。 */
     @Test void queryLikeAndDescendingOrder() {
-        assertEquals(java.util.Arrays.asList(103L, 102L, 101L, 100L), context().select()
+        assertEquals(Arrays.asList(103L, 102L, 101L, 100L), context().select()
                 .column(Account::getId).from(Account.class)
-                .orderBy(Account::getId, com.dynamic.sql.enums.SortOrder.DESC).fetch(Long.class).toList());
-        assertEquals(java.util.Arrays.asList(100L), context().select().column(Account::getId)
+                .orderBy(Account::getId, SortOrder.DESC).fetch(Long.class).toList());
+        assertEquals(Arrays.asList(100L), context().select().column(Account::getId)
                 .from(Account.class).where(w -> w.andLike(Account::getLoginName, "ali%"))
                 .fetch(Long.class).toList());
     }
@@ -806,21 +869,21 @@ class MySqlContractTest extends DatabaseContract {
     /** 金额聚合保留定点精度，空结果集的 SUM 返回 NULL 而 COUNT 返回零。 */
     @Test void queryDecimalAggregatesAndEmptyInput() {
         BigDecimal total = context().select()
-                .column(new com.dynamic.sql.core.column.function.windows.aggregate.Sum(Account::getBalance))
+                .column(new Sum(Account::getBalance))
                 .from(Account.class).fetch(BigDecimal.class).toOne();
         assertEquals(0, new BigDecimal("89.7500").compareTo(total));
         assertNull(context().select()
-                .column(new com.dynamic.sql.core.column.function.windows.aggregate.Sum(Account::getBalance))
+                .column(new Sum(Account::getBalance))
                 .from(Account.class).where(w -> w.andEqualTo(Account::getId, -1L))
                 .fetch(BigDecimal.class).toOne());
         assertEquals(Long.valueOf(0), context().select()
-                .column(new com.dynamic.sql.core.column.function.windows.aggregate.Count(1))
+                .column(new Count(1))
                 .from(Account.class).where(w -> w.andEqualTo(Account::getId, -1L)).fetch(Long.class).toOne());
     }
 
     /** UNION 两种模式逐项核对空分支、重叠、多分支及重复次数，不依赖数据库默认返回顺序。 */
-    @TestFactory java.util.stream.Stream<DynamicTest> unionQueryMatrix() {
-        java.util.List<DynamicTest> tests = new java.util.ArrayList<>();
+    @TestFactory Stream<DynamicTest> unionQueryMatrix() {
+        List<DynamicTest> tests = new ArrayList<>();
         for (boolean all : new boolean[]{false, true}) {
             unionCase(tests, all, "disjoint", new long[][]{{100}, {102}}, 100L, 102L);
             unionCase(tests, all, "overlap", new long[][]{{100,101}, {101,102}},
@@ -836,51 +899,51 @@ class MySqlContractTest extends DatabaseContract {
     }
 
     /** 分支输入全部经参数绑定，比较排序后的完整多重集合。 */
-    private void unionCase(java.util.List<DynamicTest> tests, boolean all, String name, long[][] ids, Long... expected) {
+    private void unionCase(List<DynamicTest> tests, boolean all, String name, long[][] ids, Long... expected) {
         tests.add(DynamicTest.dynamicTest((all ? "unionAll." : "union.") + name, () -> {
-            com.dynamic.sql.core.dml.select.SelectDsl[] branches =
-                    new com.dynamic.sql.core.dml.select.SelectDsl[ids.length];
+            SelectDsl[] branches =
+                    new SelectDsl[ids.length];
             for (int i=0; i<ids.length; i++) {
-                java.util.List<Long> values = new java.util.ArrayList<>();
+                List<Long> values = new ArrayList<>();
                 for (long id : ids[i]) values.add(id);
                 branches[i] = q -> q.column(Account::getId).from(Account.class)
                         .where(w -> w.andIn(Account::getId, values));
             }
-            java.util.List<Long> rows = (all ? context().unionAll(branches) : context().union(branches))
+            List<Long> rows = (all ? context().unionAll(branches) : context().union(branches))
                     .fetch(Long.class).toList();
-            java.util.Collections.sort(rows);
-            assertEquals(java.util.Arrays.asList(expected), rows);
+            Collections.sort(rows);
+            assertEquals(Arrays.asList(expected), rows);
         }));
     }
 
     /** 全局分页发生在合并及排序之后，重复执行同一查询不应重复追加 SQL 子句。 */
     @Test void unionGlobalPaginationIsRepeatable() {
-        com.dynamic.sql.core.dml.select.AbstractUnion query = context().union(
-                q -> q.column(Account::getId).from(Account.class).where(w -> w.andIn(Account::getId, java.util.Arrays.asList(100L,102L))),
-                q -> q.column(Account::getId).from(Account.class).where(w -> w.andIn(Account::getId, java.util.Arrays.asList(101L,103L))));
+        AbstractUnion query = context().union(
+                q -> q.column(Account::getId).from(Account.class).where(w -> w.andIn(Account::getId, Arrays.asList(100L,102L))),
+                q -> q.column(Account::getId).from(Account.class).where(w -> w.andIn(Account::getId, Arrays.asList(101L,103L))));
         query.thenOrderBy(Account::getId).limit(1, 2);
-        assertEquals(java.util.Arrays.asList(101L,102L), query.fetch(Long.class).toList());
-        assertEquals(java.util.Arrays.asList(101L,102L), query.fetch(Long.class).toList());
+        assertEquals(Arrays.asList(101L,102L), query.fetch(Long.class).toList());
+        assertEquals(Arrays.asList(101L,102L), query.fetch(Long.class).toList());
     }
 
     /** NULL 投影也参与 UNION 去重，UNION ALL 保留重复的 NULL 行。 */
     @Test void unionNullProjectionSemantics() {
-        com.dynamic.sql.core.dml.select.SelectDsl branch = q -> q.column(Account::getDepartmentId)
+        SelectDsl branch = q -> q.column(Account::getDepartmentId)
                 .from(Account.class).where(w -> w.andEqualTo(Account::getId, 103L));
-        assertEquals(java.util.Collections.singletonList(null),
+        assertEquals(Collections.singletonList(null),
                 context().union(branch, branch).fetch(Long.class).toList());
-        assertEquals(java.util.Arrays.asList(null, null),
+        assertEquals(Arrays.asList(null, null),
                 context().unionAll(branch, branch).fetch(Long.class).toList());
     }
 
     /** 分支内排序分页只限制该分支，全局排序再处理两个分支的合并结果。 */
     @Test void unionBranchLocalLimitsAndEntityMapping() {
         for (boolean all : new boolean[]{false, true}) {
-            com.dynamic.sql.core.dml.select.SelectDsl first = q -> q.allColumn().from(Account.class)
+            SelectDsl first = q -> q.allColumn().from(Account.class)
                     .orderBy(Account::getId).limit(1);
-            com.dynamic.sql.core.dml.select.SelectDsl last = q -> q.allColumn().from(Account.class)
-                    .orderBy(Account::getId, com.dynamic.sql.enums.SortOrder.DESC).limit(1);
-            java.util.List<Account> rows = (all ? context().unionAll(first, last) : context().union(first, last))
+            SelectDsl last = q -> q.allColumn().from(Account.class)
+                    .orderBy(Account::getId, SortOrder.DESC).limit(1);
+            List<Account> rows = (all ? context().unionAll(first, last) : context().union(first, last))
                     .thenOrderBy(Account::getId).fetch(Account.class).toList();
             assertEquals(2, rows.size());
             assertEquals(context().selectByPrimaryKey(Account.class, 100L), rows.get(0));
@@ -899,13 +962,13 @@ class MySqlContractTest extends DatabaseContract {
     /** 扁平合并同时包含分支排序分页、重复分支和 BO 排序及映射。 */
     @Test void unionFlatCombinationMapsBusinessView() {
         for (boolean all : new boolean[]{false, true}) {
-            com.dynamic.sql.core.dml.select.SelectDsl[] branches = {
+            SelectDsl[] branches = {
                 q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 100L)).limit(1),
                 q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 100L))
                         .orderBy(UnionAccountView::getStatus),
                 q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 101L))
             };
-            java.util.List<UnionAccountView> rows = (all ? context().unionAll(branches) : context().union(branches))
+            List<UnionAccountView> rows = (all ? context().unionAll(branches) : context().union(branches))
                     .thenOrderBy(UnionAccountView::getId).limit(2).fetch(UnionAccountView.class).toList();
             assertEquals(2, rows.size());
             assertEquals(Long.valueOf(100), rows.get(0).getId());
@@ -917,23 +980,23 @@ class MySqlContractTest extends DatabaseContract {
 
     /** 派生 UNION ALL 保留重复行，普通 JOIN 与派生 LEFT JOIN 再叠加别名条件。 */
     @Test void unionDerivedJoinCombinationMapsBusinessView() {
-        com.dynamic.sql.core.dml.select.SelectDsl[] source = {
-            q -> q.allColumn().from(Account.class).where(w -> w.andIn(Account::getId, java.util.Arrays.asList(100L, 101L))),
+        SelectDsl[] source = {
+            q -> q.allColumn().from(Account.class).where(w -> w.andIn(Account::getId, Arrays.asList(100L, 101L))),
             q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 101L))
         };
-        com.dynamic.sql.core.dml.select.SelectDsl[] right = {
+        SelectDsl[] right = {
             q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 102L)),
             q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 103L))
         };
-        java.util.List<UnionAccountView> rows = context().select().allColumn("t")
+        List<UnionAccountView> rows = context().select().allColumn("t")
                 .fromUnionAll(source, "t")
                 .join(Account.class, on -> on.andEqualTo(Account::getId,
-                        new com.dynamic.sql.core.column.conventional.Column("t", Account::getId)))
+                        new Column("t", Account::getId)))
                 .leftJoinUnion(right, "s", on -> on.andEqualTo(Account::getId,
-                        new com.dynamic.sql.core.column.conventional.Column("s", Account::getId)))
-                .where(w -> w.andEqualTo(new com.dynamic.sql.core.column.conventional.Column("t", Account::getStatus), "ACTIVE")
+                        new Column("s", Account::getId)))
+                .where(w -> w.andEqualTo(new Column("t", Account::getStatus), "ACTIVE")
                         .andEqualTo(Account::getId, 101L)
-                        .andIsNull(new com.dynamic.sql.core.column.conventional.Column("s", Account::getId)))
+                        .andIsNull(new Column("s", Account::getId)))
                 .fetch(UnionAccountView.class).toList();
         assertEquals(2, rows.size());
         for (UnionAccountView row : rows) {
@@ -945,24 +1008,24 @@ class MySqlContractTest extends DatabaseContract {
 
     /** 新增空间属性函数同时核对数值、布尔及字符串标量映射。 */
     @Test void geometryPropertyFunctions() {
-        assertEquals(10.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.X(MysqlSpatialSample::getPointValue), Double.class, 2L), 1e-10);
-        assertEquals(20.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Y(MysqlSpatialSample::getPointValue), Double.class, 2L), 1e-10);
-        assertEquals(16.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Area(MysqlSpatialSample::getPolygonValue), Double.class, 2L), 1e-10);
-        assertEquals(Math.sqrt(2)*2, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Length(MysqlSpatialSample::getLineValue), Double.class, 2L), 1e-10);
-        assertEquals("POINT", geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.GeometryType(MysqlSpatialSample::getPointValue), String.class, 2L));
-        assertEquals(Integer.valueOf(2), geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Dimension(MysqlSpatialSample::getPolygonValue), Integer.class, 2L));
-        assertEquals(Boolean.FALSE, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.IsEmpty(MysqlSpatialSample::getPointValue), Boolean.class, 2L));
-        assertEquals(Boolean.TRUE, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.IsValid(MysqlSpatialSample::getPolygonValue), Boolean.class, 2L));
-        assertEquals(Boolean.TRUE, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.IsSimple(MysqlSpatialSample::getPointValue), Boolean.class, 2L));
-        assertNull(geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Area(MysqlSpatialSample::getPolygonValue), Double.class, 1L));
-        assertEquals("POINT(20 10)", geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.AsText(
-                new com.dynamic.sql.core.column.function.scalar.geometry.SwapXY(MysqlSpatialSample::getPointValue)), String.class, 2L));
-        assertEquals("POINT(2 2)", geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.AsText(
-                new com.dynamic.sql.core.column.function.scalar.geometry.Centroid(MysqlSpatialSample::getPolygonValue)), String.class, 2L));
+        assertEquals(10.0, geometryScalar(new X(MysqlSpatialSample::getPointValue), Double.class, 2L), 1e-10);
+        assertEquals(20.0, geometryScalar(new Y(MysqlSpatialSample::getPointValue), Double.class, 2L), 1e-10);
+        assertEquals(16.0, geometryScalar(new Area(MysqlSpatialSample::getPolygonValue), Double.class, 2L), 1e-10);
+        assertEquals(Math.sqrt(2)*2, geometryScalar(new Length(MysqlSpatialSample::getLineValue), Double.class, 2L), 1e-10);
+        assertEquals("POINT", geometryScalar(new GeometryType(MysqlSpatialSample::getPointValue), String.class, 2L));
+        assertEquals(Integer.valueOf(2), geometryScalar(new Dimension(MysqlSpatialSample::getPolygonValue), Integer.class, 2L));
+        assertEquals(Boolean.FALSE, geometryScalar(new IsEmpty(MysqlSpatialSample::getPointValue), Boolean.class, 2L));
+        assertEquals(Boolean.TRUE, geometryScalar(new IsValid(MysqlSpatialSample::getPolygonValue), Boolean.class, 2L));
+        assertEquals(Boolean.TRUE, geometryScalar(new IsSimple(MysqlSpatialSample::getPointValue), Boolean.class, 2L));
+        assertNull(geometryScalar(new Area(MysqlSpatialSample::getPolygonValue), Double.class, 1L));
+        assertEquals("POINT(20 10)", geometryScalar(new AsText(
+                new SwapXY(MysqlSpatialSample::getPointValue)), String.class, 2L));
+        assertEquals("POINT(2 2)", geometryScalar(new AsText(
+                new Centroid(MysqlSpatialSample::getPolygonValue)), String.class, 2L));
     }
 
     /** 使用真实实体列查询函数，保持函数嵌套与结果转换走完整框架链路。 */
-    private <T> T geometryScalar(com.dynamic.sql.core.column.function.AbstractColumFunction function, Class<T> type, long id) {
+    private <T> T geometryScalar(AbstractColumFunction function, Class<T> type, long id) {
         return context().select().column(function).from(MysqlSpatialSample.class)
                 .where(w -> w.andEqualTo(MysqlSpatialSample::getId, id)).fetch(type).toOne();
     }
@@ -972,13 +1035,13 @@ class MySqlContractTest extends DatabaseContract {
         try (Statement statement = transaction.createStatement()) {
             statement.executeUpdate("INSERT INTO ds_mysql_spatial_sample(id,point_value) VALUES (95200,ST_GeomFromText('POINT(39 116)',4326))");
         }
-        assertEquals(116.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Longitude(MysqlSpatialSample::getPointValue), Double.class, 95200L), 1e-10);
-        assertEquals(39.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Latitude(MysqlSpatialSample::getPointValue), Double.class, 95200L), 1e-10);
-        assertThrows(RuntimeException.class, () -> geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Longitude(MysqlSpatialSample::getPointValue), Double.class, 2L));
+        assertEquals(116.0, geometryScalar(new Longitude(MysqlSpatialSample::getPointValue), Double.class, 95200L), 1e-10);
+        assertEquals(39.0, geometryScalar(new Latitude(MysqlSpatialSample::getPointValue), Double.class, 95200L), 1e-10);
+        assertThrows(RuntimeException.class, () -> geometryScalar(new Longitude(MysqlSpatialSample::getPointValue), Double.class, 2L));
     }
 
     /** 空间谓词分别提供命中和未命中几何，两个 WKT 都通过参数绑定进入嵌套函数。 */
-    @TestFactory java.util.stream.Stream<DynamicTest> geometryRelationMatrix() {
+    @TestFactory Stream<DynamicTest> geometryRelationMatrix() {
         String polygon = "POLYGON((0 0,4 0,4 4,0 4,0 0))";
         Object[][] cases = {
             {"Contains", polygon, "POINT(1 1)", true},
@@ -998,14 +1061,14 @@ class MySqlContractTest extends DatabaseContract {
             {"Overlaps", polygon, "POLYGON((2 2,6 2,6 6,2 6,2 2))", true},
             {"Overlaps", polygon, polygon, false}
         };
-        return java.util.Arrays.stream(cases).map(c -> DynamicTest.dynamicTest("geometry." + c[0] + "." + c[3], () -> {
+        return Arrays.stream(cases).map(c -> DynamicTest.dynamicTest("geometry." + c[0] + "." + c[3], () -> {
             Class<?> type = Class.forName("com.dynamic.sql.core.column.function.scalar.geometry." + c[0]);
-            com.dynamic.sql.core.column.function.AbstractColumFunction function =
-                    (com.dynamic.sql.core.column.function.AbstractColumFunction) type.getConstructor(
-                            com.dynamic.sql.core.column.function.AbstractColumFunction.class,
-                            com.dynamic.sql.core.column.function.AbstractColumFunction.class).newInstance(
-                            new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText((String)c[1]),
-                            new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText((String)c[2]));
+            AbstractColumFunction function =
+                    (AbstractColumFunction) type.getConstructor(
+                            AbstractColumFunction.class,
+                            AbstractColumFunction.class).newInstance(
+                            new GeomFromText((String)c[1]),
+                            new GeomFromText((String)c[2]));
             assertEquals(c[3], geometryScalar(function, Boolean.class, 2L));
             //复用函数对象再次执行，确保参数读取没有累积，且两侧值顺序不变。
             assertEquals(c[3], geometryScalar(function, Boolean.class, 2L));
@@ -1013,18 +1076,18 @@ class MySqlContractTest extends DatabaseContract {
     }
 
     /** 每个关系函数分别检查左右 SQL NULL，不能把未知关系错误映射为 false。 */
-    @TestFactory java.util.stream.Stream<DynamicTest> geometryRelationNullMatrix() {
-        java.util.List<DynamicTest> tests = new java.util.ArrayList<>();
+    @TestFactory Stream<DynamicTest> geometryRelationNullMatrix() {
+        List<DynamicTest> tests = new ArrayList<>();
         for (String name : new String[]{"Contains","Within","Intersects","Disjoint","Equals","Touches","Crosses","Overlaps"}) {
             for (boolean leftNull : new boolean[]{false,true}) {
                 tests.add(DynamicTest.dynamicTest("geometry.null." + name + "." + leftNull, () -> {
                     Class<?> type = Class.forName("com.dynamic.sql.core.column.function.scalar.geometry." + name);
-                    com.dynamic.sql.core.column.function.AbstractColumFunction function =
-                            (com.dynamic.sql.core.column.function.AbstractColumFunction) type.getConstructor(
-                                    com.dynamic.sql.core.column.function.AbstractColumFunction.class,
-                                    com.dynamic.sql.core.column.function.AbstractColumFunction.class).newInstance(
-                                    new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText(leftNull ? null : "POINT(1 1)"),
-                                    new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText(leftNull ? "POINT(1 1)" : null));
+                    AbstractColumFunction function =
+                            (AbstractColumFunction) type.getConstructor(
+                                    AbstractColumFunction.class,
+                                    AbstractColumFunction.class).newInstance(
+                                    new GeomFromText(leftNull ? null : "POINT(1 1)"),
+                                    new GeomFromText(leftNull ? "POINT(1 1)" : null));
                     assertNull(geometryScalar(function, Boolean.class, 2L));
                 }));
             }
@@ -1034,77 +1097,127 @@ class MySqlContractTest extends DatabaseContract {
 
     /** 双实体字段入口与带别名表达式均可解析，并保留原列的 SQL NULL。 */
     @Test void geometryRelationsCompareColumns() {
-        assertEquals(Boolean.TRUE, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Equals(
+        assertEquals(Boolean.TRUE, geometryScalar(new Equals(
                 MysqlSpatialSample::getPointValue, MysqlSpatialSample::getPointValue), Boolean.class, 2L));
-        assertNull(geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Equals(
+        assertNull(geometryScalar(new Equals(
                 MysqlSpatialSample::getPointValue, MysqlSpatialSample::getPointValue), Boolean.class, 1L));
         assertEquals(Boolean.TRUE, context().select().column(
-                new com.dynamic.sql.core.column.function.scalar.geometry.Equals(
-                        new com.dynamic.sql.core.column.conventional.Column("g", MysqlSpatialSample::getPointValue),
-                        new com.dynamic.sql.core.column.conventional.Column("g", MysqlSpatialSample::getPointValue)))
+                new Equals(
+                        new Column("g", MysqlSpatialSample::getPointValue),
+                        new Column("g", MysqlSpatialSample::getPointValue)))
                 .from(MysqlSpatialSample.class, "g")
-                .where(w -> w.andEqualTo(new com.dynamic.sql.core.column.conventional.Column("g", MysqlSpatialSample::getId), 2L))
+                .where(w -> w.andEqualTo(new Column("g", MysqlSpatialSample::getId), 2L))
                 .fetch(Boolean.class).toOne());
     }
 
     /** 不同坐标系不得隐式混算，非法 WKT 必须作为参数交由数据库拒绝。 */
     @Test void geometryRejectsInvalidOperands() {
         RuntimeException mismatch = assertThrows(RuntimeException.class, () -> geometryScalar(
-                new com.dynamic.sql.core.column.function.scalar.geometry.Intersects(
-                        new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(1 1)", 0),
-                        new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(1 1)", 4326)),
+                new Intersects(
+                        new GeomFromText("POINT(1 1)", 0),
+                        new GeomFromText("POINT(1 1)", 4326)),
                 Boolean.class, 2L));
         assertEquals(3033, sqlCause(mismatch).getErrorCode());
         RuntimeException invalid = assertThrows(RuntimeException.class, () -> geometryScalar(
-                new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(invalid)"),
+                new GeomFromText("POINT(invalid)"),
                 byte[].class, 2L));
         assertEquals(3037, sqlCause(invalid).getErrorCode());
-        assertThrows(NullPointerException.class, () -> new com.dynamic.sql.core.column.function.scalar.geometry.Intersects(
-                (com.dynamic.sql.core.column.function.AbstractColumFunction)null,
-                new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(1 1)")));
+        assertThrows(NullPointerException.class, () -> new Intersects(
+                (AbstractColumFunction)null,
+                new GeomFromText("POINT(1 1)")));
     }
 
     /** 补齐包围矩形与凸包的嵌套函数测试，以面积独立验证几何结果。 */
     @Test void geometryEnvelopeAndConvexHull() {
-        assertEquals(16.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Area(
-                new com.dynamic.sql.core.column.function.scalar.geometry.Envelope(MysqlSpatialSample::getPolygonValue)), Double.class, 2L), 1e-10);
-        assertEquals(16.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Area(
-                new com.dynamic.sql.core.column.function.scalar.geometry.ConvexHull(MysqlSpatialSample::getPolygonValue)), Double.class, 2L), 1e-10);
+        assertEquals(16.0, geometryScalar(new Area(
+                new Envelope(MysqlSpatialSample::getPolygonValue)), Double.class, 2L), 1e-10);
+        assertEquals(16.0, geometryScalar(new Area(
+                new ConvexHull(MysqlSpatialSample::getPolygonValue)), Double.class, 2L), 1e-10);
     }
 
     /** 双表达式距离支持参数化几何，平面距离与球面距离分别验证。 */
     @Test void geometryDistancesAcceptExpressions() {
-        assertEquals(5.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Distance(
-                new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(0 0)"),
-                new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(3 4)")), Double.class, 2L), 1e-10);
-        assertEquals(0.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.DistanceSphere(
-                new com.dynamic.sql.core.column.conventional.Column(MysqlSpatialSample::getPointValue),
-                new com.dynamic.sql.core.column.conventional.Column(MysqlSpatialSample::getPointValue)), Double.class, 2L), 1e-10);
+        assertEquals(5.0, geometryScalar(new Distance(
+                new GeomFromText("POINT(0 0)"),
+                new GeomFromText("POINT(3 4)")), Double.class, 2L), 1e-10);
+        assertEquals(0.0, geometryScalar(new DistanceSphere(
+                new Column(MysqlSpatialSample::getPointValue),
+                new Column(MysqlSpatialSample::getPointValue)), Double.class, 2L), 1e-10);
     }
 
     /** 标准 WKB 经构造函数转换为数据库几何；线串二进制不冒充 Java 线串模型。 */
     @Test void geometryWkbLineConstruction() {
-        byte[] wkb = geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.AsBinary(
+        byte[] wkb = geometryScalar(new AsBinary(
                 MysqlSpatialSample::getLineValue), byte[].class, 2L);
-        assertEquals(Math.sqrt(2)*2, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Length(
-                new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromWKB(wkb)), Double.class, 2L), 1e-10);
-        assertNull(geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromWKB(null), byte[].class, 2L));
+        assertEquals(Math.sqrt(2)*2, geometryScalar(new Length(
+                new GeomFromWKB(wkb)), Double.class, 2L), 1e-10);
+        assertNull(geometryScalar(new GeomFromWKB(null), byte[].class, 2L));
     }
 
     /** 设置 SRID 仅更改标识，原始坐标分量保持不变。 */
     @Test void geometrySridSetterPreservesCoordinates() {
-        com.dynamic.sql.core.column.function.AbstractColumFunction geometry =
-                new com.dynamic.sql.core.column.function.scalar.geometry.SRID(
-                        new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText("POINT(10 20)"), 3857);
+        AbstractColumFunction geometry =
+                new SRID(
+                        new GeomFromText("POINT(10 20)"), 3857);
         assertEquals(Integer.valueOf(3857), geometryScalar(
-                new com.dynamic.sql.core.column.function.scalar.geometry.SRID(geometry), Integer.class, 2L));
-        assertEquals(10.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.X(geometry), Double.class, 2L), 1e-10);
-        assertEquals(20.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Y(geometry), Double.class, 2L), 1e-10);
+                new SRID(geometry), Integer.class, 2L));
+        assertEquals(10.0, geometryScalar(new X(geometry), Double.class, 2L), 1e-10);
+        assertEquals(20.0, geometryScalar(new Y(geometry), Double.class, 2L), 1e-10);
     }
 
     /** 空间剩余函数逐项独立核对，并复用同一函数对象检查参数稳定性。 */
-    @TestFactory java.util.stream.Stream<DynamicTest> geometryCompletionMatrix() {
+    @TestFactory Stream<DynamicTest> geometryCompletionMatrix() {
         return GeometryCompletionMatrix.cases(context(), transaction);
+    }
+
+    /** 业务代码直接创建线串对象，验证非零 SRID 的写入、更新和标量读取。 */
+    @Test void lineStringObjectWritesAndUpdates() throws Exception {
+        MysqlSpatialSample row = new MysqlSpatialSample(); row.setId(95300L);
+        row.setLineValue(new LineString(
+                new Point(1,2,3857),new Point(3,4,3857)));
+        assertEquals(1,context().insertSelective(row));
+        assertEquals(row.getLineValue(),context().selectByPrimaryKey(MysqlSpatialSample.class,95300L).getLineValue());
+        row.setLineValue(new LineString(
+                new Point(10,20,3857),new Point(30,40,3857),
+                new Point(50,60,3857)));
+        assertEquals(1,context().updateSelectiveByPrimaryKey(row));
+        assertEquals(row.getLineValue(),geometryScalar(
+                new Column(MysqlSpatialSample::getLineValue),
+                LineString.class,95300L));
+        try (Statement statement=transaction.createStatement(); ResultSet result=statement.executeQuery(
+                "SELECT ST_AsText(line_value),ST_SRID(line_value) FROM ds_mysql_spatial_sample WHERE id=95300")) {
+            assertTrue(result.next()); assertEquals("LINESTRING(10 20,30 40,50 60)",result.getString(1));
+            assertEquals(3857,result.getInt(2));
+        }
+        assertEquals(1,context().deleteByPrimaryKey(MysqlSpatialSample.class,95300L));
+    }
+
+    /** 所有集合字段直接接收业务对象，框架负责转换，新增和更新后均核对完整实体。 */
+    @Test void allSpatialFieldsUseFrameworkObjects() {
+        MysqlSpatialSample row=new MysqlSpatialSample(); row.setId(95400L);
+        Point first=new Point(0,0),second=new Point(2,0),third=new Point(2,2);
+        LineString line=new LineString(first,second);
+        Polygon polygon=new Polygon(first,second,third);
+        row.setPointValue(first); row.setLineValue(line); row.setPolygonValue(polygon);
+        row.setMultiPointValue(new MultiPoint(0,first,second));
+        row.setMultiLineValue(new MultiLineString(0,line));
+        row.setMultiPolygonValue(new MultiPolygon(0,polygon));
+        row.setGeometryValue(new Geometry(first));
+        row.setCollectionValue(new GeometryCollection(0,new Geometry(first),new Geometry(line)));
+        assertEquals(1,context().insertSelective(row));
+        MysqlSpatialSample read=context().selectByPrimaryKey(MysqlSpatialSample.class,95400L);
+        assertEquals(row.getMultiPointValue(),read.getMultiPointValue());
+        assertEquals(row.getMultiLineValue(),read.getMultiLineValue());
+        assertEquals(row.getMultiPolygonValue(),read.getMultiPolygonValue());
+        assertEquals(row.getGeometryValue(),read.getGeometryValue());
+        assertEquals(row.getCollectionValue(),read.getCollectionValue());
+        row.setGeometryValue(new Geometry(line));
+        row.setCollectionValue(new GeometryCollection(0,new Geometry(polygon)));
+        assertEquals(1,context().updateSelectiveByPrimaryKey(row));
+        read=context().selectByPrimaryKey(MysqlSpatialSample.class,95400L);
+        assertEquals(row.getGeometryValue(),read.getGeometryValue());
+        assertEquals(row.getCollectionValue(),read.getCollectionValue());
+        assertEquals(1,context().deleteByPrimaryKey(MysqlSpatialSample.class,95400L));
     }
 
 }

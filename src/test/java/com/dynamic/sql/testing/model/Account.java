@@ -1,7 +1,10 @@
 package com.dynamic.sql.testing.model;
 
 import com.dynamic.sql.anno.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.Data;
+
 
 /**
  * 账户测试实体，覆盖自增主键、默认值、数值转换和部门关联。
@@ -22,11 +25,11 @@ public class Account {
     //账户状态，选择性插入时由数据库提供默认值。
     private String status;
     //精确金额，不使用浮点数接收。
-    private java.math.BigDecimal balance;
+    private BigDecimal balance;
     //版本字段，本实体用于验证默认值，不代表已启用乐观锁。
     private Integer versionNo;
     //SMALLINT 标志，覆盖 JDBC Integer 到 Short 的转换。
     private Short deleted;
     //微秒创建时间，同时作为稳定分页的第一排序字段。
-    private java.time.LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 }

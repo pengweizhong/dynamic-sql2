@@ -2,9 +2,18 @@ package com.dynamic.sql.testing.model;
 
 import com.dynamic.sql.anno.Id;
 import com.dynamic.sql.anno.Table;
+import com.dynamic.sql.model.Geometry;
+import com.dynamic.sql.model.GeometryCollection;
+import com.dynamic.sql.model.LineString;
+import com.dynamic.sql.model.MultiLineString;
+import com.dynamic.sql.model.MultiPoint;
+import com.dynamic.sql.model.MultiPolygon;
+import com.dynamic.sql.model.Point;
+import com.dynamic.sql.model.Polygon;
 import lombok.Data;
 
-/** 空间 CRUD 实体；未提供专门 Java 模型的类型用原始二进制验证读写，不冒充已具备高级几何模型。 */
+
+/** 空间 CRUD 实体；全部空间字段均使用框架标准几何对象进行读写。 */
 @Data
 @Table("ds_mysql_spatial_sample")
 public class MysqlSpatialSample {
@@ -12,19 +21,19 @@ public class MysqlSpatialSample {
     @Id
     private Long id;
     //点，使用框架内置 Point 转换器。
-    private com.dynamic.sql.model.Point pointValue;
-    //线串，使用 MySQL 原始空间二进制。
-    private byte[] lineValue;
+    private Point pointValue;
+    //线串，使用框架标准 LineString 对象及内置属性转换器。
+    private LineString lineValue;
     //多边形，使用框架内置 Polygon 转换器。
-    private com.dynamic.sql.model.Polygon polygonValue;
+    private Polygon polygonValue;
     //多点集合。
-    private byte[] multiPointValue;
+    private MultiPoint multiPointValue;
     //多线集合。
-    private byte[] multiLineValue;
+    private MultiLineString multiLineValue;
     //多面集合。
-    private byte[] multiPolygonValue;
+    private MultiPolygon multiPolygonValue;
     //通用几何列。
-    private byte[] geometryValue;
+    private Geometry geometryValue;
     //异构几何集合。
-    private byte[] collectionValue;
+    private GeometryCollection collectionValue;
 }

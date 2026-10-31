@@ -16,12 +16,14 @@ import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
+import com.dynamic.sql.utils.SqlUtils;
+
 
 /** 读取地理坐标系中的经度；笛卡尔坐标分量请使用 X。 */
 public class Longitude extends ColumnFunctionDecorator implements ScalarFunction {
     private String coordinate;
     /** 设置坐标分量，地理范围及轴序由数据库检查。 */
-    public Longitude(AbstractColumFunction geometry, double coordinate) { super(geometry); this.coordinate = com.dynamic.sql.utils.SqlUtils.registerValueWithKey(parameterBinder, coordinate); }
+    public Longitude(AbstractColumFunction geometry, double coordinate) { super(geometry); this.coordinate = SqlUtils.registerValueWithKey(parameterBinder, coordinate); }
     public Longitude(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }

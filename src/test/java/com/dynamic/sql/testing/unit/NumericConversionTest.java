@@ -1,8 +1,12 @@
 package com.dynamic.sql.testing.unit;
 
 import com.dynamic.sql.utils.ConverterUtils;
+import java.math.BigInteger;
+import java.sql.Time;
+import java.time.LocalTime;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
 
 /**
  * 类型转换回归测试，重点检查边界、无符号数和 NULL 语义。
@@ -30,17 +34,17 @@ class NumericConversionTest {
      * BIT(64) 全 1 应得到无符号最大值，不能误判为 -1。
      */
     @Test void bitBytesConvertToUnsignedBigInteger() {
-        assertEquals(new java.math.BigInteger("18446744073709551615"),
-                ConverterUtils.convertToEntityAttribute(null,java.math.BigInteger.class,new byte[]{-1,-1,-1,-1,-1,-1,-1,-1}));
-        assertEquals(java.math.BigInteger.ZERO,
-                ConverterUtils.convertToEntityAttribute(null,java.math.BigInteger.class,new byte[]{0}));
+        assertEquals(new BigInteger("18446744073709551615"),
+                ConverterUtils.convertToEntityAttribute(null,BigInteger.class,new byte[]{-1,-1,-1,-1,-1,-1,-1,-1}));
+        assertEquals(BigInteger.ZERO,
+                ConverterUtils.convertToEntityAttribute(null,BigInteger.class,new byte[]{0}));
     }
     /**
      * 验证普通 JDBC Time 的兼容转换；微秒精度由 MySQL 集成用例单独检查。
      */
     @Test void legacyJdbcTimeCanConvertToLocalTime() {
-        assertEquals(java.time.LocalTime.of(12,34,56),ConverterUtils.convertToEntityAttribute(
-                null,java.time.LocalTime.class,java.sql.Time.valueOf("12:34:56")));
+        assertEquals(LocalTime.of(12,34,56),ConverterUtils.convertToEntityAttribute(
+                null,LocalTime.class,Time.valueOf("12:34:56")));
     }
     /**
      * 包装类型接收 SQL NULL 时应保留 null。

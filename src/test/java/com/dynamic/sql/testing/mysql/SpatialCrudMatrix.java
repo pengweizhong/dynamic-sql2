@@ -1,14 +1,19 @@
 package com.dynamic.sql.testing.mysql;
 
 import com.dynamic.sql.core.SqlContext;
+import com.dynamic.sql.model.LineString;
+import com.dynamic.sql.model.Point;
+import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.testing.model.MysqlSpatialSample;
 import com.dynamic.sql.utils.WKBUtils;
-import org.junit.jupiter.api.DynamicTest;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.DynamicTest;
 import static org.junit.jupiter.api.Assertions.*;
+
 
 /** 空间类型逐列验证，通过 JDBC 空间函数独立确认框架实际写入的几何对象。 */
 final class SpatialCrudMatrix {
@@ -57,9 +62,16 @@ final class SpatialCrudMatrix {
             s.setString(1,wkt);
             try (ResultSet r=s.executeQuery()) {
                 assertTrue(r.next()); byte[] bytes=r.getBytes(1);
+                if (field.equals("lineValue")) return new LineString(
+                        new Point(0,0),new Point(1,1)).convertToEntityAttribute(bytes);
                 if (field.equals("pointValue")) return WKBUtils.readPointFromWkbBytes(bytes);
                 if (field.equals("polygonValue")) return WKBUtils.readPolygonFromWkbBytes(bytes);
-                return bytes;
+                Constructor<?> constructor = MysqlSpatialSample.class
+                        .getDeclaredField(field).getType().getDeclaredConstructor();
+                constructor.setAccessible(true);
+                AttributeConverter converter =
+                        (AttributeConverter) constructor.newInstance();
+                return converter.convertToEntityAttribute(bytes);
             }
         }
     }

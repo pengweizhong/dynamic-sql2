@@ -3,6 +3,8 @@ package com.dynamic.sql.core.column.function.scalar.geometry;
 import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.model.Point;
+
 
 /** 封装 ST_Contains 空间关系，支持列与列以及任意几何表达式组合。 */
 public class Contains extends BinaryGeometryFunction {
@@ -17,7 +19,7 @@ public class Contains extends BinaryGeometryFunction {
     }
 
     /** 保留字段包含 Point 的既有入口，点转换为参数化 WKT 表达式。 */
-    public <T,F> Contains(FieldFn<T,F> field, com.dynamic.sql.model.Point point) {
+    public <T,F> Contains(FieldFn<T,F> field, Point point) {
         this(new Column(field), new GeomFromText(point.toPointString(), point.getSrid()));
     }
 }

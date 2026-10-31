@@ -9,7 +9,6 @@
  */
 package com.dynamic.sql.utils;
 
-
 import com.dynamic.sql.core.column.function.AnonymousFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
@@ -21,11 +20,10 @@ import com.dynamic.sql.plugins.conversion.attribute.BigDecimalAttributeConverter
 import com.dynamic.sql.plugins.conversion.attribute.LocalDateAttributeConverter;
 import com.dynamic.sql.plugins.conversion.attribute.YearAttributeConverter;
 import com.dynamic.sql.table.FieldMeta;
-
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Clob;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -36,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.annotation.Nonnull;
+
 
 public class ConverterUtils {
     //自定义转换器 搭配@Column注解使用
@@ -119,8 +119,8 @@ public class ConverterUtils {
         } else if (dateValue instanceof java.sql.Date) {
             java.sql.Date date = (java.sql.Date) dateValue;
             temporal = date.toLocalDate();
-        } else if (dateValue instanceof java.sql.Time) {
-            java.sql.Time time = (java.sql.Time) dateValue;
+        } else if (dateValue instanceof Time) {
+            Time time = (Time) dateValue;
             temporal = time.toLocalTime();
         } else if (dateValue instanceof java.util.Date) {
             java.util.Date date = (java.util.Date) dateValue;
@@ -224,8 +224,8 @@ public class ConverterUtils {
         }
         //普通 JDBC Time 的兼容转换，只能保留对象可提供的秒精度。
         //MySQL TIME(6) 的精确映射已在 JdbcResultRow 中完成，不依赖此处恢复微秒。
-        if (fieldType == LocalTime.class && value instanceof java.sql.Time) {
-            return (T) ((java.sql.Time) value).toLocalTime();
+        if (fieldType == LocalTime.class && value instanceof Time) {
+            return (T) ((Time) value).toLocalTime();
         }
         if (fieldType == LocalDateTime.class) {
             if (value instanceof Timestamp) {

@@ -1,15 +1,17 @@
 package com.dynamic.sql.testing.mysql;
 
 import com.dynamic.sql.core.SqlContext;
-import com.dynamic.sql.testing.model.TypeSample;
 import com.dynamic.sql.testing.model.MysqlTypeSample;
-import org.junit.jupiter.api.DynamicTest;
+import com.dynamic.sql.testing.model.TypeSample;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.function.Executable;
 import static org.junit.jupiter.api.Assertions.*;
+
 
 /** 严格模式下拒绝非法新增和更新，检查失败操作没有产生脏数据或截断原记录。 */
 final class InvalidTypeMatrix {
@@ -53,7 +55,7 @@ final class InvalidTypeMatrix {
     }
 
     /** 检查真正的数据库错误码，避免把框架的其他异常误认为预期的输入拒绝。 */
-    private static void rejects(int code,org.junit.jupiter.api.function.Executable operation) {
+    private static void rejects(int code,Executable operation) {
         RuntimeException error=assertThrows(RuntimeException.class,operation);
         Throwable cause=error;
         while (!(cause instanceof SQLException) && cause.getCause()!=null) cause=cause.getCause();
