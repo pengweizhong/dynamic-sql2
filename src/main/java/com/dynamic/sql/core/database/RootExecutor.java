@@ -73,7 +73,11 @@ public class RootExecutor {
                     objectMap.clearTemporal(columnName);
                     Object columnValue;
                     int columnType = metaData.getColumnType(i);
-                    if (columnType == Types.TINYINT || (columnType == Types.BIT && metaData.getPrecision(i) <= 1)) {
+                    if (preserveMysqlTemporalValues && "YEAR".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
+                        //YEAR 的数值零会被驱动日期映射解释为 2000；按整数读取才能保留真实年份。
+                        int year = resultSet.getInt(i);
+                        columnValue = resultSet.wasNull() ? null : year;
+                    } else if (columnType == Types.TINYINT || (columnType == Types.BIT && metaData.getPrecision(i) <= 1)) {
                         //TINYINT(1) 可能被驱动描述为单比特类型；按整数读取，保留实际的非 0/1 数值。
                         int number = resultSet.getInt(i);
                         //getInt 遇到 SQL NULL 也返回 0，必须立即通过 wasNull 区分空值与数值零。
@@ -82,7 +86,7 @@ public class RootExecutor {
                         //多位 BIT 是位串，直接读取字节，避免 BIT(64) 高位被截断或触发 Integer 越界。
                         columnValue = resultSet.getBytes(i);
                     } else if (preserveMysqlTemporalValues && columnType == Types.TIME) {
-                        String time = resultSet.getString(i);
+                        String time = readMysqlTime(resultSet, i);
                         //java.sql.Time 无法完整保留 TIME(6) 的微秒，额外保存文本供 LocalTime 映射使用。
                         objectMap.putTemporal(columnName, time);
                         //MySQL TIME 还可以表示负数或超过 24 小时的时长，不能强制读取为 java.sql.Time。
@@ -112,6 +116,30 @@ public class RootExecutor {
             SqlUtils.close(resultSet, preparedStatement);
         }
         return arrayList;
+    }
+
+    /**
+     * 读取 MySQL TIME，兼容 Connector/J 服务端预编译的负时长转换问题。
+     * <p>
+     * 该驱动在二进制协议下返回原始 TIME 字节；负时长的天数和小时数应先求和再加负号。
+     * 文本协议以 ASCII 数字或负号开头，不会误判为首字节为 1 的二进制负时长。
+     */
+    private static String readMysqlTime(ResultSet resultSet, int index) throws SQLException {
+        byte[] bytes = resultSet.getBytes(index);
+        if (bytes == null) return null;
+        if ((bytes.length == 8 || bytes.length == 12) && bytes[0] == 1) {
+            //二进制载荷依次为：符号、四字节天数、小时、分钟、秒，以及可选的四字节微秒。
+            java.nio.ByteBuffer payload = java.nio.ByteBuffer.wrap(bytes).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+            long days = Integer.toUnsignedLong(payload.getInt(1));
+            long hours = days * 24 + Byte.toUnsignedInt(bytes[5]);
+            String value = String.format(Locale.ROOT, "-%02d:%02d:%02d", hours,
+                    Byte.toUnsignedInt(bytes[6]), Byte.toUnsignedInt(bytes[7]));
+            if (bytes.length == 12) {
+                value += String.format(Locale.ROOT, ".%06d", payload.getInt(8));
+            }
+            return value;
+        }
+        return resultSet.getString(index);
     }
 
     public static int executeInsert(Connection connection, PreparedSql preparedSql) {

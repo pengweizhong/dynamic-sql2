@@ -19,6 +19,7 @@ import com.dynamic.sql.plugins.conversion.AttributeConverterModel;
 import com.dynamic.sql.plugins.conversion.FetchResultConverter;
 import com.dynamic.sql.plugins.conversion.attribute.BigDecimalAttributeConverter;
 import com.dynamic.sql.plugins.conversion.attribute.LocalDateAttributeConverter;
+import com.dynamic.sql.plugins.conversion.attribute.YearAttributeConverter;
 import com.dynamic.sql.table.FieldMeta;
 
 import javax.annotation.Nonnull;
@@ -50,6 +51,7 @@ public class ConverterUtils {
     static {
         putAttributeConverterModel(BigDecimal.class, new BigDecimalAttributeConverter());
         putAttributeConverterModel(LocalDate.class, new LocalDateAttributeConverter());
+        putAttributeConverterModel(Year.class, new YearAttributeConverter());
     }
 
     public static <Y> AttributeConverter<Object, Y> loadCustomConverter(Class<? extends AttributeConverter> converterClass) {

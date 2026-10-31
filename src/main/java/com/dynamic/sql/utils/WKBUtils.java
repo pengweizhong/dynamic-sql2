@@ -105,14 +105,17 @@ public class WKBUtils {
         List<Point> points = polygon.getPoints();
         Point p = points.get(0);
         int srid = p.getSrid();
-        ByteOrder byteOrder = p.getByteOrder();
+        //未指定字节序时与 Point 保持一致，默认使用小端序。
+        ByteOrder byteOrder = p.getByteOrder() == null ? ByteOrder.LITTLE_ENDIAN : p.getByteOrder();
         int numPoints = points.size();
         // 计算所需的字节数组大小
         // SRID + 字节序 + 几何类型 + 环数 + 点数 + 点坐标
         int bufferSize = 4 + 1 + 4 + 4 + 4 + numPoints * 16;
         ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+        //MySQL 空间值的 SRID 固定使用小端序，与后续 WKB 载荷的字节序无关。
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
         buffer.putInt(srid);
-        buffer.order(byteOrder); // 使用小端字节序
+        buffer.order(byteOrder);
         buffer.put((byte) (byteOrder == ByteOrder.BIG_ENDIAN ? 0 : 1)); // 字节序
         buffer.putInt(WKBType.POLYGON.getType()); // 几何类型：POLYGON
         buffer.putInt(1); // 环数：1（单环）
@@ -149,12 +152,17 @@ public class WKBUtils {
      * @return Polygon 对象
      */
     public static Polygon readPolygonFromWkbBytes(byte[] wkbBytes) {
-        if (wkbBytes == null || wkbBytes.length < 5) {
+        if (wkbBytes == null || wkbBytes.length < 17) {
             throw new IllegalArgumentException("Invalid WKB byte array");
         }
-        ByteBuffer buffer = ByteBuffer.wrap(wkbBytes);
+        //先按 MySQL 固定的小端序读取 SRID，再按 WKB 标记切换坐标载荷的字节序。
+        ByteBuffer buffer = ByteBuffer.wrap(wkbBytes).order(ByteOrder.LITTLE_ENDIAN);
         int srid = buffer.getInt();
-        ByteOrder byteOrder = buffer.get() == 1 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+        byte orderMarker = buffer.get();
+        if (orderMarker != 0 && orderMarker != 1) {
+            throw new IllegalArgumentException("Invalid WKB byte order marker");
+        }
+        ByteOrder byteOrder = orderMarker == 1 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
         buffer.order(byteOrder);
         int geometryType = buffer.getInt();
         if (geometryType != WKBType.POLYGON.getType()) {
@@ -167,13 +175,19 @@ public class WKBUtils {
             throw new IllegalArgumentException("Only single-ring polygons are supported");
         }
         int numPoints = buffer.getInt();
+        //在分配集合前核对点数和剩余字节，拒绝截断数据与异常长度，避免越界或超量分配。
+        if (numPoints < 4 || numPoints != buffer.remaining() / 16 || buffer.remaining() % 16 != 0) {
+            throw new IllegalArgumentException("Invalid WKB polygon point count or length");
+        }
         List<Point> points = new ArrayList<>(numPoints);
         for (int i = 0; i < numPoints; i++) {
             double longitude = buffer.getDouble();
             double latitude = buffer.getDouble();
-            points.add(new Point(latitude, longitude, srid, byteOrder));
+            //WKB 坐标依次为 X、Y，构造 Point 时同样按经度、纬度传递，不能交换。
+            points.add(new Point(longitude, latitude, srid, byteOrder));
         }
-        return new Polygon(points);
+        //数据库中的环应已闭合，不能通过模型自动补点掩盖损坏的空间数据。
+        return new Polygon(false, points);
     }
 
     /**

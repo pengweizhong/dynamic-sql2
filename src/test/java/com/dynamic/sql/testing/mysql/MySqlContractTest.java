@@ -82,6 +82,10 @@ class MySqlContractTest extends DatabaseContract {
     @BeforeEach void begin() throws Exception {
         transaction = source.getConnection();
         transaction.setAutoCommit(false);
+        //固定当前测试连接的严格模式，非法输入必须报错，不能受服务器全局配置影响而静默截断。
+        try (Statement statement=transaction.createStatement()) {
+            statement.execute("SET SESSION sql_mode='STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION'");
+        }
     }
 
     /**
@@ -94,7 +98,145 @@ class MySqlContractTest extends DatabaseContract {
         }
     }
 
+    /** 空间类型的框架 CRUD 闭环，包含原生模型与二进制映射。 */
+    @TestFactory java.util.stream.Stream<DynamicTest> spatialCrudMatrix() {
+        return SpatialCrudMatrix.cases(context(),transaction);
+    }
+
+    /** 非法输入同时验证新增和更新失败后的数据完整性。 */
+    @TestFactory java.util.stream.Stream<DynamicTest> invalidTypeMatrix() {
+        return InvalidTypeMatrix.cases(context(),transaction);
+    }
+
+    /** 选择性更新跳过 NULL；强制字段更新则必须清空指定列，同时保留其他字段。 */
+    @Test void selectiveNullAndForcedNullHaveDifferentSemantics() throws Exception {
+        TypeSample row=new TypeSample(); row.setId(94000L); row.setSampleName("null-update");
+        row.setVarcharValue("keep"); row.setLongValue(42L);
+        assertEquals(1,context().insertSelective(row));
+        TypeSample patch=new TypeSample(); patch.setId(94000L); patch.setLongValue(43L);
+        assertEquals(1,context().updateSelectiveByPrimaryKey(patch));
+        assertEquals("keep",context().selectByPrimaryKey(TypeSample.class,94000L).getVarcharValue());
+        context().updateSelectiveByPrimaryKey(patch,java.util.Collections.singletonList(TypeSample::getVarcharValue));
+        try (Statement s=transaction.createStatement(); ResultSet r=s.executeQuery("SELECT varchar_value,long_value,sample_name FROM ds_type_sample WHERE id=94000")) {
+            assertTrue(r.next()); assertNull(r.getString(1)); assertEquals(43,r.getLong(2)); assertEquals("null-update",r.getString(3));
+        }
+    }
+
+    /** 对已有所有通用类型的样本执行两种批量插入，再独立核对关键类型的落库内容。 */
+    @Test void batchAndMultipleInsertPreserveTypeValues() throws Exception {
+        for (boolean multiple : new boolean[]{false,true}) {
+            TypeSample a=context().selectByPrimaryKey(TypeSample.class,3L);
+            TypeSample b=context().selectByPrimaryKey(TypeSample.class,3L);
+            long base=multiple ? 94110L : 94100L;
+            a.setId(base); b.setId(base+1); a.setSampleName("batch-"+base); b.setSampleName("batch-"+(base+1));
+            if (multiple) context().insertMultiple(java.util.Arrays.asList(a,b));
+            else context().insertBatch(java.util.Arrays.asList(a,b));
+            try (PreparedStatement s=transaction.prepareStatement("SELECT long_value,decimal_value,blob_value,time_value,timestamp_value FROM ds_type_sample WHERE id IN (?,?) ORDER BY id")) {
+                s.setLong(1,base); s.setLong(2,base+1);
+                try (ResultSet r=s.executeQuery()) {
+                    int count=0;
+                    while(r.next()) {
+                        count++; assertEquals(9007199254740993L,r.getLong(1)); assertEquals(a.getDecimalValue(),r.getBigDecimal(2));
+                        assertArrayEquals(a.getBlobValue(),r.getBytes(3));
+                        assertEquals(a.getTimeValue(),r.getObject(4,java.time.LocalTime.class));
+                        assertEquals(a.getTimestampValue(),r.getObject(5,java.time.LocalDateTime.class));
+                    }
+                    assertEquals(2,count);
+                }
+            }
+            assertEquals(2,context().deleteByPrimaryKey(TypeSample.class,java.util.Arrays.asList(base,base+1)));
+        }
+    }
+
+    /** 全量插入与选择性插入都需正确处理可空字段；默认值只在省略列时生效。 */
+    @Test void fullAndSelectiveInsertPreserveNullAndDefaults() throws Exception {
+        for(boolean selective:new boolean[]{false,true}) {
+            TypeSample row=new TypeSample(); long id=selective?94201L:94200L;
+            row.setId(id); row.setSampleName("null-insert-"+id);
+            if (!selective) row.setDefaultValue("explicit-default");
+            assertEquals(1,selective?context().insertSelective(row):context().insert(row));
+            try (PreparedStatement statement=transaction.prepareStatement("SELECT * FROM ds_type_sample WHERE id=?")) {
+                statement.setLong(1,id);
+                try(ResultSet result=statement.executeQuery()) {
+                    assertTrue(result.next());
+                    ResultSetMetaData meta=result.getMetaData();
+                    for(int column=1;column<=meta.getColumnCount();column++) {
+                        String name=meta.getColumnLabel(column);
+                        if(!name.equals("id") && !name.equals("sample_name") && !name.equals("default_value")) {
+                            assertNull(result.getObject(column),name);
+                        }
+                    }
+                    assertEquals(selective?"default-value":"explicit-default",result.getString("default_value"));
+                }
+            }
+            assertEquals(1,context().deleteByPrimaryKey(TypeSample.class,id));
+        }
+    }
+
+    /** MySQL YEAR 允许数值零，不能因驱动的日期映射误变为其他年份。 */
+    @Test void mysqlYearZeroRemainsZero() throws Exception {
+        MysqlTypeSample row=new MysqlTypeSample(); row.setId(94300L); row.setYearValue(java.time.Year.of(0));
+        assertEquals(1,context().insertSelective(row));
+        try(Statement statement=transaction.createStatement();ResultSet result=statement.executeQuery("SELECT year_value+0 FROM ds_mysql_type_sample WHERE id=94300")) {
+            assertTrue(result.next()); assertEquals(0,result.getInt(1));
+        }
+        assertEquals(java.time.Year.of(0),context().selectByPrimaryKey(MysqlTypeSample.class,94300L).getYearValue());
+        row.setYearValue(java.time.Year.of(2155));
+        assertEquals(1,context().updateSelectiveByPrimaryKey(row));
+        assertEquals(java.time.Year.of(2155),context().selectByPrimaryKey(MysqlTypeSample.class,94300L).getYearValue());
+        assertEquals(1,context().deleteByPrimaryKey(MysqlTypeSample.class,94300L));
+    }
+
+    /** JSON null、SQL NULL、空对象和空数组必须在新增与更新后仍可区分。 */
+    @Test void jsonNullAndEmptyContainersRemainDistinct() throws Exception {
+        MysqlTypeSample row=new MysqlTypeSample(); row.setId(94400L); row.setJsonValue("null");
+        assertEquals(1,context().insertSelective(row));
+        for(String json:new String[]{"null","{}","[]"}) {
+            row.setJsonValue(json); context().updateSelectiveByPrimaryKey(row);
+            assertEquals(com.google.gson.JsonParser.parseString(json),com.google.gson.JsonParser.parseString(
+                    context().selectByPrimaryKey(MysqlTypeSample.class,94400L).getJsonValue()));
+            try(Statement statement=transaction.createStatement();ResultSet result=statement.executeQuery("SELECT json_value IS NULL,JSON_TYPE(json_value) FROM ds_mysql_type_sample WHERE id=94400")) {
+                assertTrue(result.next()); assertFalse(result.getBoolean(1));
+                assertEquals(json.equals("null")?"NULL":json.equals("{}")?"OBJECT":"ARRAY",result.getString(2));
+            }
+        }
+        row.setJsonValue(null); assertEquals(1,context().updateByPrimaryKey(row));
+        assertNull(context().selectByPrimaryKey(MysqlTypeSample.class,94400L).getJsonValue());
+        try(Statement statement=transaction.createStatement();ResultSet result=statement.executeQuery("SELECT json_value IS NULL FROM ds_mysql_type_sample WHERE id=94400")) {
+            assertTrue(result.next()); assertTrue(result.getBoolean(1));
+        }
+        assertEquals(1,context().deleteByPrimaryKey(MysqlTypeSample.class,94400L));
+    }
+
+    /** JVM 时区变化时，TIMESTAMP 的新增和更新仍按连接的 UTC 会话表达本地时间。 */
+    @Test void timestampWritesAndUpdatesIgnoreJvmDefaultZone() throws Exception {
+        java.util.TimeZone previous=java.util.TimeZone.getDefault();
+        try {
+            for(String zone:new String[]{"UTC","Asia/Shanghai","America/New_York"}) {
+                java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone(zone));
+                TypeSample row=new TypeSample(); row.setId(94500L); row.setSampleName("timestamp-write");
+                java.time.LocalDateTime first=java.time.LocalDateTime.of(2024,2,29,10,20,30,123456000);
+                java.time.LocalDateTime second=first.plusHours(1);
+                row.setTimestampValue(first); assertEquals(1,context().insertSelective(row));
+                assertEquals(first,context().selectByPrimaryKey(TypeSample.class,94500L).getTimestampValue(),zone);
+                row.setTimestampValue(second); assertEquals(1,context().updateSelectiveByPrimaryKey(row));
+                try(Statement statement=transaction.createStatement();ResultSet result=statement.executeQuery("SELECT timestamp_value FROM ds_type_sample WHERE id=94500")) {
+                    assertTrue(result.next()); assertEquals(second,result.getObject(1,java.time.LocalDateTime.class),zone);
+                }
+                assertEquals(second,context().selectByPrimaryKey(TypeSample.class,94500L).getTimestampValue(),zone);
+                assertEquals(1,context().deleteByPrimaryKey(TypeSample.class,94500L));
+            }
+        } finally { java.util.TimeZone.setDefault(previous); }
+    }
+
     @Override protected SqlContext context() { return sqlContext; }
+
+    /**
+     * 每种类型独立展示执行结果；动态用例通过保存点隔离，不复用其他用例写入的数据。
+     */
+    @TestFactory java.util.stream.Stream<DynamicTest> typeCrudMatrix() {
+        return TypeCrudMatrix.cases(context(), transaction);
+    }
 
     /**
      * 回归检查：getInt 返回零时，仍需区分 SQL NULL 与真正的数值零。
