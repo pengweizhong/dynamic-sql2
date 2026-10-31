@@ -1,38 +1,23 @@
-/*
- * Copyright (c) 2024 PengWeizhong. All Rights Reserved.
- *
- * This source code is licensed under the MIT License.
- * You may obtain a copy of the License at:
- * https://opensource.org/licenses/MIT
- *
- * See the LICENSE file in the project root for more information.
- */
 package com.dynamic.sql.core.column.function.scalar.geometry;
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
-import com.dynamic.sql.core.column.function.RenderContext;
-import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
-import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.model.Point;
-import com.dynamic.sql.utils.ExceptionUtils;
-import com.dynamic.sql.utils.SqlUtils;
+import com.dynamic.sql.core.column.conventional.Column;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
 
-public class Contains extends ColumnFunctionDecorator implements ScalarFunction {
-
-    private final Point point;
-
-    public <T, F> Contains(FieldFn<T, F> fn, Point point) {
-        super(fn);
-        this.point = point;
+/** 封装 ST_Contains 空间关系，支持列与列以及任意几何表达式组合。 */
+public class Contains extends BinaryGeometryFunction {
+    /** 左右操作数均保留各自的参数与列别名。 */
+    public Contains(AbstractColumFunction left, AbstractColumFunction right) {
+        super("ST_Contains", left, right);
     }
 
-    @Override
-    public String render(RenderContext context) {
-        if (context.getSqlDialect() == SqlDialect.MYSQL) {
-            String name = SqlUtils.extractQualifiedAlias(delegateFunction.originColumn(), context.getAliasTableMap(), context.getDataSourceName());
-            return "ST_Contains(" + name + ", ST_PointFromText('" + point.toPointString() + "'," + point.getSrid() + "))";
-        }
-        throw ExceptionUtils.unsupportedFunctionException("ST_Contains", context.getSqlDialect());
+    /** 两个实体字段之间的空间关系。 */
+    public <T,F,U,G> Contains(FieldFn<T,F> left, FieldFn<U,G> right) {
+        this(new Column(left), new Column(right));
+    }
+
+    /** 保留字段包含 Point 的既有入口，点转换为参数化 WKT 表达式。 */
+    public <T,F> Contains(FieldFn<T,F> field, com.dynamic.sql.model.Point point) {
+        this(new Column(field), new GeomFromText(point.toPointString(), point.getSrid()));
     }
 }

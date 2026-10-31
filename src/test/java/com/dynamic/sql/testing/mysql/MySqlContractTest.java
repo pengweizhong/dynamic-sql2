@@ -977,4 +977,39 @@ class MySqlContractTest extends DatabaseContract {
         assertThrows(RuntimeException.class, () -> geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Longitude(MysqlSpatialSample::getPointValue), Double.class, 2L));
     }
 
+    /** 空间谓词分别提供命中和未命中几何，两个 WKT 都通过参数绑定进入嵌套函数。 */
+    @TestFactory java.util.stream.Stream<DynamicTest> geometryRelationMatrix() {
+        String polygon = "POLYGON((0 0,4 0,4 4,0 4,0 0))";
+        Object[][] cases = {
+            {"Contains", polygon, "POINT(1 1)", true},
+            {"Contains", polygon, "POINT(5 5)", false},
+            {"Within", "POINT(1 1)", polygon, true},
+            {"Within", "POINT(5 5)", polygon, false},
+            {"Intersects", polygon, "POINT(1 1)", true},
+            {"Intersects", polygon, "POINT(5 5)", false},
+            {"Disjoint", "POINT(0 0)", "POINT(1 1)", true},
+            {"Disjoint", "POINT(0 0)", "POINT(0 0)", false},
+            {"Equals", "POINT(1 1)", "POINT(1 1)", true},
+            {"Equals", "POINT(1 1)", "POINT(2 2)", false},
+            {"Touches", polygon, "POINT(0 1)", true},
+            {"Touches", polygon, "POINT(1 1)", false},
+            {"Crosses", "LINESTRING(0 0,2 2)", "LINESTRING(0 2,2 0)", true},
+            {"Crosses", "LINESTRING(0 0,1 0)", "LINESTRING(0 2,1 2)", false},
+            {"Overlaps", polygon, "POLYGON((2 2,6 2,6 6,2 6,2 2))", true},
+            {"Overlaps", polygon, polygon, false}
+        };
+        return java.util.Arrays.stream(cases).map(c -> DynamicTest.dynamicTest("geometry." + c[0] + "." + c[3], () -> {
+            Class<?> type = Class.forName("com.dynamic.sql.core.column.function.scalar.geometry." + c[0]);
+            com.dynamic.sql.core.column.function.AbstractColumFunction function =
+                    (com.dynamic.sql.core.column.function.AbstractColumFunction) type.getConstructor(
+                            com.dynamic.sql.core.column.function.AbstractColumFunction.class,
+                            com.dynamic.sql.core.column.function.AbstractColumFunction.class).newInstance(
+                            new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText((String)c[1]),
+                            new com.dynamic.sql.core.column.function.scalar.geometry.GeomFromText((String)c[2]));
+            assertEquals(c[3], geometryScalar(function, Boolean.class, 2L));
+            //复用函数对象再次执行，确保参数读取没有累积，且两侧值顺序不变。
+            assertEquals(c[3], geometryScalar(function, Boolean.class, 2L));
+        }));
+    }
+
 }

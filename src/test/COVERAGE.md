@@ -100,3 +100,7 @@
 新增 X/Y、Area、Length、GeometryType、Dimension、IsEmpty、IsValid、IsSimple、Centroid、SwapXY 的 MySQL 实库断言，包含 NULL 面积、嵌套 AsText、SRID 4326 轴序，以及非地理 SRS 读取经度的错误场景。Longitude/Latitude 改为 ST_Longitude/ST_Latitude，旧 SRID 0 坐标读取需改为 X/Y。Envelope、ConvexHull 已提供封装，尚未添加独立实库断言。
 
 默认客户端预编译完整 mysql-it 200 项通过；本批尚未完成原建议表中所有函数，二元通用表达式、构造函数、关系谓词、SRID 设置及其余几何运算仍需推进。
+
+## 空间关系表达式扩展
+
+新增参数绑定的 GeomFromText，以及 Contains、Within、Intersects、Disjoint、Equals、Touches、Crosses、Overlaps 双几何表达式和双字段入口；Contains 保留原字段与 Point 构造器。16 个动态用例分别覆盖命中与未命中，重复执行同一表达式确认参数没有累积。真实 MySQL 默认配置完整 mysql-it 216 项通过，其中集成类 202 项，零失败、零跳过。双字段入口、NULL、不同 SRID 和错误几何输入的独立断言仍需补充；其他方言明确拒绝，不宣称支持。
