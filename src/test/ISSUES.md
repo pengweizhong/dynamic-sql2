@@ -40,3 +40,7 @@
 ## UNION 重复执行
 
 同一 UNION 查询设置全局排序和分页后，第二次 fetch 将 ORDER BY/LIMIT 再次追加到实例 SQL，MySQL 报语法错误。执行时改用独立 SQL 和参数容器，保留分支模板不变；集成测试验证连续两次得到相同分页结果。
+
+## 经纬度函数语义修正
+
+Longitude/Latitude 原调用 ST_X/ST_Y，无法表达地理 SRS 的真实经纬度。现改为 ST_Longitude/ST_Latitude，并新增 X/Y 承接笛卡尔分量读取；这是有行为变化的修正。缺少第二几何入参的 Distance/DistanceSphere 旧单表达式构造器现在立即抛出英文 IllegalArgumentException，避免执行时空指针，通用二元表达式支持仍待补充。

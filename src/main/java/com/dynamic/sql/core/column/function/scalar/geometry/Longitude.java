@@ -17,6 +17,7 @@ import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
 
+/** 读取地理坐标系中的经度；笛卡尔坐标分量请使用 X。 */
 public class Longitude extends ColumnFunctionDecorator implements ScalarFunction {
     public Longitude(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
@@ -33,8 +34,8 @@ public class Longitude extends ColumnFunctionDecorator implements ScalarFunction
     @Override
     public String render(RenderContext context) {
         if (context.getSqlDialect() == SqlDialect.MYSQL) {
-            return "ST_X(" + delegateFunction.render(context) + ")";
+            return "ST_Longitude(" + delegateFunction.render(context) + ")";
         }
-        throw ExceptionUtils.unsupportedFunctionException("ST_X", context.getSqlDialect());
+        throw ExceptionUtils.unsupportedFunctionException("ST_Longitude", context.getSqlDialect());
     }
 }

@@ -21,6 +21,8 @@ import com.dynamic.sql.utils.ExceptionUtils;
 public class DistanceSphere extends ColumnFunctionDecorator implements ScalarFunction {
     public DistanceSphere(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
+        //距离必须指定两个几何对象，旧的单表达式入口无法形成合法 SQL。
+        throw new IllegalArgumentException("Distance requires two geometry operands");
     }
 
     private Point thisPoint;

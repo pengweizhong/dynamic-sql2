@@ -943,4 +943,38 @@ class MySqlContractTest extends DatabaseContract {
         }
     }
 
+    /** 新增空间属性函数同时核对数值、布尔及字符串标量映射。 */
+    @Test void geometryPropertyFunctions() {
+        assertEquals(10.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.X(MysqlSpatialSample::getPointValue), Double.class, 2L), 1e-10);
+        assertEquals(20.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Y(MysqlSpatialSample::getPointValue), Double.class, 2L), 1e-10);
+        assertEquals(16.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Area(MysqlSpatialSample::getPolygonValue), Double.class, 2L), 1e-10);
+        assertEquals(Math.sqrt(2)*2, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Length(MysqlSpatialSample::getLineValue), Double.class, 2L), 1e-10);
+        assertEquals("POINT", geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.GeometryType(MysqlSpatialSample::getPointValue), String.class, 2L));
+        assertEquals(Integer.valueOf(2), geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Dimension(MysqlSpatialSample::getPolygonValue), Integer.class, 2L));
+        assertEquals(Boolean.FALSE, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.IsEmpty(MysqlSpatialSample::getPointValue), Boolean.class, 2L));
+        assertEquals(Boolean.TRUE, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.IsValid(MysqlSpatialSample::getPolygonValue), Boolean.class, 2L));
+        assertEquals(Boolean.TRUE, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.IsSimple(MysqlSpatialSample::getPointValue), Boolean.class, 2L));
+        assertNull(geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Area(MysqlSpatialSample::getPolygonValue), Double.class, 1L));
+        assertEquals("POINT(20 10)", geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.AsText(
+                new com.dynamic.sql.core.column.function.scalar.geometry.SwapXY(MysqlSpatialSample::getPointValue)), String.class, 2L));
+        assertEquals("POINT(2 2)", geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.AsText(
+                new com.dynamic.sql.core.column.function.scalar.geometry.Centroid(MysqlSpatialSample::getPolygonValue)), String.class, 2L));
+    }
+
+    /** 使用真实实体列查询函数，保持函数嵌套与结果转换走完整框架链路。 */
+    private <T> T geometryScalar(com.dynamic.sql.core.column.function.AbstractColumFunction function, Class<T> type, long id) {
+        return context().select().column(function).from(MysqlSpatialSample.class)
+                .where(w -> w.andEqualTo(MysqlSpatialSample::getId, id)).fetch(type).toOne();
+    }
+
+    /** 地理坐标轴顺序由 SRID 定义，经纬度访问不能直接等同 X/Y。 */
+    @Test void geographicLongitudeLatitudeFollowSridAxes() throws Exception {
+        try (Statement statement = transaction.createStatement()) {
+            statement.executeUpdate("INSERT INTO ds_mysql_spatial_sample(id,point_value) VALUES (95200,ST_GeomFromText('POINT(39 116)',4326))");
+        }
+        assertEquals(116.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Longitude(MysqlSpatialSample::getPointValue), Double.class, 95200L), 1e-10);
+        assertEquals(39.0, geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Latitude(MysqlSpatialSample::getPointValue), Double.class, 95200L), 1e-10);
+        assertThrows(RuntimeException.class, () -> geometryScalar(new com.dynamic.sql.core.column.function.scalar.geometry.Longitude(MysqlSpatialSample::getPointValue), Double.class, 2L));
+    }
+
 }

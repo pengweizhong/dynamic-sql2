@@ -94,3 +94,9 @@
 补充两个真实业务组合：扁平 UNION/UNION ALL 的三个分支包含独立排序和分页，外层以非表 BO 字段排序、分页并映射 BO，断言重复行差异；派生 fromUnionAll 再 JOIN 普通账户表、LEFT JOIN UNION 派生表，并叠加 t/s 别名条件、右侧 NULL 筛选及 BO 映射，确认左关联未命中时仍保留来源的两条重复记录。
 
 默认客户端预编译、UTC JVM 的完整 mysql-it 为 198 项通过，其中 MySQL 集成类 184 项，零失败、零跳过。这两个新增组合尚未在服务端预编译配置重跑；本批未发现新框架缺陷。
+
+## 空间函数首批扩展
+
+新增 X/Y、Area、Length、GeometryType、Dimension、IsEmpty、IsValid、IsSimple、Centroid、SwapXY 的 MySQL 实库断言，包含 NULL 面积、嵌套 AsText、SRID 4326 轴序，以及非地理 SRS 读取经度的错误场景。Longitude/Latitude 改为 ST_Longitude/ST_Latitude，旧 SRID 0 坐标读取需改为 X/Y。Envelope、ConvexHull 已提供封装，尚未添加独立实库断言。
+
+默认客户端预编译完整 mysql-it 200 项通过；本批尚未完成原建议表中所有函数，二元通用表达式、构造函数、关系谓词、SRID 设置及其余几何运算仍需推进。
