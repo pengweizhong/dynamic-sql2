@@ -1,0 +1,153 @@
+package history.sql.utils;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class StringUtilsTest {
+
+    @Test
+    void isEmpty() {
+        assertTrue(StringUtils.isEmpty(null));
+        assertTrue(StringUtils.isEmpty(""));
+        assertFalse(StringUtils.isEmpty(" "));
+        assertFalse(StringUtils.isEmpty(" \t"));
+        assertFalse(StringUtils.isEmpty(" \n"));
+        assertFalse(StringUtils.isEmpty(" \r"));
+        assertFalse(StringUtils.isEmpty(" \t\r"));
+        assertFalse(StringUtils.isEmpty(" \n\r"));
+        assertFalse(StringUtils.isEmpty(" \r "));
+        assertFalse(StringUtils.isEmpty(" \t\r "));
+        assertFalse(StringUtils.isEmpty(" \n\r "));
+        assertFalse(StringUtils.isEmpty(" \r \t"));
+        assertFalse(StringUtils.isEmpty(" \n\r \t"));
+        assertFalse(StringUtils.isEmpty("hello"));
+    }
+
+    @Test
+    void isNotEmpty() {
+        assertFalse(StringUtils.isNotEmpty(null));
+        assertFalse(StringUtils.isNotEmpty(""));
+        assertTrue(StringUtils.isNotEmpty(" "));
+        assertTrue(StringUtils.isNotEmpty(" \t"));
+        assertTrue(StringUtils.isNotEmpty(" \n"));
+        assertTrue(StringUtils.isNotEmpty(" \r"));
+        assertTrue(StringUtils.isNotEmpty(" \t\r"));
+        assertTrue(StringUtils.isNotEmpty(" \n\r "));
+        assertTrue(StringUtils.isNotEmpty(" \r \t"));
+        assertTrue(StringUtils.isNotEmpty(" \n\r \t"));
+        assertTrue(StringUtils.isNotEmpty("hello"));
+    }
+
+    @Test
+    void isBlank() {
+        assertTrue(StringUtils.isBlank(null));
+        assertTrue(StringUtils.isBlank(""));
+        assertTrue(StringUtils.isBlank(" "));
+        assertTrue(StringUtils.isBlank(" \t"));
+        assertTrue(StringUtils.isBlank(" \n"));
+        assertTrue(StringUtils.isBlank(" \r"));
+        assertTrue(StringUtils.isBlank(" \t\r"));
+        assertTrue(StringUtils.isBlank(" \n\r "));
+        assertTrue(StringUtils.isBlank(" \r \t"));
+        assertTrue(StringUtils.isBlank(" \n\r \t"));
+        assertFalse(StringUtils.isBlank("hello"));
+        assertFalse(StringUtils.isBlank(" hello "));
+    }
+
+    @Test
+    void isNotBlank() {
+        assertFalse(StringUtils.isNotBlank(null));
+        assertFalse(StringUtils.isNotBlank(""));
+        assertFalse(StringUtils.isNotBlank(" "));
+        assertFalse(StringUtils.isNotBlank(" \t"));
+        assertFalse(StringUtils.isNotBlank(" \n"));
+        assertFalse(StringUtils.isNotBlank(" \r"));
+        assertFalse(StringUtils.isNotBlank(" \t\r"));
+        assertFalse(StringUtils.isNotBlank(" \n\r "));
+        assertFalse(StringUtils.isNotBlank(" \r \t"));
+        assertFalse(StringUtils.isNotBlank(" \n\r \t"));
+        assertTrue(StringUtils.isNotBlank("hello"));
+    }
+
+    @Test
+    void testEquals() {
+        assertTrue(StringUtils.isEquals(null, null));
+        assertFalse(StringUtils.isEquals(null, ""));
+        assertFalse(StringUtils.isEquals("", null));
+        assertTrue(StringUtils.isEquals("", ""));
+        assertTrue(StringUtils.isEquals("hello", "hello"));
+        assertFalse(StringUtils.isEquals("hello", "world"));
+    }
+
+    @Test
+    void isEquals() {
+    }
+
+    @Test
+    void isNotEquals() {
+    }
+
+    @Test
+    void isEqualsIgnoreCase() {
+    }
+
+    @Test
+    void isNotEqualsIgnoreCase() {
+    }
+
+    @Test
+    void join() {
+    }
+
+    @Test
+    void testJoin() {
+    }
+
+    @Test
+    void bytesToHex() {
+    }
+
+    @Test
+    void endsWith() {
+        System.out.println(StringUtils.endsWith("hello", "lo"));
+        System.out.println(StringUtils.endsWith("hello", "o"));
+        System.out.println(StringUtils.endsWith("hello", "he"));
+        System.out.println(StringUtils.endsWith("hello", ""));
+        System.out.println(StringUtils.endsWith("hello", "hellohello"));
+//        System.out.println(StringUtils.endsWith("hello", null));
+        System.out.println("hello".endsWith("lo"));
+        System.out.println("hello".endsWith("lo0000"));
+    }
+
+    @Test
+    void testBytesToHex() {
+        byte[] bytes = "hello".getBytes();
+        System.out.println(StringUtils.bytesToHex(bytes));
+        String s = StringUtils.bytesToHex(bytes, true);
+        System.out.println(s);
+        byte[] bytes1 = StringUtils.hexToBytes(s);
+        System.out.println(Arrays.equals(bytes1, bytes));
+    }
+
+    @Test
+    void toBaseString() {
+        System.out.println(StringUtils.toBaseString(10, 2));
+        System.out.println(StringUtils.toBaseString(10, 8));
+        System.out.println(StringUtils.toBaseString(10, 10));
+        System.out.println(StringUtils.toBaseString(10, 16));
+    }
+
+    @Test
+    void leftPad() {
+        System.out.println(StringUtils.leftPad("str", 5, '0'));
+    }
+
+    @Test
+    void rightPad() {
+        System.out.println(StringUtils.rightPad("str", 5, '0'));
+    }
+}
