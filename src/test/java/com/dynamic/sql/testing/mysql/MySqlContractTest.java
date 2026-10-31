@@ -98,6 +98,11 @@ class MySqlContractTest extends DatabaseContract {
         }
     }
 
+    /** 每个字段均通过两种批量写入 API 验证，之后独立核对并批量删除。 */
+    @TestFactory java.util.stream.Stream<DynamicTest> batchTypeMatrix() {
+        return TypeCrudMatrix.batchCases(context(),transaction);
+    }
+
     /** 空间类型的框架 CRUD 闭环，包含原生模型与二进制映射。 */
     @TestFactory java.util.stream.Stream<DynamicTest> spatialCrudMatrix() {
         return SpatialCrudMatrix.cases(context(),transaction);

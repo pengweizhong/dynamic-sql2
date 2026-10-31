@@ -72,6 +72,86 @@ final class TypeCrudMatrix {
     }
 
     /**
+     * 每个字段分别通过 insertBatch 与 insertMultiple 写入两行，之后独立核对并批量删除。
+     */
+    static Stream<DynamicTest> batchCases(SqlContext context, Connection connection) {
+        List<ColumnCase> cases=new ArrayList<>();
+        //复用字段矩阵中的相同类型和值，确保批量写入测试不只覆盖少数代表列。
+        cases(cases);
+        return cases.stream().map(c -> DynamicTest.dynamicTest("batch."+c.table+"."+c.column,
+                () -> verifyBatch(context,connection,c)));
+    }
+
+    /**
+     * 两种批量 API 使用不同主键，逐条核对真实列值和实体映射，最后确认删除结果。
+     */
+    private static void verifyBatch(SqlContext context, Connection connection, ColumnCase c) throws Exception {
+        Savepoint savepoint=connection.setSavepoint();
+        try {
+            for(boolean multiple:new boolean[]{false,true}) {
+                long firstId=multiple?91201L:91101L;
+                Object first=batchEntity(c,firstId),second=batchEntity(c,firstId+1);
+                int affected=multiple?context.insertMultiple(Arrays.asList(first,second))
+                        :context.insertBatch(Arrays.asList(first,second));
+                assertEquals(2,affected);
+                verify(context,connection,c,c.initial,firstId);
+                verify(context,connection,c,c.initial,firstId+1);
+                assertEquals(2,context.deleteByPrimaryKey(c.entity,Arrays.asList(firstId,firstId+1)));
+                try(Statement statement=connection.createStatement();ResultSet rows=statement.executeQuery(
+                        "SELECT COUNT(*) FROM "+c.table+" WHERE id IN ("+firstId+","+(firstId+1)+")")) {
+                    assertTrue(rows.next()); assertEquals(0,rows.getInt(1));
+                }
+            }
+        } finally {
+            connection.rollback(savepoint);
+            connection.releaseSavepoint(savepoint);
+        }
+    }
+
+    /**
+     * 创建仅包含主键、必填识别列和待测字段的实体，其他列走数据库默认值或 NULL。
+     */
+    private static Object batchEntity(ColumnCase c,long id) throws Exception {
+        Object row=c.entity.newInstance(); set(row,"id",id);
+        if(row instanceof TypeSample) {
+            set(row,"sampleName","batch-"+id);
+            set(row,"defaultValue","default-value");
+        }
+        set(row,c.field,c.initial);
+        return row;
+    }
+
+    private static void cases(List<ColumnCase> cases) {
+        add(cases, "smallValue", (short)-32768, (short)32767);
+        add(cases, "intValue", Integer.MIN_VALUE, Integer.MAX_VALUE);
+        add(cases, "longValue", Long.MIN_VALUE, Long.MAX_VALUE);
+        add(cases, "decimalValue", new BigDecimal("-9999999999999999999999999999.9999999999"), new BigDecimal("9999999999999999999999999999.9999999999"));
+        add(cases, "floatValue", -1.25f, 123.5f); add(cases, "doubleValue", -1.23456789012345, 98765.4321012345);
+        add(cases, "flagValue", (short)0, (short)1); add(cases, "charValue", "中文", "ABCDEFGH");
+        add(cases, "varcharValue", "中文😀 O'Reilly % _ ?", repeat("界",512));
+        add(cases, "textValue", "first\n第二行", repeat("中文😀",1000));
+        add(cases, "binaryValue", new byte[]{0,1,2,3,4,5,6,7}, new byte[]{-1,-2,-3,-4,-5,-6,-7,-8});
+        add(cases, "varbinaryValue", new byte[0], bytes(256)); add(cases, "blobValue", new byte[0], bytes(65535));
+        add(cases, "dateValue", LocalDate.of(1000,1,1), LocalDate.of(9999,12,31));
+        add(cases, "timeValue", LocalTime.MIDNIGHT, LocalTime.of(23,59,59,999999000));
+        add(cases, "datetimeValue", LocalDateTime.of(1000,1,1,0,0), LocalDateTime.of(9999,12,31,23,59,59,999999000));
+        add(cases, "timestampValue", LocalDateTime.of(2000,1,1,0,0), LocalDateTime.of(2030,12,31,23,59,59,123456000));
+        mysql(cases,"tinyValue",(byte)-128,(byte)127); mysql(cases,"tinyBoolean",0,2);
+        mysql(cases,"mediumValue",-8388608,8388607); mysql(cases,"unsignedTiny",0,255);
+        mysql(cases,"unsignedSmall",0,65535); mysql(cases,"unsignedMedium",0,16777215);
+        mysql(cases,"unsignedInt",0L,4294967295L); mysql(cases,"unsignedBig",BigInteger.ZERO,new BigInteger("18446744073709551615"));
+        mysql(cases,"bitFlag",0,1); mysql(cases,"bitMask",new byte[]{0},new byte[]{(byte)170});
+        mysql(cases,"bitWide",new byte[8],new byte[]{-1,-1,-1,-1,-1,-1,-1,-1});
+        mysql(cases,"yearValue",Year.of(1901),Year.of(2155)); mysql(cases,"durationValue","-25:01:02.123456","838:59:59");
+        mysql(cases,"enumValue","NEW","CLOSED"); mysql(cases,"setValue","","READ,WRITE,ADMIN");
+        mysql(cases,"jsonValue","{\"text\":\"中文\",\"n\":null}","[true,123,\"😀\"]");
+        mysql(cases,"tinyText","",repeat("a",255)); mysql(cases,"mediumText","",repeat("中",30000));
+        mysql(cases,"longText","",repeat("文",30000)); mysql(cases,"tinyBlob",new byte[0],bytes(255));
+        mysql(cases,"mediumBlob",new byte[0],bytes(70000)); mysql(cases,"longBlob",new byte[0],bytes(70000));
+        mysql(cases,"baseAmount",new BigDecimal("-12.3456"),new BigDecimal("999999999999999.9999"));
+    }
+
+    /**
      * 新增、读取、选择性更新、更新为 NULL、删除均通过框架执行；每一步独立读取数据库确认。
      */
     private static void verifyCrud(SqlContext context, Connection connection, ColumnCase c) throws Exception {
@@ -109,9 +189,13 @@ final class TypeCrudMatrix {
      * 表名与列名仅来自本类固定测试清单，不接收外部输入。
      */
     private static void verify(SqlContext context, Connection connection, ColumnCase c, Object expected) throws Exception {
+        verify(context,connection,c,expected,91000L);
+    }
+
+    private static void verify(SqlContext context,Connection connection,ColumnCase c,Object expected,long id) throws Exception {
         //负时长的 JDBC getString 存在二进制协议转换缺陷，先由数据库转为字符再独立核对真实落库值。
         String projection = c.field.equals("durationValue") ? "CAST(" + c.column + " AS CHAR)" : c.column;
-        try (Statement s=connection.createStatement(); ResultSet r=s.executeQuery("SELECT " + projection + " FROM " + c.table + " WHERE id=91000")) {
+        try (Statement s=connection.createStatement(); ResultSet r=s.executeQuery("SELECT " + projection + " FROM " + c.table + " WHERE id="+id)) {
             assertTrue(r.next());
             Object actual;
             if (expected == null) actual=r.getObject(1);
@@ -124,12 +208,12 @@ final class TypeCrudMatrix {
             else actual=r.getString(1);
             equalValue(c,expected,actual);
         }
-        Object fetched=context.selectByPrimaryKey(c.entity,91000L);
+        Object fetched=context.selectByPrimaryKey(c.entity,id);
         assertNotNull(fetched);
         Field field=c.entity.getDeclaredField(c.field); field.setAccessible(true);
         equalValue(c,expected,field.get(fetched));
         if (c.field.equals("baseAmount")) {
-            try (Statement s=connection.createStatement(); ResultSet r=s.executeQuery("SELECT doubled_amount FROM ds_mysql_type_sample WHERE id=91000")) {
+            try (Statement s=connection.createStatement(); ResultSet r=s.executeQuery("SELECT doubled_amount FROM ds_mysql_type_sample WHERE id="+id)) {
                 assertTrue(r.next());
                 if (expected == null) assertNull(r.getBigDecimal(1));
                 else assertEquals(0,((BigDecimal)expected).multiply(new BigDecimal("2")).compareTo(r.getBigDecimal(1)));
