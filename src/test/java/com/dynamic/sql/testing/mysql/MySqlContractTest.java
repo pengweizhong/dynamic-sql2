@@ -1237,4 +1237,21 @@ class MySqlContractTest extends DatabaseContract {
     /** JSON_TABLE 的展开、关联和错误策略分别验证。 */
     @TestFactory Stream<DynamicTest> p1JsonTableMatrix() { return P1JsonTableMatrix.cases(context()); }
 
+    /** 两种批量插入均回填不同自增键，且每个键与对应业务行一致。 */
+    @Test void generatedKeysMatchBothBatchInsertApis() {
+        for(boolean multiple:new boolean[]{false,true}) {
+            Account first=context().selectByPrimaryKey(Account.class,100L);
+            Account second=context().selectByPrimaryKey(Account.class,100L);
+            first.setId(null);second.setId(null);
+            first.setLoginName("auto-first-"+multiple);second.setLoginName("auto-second-"+multiple);
+            int count=multiple ? context().insertMultiple(Arrays.asList(first,second))
+                    : context().insertBatch(Arrays.asList(first,second));
+            assertEquals(2,count);assertNotNull(first.getId());assertNotNull(second.getId());
+            assertNotEquals(first.getId(),second.getId());
+            assertEquals(first.getLoginName(),context().selectByPrimaryKey(Account.class,first.getId()).getLoginName());
+            assertEquals(second.getLoginName(),context().selectByPrimaryKey(Account.class,second.getId()).getLoginName());
+            assertEquals(2,context().deleteByPrimaryKey(Account.class,Arrays.asList(first.getId(),second.getId())));
+        }
+    }
+
 }

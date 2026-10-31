@@ -278,7 +278,8 @@ public class TableUtils {
                 GeneratedStrategy generatedStrategy = new GeneratedStrategy();
                 generatedStrategy.setStrategy(generatedValue.strategy());
                 if (generatedValue.strategy().equals(GenerationType.SEQUENCE)) {
-                    generatedStrategy.setSequenceName(generatedStrategy.sequenceName);
+                    //序列名必须取自注解，元数据此时尚未初始化，不能读取自身空值。
+                    generatedStrategy.setSequenceName(generatedValue.sequenceName());
                 }
                 columnMeta.setGeneratedStrategy(generatedStrategy);
             }

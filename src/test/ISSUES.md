@@ -61,3 +61,9 @@ Longitude/Latitude 原调用 ST_X/ST_Y，无法表达地理 SRS 的真实经纬�
 - JSON_TABLE 原未收集输入参数，列声明和路径直接拼接，ON EMPTY/ERROR 顺序与默认值表达也不完整；现复用输入绑定、校验类型和标识符，支持嵌套与行号，默认 JSON 标量安全编码。
 - JSON_VALID 的服务端绑定参数会被 MySQL 提前当作 JSON 验证，非法文本因此报错而非返回零；现显式转字符后校验，文本与服务端预编译均通过回归。
 - STR_TO_DATE、UNIX_TIMESTAMP、CONVERT_TZ 的服务端参数类型推断可带来显示精度差异；这是数据库表达式类型差异，测试采用显式 CAST 固定比较类型，不截断业务值。
+
+## 主键生成注解回归
+
+GeneratedValueTest 复现 SEQUENCE 的 sequenceName 配置为 seq_sample_id，却解析为 NULL。TableUtils 原读取尚未赋值的 generatedStrategy.sequenceName，现改读 generatedValue.sequenceName()。
+
+默认与显式 AUTO 元数据正确；普通非主键字段不启用生成策略。MySQL 已有数据库自增能力，不新增 IDENTITY 枚举。单条、insertBatch、insertMultiple 的主键回填与业务记录对应关系均通过；额外验证服务端预编译加批量改写。SEQUENCE 本批只验证注解元数据，不代表 Oracle 序列执行已实库验证。

@@ -134,3 +134,7 @@ C01～C05 完成算术表达式、公共参数绑定、CASE/空值条件、类�
 ## 全部 P1 基线完成
 
 16 项 P1 基线覆盖字符串、日期数值、聚合、统计、窗口、JSON 标量及 JSON_TABLE。新增 114 个集成场景和 6 个单元测试；完整 mysql-it 两种预编译配置均通过 467 项，零失败、零跳过。逐项实施状态、函数清单与支持边界见 [列函数待办](COLUMN_FUNCTION_TODO.md) 的 P1 完成记录。
+
+## 主键生成策略验证
+
+新增 GeneratedValueTest 三项元数据单元测试，先复现并修复序列名丢失；新增批量主键回填测试，分别核对 insertBatch 与 insertMultiple 的不同主键及其业务记录。默认配置完整 mysql-it 471 项通过；服务端预编译加 rewriteBatchedStatements 的两项主键集成测试通过，零失败、零跳过。AUTO 自增功能正常，未调整策略枚举；Oracle 序列执行仍需对应实库验证。
