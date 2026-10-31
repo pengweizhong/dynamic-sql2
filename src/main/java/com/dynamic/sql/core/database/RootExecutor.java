@@ -32,7 +32,23 @@ public class RootExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(RootExecutor.class);
 
+    /**
+     * 使用通用 JDBC 规则查询；其他方言不会自动启用 MySQL 的时间读取规则。
+     */
     public static List<Map<String, Object>> executeQuery(Connection connection, PreparedSql preparedSql) {
+        return executeQuery(connection, preparedSql, false);
+    }
+
+    /**
+     * 执行查询并保留列标签顺序，必要时保存 MySQL 时间列的精确信息。
+     *
+     * @param connection                  当前数据库连接，由调用方管理释放
+     * @param preparedSql                 已生成占位符及参数的 SQL
+     * @param preserveMysqlTemporalValues 是否额外保留 MySQL 时间文本，用于 Java 时间类型映射
+     * @return 每行以列标签为键的查询结果
+     */
+    public static List<Map<String, Object>> executeQuery(Connection connection, PreparedSql preparedSql,
+                                                        boolean preserveMysqlTemporalValues) {
         ArrayList<Map<String, Object>> arrayList = new ArrayList<>();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -47,23 +63,41 @@ public class RootExecutor {
             int columnCount = metaData.getColumnCount();
             HashSet<String> detectedColumnNameSet = new HashSet<>();
             while (resultSet.next()) {
-                LinkedHashMap<String, Object> objectMap = new LinkedHashMap<>();
+                JdbcResultRow objectMap = new JdbcResultRow();
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnLabel(i);
                     if (log.isDebugEnabled() && objectMap.containsKey(columnName)) {
                         detectedColumnNameSet.add(columnName);
                     }
-                    //目前已知的情况是mysql会将tinyint(1)的数字默认转为布尔（0，1）
-                    //尤其是在使用Integer来接收tinyint(1)时，因此这里不能直接getIndex
-                    //解决方案1：在 JDBC URL 中关闭布尔映射 tinyInt1isBit=false
-                    //解决方案2：在 SQL 层面避免 tinyint(1)
-                    //解决方案3：在 JDBC 读取时强制指定类型
+                    //重复列标签采用后值覆盖前值，不能残留前一个时间列的补充信息。
+                    objectMap.clearTemporal(columnName);
                     Object columnValue;
                     int columnType = metaData.getColumnType(i);
-                    if (columnType == Types.TINYINT || columnType == Types.BIT) {
-                        columnValue = resultSet.getInt(i); // 强制为 int
+                    if (columnType == Types.TINYINT || (columnType == Types.BIT && metaData.getPrecision(i) <= 1)) {
+                        //TINYINT(1) 可能被驱动描述为单比特类型；按整数读取，保留实际的非 0/1 数值。
+                        int number = resultSet.getInt(i);
+                        //getInt 遇到 SQL NULL 也返回 0，必须立即通过 wasNull 区分空值与数值零。
+                        columnValue = resultSet.wasNull() ? null : number;
+                    } else if (columnType == Types.BIT) {
+                        //多位 BIT 是位串，直接读取字节，避免 BIT(64) 高位被截断或触发 Integer 越界。
+                        columnValue = resultSet.getBytes(i);
+                    } else if (preserveMysqlTemporalValues && columnType == Types.TIME) {
+                        String time = resultSet.getString(i);
+                        //java.sql.Time 无法完整保留 TIME(6) 的微秒，额外保存文本供 LocalTime 映射使用。
+                        objectMap.putTemporal(columnName, time);
+                        //MySQL TIME 还可以表示负数或超过 24 小时的时长，不能强制读取为 java.sql.Time。
+                        if (time != null && (time.startsWith("-") || Integer.parseInt(time.substring(0,time.indexOf(':'))) >= 24)) {
+                            columnValue = time;
+                        } else {
+                            columnValue = resultSet.getObject(i);
+                        }
                     } else {
                         columnValue = resultSet.getObject(i);
+                        if (preserveMysqlTemporalValues && columnType == Types.TIMESTAMP) {
+                            //TIMESTAMP 文本使用数据库会话时区；DATETIME 文本保持原值。
+                            //映射 LocalDateTime 时使用此文本，避免 Timestamp.toLocalDateTime 受 JVM 时区影响。
+                            objectMap.putTemporal(columnName, resultSet.getString(i));
+                        }
                     }
                     objectMap.put(columnName, columnValue);
                 }

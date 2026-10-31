@@ -180,9 +180,11 @@ public class ConverterUtils {
 //        if (fieldType == Byte.class || fieldType == byte.class || fieldType == Byte[].class || fieldType == byte[].class) {
 //            return toByte(value, fieldType);
 //        }
+        //JDBC 可能用 Integer 返回 SMALLINT；通过字符串解析检查范围，避免 shortValue 静默截断。
         if (fieldType == Short.class || fieldType == short.class) {
             return (T) Short.valueOf(ifBooleanToNumber(value).toString());
         }
+        //Byte 同样进行范围检查，超出 -128～127 时直接抛出转换异常。
         if (fieldType == Byte.class || fieldType == byte.class) {
             return (T) Byte.valueOf(ifBooleanToNumber(value).toString());
         }
@@ -211,7 +213,17 @@ public class ConverterUtils {
             return (T) new AtomicLong(toLong(value));
         }
         if (fieldType == BigInteger.class) {
+            if (value instanceof byte[]) {
+                byte[] bytes = (byte[]) value;
+                //BIT 位串按无符号数解释；显式指定正号，防止最高位为 1 时被当成负数。
+                return (T) (bytes.length == 0 ? BigInteger.ZERO : new BigInteger(1, bytes));
+            }
             return (T) new BigInteger(value.toString());
+        }
+        //普通 JDBC Time 的兼容转换，只能保留对象可提供的秒精度。
+        //MySQL TIME(6) 的精确映射已在 JdbcResultRow 中完成，不依赖此处恢复微秒。
+        if (fieldType == LocalTime.class && value instanceof java.sql.Time) {
+            return (T) ((java.sql.Time) value).toLocalTime();
         }
         if (fieldType == LocalDateTime.class) {
             if (value instanceof Timestamp) {

@@ -17,6 +17,7 @@
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <test.excludedGroups>integration</test.excludedGroups>
+        <test.jvm.timezone>UTC</test.jvm.timezone>
         <test.lombok.version>1.18.30</test.lombok.version>
     </properties>
 
@@ -122,7 +123,7 @@
     </dependencies>
     <build>
         <plugins>
-            <!-- Default tests run without a database; mysql-it enables integration tests. -->
+            <!-- 默认执行无需数据库的单元测试，通过 mysql-it 显式启用 MySQL 集成测试。 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -133,8 +134,10 @@
                     <includes>
                         <include>com/dynamic/sql/testing/**/*Test.java</include>
                     </includes>
+                    <!-- 每个测试类使用独立 JVM，隔离框架静态注册表。 -->
                     <reuseForks>false</reuseForks>
-                    <argLine>-Duser.timezone=UTC</argLine>
+                    <!-- 默认使用 UTC，可覆盖属性验证 JVM 与数据库会话时区不一致的行为。 -->
+                    <argLine>-Duser.timezone=${test.jvm.timezone}</argLine>
                 </configuration>
             </plugin>
             <!-- Generate source code JAR -->

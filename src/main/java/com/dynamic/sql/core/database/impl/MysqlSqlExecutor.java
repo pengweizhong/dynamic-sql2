@@ -34,7 +34,8 @@ public class MysqlSqlExecutor extends AbstractSqlExecutor {
 
     @Override
     public List<Map<String, Object>> executeQuery() {
-        return RootExecutor.executeQuery(connection, preparedSql);
+        //MySQL 单独保留时间文本，兼顾 TIME 微秒、超范围时长与 TIMESTAMP 会话时区语义。
+        return RootExecutor.executeQuery(connection, preparedSql, true);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.dynamic.sql.core.dml.select;
 
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.database.JdbcResultRow;
 import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.plugins.conversion.FetchResultConverter;
@@ -247,7 +248,8 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
                 collection.add(null);
             }
             Map.Entry<String, Object> entry = stringObjectMap.entrySet().iterator().next();
-            R value = ConverterUtils.convertToEntityAttribute(null, resultClass, entry.getValue());
+            //标量查询也按目标类型读取时间补充信息，与实体字段映射保持相同的精度和时区规则。
+            R value = ConverterUtils.convertToEntityAttribute(null, resultClass, JdbcResultRow.valueFor(stringObjectMap, entry.getKey(), resultClass));
             collection.add(value);
         }
         return collection;
@@ -299,10 +301,12 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         R instance = ReflectUtils.instance(resultClass);
         if (objects != null && parentFieldMeta != null) {
             String parentColumnName = parentFieldMeta.getColumnName();
-            Object columnValue = columnObjectMap.get(parentColumnName);
             FieldMeta columnMeta = getColumnMeta(parentColumnName, columnNameMap, fieldNameMap);
             if (columnMeta != null) {
-                Object value = ConverterUtils.convertToEntityAttribute(columnMeta, columnMeta.getField().getType(), columnValue);
+                //嵌套对象的父字段也需按目标类型取值，避免与普通字段的时间映射行为不一致。
+                //使用结果集列标签查找补充信息，兼容 SQL 别名，不直接使用实体字段名。
+                Object value = ConverterUtils.convertToEntityAttribute(columnMeta, columnMeta.getField().getType(),
+                        JdbcResultRow.valueFor(columnObjectMap, parentColumnName, columnMeta.getField().getType()));
                 if (value != null) {
                     ReflectUtils.setFieldValue(instance, columnMeta.getField(), value);
                 }
@@ -316,7 +320,9 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             if (columnMeta == null) {
                 return;
             }
-            Object value = ConverterUtils.convertToEntityAttribute(columnMeta, columnMeta.getField().getType(), columnValue);
+            //使用结果集列标签查找补充信息，兼容 SQL 别名，不直接使用实体字段名。
+            Object value = ConverterUtils.convertToEntityAttribute(columnMeta, columnMeta.getField().getType(),
+                        JdbcResultRow.valueFor(columnObjectMap, columnName, columnMeta.getField().getType()));
             if (value != null) {
                 ReflectUtils.setFieldValue(instance, columnMeta.getField(), value);
             }
@@ -334,7 +340,9 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
         columnObjectMap.forEach((columnName, columnValue) -> {
             FieldMeta childColumnMeta = getColumnMeta(columnName, childColumnNameMap, childFieldNameMap);
             if (childColumnMeta != null) {
-                Object value = ConverterUtils.convertToEntityAttribute(childColumnMeta, childColumnMeta.getField().getType(), columnValue);
+                //子对象复用相同的类型取值规则，保留时间精度。
+                Object value = ConverterUtils.convertToEntityAttribute(childColumnMeta, childColumnMeta.getField().getType(),
+                        JdbcResultRow.valueFor(columnObjectMap, columnName, childColumnMeta.getField().getType()));
                 if (value != null) {
                     //单单映射主键不足以说明对象不为null，必须有其他字段存在值才行
                     if (!Objects.equals(columnName, parentColumn)) {
