@@ -659,4 +659,67 @@ class MySqlContractTest extends DatabaseContract {
         assertEquals(2, context().deleteByPrimaryKey(Department.class, java.util.Arrays.asList(95100L, 95101L)));
     }
 
+    /** 每种查询条件独立执行，使用固定主键集合确认结果而非仅检查行数。 */
+    @TestFactory java.util.stream.Stream<DynamicTest> queryPredicateMatrix() {
+        java.util.List<DynamicTest> tests = new java.util.ArrayList<>();
+        queryCase(tests, "equal", w -> w.andEqualTo(Account::getLoginName, "alice"), 100L);
+        queryCase(tests, "notEqual", w -> w.andNotEqualTo(Account::getStatus, "ACTIVE"), 102L);
+        queryCase(tests, "in", w -> w.andIn(Account::getId, java.util.Arrays.asList(100L, 102L)), 100L, 102L);
+        queryCase(tests, "notIn", w -> w.andNotIn(Account::getId, java.util.Arrays.asList(100L, 102L)), 101L, 103L);
+        queryCase(tests, "betweenInclusive", w -> w.andBetween(Account::getId, 101L, 102L), 101L, 102L);
+        queryCase(tests, "greaterThan", w -> w.andGreaterThan(Account::getBalance, BigDecimal.ZERO), 100L);
+        queryCase(tests, "null", w -> w.andIsNull(Account::getDepartmentId), 103L);
+        queryCase(tests, "notNull", w -> w.andIsNotNull(Account::getDepartmentId), 100L, 101L, 102L);
+        queryCase(tests, "or", w -> w.andEqualTo(Account::getId, 100L).orEqualTo(Account::getId, 103L), 100L, 103L);
+        queryCase(tests, "disabledPredicate", w -> w.andEqualTo(false, Account::getId, -1L), 100L, 101L, 102L, 103L);
+        queryCase(tests, "noMatch", w -> w.andEqualTo(Account::getLoginName, "missing"));
+        return tests.stream();
+    }
+
+    /** 所有条件走 DSL 参数绑定，并通过排序保证结果断言稳定。 */
+    private void queryCase(java.util.List<DynamicTest> tests, String name,
+            java.util.function.Consumer<com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition> predicate,
+            Long... expected) {
+        tests.add(DynamicTest.dynamicTest("query." + name, () -> {
+            java.util.List<Long> actual = context().select().column(Account::getId).from(Account.class)
+                    .where(predicate).orderBy(Account::getId).fetch(Long.class).toList();
+            assertEquals(java.util.Arrays.asList(expected), actual);
+        }));
+    }
+
+    /** 去重投影应消除重复部门，分页越过结果末尾应返回空集合。 */
+    @Test void queryDistinctAndPaginationEdges() {
+        assertEquals(java.util.Arrays.asList(20L, 30L), context().select().distinct()
+                .column(Account::getDepartmentId).from(Account.class)
+                .where(w -> w.andIsNotNull(Account::getDepartmentId))
+                .orderBy(Account::getDepartmentId).fetch(Long.class).toList());
+        assertTrue(context().select().allColumn().from(Account.class)
+                .orderBy(Account::getId).limit(100, 10).fetch(Account.class).toList().isEmpty());
+        assertEquals(Long.valueOf(100), context().select().column(Account::getId).from(Account.class)
+                .orderBy(Account::getId).limit(1).fetch(Long.class).toOne());
+    }
+
+    /** 单结果查询区分无结果、唯一结果和多结果，避免悄悄取首行。 */
+    @Test void querySingleResultCardinality() {
+        assertNull(context().select().column(Account::getId).from(Account.class)
+                .where(w -> w.andEqualTo(Account::getId, -1L)).fetch(Long.class).toOne());
+        assertEquals(Long.valueOf(100), context().select().column(Account::getId).from(Account.class)
+                .where(w -> w.andEqualTo(Account::getId, 100L)).fetch(Long.class).toOne());
+        assertThrows(com.dynamic.sql.exception.DynamicSqlException.class,
+                () -> context().select().column(Account::getId).from(Account.class).fetch(Long.class).toOne());
+    }
+
+    /** 聚合结果既检查整体总数，也检查分组结果，避免重复行被错误合并。 */
+    @Test void queryCountAndGrouping() {
+        assertEquals(Long.valueOf(4), context().select()
+                .column(new com.dynamic.sql.core.column.function.windows.aggregate.Count(1))
+                .from(Account.class).fetch(Long.class).toOne());
+        java.util.List<Long> counts = context().select()
+                .column(new com.dynamic.sql.core.column.function.windows.aggregate.Count(1))
+                .from(Account.class).where(w -> w.andIsNotNull(Account::getDepartmentId))
+                .groupBy(Account::getDepartmentId).orderBy(Account::getDepartmentId)
+                .fetch(Long.class).toList();
+        assertEquals(java.util.Arrays.asList(2L, 1L), counts);
+    }
+
 }
