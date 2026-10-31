@@ -89,6 +89,10 @@ public class UnionSelect extends AbstractUnion {
         if (returnClass == null) {
             throw new NullPointerException("returnClass is null");
         }
+        //每次执行使用独立 SQL 和参数容器，防止重复查询累积排序、分页及绑定参数。
+        StringBuilder rawSql = new StringBuilder(this.rawSql);
+        ParameterBinder parameterBinder = new ParameterBinder();
+        parameterBinder.addParameterBinder(this.parameterBinder);
         //检测是否构建了OrderBy
         TableRelation<Object> tableRelation = getTableRelation();
         SelectSpecification selectSpecification = tableRelation.getSelectSpecification();

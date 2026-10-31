@@ -818,4 +818,129 @@ class MySqlContractTest extends DatabaseContract {
                 .from(Account.class).where(w -> w.andEqualTo(Account::getId, -1L)).fetch(Long.class).toOne());
     }
 
+    /** UNION 两种模式逐项核对空分支、重叠、多分支及重复次数，不依赖数据库默认返回顺序。 */
+    @TestFactory java.util.stream.Stream<DynamicTest> unionQueryMatrix() {
+        java.util.List<DynamicTest> tests = new java.util.ArrayList<>();
+        for (boolean all : new boolean[]{false, true}) {
+            unionCase(tests, all, "disjoint", new long[][]{{100}, {102}}, 100L, 102L);
+            unionCase(tests, all, "overlap", new long[][]{{100,101}, {101,102}},
+                    all ? new Long[]{100L,101L,101L,102L} : new Long[]{100L,101L,102L});
+            unionCase(tests, all, "identical", new long[][]{{100}, {100}},
+                    all ? new Long[]{100L,100L} : new Long[]{100L});
+            unionCase(tests, all, "emptyFirst", new long[][]{{-1}, {100}}, 100L);
+            unionCase(tests, all, "emptyLast", new long[][]{{100}, {-1}}, 100L);
+            unionCase(tests, all, "allEmpty", new long[][]{{-1}, {-2}});
+            unionCase(tests, all, "threeBranches", new long[][]{{100}, {101}, {102}}, 100L,101L,102L);
+        }
+        return tests.stream();
+    }
+
+    /** 分支输入全部经参数绑定，比较排序后的完整多重集合。 */
+    private void unionCase(java.util.List<DynamicTest> tests, boolean all, String name, long[][] ids, Long... expected) {
+        tests.add(DynamicTest.dynamicTest((all ? "unionAll." : "union.") + name, () -> {
+            com.dynamic.sql.core.dml.select.SelectDsl[] branches =
+                    new com.dynamic.sql.core.dml.select.SelectDsl[ids.length];
+            for (int i=0; i<ids.length; i++) {
+                java.util.List<Long> values = new java.util.ArrayList<>();
+                for (long id : ids[i]) values.add(id);
+                branches[i] = q -> q.column(Account::getId).from(Account.class)
+                        .where(w -> w.andIn(Account::getId, values));
+            }
+            java.util.List<Long> rows = (all ? context().unionAll(branches) : context().union(branches))
+                    .fetch(Long.class).toList();
+            java.util.Collections.sort(rows);
+            assertEquals(java.util.Arrays.asList(expected), rows);
+        }));
+    }
+
+    /** 全局分页发生在合并及排序之后，重复执行同一查询不应重复追加 SQL 子句。 */
+    @Test void unionGlobalPaginationIsRepeatable() {
+        com.dynamic.sql.core.dml.select.AbstractUnion query = context().union(
+                q -> q.column(Account::getId).from(Account.class).where(w -> w.andIn(Account::getId, java.util.Arrays.asList(100L,102L))),
+                q -> q.column(Account::getId).from(Account.class).where(w -> w.andIn(Account::getId, java.util.Arrays.asList(101L,103L))));
+        query.thenOrderBy(Account::getId).limit(1, 2);
+        assertEquals(java.util.Arrays.asList(101L,102L), query.fetch(Long.class).toList());
+        assertEquals(java.util.Arrays.asList(101L,102L), query.fetch(Long.class).toList());
+    }
+
+    /** NULL 投影也参与 UNION 去重，UNION ALL 保留重复的 NULL 行。 */
+    @Test void unionNullProjectionSemantics() {
+        com.dynamic.sql.core.dml.select.SelectDsl branch = q -> q.column(Account::getDepartmentId)
+                .from(Account.class).where(w -> w.andEqualTo(Account::getId, 103L));
+        assertEquals(java.util.Collections.singletonList(null),
+                context().union(branch, branch).fetch(Long.class).toList());
+        assertEquals(java.util.Arrays.asList(null, null),
+                context().unionAll(branch, branch).fetch(Long.class).toList());
+    }
+
+    /** 分支内排序分页只限制该分支，全局排序再处理两个分支的合并结果。 */
+    @Test void unionBranchLocalLimitsAndEntityMapping() {
+        for (boolean all : new boolean[]{false, true}) {
+            com.dynamic.sql.core.dml.select.SelectDsl first = q -> q.allColumn().from(Account.class)
+                    .orderBy(Account::getId).limit(1);
+            com.dynamic.sql.core.dml.select.SelectDsl last = q -> q.allColumn().from(Account.class)
+                    .orderBy(Account::getId, com.dynamic.sql.enums.SortOrder.DESC).limit(1);
+            java.util.List<Account> rows = (all ? context().unionAll(first, last) : context().union(first, last))
+                    .thenOrderBy(Account::getId).fetch(Account.class).toList();
+            assertEquals(2, rows.size());
+            assertEquals(context().selectByPrimaryKey(Account.class, 100L), rows.get(0));
+            assertEquals(context().selectByPrimaryKey(Account.class, 103L), rows.get(1));
+        }
+    }
+
+    /** 查询专用 BO 不注册为表，验证派生列和最终结果能按属性名称映射。 */
+    @lombok.Data
+    public static class UnionAccountView {
+        private Long id;
+        private String loginName;
+        private String status;
+    }
+
+    /** 扁平合并同时包含分支排序分页、重复分支和 BO 排序及映射。 */
+    @Test void unionFlatCombinationMapsBusinessView() {
+        for (boolean all : new boolean[]{false, true}) {
+            com.dynamic.sql.core.dml.select.SelectDsl[] branches = {
+                q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 100L)).limit(1),
+                q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 100L))
+                        .orderBy(UnionAccountView::getStatus),
+                q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 101L))
+            };
+            java.util.List<UnionAccountView> rows = (all ? context().unionAll(branches) : context().union(branches))
+                    .thenOrderBy(UnionAccountView::getId).limit(2).fetch(UnionAccountView.class).toList();
+            assertEquals(2, rows.size());
+            assertEquals(Long.valueOf(100), rows.get(0).getId());
+            assertEquals(Long.valueOf(all ? 100 : 101), rows.get(1).getId());
+            assertEquals("alice", rows.get(0).getLoginName());
+            assertEquals("ACTIVE", rows.get(0).getStatus());
+        }
+    }
+
+    /** 派生 UNION ALL 保留重复行，普通 JOIN 与派生 LEFT JOIN 再叠加别名条件。 */
+    @Test void unionDerivedJoinCombinationMapsBusinessView() {
+        com.dynamic.sql.core.dml.select.SelectDsl[] source = {
+            q -> q.allColumn().from(Account.class).where(w -> w.andIn(Account::getId, java.util.Arrays.asList(100L, 101L))),
+            q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 101L))
+        };
+        com.dynamic.sql.core.dml.select.SelectDsl[] right = {
+            q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 102L)),
+            q -> q.allColumn().from(Account.class).where(w -> w.andEqualTo(Account::getId, 103L))
+        };
+        java.util.List<UnionAccountView> rows = context().select().allColumn("t")
+                .fromUnionAll(source, "t")
+                .join(Account.class, on -> on.andEqualTo(Account::getId,
+                        new com.dynamic.sql.core.column.conventional.Column("t", Account::getId)))
+                .leftJoinUnion(right, "s", on -> on.andEqualTo(Account::getId,
+                        new com.dynamic.sql.core.column.conventional.Column("s", Account::getId)))
+                .where(w -> w.andEqualTo(new com.dynamic.sql.core.column.conventional.Column("t", Account::getStatus), "ACTIVE")
+                        .andEqualTo(Account::getId, 101L)
+                        .andIsNull(new com.dynamic.sql.core.column.conventional.Column("s", Account::getId)))
+                .fetch(UnionAccountView.class).toList();
+        assertEquals(2, rows.size());
+        for (UnionAccountView row : rows) {
+            assertEquals(Long.valueOf(101), row.getId());
+            assertEquals("bob", row.getLoginName());
+            assertEquals("ACTIVE", row.getStatus());
+        }
+    }
+
 }

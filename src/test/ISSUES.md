@@ -36,3 +36,7 @@
 | Contains 函数 SQL 模板含语句分号 | 将 ST_Contains 作为 SELECT 表达式执行时，MySQL 在字段别名处报告语法错误 | 删除表达式末尾分号及无对应占位符的参数注册；新增函数级查询覆盖命中/未命中 |
 
 完整场景和剩余边界见 [CRUD 覆盖清单](COVERAGE.md)。
+
+## UNION 重复执行
+
+同一 UNION 查询设置全局排序和分页后，第二次 fetch 将 ORDER BY/LIMIT 再次追加到实例 SQL，MySQL 报语法错误。执行时改用独立 SQL 和参数容器，保留分支模板不变；集成测试验证连续两次得到相同分页结果。
