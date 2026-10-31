@@ -1226,4 +1226,15 @@ class MySqlContractTest extends DatabaseContract {
         return P0ExpressionMatrix.cases(context());
     }
 
+    /** P1 标量函数分别核对真实 MySQL 结果。 */
+    @TestFactory Stream<DynamicTest> p1ScalarMatrix() { return P1ScalarMatrix.cases(context(),transaction); }
+
+    /** P1 聚合和窗口按具体函数展示验证结果。 */
+    @TestFactory Stream<DynamicTest> p1AggregateWindowMatrix() {
+        return P1AggregateWindowMatrix.cases(context(),transaction);
+    }
+
+    /** JSON_TABLE 的展开、关联和错误策略分别验证。 */
+    @TestFactory Stream<DynamicTest> p1JsonTableMatrix() { return P1JsonTableMatrix.cases(context()); }
+
 }

@@ -131,6 +131,14 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                 if (columFunction instanceof NumberColumn || columFunction instanceof Count) {
                     sqlBuilder.append(columFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap))).append(arithmeticSql);
                     parameterBinder.addParameterBinder(arithmeticParameterBinder);
+                    //COUNT 的快速路径也必须保留 OVER，否则会把窗口计数误渲染成普通聚合。
+                    if(columnWrapper.getOver()!=null) {
+                        Over over=new Over();columnWrapper.getOver().accept(over);
+                        over.setOverClause(over.getOrderByList().isEmpty() ? "" : parseOrderBy(over.getOrderByList(),null));
+                        over.renderPartitions(new RenderContext(dataSourceName,sqlDialect,version,aliasTableMap));
+                        sqlBuilder.append(" ").append(over.toOverString(sqlDialect));
+                        parameterBinder.addParameterBinder(over.parameterBinder());
+                    }
                     String columnAlias = StringUtils.isEmpty(columnQuery.getAlias()) ? "" : syntaxAs() + SqlUtils.quoteIdentifier(sqlDialect, columnQuery.getAlias());
                     sqlBuilder.append(columnAlias).append(columnSeparator);
                     continue;
@@ -168,8 +176,10 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     Over over = new Over();
                     //初始化over块
                     overConsumer.accept(over);
-                    String parseOrderBy = parseOrderBy(over.getOrderByList(), null);
+                    String parseOrderBy = over.getOrderByList().isEmpty() ? "" : parseOrderBy(over.getOrderByList(), null);
                     over.setOverClause(parseOrderBy);
+                    over.renderPartitions(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap));
+                    parameterBinder.addParameterBinder(over.parameterBinder());
                     sqlBuilder.append(" ").append(over.toOverString(sqlDialect));
                 }
                 sqlBuilder.append(columnAlias);

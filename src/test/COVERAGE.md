@@ -130,3 +130,7 @@ MysqlSpatialSample 的八种空间字段均已使用标准对象，新增 Geomet
 ## 列函数 P0 基线完成
 
 C01～C05 完成算术表达式、公共参数绑定、CASE/空值条件、类型转换及 JSON 路径与版本修复；增加 40 项 MySQL 集成动态场景和 6 项单元测试，覆盖 SELECT、WHERE、HAVING、ORDER BY、嵌套、别名和重复执行。默认客户端预编译及服务端预编译配置完整 mysql-it 均通过 347 项。具体实施与兼容变化见 [列函数待办](COLUMN_FUNCTION_TODO.md) 的 P0 完成记录。
+
+## 全部 P1 基线完成
+
+16 项 P1 基线覆盖字符串、日期数值、聚合、统计、窗口、JSON 标量及 JSON_TABLE。新增 114 个集成场景和 6 个单元测试；完整 mysql-it 两种预编译配置均通过 467 项，零失败、零跳过。逐项实施状态、函数清单与支持边界见 [列函数待办](COLUMN_FUNCTION_TODO.md) 的 P1 完成记录。

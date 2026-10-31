@@ -11,6 +11,7 @@ package com.dynamic.sql.core.column.function.scalar.number;//package com.pengwz.
 
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.function.Value;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.RenderContext;
@@ -21,6 +22,9 @@ import com.dynamic.sql.utils.ExceptionUtils;
  * 向下取整，返回不大于该列的最大整数。
  */
 public class Floor extends ColumnFunctionDecorator implements NumberFunction {
+
+    /** 常量通过 Value 绑定，与列表达式走相同转换链路。 */
+    public Floor(Number value) { this(new Value(value)); }
 
     public Floor(AbstractColumFunction delegateFunction) {
         super(delegateFunction);

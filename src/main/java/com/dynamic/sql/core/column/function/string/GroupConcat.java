@@ -11,6 +11,8 @@ package com.dynamic.sql.core.column.function.string;
 
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.function.MysqlLiteral;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.TableFunction;
@@ -54,6 +56,12 @@ import java.util.List;
  */
 public class GroupConcat extends ColumnFunctionDecorator implements TableFunction {
     private GroupConcatOptions options;
+    /** 接受嵌套列表达式，保留参数绑定。 */
+    public GroupConcat(AbstractColumFunction expression) { super(expression); }
+    public GroupConcat(AbstractColumFunction expression,String separator) {
+        super(expression);options=new GroupConcatOptions().separator(separator);
+    }
+
 
     /**
      * 构造一个最简单的 GROUP_CONCAT(expr)
@@ -91,12 +99,12 @@ public class GroupConcat extends ColumnFunctionDecorator implements TableFunctio
                         context.getVersion(), context.getSqlDialect(), context.getDataSourceName());
                 _orderBy = " " + sqlSelectBuilder.parseOrderBy(options.getOrderByList(), null);
             }
-            _separator = options.getSeparator() == null ? "" : " SEPARATOR '" + options.getSeparator() + "'";
+            _separator = options.getSeparator() == null ? "" : " SEPARATOR " + MysqlLiteral.hex(options.getSeparator());
         } else {
             _column = delegateFunction.render(context);
         }
         if (context.getSqlDialect() == SqlDialect.MYSQL) {
-            return "GROUP_CONCAT(" + _column + _orderBy + _separator + ")";
+            return "GROUP_CONCAT(" + _column + _orderBy + _separator + ")" + appendArithmeticSql(context);
         }
         throw ExceptionUtils.unsupportedFunctionException("GROUP_CONCAT", context.getSqlDialect());
     }

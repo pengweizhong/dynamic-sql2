@@ -11,6 +11,7 @@ package com.dynamic.sql.core.column.function.scalar.number;//package com.pengwz.
 
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.function.Value;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.RenderContext;
@@ -21,6 +22,9 @@ import com.dynamic.sql.utils.ExceptionUtils;
  * 向上取整，返回不小于该列的最小整数。
  */
 public class Ceiling extends ColumnFunctionDecorator implements NumberFunction {
+
+    /** 常量通过 Value 绑定，与列表达式走相同转换链路。 */
+    public Ceiling(Number value) { this(new Value(value)); }
 
     public Ceiling(AbstractColumFunction delegateFunction) {
         super(delegateFunction);

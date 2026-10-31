@@ -11,6 +11,9 @@ package com.dynamic.sql.core.column.function.windows;
 
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.core.column.conventional.Column;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.dml.select.order.DefaultOrderBy;
 import com.dynamic.sql.core.dml.select.order.NullsFirst;
@@ -31,6 +34,47 @@ public class Over {
     private List<OrderBy> orderByList = new ArrayList<>();
     //    private String frameSpecification = "";
     private String overClause;
+    private final List<ColumFunction> partitions=new ArrayList<>();
+    private String partitionClause="";
+    private String frameClause="";
+
+    /** 窗口边界只允许受控类型及非负偏移，禁止拼接任意 SQL。 */
+    public static final class Bound {
+        private final long position;
+        private final String sql;
+        private Bound(long position,String sql) { this.position=position;this.sql=sql; }
+        public static Bound unboundedPreceding() { return new Bound(Long.MIN_VALUE,"UNBOUNDED PRECEDING"); }
+        public static Bound currentRow() { return new Bound(0,"CURRENT ROW"); }
+        public static Bound unboundedFollowing() { return new Bound(Long.MAX_VALUE,"UNBOUNDED FOLLOWING"); }
+        public static Bound preceding(long offset) {
+            if(offset<0 || offset==Long.MAX_VALUE) throw new IllegalArgumentException("Invalid frame offset");
+            return new Bound(-offset,offset+" PRECEDING");
+        }
+        public static Bound following(long offset) {
+            if(offset<0 || offset==Long.MAX_VALUE) throw new IllegalArgumentException("Invalid frame offset");
+            return new Bound(offset,offset+" FOLLOWING");
+        }
+    }
+    public <T,F> Over partitionBy(FieldFn<T,F> field) { partitions.add(new Column(field));return this; }
+    public Over partitionBy(ColumFunction expression) { partitions.add(expression);return this; }
+    public Over rowsBetween(Bound start,Bound end) { return frame("ROWS",start,end); }
+    public Over rangeBetween(Bound start,Bound end) { return frame("RANGE",start,end); }
+    private Over frame(String unit,Bound start,Bound end) {
+        if(start==null || end==null || start.position>end.position
+                || start.position==Long.MAX_VALUE || end.position==Long.MIN_VALUE)
+            throw new IllegalArgumentException("Invalid window frame");
+        frameClause=unit+" BETWEEN "+start.sql+" AND "+end.sql;return this;
+    }
+    /** 由 SELECT 构建器提供真实别名上下文，分区字段延迟解析。 */
+    public void renderPartitions(RenderContext context) {
+        StringBuilder sql=new StringBuilder();
+        for(int i=0;i<partitions.size();i++) {
+            if(i==0) sql.append("PARTITION BY ");else sql.append(", ");
+            sql.append(partitions.get(i).render(context));
+        }
+        partitionClause=sql.toString();
+    }
+
 
     public <T, F> Over orderBy(FieldFn<T, F> fn) {
         return orderBy(fn, SortOrder.ASC); // Default to ascending order
@@ -69,6 +113,12 @@ public class Over {
     }
 
 
+    /** 收集分区表达式中的常量，顺序与窗口 SQL 一致。 */
+    public ParameterBinder parameterBinder() {
+        ParameterBinder binder=new ParameterBinder();
+        for(ColumFunction partition:partitions) binder.addParameterBinder(partition.parameterBinder());
+        return binder;
+    }
     public List<OrderBy> getOrderByList() {
         return orderByList;
     }
@@ -79,67 +129,10 @@ public class Over {
 
     public String toOverString(SqlDialect sqlDialect) {
         if (sqlDialect == SqlDialect.MYSQL) {
-            return "over(" + overClause + ")";
+            return "over(" + partitionClause + " " + (overClause==null ? "" : overClause) + " " + frameClause + ")";
         }
         throw ExceptionUtils.unsupportedFunctionException("over", sqlDialect);
     }
 
 
-//    public static class OverBuilder {
-//        private Over over = new Over();
-//
-//        private OverBuilder() {
-//        }
-//
-//        public Over build() {
-//            return over;
-//        }
-//
-//        public <T, F> OverBuilder orderBy(Fn<T, F> fn) {
-//            return orderBy(fn, SortOrder.ASC); // Default to ascending order
-//        }
-//
-//        public <T, F> OverBuilder orderBy(Fn<T, F> fn, SortOrder sortOrder) {
-//            // Convert fn to column name or expression
-//            Column column = new Column(null, fn);
-//            over.orderByColumns.add(column + " " + sortOrder.name());
-//            return this;
-//        }
-//
-//        public OverBuilder partitionBy(Fn<?, ?> fn) {
-//            // Convert fn to column name or expression
-//            over.partitionByClause = "PARTITION BY " + fn.toString();
-//            return this;
-//        }
-//
-//        public OverBuilder frameSpecification(String frameSpec) {
-//            over.frameSpecification = frameSpec;
-//            return this;
-//        }
-//
-//        public OverBuilder unboundedPrecedingToCurrentRow() {
-//            over.frameSpecification = "ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW";
-//            return this;
-//        }
-//
-//        public OverBuilder currentRowToUnboundedFollowing() {
-//            over.frameSpecification = "ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING";
-//            return this;
-//        }
-//
-//        public OverBuilder nPrecedingToCurrentRow(int n) {
-//            over.frameSpecification = "ROWS BETWEEN " + n + " PRECEDING AND CURRENT ROW";
-//            return this;
-//        }
-//
-//        public OverBuilder nFollowingToCurrentRow(int n) {
-//            over.frameSpecification = "ROWS BETWEEN CURRENT ROW AND " + n + " FOLLOWING";
-//            return this;
-//        }
-//
-//        public OverBuilder nPrecedingToNFollowing(int nPreceding, int nFollowing) {
-//            over.frameSpecification = "ROWS BETWEEN " + nPreceding + " PRECEDING AND " + nFollowing + " FOLLOWING";
-//            return this;
-//        }
-//    }
 }

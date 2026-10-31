@@ -11,6 +11,7 @@ package com.dynamic.sql.core.column.function.scalar.number;//package com.pengwz.
 
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.function.Value;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.RenderContext;
@@ -21,6 +22,11 @@ import com.dynamic.sql.utils.ExceptionUtils;
  * 指定小数位，四舍五入
  */
 public class Round extends ColumnFunctionDecorator implements NumberFunction {
+
+    /** 常量通过 Value 绑定，与列表达式走相同转换链路。 */
+    public Round(Number value,int scale) { this(new Value(value),scale); }
+    /** 未指定精度时按零位小数舍入。 */
+    public Round(AbstractColumFunction expression) { this(expression,0); }
 
     //保留小数位数
     private int scale;
