@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2024 PengWeizhong. All Rights Reserved.
+ *
+ * This source code is licensed under the MIT License.
+ * You may obtain a copy of the License at:
+ * https://opensource.org/licenses/MIT
+ *
+ * See the LICENSE file in the project root for more information.
+ */
+package com.dynamic.sql.testing.unit;
+
+import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.conventional.Column;
+import com.dynamic.sql.core.column.function.*;
+import com.dynamic.sql.core.column.function.scalar.string.*;
+import com.dynamic.sql.core.column.function.scalar.number.Power;
+import com.dynamic.sql.core.database.PreparedSql;
+import com.dynamic.sql.enums.SqlDialect;
+import com.dynamic.sql.utils.SqlUtils;
+import org.junit.jupiter.api.Test;
+import java.util.Arrays;
+import static org.junit.jupiter.api.Assertions.*;
+
+class FunctionConstructorTest {
+    static class Row {
+        public String getName() { return null; }
+        public Long getId() { return null; }
+    }
+
+    private PreparedSql prepared(AbstractColumFunction expression) {
+        RenderContext context = new RenderContext();
+        context.setSqlDialect(SqlDialect.MYSQL);
+        return SqlUtils.parsePreparedObject(new StringBuilder(expression.render(context)), expression.parameterBinder());
+    }
+
+    @Test void methodReferencesPreserveColumnOrigin() {
+        FieldFn<Row, String> field = Row::getName;
+        Lower direct = new Lower(field);
+        assertSame(field, direct.originColumn());
+        assertEquals("u", new Lower("u", field).getTableAlias());
+        assertNotNull(new Lower(Row::getName).originColumn());
+        assertNotNull(new Power(Row::getId, 2).originColumn());
+        assertEquals("u", new Power("u", Row::getId, 2).getTableAlias());
+    }
+
+    @Test void nestingRetainsSqlAndBindingOrderAcrossRepeatedRendering() {
+        AbstractColumFunction expression = new Lower(new Trim(new Concat(new Column("u", "name"), "suffix")));
+        PreparedSql first = prepared(expression);
+        assertEquals("LOWER(TRIM(CONCAT(`u`.`name`, ?)))", first.getSql());
+        assertEquals(Arrays.asList("suffix"), first.getParams());
+        assertEquals(first.getSql(), prepared(expression).getSql());
+        assertEquals(first.getParams(), prepared(expression).getParams());
+        assertEquals("u", expression.getTableAlias());
+    }
+
+    @Test void substringPositionsCanBeNestedExpressions() {
+        PreparedSql sql = prepared(new SubString(new Column("u", "name"), new Value(1), new Power(new Value(2), 3)));
+        assertEquals("SUBSTRING(`u`.`name`, ?, POWER(?, ?))", sql.getSql());
+        assertEquals(Arrays.asList(1, 2, 3), sql.getParams());
+    }
+
+    @Test void explicitColumnsAndStringConstantsRemainDistinct() {
+        assertEquals("LOWER(`u`.`name`)", prepared(new Lower("u", "name")).getSql());
+        assertEquals(Arrays.asList("name"), prepared(new Lower("name")).getParams());
+        assertEquals(Arrays.asList("left", "right"), prepared(new Concat("left", "right")).getParams());
+    }
+
+    @Test void fieldVariablesInAnyArgumentAreColumnsInsteadOfBoundValues() {
+        FieldFn<Row, String> field = Row::getName;
+        ExpressionArguments arguments = new ExpressionArguments();
+        arguments.add(field);
+        assertTrue(arguments.binder().getValues().isEmpty());
+        assertThrows(IllegalArgumentException.class, () -> new Power(Row::getId));
+    }
+}

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2024 PengWeizhong. All Rights Reserved.
+ *
+ * This source code is licensed under the MIT License.
+ * You may obtain a copy of the License at:
+ * https://opensource.org/licenses/MIT
+ *
+ * See the LICENSE file in the project root for more information.
+ */
 package com.dynamic.sql.core.column.function.json;
 
 import com.dynamic.sql.core.FieldFn;
@@ -11,6 +20,8 @@ import com.dynamic.sql.core.column.function.*;
 public class JsonUnquote extends FunctionExpression implements JsonFunction {
     public JsonUnquote(AbstractColumFunction expression) { super("JSON_UNQUOTE",expression); }
     public <T,F> JsonUnquote(FieldFn<T,F> field) { this(new Column(field)); }
+    public <T,F> JsonUnquote(String alias,FieldFn<T,F> field) { this(new Column(alias,field)); }
+    public JsonUnquote(String alias,String columnName) { this(new Column(alias,columnName)); }
     @Override public String render(RenderContext context) {
         if(context.getSqlDialect()==SqlDialect.MYSQL && context.getVersion()!=null
                 && context.getVersion().compareTo(new Version(5,7,8))<0)

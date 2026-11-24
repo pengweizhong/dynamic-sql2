@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2024 PengWeizhong. All Rights Reserved.
+ *
+ * This source code is licensed under the MIT License.
+ * You may obtain a copy of the License at:
+ * https://opensource.org/licenses/MIT
+ *
+ * See the LICENSE file in the project root for more information.
+ */
 package com.dynamic.sql.core.column.function.json;
 
 import com.dynamic.sql.core.FieldFn;
@@ -14,6 +23,12 @@ public class JsonExtract extends FunctionExpression implements JsonFunction {
     private static Object[] merge(AbstractColumFunction geometry,String path,String[] others) {
         Object[] values=new Object[others.length+2];values[0]=geometry;values[1]=path;
         System.arraycopy(others,0,values,2,others.length);return values;
+    }
+    public <T,F> JsonExtract(String alias,FieldFn<T,F> field,String path,String... others) {
+        this(new Column(alias,field),path,others);
+    }
+    public JsonExtract(String alias,String columnName,String path,String... others) {
+        this(new Column(alias,columnName),path,others);
     }
     @Override public String render(RenderContext context) {
         if(context.getSqlDialect()==SqlDialect.MYSQL && context.getVersion()!=null
