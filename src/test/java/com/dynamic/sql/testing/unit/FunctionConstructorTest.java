@@ -10,6 +10,7 @@
 package com.dynamic.sql.testing.unit;
 
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.function.scalar.datetime.*;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.*;
 import com.dynamic.sql.core.column.function.scalar.string.*;
@@ -63,6 +64,29 @@ class FunctionConstructorTest {
         assertEquals("LOWER(`u`.`name`)", prepared(new Lower("u", "name")).getSql());
         assertEquals(Arrays.asList("name"), prepared(new Lower("name")).getParams());
         assertEquals(Arrays.asList("left", "right"), prepared(new Concat("left", "right")).getParams());
+    }
+
+    @Test void dateMethodReferenceOverloadsPreserveSqlNull() {
+        assertEquals(Arrays.asList(null, 1), prepared(new DateAdd(null, 1, DateTimeUnit.DAY)).getParams());
+        assertEquals(Arrays.asList(null, 1), prepared(new DateSub(null, 1, DateTimeUnit.DAY)).getParams());
+        assertEquals(Arrays.asList((Object) null), prepared(new Extract(DateTimeUnit.YEAR, null)).getParams());
+        assertEquals(Arrays.asList(null, "2024-03-01"),
+                prepared(new TimestampDiff(DateTimeUnit.DAY, null, "2024-03-01")).getParams());
+    }
+
+    @Test void specializedDateFunctionsPreserveOriginAndAlias() {
+        FieldFn<Row, String> field = Row::getName;
+        assertSame(field, new DateAdd(field, 1, DateTimeUnit.DAY).originColumn());
+        assertEquals("u", new DateSub("u", field, 1, DateTimeUnit.DAY).getTableAlias());
+        assertEquals("u", new Extract(DateTimeUnit.YEAR, "u", field).getTableAlias());
+        assertEquals("u", new TimestampDiff(DateTimeUnit.DAY, "u", field, "2024-03-01").getTableAlias());
+        AbstractColumFunction expression = new DateFormat(
+                new DateAdd(new Column("u", "created_at"), new Value(2), DateTimeUnit.DAY), "%Y-%m-%d");
+        PreparedSql sql = prepared(expression);
+        assertEquals("DATE_FORMAT(DATE_ADD(`u`.`created_at`, INTERVAL ? DAY), ?)", sql.getSql());
+        assertEquals(Arrays.asList(2, "%Y-%m-%d"), sql.getParams());
+        assertEquals("u", expression.getTableAlias());
+        assertEquals(sql.getParams(), prepared(expression).getParams());
     }
 
     @Test void fieldVariablesInAnyArgumentAreColumnsInsteadOfBoundValues() {

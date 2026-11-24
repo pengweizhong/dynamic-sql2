@@ -4,7 +4,7 @@ GeneratedValue 仅作用于 Id 字段。AUTO 保持数据库自增及 JDBC 回�
 
 ## 雪花 ID
 
-启动时注册线程安全生成器，节点编号从部署配置读取：
+单实例可直接调用 `SnowflakeIdUtils.nextId()` 或 `nextIdStr()`，默认共享节点 0 的生成器。集群必须在首次调用或插入前配置唯一节点，可调用 `SnowflakeIdUtils.init(nodeId)`，或注册线程安全生成器：
 
     import com.dynamic.sql.plugins.id.IdGenerators;
     import com.dynamic.sql.plugins.id.SnowflakeIdGenerator;
@@ -24,7 +24,7 @@ GeneratedValue 仅作用于 Id 字段。AUTO 保持数据库自增及 JDBC 回�
 - 雪花字段支持 Long 和 String；数据库建议使用 BIGINT 主键。String 属性查询时转换回字符串。
 - 布局为符号位零、41 位毫秒差、10 位节点、12 位序列。默认纪元为 2024-01-01 UTC，节点范围 0～1023，同毫秒每实例最多 4096 个值。
 - 部署方必须保证同一纪元下各活动实例节点编号唯一；同一节点/纪元组合共享一个生成器实例，不能按实体或数据源重复创建相同节点的独立实例。框架不提供节点租约或自动分配服务。
-- 未注册生成器时明确失败，不使用隐式节点 0。注册名称禁止覆盖，避免重置运行中的序列。
+- 默认 snowflake 生成器首次使用时原子创建，节点为 0；工具类与插入策略共享同一实例。自定义名称未注册时明确失败。注册名称禁止覆盖，默认实例创建后也不能替换，避免重置序列。
 - 时钟回拨立即失败，追平后继续递增；序列耗尽最多等待十毫秒，停滞时钟明确失败，避免无限阻塞。纪元前及 41 位时间范围外明确拒绝。
 - 所有节点必须使用相同纪元。自定义纪元可使用带 LongSupplier 时钟的构造器；生产时通常传 System::currentTimeMillis。
 - 向已有 AUTO_INCREMENT 列显式写入较大 ID 会影响数据库自身计数，部署时应统一同一列的生成策略。

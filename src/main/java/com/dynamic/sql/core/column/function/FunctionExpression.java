@@ -9,8 +9,6 @@
  */
 package com.dynamic.sql.core.column.function;
 
-import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.column.conventional.Column;
 
 import java.util.Objects;
 
@@ -25,12 +23,7 @@ public abstract class FunctionExpression extends ColumnFunctionDecorator impleme
     protected final ExpressionArguments arguments=new ExpressionArguments();
     protected FunctionExpression(String name,Object... values) {
         this.name=name;
-        //首个操作数为列表达式时继承其来源，保持既有实体属性别名映射。
-        if(values.length>0 && values[0] instanceof AbstractColumFunction)
-            delegateFunction=(AbstractColumFunction)values[0];
-        if (values.length > 0 && values[0] instanceof FieldFn) {
-            delegateFunction = new Column((FieldFn<?, ?>) values[0]);
-        }
+        if (values.length > 0) inheritColumnOrigin(values[0]);
         for(Object value:values) arguments.add(value);
     }
     /** 合并首个列操作数和后续参数，保留原有参数顺序。 */

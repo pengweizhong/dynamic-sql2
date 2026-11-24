@@ -85,3 +85,11 @@ P0 已提交为 8a1a5c4。下列全部 16 项 P1 为本轮实现，尚未提交�
 - JSON_VALID 先转字符，避免服务端将参数提前推断为 JSON，导致非法输入在函数执行前报错。
 - 本机命名时区数据可用，已验证 America/New_York 的夏令时转换；其他环境未安装时区表时 CONVERT_TZ 可能返回 NULL。
 - 其他数据库仍按方言和能力单独适配；P1 不承诺 Oracle、DB2 或国产数据库的同名语义。
+
+## 构造契约收尾（2026-11-24）
+
+- 通用函数已补方法引用与带别名的方法引用入口，单操作数函数支持显式列名和嵌套表达式；普通多参数字符串仍保留常量语义。
+- 列来源继承统一到 ColumnFunctionDecorator.inheritColumnOrigin；DateAdd、DateSub、Extract、TimestampDiff 补方法引用入口及首操作数来源继承，避免嵌套后实体字段映射和别名丢失。
+- FunctionConstructorTest 验证日期专用构造、别名和 NULL 重载兼容；NestedFunctionExpressionTest 验证字符串、逻辑、JSON、数值与旧 Count 双向嵌套，以及同一实例重复引用和重复渲染。
+- P0ExpressionMatrix 新增 5 个实库场景：字符串/逻辑嵌套、日期方法引用、JSON/字符串嵌套、WHERE/ORDER BY 组合及 HAVING 聚合嵌套。当前环境缺少 DS_TEST_URL、DS_TEST_USER、DS_TEST_PASSWORD，新增实库场景尚未执行；不得计入已通过的数据库测试数量。
+- 后续仍需逐类审计空间专用可选参数和多操作数方法引用组合；C24 保持待推进。

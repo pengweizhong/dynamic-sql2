@@ -15,7 +15,10 @@ import com.dynamic.sql.core.column.function.*;
 import com.dynamic.sql.core.column.function.logical.*;
 import com.dynamic.sql.core.column.function.scalar.conversion.*;
 import com.dynamic.sql.core.column.function.json.*;
-import com.dynamic.sql.core.column.function.scalar.string.SubString;
+import com.dynamic.sql.core.column.function.scalar.string.*;
+import com.dynamic.sql.core.column.function.scalar.datetime.DateAdd;
+import com.dynamic.sql.core.column.function.scalar.datetime.DateTimeUnit;
+import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.column.function.scalar.datetime.DateFormat;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import java.util.Arrays;
@@ -98,6 +101,21 @@ final class P0ExpressionMatrix {
         tests.add(DynamicTest.dynamicTest("p0.cast.binary",()->assertArrayEquals(
                 "abc".getBytes(StandardCharsets.UTF_8),context.select().column(new Cast("abc",CastTarget.BINARY))
                         .from(Account.class).where(w->w.andEqualTo(Account::getId,100L)).fetch(byte[].class).toOne())));
+        text(tests,context,"nested.stringLogical",new Lower(new IfNull(new Trim(new Value(null)),new Concat("GUEST","!"))),"guest!");
+        text(tests,context,"nested.dateField",new DateFormat(new DateAdd(Account::getCreatedAt,1,DateTimeUnit.DAY),"%Y-%m-%d"),"2024-03-01");
+        text(tests,context,"nested.jsonString",new Lower(new JsonUnquote(new JsonExtract(new Value("{\"name\":\"HELLO\"}"),"$.name"))),"hello");
+        tests.add(DynamicTest.dynamicTest("p0.nested.whereOrderRepeat",()->{
+            for(int i=0;i<2;i++) assertEquals(Arrays.asList(100L), context.select().column(Account::getId)
+                    .from(Account.class).where(w->w.andEqualTo(new Lower(new IfNull(new Column(Account::getId),0)),"100"))
+                    .orderBy(new Lower(new Concat(new Column(Account::getId),"suffix")))
+                    .fetch(Long.class).toList());
+        }));
+        tests.add(DynamicTest.dynamicTest("p0.nested.havingRepeat",()->{
+            for(int i=0;i<2;i++) assertEquals(Arrays.asList(100L), context.select().column(Account::getId)
+                    .from(Account.class).where(w->w.andEqualTo(Account::getId,100L)).groupBy(Account::getId)
+                    .having(h->h.andGreaterThan(new IfNull(new Count(new Lower(new Column(Account::getId))),0),0))
+                    .fetch(Long.class).toList());
+        }));
         return tests.stream();
     }
 

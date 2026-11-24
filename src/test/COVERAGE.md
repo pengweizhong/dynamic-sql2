@@ -24,7 +24,7 @@
 以上共 40 个普通/专属字段。空间 `SpatialCrudMatrix` 再覆盖 8 个字段，执行同样的增查改、置空、删除闭环：
 
 - POINT、LINESTRING、POLYGON：框架内置 Java 模型转换，JDBC 独立比较规范化 WKT 和 SRID。
-- MULTIPOINT、MULTILINESTRING、MULTIPOLYGON、GEOMETRY、GEOMETRYCOLLECTION：原始空间二进制读写；这不表示框架已提供对应的高级 Java 几何模型。
+- MULTIPOINT、MULTILINESTRING、MULTIPOLYGON、GEOMETRY、GEOMETRYCOLLECTION：使用对应的结构化 Java 几何对象读写，并由 JDBC WKT/SRID 独立核对。
 - GEOMETRY 的更新包含 POINT → LINESTRING，验证通用几何列可以切换实际类型。
 - 空间类型闭环使用 SRID 0；另验证 POINT 使用 SRID 3857 的插入、更新和读取。Polygon 大小端、SRID 字节序和损坏载荷由独立单元测试检查。
 - 空间标量函数已在 SELECT 中执行验证：ST_Contains 命中/未命中、ST_Distance、ST_Distance_Sphere、ST_AsText 和 ST_SRID。
@@ -45,7 +45,7 @@
 - LONGTEXT/LONGBLOB 的物理容量上限、GB 级压力和流式读写；MEDIUMTEXT/MEDIUMBLOB 的 16 MiB 上限现已覆盖。
 - BIT 以所有 Java 数值类型写入、JSON 对应任意自定义 Java 对象、更大行数的批量压力，以及 `continueBatchOnError` 等未覆盖 Connector/J 配置下失败批次的部分执行行为。
 - YEAR=0000 的 SQL 年份语义通过数值零验证；其他数据库是否允许该值需按能力单独定义。
-- 带孔 Polygon 的高级模型、空间索引、SRID 4326 的实库轴序/地理运算；框架目前只公开并测试上述空间标量函数，未覆盖任意空间谓词组合。
+- Polygon 专用模型仍限单环，通用 Geometry 支持带孔结构；空间索引和任意空间谓词组合尚未穷尽。SRID 4326 轴序与地理函数的已验证范围见 GEOMETRY_PROGRESS.md。
 - 框架自动识别并排除任意生成列；本轮实体明确省略生成列，另用 JDBC 核对生成结果。
 - Oracle、DB2 及国产数据库；MySQL 专属用例不作为其他方言契约。
 

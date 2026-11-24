@@ -54,6 +54,15 @@ public abstract class ColumnFunctionDecorator
 //        this.delegateFunction = windowsFunction;
 //    }
 
+    /** 从首个操作数继承列来源，保证专用语法函数的实体映射与别名一致。 */
+    protected void inheritColumnOrigin(Object operand) {
+        if (operand instanceof AbstractColumFunction) {
+            delegateFunction = (AbstractColumFunction) operand;
+        } else if (operand instanceof FieldFn) {
+            delegateFunction = new Column((FieldFn<?, ?>) operand);
+        }
+    }
+
     @Override
     public Fn<?, ?> originColumn() {
         return delegateFunction.originColumn();

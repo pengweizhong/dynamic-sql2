@@ -10,6 +10,8 @@
 package com.dynamic.sql.core.column.function.scalar.datetime;
 
 import com.dynamic.sql.core.column.function.*;
+import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
 import java.util.Objects;
@@ -19,7 +21,12 @@ public final class TimestampDiff extends ColumnFunctionDecorator implements Date
     private final ExpressionArguments args=new ExpressionArguments();
     private final DateTimeUnit unit;
     public TimestampDiff(DateTimeUnit unit,Object start,Object end) {
+        inheritColumnOrigin(start);
         this.unit=Objects.requireNonNull(unit,"Date unit must not be null");args.add(start);args.add(end);
+    }
+    public <T,F> TimestampDiff(DateTimeUnit unit,FieldFn<T,F> start,Object end) { this(unit,start == null ? null : new Column(start),end); }
+    public <T,F> TimestampDiff(DateTimeUnit unit,String alias,FieldFn<T,F> start,Object end) {
+        this(unit,new Column(alias,start),end);
     }
     @Override public String render(RenderContext context) {
         if(context.getSqlDialect()!=SqlDialect.MYSQL) throw new UnsupportedOperationException("Date function dialect is not supported");
