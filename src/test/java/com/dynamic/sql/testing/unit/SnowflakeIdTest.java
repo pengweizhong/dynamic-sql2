@@ -65,6 +65,19 @@ class SnowflakeIdTest {
         assertEquals(Long.MAX_VALUE,last);
     }
 
+    /** 默认入口与插入策略共享同一序列，禁止首次使用后重建实例。 */
+    @Test void defaultGeneratorIsSharedAndIncreasing() {
+        SnowflakeIdGenerator generator = (SnowflakeIdGenerator) IdGenerators.get("snowflake");
+        long first = com.dynamic.sql.utils.SnowflakeIdUtils.nextId();
+        long second = generator.nextId();
+        long third = Long.parseLong(com.dynamic.sql.utils.SnowflakeIdUtils.nextIdStr());
+        assertTrue(second > first);
+        assertTrue(third > second);
+        assertSame(generator, IdGenerators.get("snowflake"));
+        assertThrows(IllegalStateException.class,
+                () -> com.dynamic.sql.utils.SnowflakeIdUtils.init(1));
+    }
+
     /** 注册表禁止覆盖，防止在线重建实例导致序列回退。 */
     @Test void registrationIsExplicitAndNonOverwriting() {
         assertThrows(IllegalStateException.class,()->IdGenerators.get("missing-unit-generator"));

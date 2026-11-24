@@ -140,7 +140,7 @@ public class EntitiesInserter {
                     String name=strategy.getGenerator();
                     if(name==null || name.trim().isEmpty()) {
                         if(strategy.getStrategy()==GenerationType.CUSTOM) throw new IllegalArgumentException("Custom ID generator name is required");
-                        name="snowflake";
+                        name=strategy.getStrategy().getDefaultGeneratorName();
                     }
                     if(strategy.getStrategy()==GenerationType.SNOWFLAKE && !(IdGenerators.get(name) instanceof SnowflakeIdGenerator))
                         throw new IllegalArgumentException("Snowflake strategy requires a SnowflakeIdGenerator");

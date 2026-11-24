@@ -27,9 +27,24 @@ public enum GenerationType {
      */
     SEQUENCE,
 
-    /** 应用侧雪花 ID，使用显式注册的线程安全生成器。 */
-    SNOWFLAKE,
+    /** 应用侧雪花 ID，默认使用共享生成器，也可在首次使用前自定义注册。 */
+    SNOWFLAKE("snowflake"),
 
     /** 应用侧自定义主键算法，由注解名称选择扩展生成器。 */
-    CUSTOM,
+    CUSTOM;
+
+    private final String defaultGeneratorName;
+
+    GenerationType() {
+        this.defaultGeneratorName = null;
+    }
+
+    GenerationType(String defaultGeneratorName) {
+        this.defaultGeneratorName = defaultGeneratorName;
+    }
+
+    /** @return 默认应用生成器名称；无默认生成器的策略返回 null */
+    public String getDefaultGeneratorName() {
+        return defaultGeneratorName;
+    }
 }
