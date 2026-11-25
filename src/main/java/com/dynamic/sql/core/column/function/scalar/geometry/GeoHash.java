@@ -20,4 +20,9 @@ public class GeoHash extends SpatialFunction {
 
     /** 构造空间表达式；参数有效范围由数据库按坐标系和几何类型检查。 */
     public GeoHash(AbstractColumFunction point, int length) { super("ST_GeoHash", point, length); }
+
+    /** 长度可以来自列或嵌套数值函数。 */
+    public GeoHash(AbstractColumFunction point, AbstractColumFunction length) { super("ST_GeoHash", point, length); }
+    public <T,F> GeoHash(FieldFn<T,F> field, int length) { this(new Column(field),length); }
+    public <T,F> GeoHash(String alias, FieldFn<T,F> field, int length) { this(new Column(alias,field),length); }
 }

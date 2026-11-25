@@ -11,6 +11,7 @@ package com.dynamic.sql.testing.unit;
 
 import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.function.Value;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.scalar.geometry.*;
@@ -45,6 +46,21 @@ class SpatialFunctionTest {
         assertEquals(Arrays.asList(3857,2),new ArrayList<>(nested.parameterBinder().getValues()));
         assertEquals(first,nested.render(context));
         assertEquals(Arrays.asList(3857,2),new ArrayList<>(nested.parameterBinder().getValues()));
+    }
+
+    @Test void optionalSpatialOperandsCanNestAndRepeat() {
+        RenderContext context = new RenderContext(); context.setSqlDialect(SqlDialect.MYSQL);
+        Buffer expression = new Buffer(new GeomFromText("POINT(1 2)"), new Value(2),
+                new BufferStrategy("point_circle",8), new BufferStrategy("join_round",8));
+        String first = expression.render(context);
+        assertEquals(Arrays.asList("POINT(1 2)",2,"point_circle",8.0,"join_round",8.0),
+                new ArrayList<>(expression.parameterBinder().getValues()));
+        assertEquals(first,expression.render(context));
+        assertEquals(6,expression.parameterBinder().getValues().size());
+        GeoHash hash = new GeoHash(new GeomFromText("POINT(1 2)",4326),new Value(6));
+        assertEquals(Arrays.asList("POINT(1 2)",6),new ArrayList<>(hash.parameterBinder().getValues()));
+        assertNotNull(new Buffer(ShapeRow::getGeometry,2).originColumn());
+        assertEquals("g",new GeoHash("g",ShapeRow::getGeometry,6).getTableAlias());
     }
 
     /** GeoJSON 文本不能直接拼入 SQL，重复渲染不得增加绑定条目。 */

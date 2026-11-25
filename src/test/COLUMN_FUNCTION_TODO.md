@@ -99,3 +99,9 @@ P0 已提交为 8a1a5c4。下列全部 16 项 P1 为本轮实现，尚未提交�
 - 为 Transform、Simplify、PointN、GeometryN、InteriorRingN、StartPoint、EndPoint、ExteriorRing、NumPoints、NumInteriorRing、NumGeometries、IsClosed、Validate、PointAtDistance、LineInterpolatePoint、LineInterpolatePoints 共 16 类补充带表别名的 FieldFn 构造入口。
 - SpatialFunctionTest.aliasConstructorsRetainOriginAcrossSpatialNesting 验证代表性入口的列来源、别名，以及 PointN/Transform 嵌套的绑定顺序和重复渲染。
 - 两种配置完整 mysql-it 回归均通过；空间可选参数的所有组合仍未穷尽，C24 保持待推进。
+
+## 空间可选参数构造推进（2026-11-25）
+
+- Buffer 增加表达式距离和多策略入口，并补充 FieldFn 与带别名 FieldFn；GeoHash 增加表达式长度及字段入口。
+- SpatialFunctionTest.optionalSpatialOperandsCanNestAndRepeat 检查策略嵌套参数顺序、重复渲染、GeoHash 长度表达式和字段来源。
+- 完整 mysql-it 执行 505 项，数据库场景全部通过；新增空间单元测试首轮因期望 Integer 与实际 Double 类型不一致失败，另修正 GeomFromText 的 SRID 为内联整数而非绑定值的测试期望；最终 SpatialFunctionTest 共 5 项全部通过。
