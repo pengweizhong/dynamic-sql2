@@ -91,5 +91,11 @@ P0 已提交为 8a1a5c4。下列全部 16 项 P1 为本轮实现，尚未提交�
 - 通用函数已补方法引用与带别名的方法引用入口，单操作数函数支持显式列名和嵌套表达式；普通多参数字符串仍保留常量语义。
 - 列来源继承统一到 ColumnFunctionDecorator.inheritColumnOrigin；DateAdd、DateSub、Extract、TimestampDiff 补方法引用入口及首操作数来源继承，避免嵌套后实体字段映射和别名丢失。
 - FunctionConstructorTest 验证日期专用构造、别名和 NULL 重载兼容；NestedFunctionExpressionTest 验证字符串、逻辑、JSON、数值与旧 Count 双向嵌套，以及同一实例重复引用和重复渲染。
-- P0ExpressionMatrix 新增 5 个实库场景：字符串/逻辑嵌套、日期方法引用、JSON/字符串嵌套、WHERE/ORDER BY 组合及 HAVING 聚合嵌套。当前环境缺少 DS_TEST_URL、DS_TEST_USER、DS_TEST_PASSWORD，新增实库场景尚未执行；不得计入已通过的数据库测试数量。
+- P0ExpressionMatrix 新增 5 个实库场景：字符串/逻辑嵌套、日期方法引用、JSON/字符串嵌套、WHERE/ORDER BY 组合及 HAVING 聚合嵌套。已在本机 MySQL 8.1.0 的独立 dynamic_sql2_test 库执行，默认配置和服务端预编译、批量改写及 Asia/Shanghai JVM 组合均通过。
 - 后续仍需逐类审计空间专用可选参数和多操作数方法引用组合；C24 保持待推进。
+
+## 空间函数别名入口补齐（2026-11-24）
+
+- 为 Transform、Simplify、PointN、GeometryN、InteriorRingN、StartPoint、EndPoint、ExteriorRing、NumPoints、NumInteriorRing、NumGeometries、IsClosed、Validate、PointAtDistance、LineInterpolatePoint、LineInterpolatePoints 共 16 类补充带表别名的 FieldFn 构造入口。
+- SpatialFunctionTest.aliasConstructorsRetainOriginAcrossSpatialNesting 验证代表性入口的列来源、别名，以及 PointN/Transform 嵌套的绑定顺序和重复渲染。
+- 两种配置完整 mysql-it 回归均通过；空间可选参数的所有组合仍未穷尽，C24 保持待推进。

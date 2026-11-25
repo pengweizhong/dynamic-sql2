@@ -10,6 +10,9 @@
 package com.dynamic.sql.testing.unit;
 
 import com.dynamic.sql.core.column.function.RenderContext;
+import com.dynamic.sql.core.FieldFn;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.scalar.geometry.*;
 import com.dynamic.sql.enums.SqlDialect;
 import org.junit.jupiter.api.Test;
@@ -19,6 +22,31 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** 无需数据库的空间表达式契约，覆盖常量绑定、嵌套参数顺序和重复渲染稳定性。 */
 class SpatialFunctionTest {
+    static class ShapeRow {
+        public Object getGeometry() { return null; }
+    }
+
+    @Test void aliasConstructorsRetainOriginAcrossSpatialNesting() {
+        FieldFn<ShapeRow,Object> field = ShapeRow::getGeometry;
+        AbstractColumFunction[] expressions = {
+                new Transform("g",field,3857), new Simplify("g",field,0.5),
+                new PointN("g",field,1), new StartPoint("g",field),
+                new NumPoints("g",field), new GeometryN("g",field,1),
+                new LineInterpolatePoint("g",field,0.5), new Validate("g",field)
+        };
+        for (AbstractColumFunction expression : expressions) {
+            assertEquals("g",expression.getTableAlias());
+            assertSame(field,expression.originColumn());
+        }
+        RenderContext context = new RenderContext(); context.setSqlDialect(SqlDialect.MYSQL);
+        AbstractColumFunction nested = new PointN(new Transform(new Column("g","shape"),3857),2);
+        String first = nested.render(context);
+        assertTrue(first.contains("`g`.`shape`"));
+        assertEquals(Arrays.asList(3857,2),new ArrayList<>(nested.parameterBinder().getValues()));
+        assertEquals(first,nested.render(context));
+        assertEquals(Arrays.asList(3857,2),new ArrayList<>(nested.parameterBinder().getValues()));
+    }
+
     /** GeoJSON 文本不能直接拼入 SQL，重复渲染不得增加绑定条目。 */
     @Test void bindsHostileJsonWithoutChangingSqlStructure() {
         RenderContext context = new RenderContext(); context.setSqlDialect(SqlDialect.MYSQL);

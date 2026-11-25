@@ -20,4 +20,7 @@ public class GeometryN extends SpatialFunction {
 
     /** 构造空间表达式；参数有效范围由数据库按坐标系和几何类型检查。 */
     public <T,F> GeometryN(FieldFn<T,F> field, int index) { super("ST_GeometryN", new Column(field), index); }
+
+    /** 带表别名的列方法引用，其他参数保持原有语义。 */
+    public <T,F> GeometryN(String alias,FieldFn<T,F> field, int index) { super("ST_GeometryN", new Column(alias,field), index); }
 }

@@ -142,3 +142,7 @@ C01～C05 完成算术表达式、公共参数绑定、CASE/空值条件、类�
 ## 雪花及可扩展应用主键
 
 新增 SNOWFLAKE、CUSTOM 和按名称注册的 IdGenerator。普通/选择性/两种批量插入及 upsert 共用 SQL 解析前生成入口，保留显式主键；测试 Long/String 映射、线程唯一性、节点与位布局、最大时间、回拨恢复、耗尽等待及失败上下文清理。默认与服务端预编译完整 mysql-it 均为 482 项通过，零失败、零跳过。使用及集群节点约束见 [主键生成说明](../../docs/ID_GENERATION.md)。
+
+## 函数嵌套与空间别名入口回归（2026-11-24）
+
+本机 MySQL 8.1.0，新建独立 dynamic_sql2_test 并执行仓库建表、种子脚本。MySqlContractTest.p0ExpressionMatrix 的新增 5 个嵌套场景在两种配置均通过；MySqlContractTest 共 440 项。补齐 16 类空间函数别名构造入口后，服务端预编译加批量改写、Asia/Shanghai JVM 的完整 mysql-it 报告共 504 项，失败 0、错误 0、跳过 0。SpatialFunctionTest 新增别名来源及重复嵌套渲染验证。默认配置完整回归在本轮新增空间单元测试之前执行通过。

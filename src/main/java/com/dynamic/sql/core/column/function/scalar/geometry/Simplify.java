@@ -20,4 +20,7 @@ public class Simplify extends SpatialFunction {
 
     /** 构造空间表达式；参数有效范围由数据库按坐标系和几何类型检查。 */
     public <T,F> Simplify(FieldFn<T,F> field, double tolerance) { super("ST_Simplify", new Column(field), tolerance); }
+
+    /** 带表别名的列方法引用，其他参数保持原有语义。 */
+    public <T,F> Simplify(String alias,FieldFn<T,F> field, double tolerance) { super("ST_Simplify", new Column(alias,field), tolerance); }
 }
