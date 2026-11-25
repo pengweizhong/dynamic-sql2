@@ -132,10 +132,11 @@ public class GenericSqlSelectBuilder extends SqlSelectBuilder {
                     sqlBuilder.append(columFunction.render(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap))).append(arithmeticSql);
                     parameterBinder.addParameterBinder(arithmeticParameterBinder);
                     //COUNT 的快速路径也必须保留 OVER，否则会把窗口计数误渲染成普通聚合。
-                    if(columnWrapper.getOver()!=null) {
-                        Over over=new Over();columnWrapper.getOver().accept(over);
-                        over.setOverClause(over.getOrderByList().isEmpty() ? "" : parseOrderBy(over.getOrderByList(),null));
-                        over.renderPartitions(new RenderContext(dataSourceName,sqlDialect,version,aliasTableMap));
+                    if (columnWrapper.getOver() != null) {
+                        Over over = new Over();
+                        columnWrapper.getOver().accept(over);
+                        over.setOverClause(over.getOrderByList().isEmpty() ? "" : parseOrderBy(over.getOrderByList(), null));
+                        over.renderPartitions(new RenderContext(dataSourceName, sqlDialect, version, aliasTableMap));
                         sqlBuilder.append(" ").append(over.toOverString(sqlDialect));
                         parameterBinder.addParameterBinder(over.parameterBinder());
                     }

@@ -25,10 +25,14 @@ import com.dynamic.sql.core.database.PreparedSql;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.SqlUtils;
 import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-/** 不连接数据库，验证跨函数类型交叉嵌套的 SQL 结构及绑定契约。 */
+/**
+ * 不连接数据库，验证跨函数类型交叉嵌套的 SQL 结构及绑定契约。
+ */
 class NestedFunctionExpressionTest {
     private PreparedSql prepared(AbstractColumFunction expression) {
         RenderContext context = new RenderContext();
@@ -44,45 +48,53 @@ class NestedFunctionExpressionTest {
         }
     }
 
-    @Test void stringsWrapLogicalFunctionsWhichWrapStrings() {
+    @Test
+    void stringsWrapLogicalFunctionsWhichWrapStrings() {
         assertStable(new Lower(new IfNull(new Trim(new Column("u", "name")), new Concat("guest", "!"))),
                 "LOWER(IFNULL(TRIM(`u`.`name`), CONCAT(?, ?)))", "guest", "!");
     }
 
-    @Test void logicalFunctionsWrapStringsWhichWrapLogicalFunctions() {
+    @Test
+    void logicalFunctionsWrapStringsWhichWrapLogicalFunctions() {
         assertStable(new Coalesce(new Lower(new IfNull(new Column("u", "name"), "UNKNOWN")),
                         new Trim(new Concat("fallback", " "))),
                 "COALESCE(LOWER(IFNULL(`u`.`name`, ?)), TRIM(CONCAT(?, ?)))", "UNKNOWN", "fallback", " ");
     }
 
-    @Test void jsonAndStringsNestInBothDirections() {
+    @Test
+    void jsonAndStringsNestInBothDirections() {
         assertStable(new Lower(new JsonUnquote(new JsonExtract(new Concat("{", "}"), "$.name"))),
                 "LOWER(JSON_UNQUOTE(JSON_EXTRACT(CONCAT(?, ?), ?)))", "{", "}", "$.name");
     }
 
-    @Test void numericExpressionsSupplySubstringPositions() {
+    @Test
+    void numericExpressionsSupplySubstringPositions() {
         assertStable(new SubString(new Lower(new Column("u", "name")),
                         new Power(new Value(2), 3), new Sqrt(new Power(new Value(4), 2))),
                 "SUBSTRING(LOWER(`u`.`name`), POWER(?, ?), SQRT(POWER(?, ?)))", 2, 3, 4, 2);
     }
 
-    @Test void legacyCountWrapsNewFunctions() {
+    @Test
+    void legacyCountWrapsNewFunctions() {
         assertStable(new Count(new Lower(new IfNull(new Column("u", "name"), "empty"))),
                 "count(LOWER(IFNULL(`u`.`name`, ?)))", "empty");
     }
 
-    @Test void newFunctionsWrapLegacyCount() {
+    @Test
+    void newFunctionsWrapLegacyCount() {
         assertStable(new IfNull(new Count(new Trim(new Column("u", "name"))), new Power(new Value(2), 3)),
                 "IFNULL(count(TRIM(`u`.`name`)), POWER(?, ?))", 2, 3);
     }
 
-    @Test void sharedNestedInstanceBindsEachOccurrenceInOrder() {
+    @Test
+    void sharedNestedInstanceBindsEachOccurrenceInOrder() {
         Lower shared = new Lower(new Concat("same", "same"));
         assertStable(new Concat(shared, "middle", shared),
                 "CONCAT(LOWER(CONCAT(?, ?)), ?, LOWER(CONCAT(?, ?)))", "same", "same", "middle", "same", "same");
     }
 
-    @Test void nestedNullAndHostileTextRemainBoundValues() {
+    @Test
+    void nestedNullAndHostileTextRemainBoundValues() {
         String hostile = "' OR 1=1 --";
         assertStable(new Lower(new IfNull(new Value(null), new Trim(new Concat(hostile, "tail")))),
                 "LOWER(IFNULL(?, TRIM(CONCAT(?, ?))))", null, hostile, "tail");

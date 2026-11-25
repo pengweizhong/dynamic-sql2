@@ -15,22 +15,34 @@ import com.dynamic.sql.core.FieldFn;
 
 import com.dynamic.sql.core.column.function.*;
 
-/** UNIX_TIMESTAMP 表达式，业务值统一绑定；列值请传入 Column 或其他表达式。 */
+/**
+ * UNIX_TIMESTAMP 表达式，业务值统一绑定；列值请传入 Column 或其他表达式。
+ */
 public final class UnixTimestamp extends FunctionExpression {
-    /** 检查参数数量，避免构造出缺少必需操作数的 SQL。 */
-    public UnixTimestamp(Object... values) { super("UNIX_TIMESTAMP",FunctionArity.check(values,0,1,1)); }
+    /**
+     * 检查参数数量，避免构造出缺少必需操作数的 SQL。
+     */
+    public UnixTimestamp(Object... values) {
+        super("UNIX_TIMESTAMP", FunctionArity.check(values, 0, 1, 1));
+    }
 
-    /** 列方法引用作为首个操作数，其余参数可为常量或嵌套表达式。 */
+    /**
+     * 列方法引用作为首个操作数，其余参数可为常量或嵌套表达式。
+     */
     public <T, F> UnixTimestamp(FieldFn<T, F> field, Object... remaining) {
         this(FunctionExpression.columnArguments(new Column(field), remaining));
     }
 
-    /** 带表别名的列方法引用。 */
+    /**
+     * 带表别名的列方法引用。
+     */
     public <T, F> UnixTimestamp(String tableAlias, FieldFn<T, F> field, Object... remaining) {
         this(FunctionExpression.columnArguments(new Column(tableAlias, field), remaining));
     }
 
-    /** 显式表别名与列名；字符串常量仍可通过单参数构造传入。 */
+    /**
+     * 显式表别名与列名；字符串常量仍可通过单参数构造传入。
+     */
     public UnixTimestamp(String tableAlias, String columnName) {
         this(new Column(tableAlias, columnName));
     }

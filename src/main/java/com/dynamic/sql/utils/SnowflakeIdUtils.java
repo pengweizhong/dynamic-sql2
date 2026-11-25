@@ -34,7 +34,7 @@ public final class SnowflakeIdUtils {
      *
      * @param nodeId 部署方分配的唯一节点编号，范围 0～1023
      * @throws IllegalArgumentException 节点编号超出范围
-     * @throws IllegalStateException snowflake 生成器已注册
+     * @throws IllegalStateException    snowflake 生成器已注册
      */
     public static void init(long nodeId) {
         IdGenerators.register(GENERATOR_NAME, new SnowflakeIdGenerator(nodeId));
@@ -54,7 +54,9 @@ public final class SnowflakeIdUtils {
         return ((SnowflakeIdGenerator) generator).nextId();
     }
 
-    /** @return 雪花 ID 的十进制字符串，适用于字符串主键及前端传输 */
+    /**
+     * @return 雪花 ID 的十进制字符串，适用于字符串主键及前端传输
+     */
     public static String nextIdStr() {
         return Long.toString(nextId());
     }

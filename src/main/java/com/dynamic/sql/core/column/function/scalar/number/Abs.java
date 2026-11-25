@@ -23,8 +23,12 @@ import com.dynamic.sql.utils.ExceptionUtils;
  */
 public class Abs extends ColumnFunctionDecorator implements NumberFunction {
 
-    /** 常量通过 Value 绑定，与列表达式走相同转换链路。 */
-    public Abs(Number value) { this(new Value(value)); }
+    /**
+     * 常量通过 Value 绑定，与列表达式走相同转换链路。
+     */
+    public Abs(Number value) {
+        this(new Value(value));
+    }
 
     public Abs(AbstractColumFunction delegateFunction) {
         super(delegateFunction);

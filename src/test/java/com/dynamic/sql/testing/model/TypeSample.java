@@ -10,10 +10,12 @@
 package com.dynamic.sql.testing.model;
 
 import com.dynamic.sql.anno.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+
 import lombok.Data;
 
 

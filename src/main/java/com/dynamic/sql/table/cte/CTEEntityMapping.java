@@ -13,6 +13,7 @@ public class CTEEntityMapping {
     private String cteName;
     private boolean isCache;
     private Class<?> cteClass;
+
     public String getCteName() {
         return cteName;
     }

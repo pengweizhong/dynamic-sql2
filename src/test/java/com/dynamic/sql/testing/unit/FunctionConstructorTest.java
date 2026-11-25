@@ -19,13 +19,20 @@ import com.dynamic.sql.core.database.PreparedSql;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.SqlUtils;
 import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class FunctionConstructorTest {
     static class Row {
-        public String getName() { return null; }
-        public Long getId() { return null; }
+        public String getName() {
+            return null;
+        }
+
+        public Long getId() {
+            return null;
+        }
     }
 
     private PreparedSql prepared(AbstractColumFunction expression) {
@@ -34,7 +41,8 @@ class FunctionConstructorTest {
         return SqlUtils.parsePreparedObject(new StringBuilder(expression.render(context)), expression.parameterBinder());
     }
 
-    @Test void methodReferencesPreserveColumnOrigin() {
+    @Test
+    void methodReferencesPreserveColumnOrigin() {
         FieldFn<Row, String> field = Row::getName;
         Lower direct = new Lower(field);
         assertSame(field, direct.originColumn());
@@ -44,7 +52,8 @@ class FunctionConstructorTest {
         assertEquals("u", new Power("u", Row::getId, 2).getTableAlias());
     }
 
-    @Test void nestingRetainsSqlAndBindingOrderAcrossRepeatedRendering() {
+    @Test
+    void nestingRetainsSqlAndBindingOrderAcrossRepeatedRendering() {
         AbstractColumFunction expression = new Lower(new Trim(new Concat(new Column("u", "name"), "suffix")));
         PreparedSql first = prepared(expression);
         assertEquals("LOWER(TRIM(CONCAT(`u`.`name`, ?)))", first.getSql());
@@ -54,19 +63,22 @@ class FunctionConstructorTest {
         assertEquals("u", expression.getTableAlias());
     }
 
-    @Test void substringPositionsCanBeNestedExpressions() {
+    @Test
+    void substringPositionsCanBeNestedExpressions() {
         PreparedSql sql = prepared(new SubString(new Column("u", "name"), new Value(1), new Power(new Value(2), 3)));
         assertEquals("SUBSTRING(`u`.`name`, ?, POWER(?, ?))", sql.getSql());
         assertEquals(Arrays.asList(1, 2, 3), sql.getParams());
     }
 
-    @Test void explicitColumnsAndStringConstantsRemainDistinct() {
+    @Test
+    void explicitColumnsAndStringConstantsRemainDistinct() {
         assertEquals("LOWER(`u`.`name`)", prepared(new Lower("u", "name")).getSql());
         assertEquals(Arrays.asList("name"), prepared(new Lower("name")).getParams());
         assertEquals(Arrays.asList("left", "right"), prepared(new Concat("left", "right")).getParams());
     }
 
-    @Test void dateMethodReferenceOverloadsPreserveSqlNull() {
+    @Test
+    void dateMethodReferenceOverloadsPreserveSqlNull() {
         assertEquals(Arrays.asList(null, 1), prepared(new DateAdd(null, 1, DateTimeUnit.DAY)).getParams());
         assertEquals(Arrays.asList(null, 1), prepared(new DateSub(null, 1, DateTimeUnit.DAY)).getParams());
         assertEquals(Arrays.asList((Object) null), prepared(new Extract(DateTimeUnit.YEAR, null)).getParams());
@@ -74,7 +86,8 @@ class FunctionConstructorTest {
                 prepared(new TimestampDiff(DateTimeUnit.DAY, null, "2024-03-01")).getParams());
     }
 
-    @Test void specializedDateFunctionsPreserveOriginAndAlias() {
+    @Test
+    void specializedDateFunctionsPreserveOriginAndAlias() {
         FieldFn<Row, String> field = Row::getName;
         assertSame(field, new DateAdd(field, 1, DateTimeUnit.DAY).originColumn());
         assertEquals("u", new DateSub("u", field, 1, DateTimeUnit.DAY).getTableAlias());
@@ -89,7 +102,8 @@ class FunctionConstructorTest {
         assertEquals(sql.getParams(), prepared(expression).getParams());
     }
 
-    @Test void fieldVariablesInAnyArgumentAreColumnsInsteadOfBoundValues() {
+    @Test
+    void fieldVariablesInAnyArgumentAreColumnsInsteadOfBoundValues() {
         FieldFn<Row, String> field = Row::getName;
         ExpressionArguments arguments = new ExpressionArguments();
         arguments.add(field);

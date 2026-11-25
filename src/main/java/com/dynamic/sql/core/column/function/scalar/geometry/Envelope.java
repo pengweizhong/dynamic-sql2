@@ -17,7 +17,9 @@ import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
 
-/** 计算几何对象包围矩形；当前仅支持 MySQL，其他方言明确拒绝。 */
+/**
+ * 计算几何对象包围矩形；当前仅支持 MySQL，其他方言明确拒绝。
+ */
 public class Envelope extends ColumnFunctionDecorator implements ScalarFunction {
     public Envelope(AbstractColumFunction delegateFunction) {
         super(delegateFunction);

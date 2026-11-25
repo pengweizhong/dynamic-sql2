@@ -38,10 +38,10 @@ public class Sum extends ColumnFunctionDecorator implements AggregateFunction, W
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             return "SUM(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             return "sum(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
         throw ExceptionUtils.unsupportedFunctionException("sum", context.getSqlDialect());

@@ -54,7 +54,9 @@ public abstract class ColumnFunctionDecorator
 //        this.delegateFunction = windowsFunction;
 //    }
 
-    /** 从首个操作数继承列来源，保证专用语法函数的实体映射与别名一致。 */
+    /**
+     * 从首个操作数继承列来源，保证专用语法函数的实体映射与别名一致。
+     */
     protected void inheritColumnOrigin(Object operand) {
         if (operand instanceof AbstractColumFunction) {
             delegateFunction = (AbstractColumFunction) operand;
@@ -88,7 +90,7 @@ public abstract class ColumnFunctionDecorator
         if (arithmetic == null) {
             return "";
         }
-        String sql=arithmetic.render(context);
+        String sql = arithmetic.render(context);
         parameterBinder.addParameterBinder(arithmetic.getArithmeticParameterBinder());
         return sql;
     }

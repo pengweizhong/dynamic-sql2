@@ -132,32 +132,37 @@ public class EntitiesInserter {
         return execute(DMLType.UPSERT, InsertParser::upsertMultiple, doSqlExecutor);
     }
 
-    /** 只填空主键，显式业务主键始终保留；数据库 AUTO/SEQUENCE 不进入应用生成路径。 */
+    /**
+     * 只填空主键，显式业务主键始终保留；数据库 AUTO/SEQUENCE 不进入应用生成路径。
+     */
     private void generatePrimaryKeys() {
-        for(Object entity:getLocalEntities()) {
-            TableMeta table=TableProvider.getTableMeta(entity.getClass());
-            for(ColumnMeta column:table.<ColumnMeta>getColumnMetas()) {
-                GeneratedStrategy strategy=column.getGeneratedStrategy();
-                if(strategy==null || (strategy.getStrategy()!=GenerationType.SNOWFLAKE && strategy.getStrategy()!=GenerationType.CUSTOM))
+        for (Object entity : getLocalEntities()) {
+            TableMeta table = TableProvider.getTableMeta(entity.getClass());
+            for (ColumnMeta column : table.<ColumnMeta>getColumnMetas()) {
+                GeneratedStrategy strategy = column.getGeneratedStrategy();
+                if (strategy == null || (strategy.getStrategy() != GenerationType.SNOWFLAKE && strategy.getStrategy() != GenerationType.CUSTOM))
                     continue;
                 try {
                     column.getField().setAccessible(true);
-                    if(column.getField().get(entity)!=null) continue;
-                    if(strategy.getStrategy()==GenerationType.SNOWFLAKE
-                            && column.getField().getType()!=Long.class && column.getField().getType()!=String.class)
+                    if (column.getField().get(entity) != null) continue;
+                    if (strategy.getStrategy() == GenerationType.SNOWFLAKE
+                            && column.getField().getType() != Long.class && column.getField().getType() != String.class)
                         throw new IllegalArgumentException("Snowflake ID field must be Long or String");
-                    String name=strategy.getGenerator();
-                    if(name==null || name.trim().isEmpty()) {
-                        if(strategy.getStrategy()==GenerationType.CUSTOM) throw new IllegalArgumentException("Custom ID generator name is required");
-                        name=strategy.getStrategy().getDefaultGeneratorName();
+                    String name = strategy.getGenerator();
+                    if (name == null || name.trim().isEmpty()) {
+                        if (strategy.getStrategy() == GenerationType.CUSTOM)
+                            throw new IllegalArgumentException("Custom ID generator name is required");
+                        name = strategy.getStrategy().getDefaultGeneratorName();
                     }
-                    if(strategy.getStrategy()==GenerationType.SNOWFLAKE && !(IdGenerators.get(name) instanceof SnowflakeIdGenerator))
+                    if (strategy.getStrategy() == GenerationType.SNOWFLAKE && !(IdGenerators.get(name) instanceof SnowflakeIdGenerator))
                         throw new IllegalArgumentException("Snowflake strategy requires a SnowflakeIdGenerator");
-                    Object generated=IdGenerators.get(name).generate(new IdGenerationContext(entity,column,table.getBindDataSourceName()));
-                    if(generated==null) throw new IllegalStateException("ID generator returned null");
-                    Object converted=ConverterUtils.convertToEntityAttribute(column,column.getField().getType(),generated);
-                    ReflectUtils.setFieldValue(entity,column.getField(),converted);
-                } catch(IllegalAccessException error) { throw new DynamicSqlException(error); }
+                    Object generated = IdGenerators.get(name).generate(new IdGenerationContext(entity, column, table.getBindDataSourceName()));
+                    if (generated == null) throw new IllegalStateException("ID generator returned null");
+                    Object converted = ConverterUtils.convertToEntityAttribute(column, column.getField().getType(), generated);
+                    ReflectUtils.setFieldValue(entity, column.getField(), converted);
+                } catch (IllegalAccessException error) {
+                    throw new DynamicSqlException(error);
+                }
             }
         }
     }

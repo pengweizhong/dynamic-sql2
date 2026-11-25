@@ -72,7 +72,7 @@ public class MysqlParser extends AbstractDialectParser {
         //继续追加values
         List<ParameterBinder> batchParameterBinders = sqlStatementWrapper.getBatchParameterBinders();
         //从第二个开始，第一个已经拼接过了
-        if(batchParameterBinders.size() > 1){
+        if (batchParameterBinders.size() > 1) {
             rawSql.append(", ");
         }
         for (int i = 1; i < batchParameterBinders.size(); i++) {

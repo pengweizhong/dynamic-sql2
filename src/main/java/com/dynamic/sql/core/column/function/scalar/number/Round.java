@@ -23,10 +23,19 @@ import com.dynamic.sql.utils.ExceptionUtils;
  */
 public class Round extends ColumnFunctionDecorator implements NumberFunction {
 
-    /** 常量通过 Value 绑定，与列表达式走相同转换链路。 */
-    public Round(Number value,int scale) { this(new Value(value),scale); }
-    /** 未指定精度时按零位小数舍入。 */
-    public Round(AbstractColumFunction expression) { this(expression,0); }
+    /**
+     * 常量通过 Value 绑定，与列表达式走相同转换链路。
+     */
+    public Round(Number value, int scale) {
+        this(new Value(value), scale);
+    }
+
+    /**
+     * 未指定精度时按零位小数舍入。
+     */
+    public Round(AbstractColumFunction expression) {
+        this(expression, 0);
+    }
 
     //保留小数位数
     private int scale;
@@ -43,10 +52,10 @@ public class Round extends ColumnFunctionDecorator implements NumberFunction {
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             return "ROUND(" + delegateFunction.render(context) + ", " + scale + ")".concat(appendArithmeticSql(context));
         }
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             return "round(" + delegateFunction.render(context) + ", " + scale + ")".concat(appendArithmeticSql(context));
         }
         throw ExceptionUtils.unsupportedFunctionException("ROUND", context.getSqlDialect());

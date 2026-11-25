@@ -23,8 +23,12 @@ import com.dynamic.sql.utils.ExceptionUtils;
  */
 public class Truncate extends ColumnFunctionDecorator implements NumberFunction {
 
-    /** 常量通过 Value 绑定，与列表达式走相同转换链路。 */
-    public Truncate(Number value,int scale) { this(new Value(value),scale); }
+    /**
+     * 常量通过 Value 绑定，与列表达式走相同转换链路。
+     */
+    public Truncate(Number value, int scale) {
+        this(new Value(value), scale);
+    }
 
     //保留小数位数
     private final int scale;

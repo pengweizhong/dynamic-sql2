@@ -10,9 +10,11 @@
 package com.dynamic.sql.plugins.conversion.attribute;
 
 import com.dynamic.sql.plugins.conversion.AttributeConverterModel;
+
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -22,7 +22,9 @@ import com.dynamic.sql.model.Polygon;
 import lombok.Data;
 
 
-/** 空间 CRUD 实体；全部空间字段均使用框架标准几何对象进行读写。 */
+/**
+ * 空间 CRUD 实体；全部空间字段均使用框架标准几何对象进行读写。
+ */
 @Data
 @Table("ds_mysql_spatial_sample")
 public class MysqlSpatialSample {

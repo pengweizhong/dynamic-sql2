@@ -18,10 +18,10 @@ public class Rank extends ColumnFunctionDecorator implements WindowsFunction {
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             return "RANK(" + delegateFunction.render(context) + ")";
         }
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             return "rank(" + delegateFunction.render(context) + ")";
         }
         throw ExceptionUtils.unsupportedFunctionException("rank", context.getSqlDialect());

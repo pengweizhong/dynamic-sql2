@@ -18,10 +18,10 @@ public class DenseRank extends ColumnFunctionDecorator implements WindowsFunctio
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             return "DENSE_RANK(" + delegateFunction.render(context) + ")";
         }
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             return "dense_rank(" + delegateFunction.render(context) + ")";
         }
         throw ExceptionUtils.unsupportedFunctionException("dense_rank", context.getSqlDialect());

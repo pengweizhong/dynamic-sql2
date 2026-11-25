@@ -37,6 +37,8 @@ public @interface GeneratedValue {
      */
     String sequenceName() default "";
 
-    /** 应用生成器名称；SNOWFLAKE 默认使用 snowflake，CUSTOM 必须显式配置。 */
+    /**
+     * 应用生成器名称；SNOWFLAKE 默认使用 snowflake，CUSTOM 必须显式配置。
+     */
     String generator() default "";
 }

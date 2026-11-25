@@ -14,27 +14,41 @@ import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.*;
 import com.dynamic.sql.core.column.function.windows.aggregate.AggregateFunction;
 
-/** STDDEV_POP 表达式，业务值统一绑定；列值请传入 Column 或其他表达式。 */
+/**
+ * STDDEV_POP 表达式，业务值统一绑定；列值请传入 Column 或其他表达式。
+ */
 public final class StdDevPop extends FunctionExpression implements AggregateFunction {
-    /** 检查参数数量，避免构造出缺少必需操作数的 SQL。 */
-    public StdDevPop(Object... values) { super("STDDEV_POP",FunctionArity.check(values,1,1,1)); }
-
-    /** 嵌套函数或显式列表达式。 */
-    public StdDevPop(AbstractColumFunction expression) {
-        this(new Object[] { expression });
+    /**
+     * 检查参数数量，避免构造出缺少必需操作数的 SQL。
+     */
+    public StdDevPop(Object... values) {
+        super("STDDEV_POP", FunctionArity.check(values, 1, 1, 1));
     }
 
-    /** 列方法引用。 */
+    /**
+     * 嵌套函数或显式列表达式。
+     */
+    public StdDevPop(AbstractColumFunction expression) {
+        this(new Object[]{expression});
+    }
+
+    /**
+     * 列方法引用。
+     */
     public <T, F> StdDevPop(FieldFn<T, F> field) {
         this(new Column(field));
     }
 
-    /** 带表别名的列方法引用。 */
+    /**
+     * 带表别名的列方法引用。
+     */
     public <T, F> StdDevPop(String tableAlias, FieldFn<T, F> field) {
         this(new Column(tableAlias, field));
     }
 
-    /** 显式表别名与列名；字符串常量仍可通过单参数构造传入。 */
+    /**
+     * 显式表别名与列名；字符串常量仍可通过单参数构造传入。
+     */
     public StdDevPop(String tableAlias, String columnName) {
         this(new Column(tableAlias, columnName));
     }

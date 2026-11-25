@@ -20,10 +20,12 @@ import com.dynamic.sql.utils.CollectionUtils;
 import com.dynamic.sql.utils.ConverterUtils;
 import com.dynamic.sql.utils.ReflectUtils;
 import com.dynamic.sql.utils.SqlUtils;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.*;
 import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +52,7 @@ public class RootExecutor {
      * @return 每行以列标签为键的查询结果
      */
     public static List<Map<String, Object>> executeQuery(Connection connection, PreparedSql preparedSql,
-                                                        boolean preserveMysqlTemporalValues) {
+                                                         boolean preserveMysqlTemporalValues) {
         ArrayList<Map<String, Object>> arrayList = new ArrayList<>();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -92,7 +94,7 @@ public class RootExecutor {
                         //java.sql.Time 无法完整保留 TIME(6) 的微秒，额外保存文本供 LocalTime 映射使用。
                         objectMap.putTemporal(columnName, time);
                         //MySQL TIME 还可以表示负数或超过 24 小时的时长，不能强制读取为 java.sql.Time。
-                        if (time != null && (time.startsWith("-") || Integer.parseInt(time.substring(0,time.indexOf(':'))) >= 24)) {
+                        if (time != null && (time.startsWith("-") || Integer.parseInt(time.substring(0, time.indexOf(':'))) >= 24)) {
                             columnValue = time;
                         } else {
                             columnValue = resultSet.getObject(i);

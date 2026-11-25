@@ -35,10 +35,10 @@ public class Avg extends ColumnFunctionDecorator implements AggregateFunction, W
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             return "AVG(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             return "avg(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
         throw ExceptionUtils.unsupportedFunctionException("avg", context.getSqlDialect());

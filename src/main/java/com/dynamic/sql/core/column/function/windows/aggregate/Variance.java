@@ -39,10 +39,10 @@ public class Variance extends ColumnFunctionDecorator implements AggregateFuncti
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             return "VARIANCE(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             return "variance(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
         throw ExceptionUtils.unsupportedFunctionException("variance", context.getSqlDialect());

@@ -41,7 +41,7 @@ public class Length extends ColumnFunctionDecorator {
     @Override
     public String render(RenderContext context) {
         //SUBSTRING(string, start, length)
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             if (string != null) {
                 return "char_length(" + registerValueWithKey(parameterBinder, string) + ")".concat(appendArithmeticSql(context));
             }

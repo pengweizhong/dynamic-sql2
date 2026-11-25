@@ -23,15 +23,21 @@ import com.dynamic.sql.utils.ExceptionUtils;
 
 public class Count extends ColumnFunctionDecorator implements AggregateFunction, WindowsFunction {
     private ExpressionArguments distinctArguments;
-    /** MySQL 多列 COUNT 仅提供 DISTINCT 形式，NULL 行由数据库排除。 */
-    public static Count distinct(Object first,Object... others) {
-        Count result=new Count(1);
-        result.distinctArguments=new ExpressionArguments();result.distinctArguments.add(first);
-        for(Object other:others) result.distinctArguments.add(other);
+
+    /**
+     * MySQL 多列 COUNT 仅提供 DISTINCT 形式，NULL 行由数据库排除。
+     */
+    public static Count distinct(Object first, Object... others) {
+        Count result = new Count(1);
+        result.distinctArguments = new ExpressionArguments();
+        result.distinctArguments.add(first);
+        for (Object other : others) result.distinctArguments.add(other);
         return result;
     }
-    @Override public ParameterBinder parameterBinder() {
-        return distinctArguments==null ? super.parameterBinder()
+
+    @Override
+    public ParameterBinder parameterBinder() {
+        return distinctArguments == null ? super.parameterBinder()
                 : distinctArguments.binder().addParameterBinder(getArithmetic().getArithmeticParameterBinder());
     }
 
@@ -58,22 +64,23 @@ public class Count extends ColumnFunctionDecorator implements AggregateFunction,
 
     @Override
     public String render(RenderContext context) {
-        if(distinctArguments!=null) {
-            if(context.getSqlDialect()!=SqlDialect.MYSQL)
-                throw ExceptionUtils.unsupportedFunctionException("COUNT DISTINCT",context.getSqlDialect());
-            StringBuilder sql=new StringBuilder("COUNT(DISTINCT ");
-            for(int i=0;i<distinctArguments.size();i++) {
-                if(i>0) sql.append(", ");sql.append(distinctArguments.render(i,context));
+        if (distinctArguments != null) {
+            if (context.getSqlDialect() != SqlDialect.MYSQL)
+                throw ExceptionUtils.unsupportedFunctionException("COUNT DISTINCT", context.getSqlDialect());
+            StringBuilder sql = new StringBuilder("COUNT(DISTINCT ");
+            for (int i = 0; i < distinctArguments.size(); i++) {
+                if (i > 0) sql.append(", ");
+                sql.append(distinctArguments.render(i, context));
             }
             return sql.append(")").append(appendArithmeticSql(context)).toString();
         }
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             if (value != null) {
                 return "COUNT(" + value + ")".concat(appendArithmeticSql(context));
             }
             return "COUNT(" + delegateFunction.render(context) + ")".concat(appendArithmeticSql(context));
         }
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             if (value != null) {
                 return "count(" + value + ")".concat(appendArithmeticSql(context));
             }

@@ -37,14 +37,14 @@ public class CollectionUtils {
      * @return 分割后的子集合列表，每个子集合为一个独立的 {@link List}
      * @throws IllegalArgumentException 如果 size 小于等于 0
      *
-     *  <pre>
-     *      示例：
-     * {@code
-     * List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
-     * List<List<Integer>> parts = CollectionUtils.partition(list, 3);
-     * // parts = [[1,2,3], [4,5,6], [7]]
-     * }
-     *  </pre>
+     *                                  <pre>
+     *                                       示例：
+     *                                  {@code
+     *                                  List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
+     *                                  List<List<Integer>> parts = CollectionUtils.partition(list, 3);
+     *                                  // parts = [[1,2,3], [4,5,6], [7]]
+     *                                  }
+     *                                   </pre>
      */
     public static <T> List<List<T>> partition(Collection<T> collection, int size) {
         if (collection == null || collection.isEmpty()) {

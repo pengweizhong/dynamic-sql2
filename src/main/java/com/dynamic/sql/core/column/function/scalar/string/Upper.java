@@ -29,10 +29,10 @@ public class Upper extends ColumnFunctionDecorator {
 
     @Override
     public String render(RenderContext context) {
-        if (context.getSqlDialect() ==  SqlDialect.MYSQL) {
+        if (context.getSqlDialect() == SqlDialect.MYSQL) {
             return "upper(" + delegateFunction.render(context) + ")";
         }
-        if (context.getSqlDialect() ==  SqlDialect.ORACLE) {
+        if (context.getSqlDialect() == SqlDialect.ORACLE) {
             return "UPPER(" + delegateFunction.render(context) + ")";
         }
         throw ExceptionUtils.unsupportedFunctionException("upper", context.getSqlDialect());

@@ -17,7 +17,9 @@ import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
 
-/** 判断几何对象是否为空；当前仅支持 MySQL，其他方言明确拒绝。 */
+/**
+ * 判断几何对象是否为空；当前仅支持 MySQL，其他方言明确拒绝。
+ */
 public class IsEmpty extends ColumnFunctionDecorator implements ScalarFunction {
     public IsEmpty(AbstractColumFunction delegateFunction) {
         super(delegateFunction);

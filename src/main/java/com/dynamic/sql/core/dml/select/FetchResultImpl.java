@@ -331,7 +331,7 @@ public class FetchResultImpl<R> extends AbstractFetchResult<R> {
             }
             //使用结果集列标签查找补充信息，兼容 SQL 别名，不直接使用实体字段名。
             Object value = ConverterUtils.convertToEntityAttribute(columnMeta, columnMeta.getField().getType(),
-                        JdbcResultRow.valueFor(columnObjectMap, columnName, columnMeta.getField().getType()));
+                    JdbcResultRow.valueFor(columnObjectMap, columnName, columnMeta.getField().getType()));
             if (value != null) {
                 ReflectUtils.setFieldValue(instance, columnMeta.getField(), value);
             }

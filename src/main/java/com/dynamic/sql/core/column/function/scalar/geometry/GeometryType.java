@@ -17,7 +17,9 @@ import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
 
-/** 读取几何类型名称；当前仅支持 MySQL，其他方言明确拒绝。 */
+/**
+ * 读取几何类型名称；当前仅支持 MySQL，其他方言明确拒绝。
+ */
 public class GeometryType extends ColumnFunctionDecorator implements ScalarFunction {
     public GeometryType(AbstractColumFunction delegateFunction) {
         super(delegateFunction);

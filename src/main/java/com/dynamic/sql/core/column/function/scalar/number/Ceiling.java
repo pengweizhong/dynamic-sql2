@@ -23,8 +23,12 @@ import com.dynamic.sql.utils.ExceptionUtils;
  */
 public class Ceiling extends ColumnFunctionDecorator implements NumberFunction {
 
-    /** 常量通过 Value 绑定，与列表达式走相同转换链路。 */
-    public Ceiling(Number value) { this(new Value(value)); }
+    /**
+     * 常量通过 Value 绑定，与列表达式走相同转换链路。
+     */
+    public Ceiling(Number value) {
+        this(new Value(value));
+    }
 
     public Ceiling(AbstractColumFunction delegateFunction) {
         super(delegateFunction);

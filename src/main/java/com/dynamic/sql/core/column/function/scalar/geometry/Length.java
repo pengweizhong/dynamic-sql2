@@ -17,7 +17,9 @@ import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
 
-/** 读取线串长度；当前仅支持 MySQL，其他方言明确拒绝。 */
+/**
+ * 读取线串长度；当前仅支持 MySQL，其他方言明确拒绝。
+ */
 public class Length extends ColumnFunctionDecorator implements ScalarFunction {
     public Length(AbstractColumFunction delegateFunction) {
         super(delegateFunction);

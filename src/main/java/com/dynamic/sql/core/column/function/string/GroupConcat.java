@@ -56,10 +56,17 @@ import java.util.List;
  */
 public class GroupConcat extends ColumnFunctionDecorator implements TableFunction {
     private GroupConcatOptions options;
-    /** 接受嵌套列表达式，保留参数绑定。 */
-    public GroupConcat(AbstractColumFunction expression) { super(expression); }
-    public GroupConcat(AbstractColumFunction expression,String separator) {
-        super(expression);options=new GroupConcatOptions().separator(separator);
+
+    /**
+     * 接受嵌套列表达式，保留参数绑定。
+     */
+    public GroupConcat(AbstractColumFunction expression) {
+        super(expression);
+    }
+
+    public GroupConcat(AbstractColumFunction expression, String separator) {
+        super(expression);
+        options = new GroupConcatOptions().separator(separator);
     }
 
 

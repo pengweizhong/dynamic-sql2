@@ -14,27 +14,40 @@ import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
+
 import java.util.Objects;
 
-/** DateAdd 使用受控时间单位，日期及间隔值使用参数绑定。 */
+/**
+ * DateAdd 使用受控时间单位，日期及间隔值使用参数绑定。
+ */
 public final class DateAdd extends ColumnFunctionDecorator implements DatetimeFunction {
-    private final ExpressionArguments args=new ExpressionArguments();
+    private final ExpressionArguments args = new ExpressionArguments();
     private final DateTimeUnit unit;
-    public DateAdd(Object value,Object interval,DateTimeUnit unit) {
+
+    public DateAdd(Object value, Object interval, DateTimeUnit unit) {
         inheritColumnOrigin(value);
-        this.unit=Objects.requireNonNull(unit,"Date unit must not be null");args.add(value);args.add(interval);
+        this.unit = Objects.requireNonNull(unit, "Date unit must not be null");
+        args.add(value);
+        args.add(interval);
     }
-    public <T,F> DateAdd(FieldFn<T,F> field,Object interval,DateTimeUnit unit) {
-        this(field == null ? null : new Column(field),interval,unit);
+
+    public <T, F> DateAdd(FieldFn<T, F> field, Object interval, DateTimeUnit unit) {
+        this(field == null ? null : new Column(field), interval, unit);
     }
-    public <T,F> DateAdd(String alias,FieldFn<T,F> field,Object interval,DateTimeUnit unit) {
-        this(new Column(alias,field),interval,unit);
+
+    public <T, F> DateAdd(String alias, FieldFn<T, F> field, Object interval, DateTimeUnit unit) {
+        this(new Column(alias, field), interval, unit);
     }
-    @Override public String render(RenderContext context) {
-        if(context.getSqlDialect()!=SqlDialect.MYSQL) throw new UnsupportedOperationException("Date function dialect is not supported");
-        return "DATE_ADD(" + args.render(0,context) + ", INTERVAL " + args.render(1,context) + " " + unit.name() + ")" + appendArithmeticSql(context);
+
+    @Override
+    public String render(RenderContext context) {
+        if (context.getSqlDialect() != SqlDialect.MYSQL)
+            throw new UnsupportedOperationException("Date function dialect is not supported");
+        return "DATE_ADD(" + args.render(0, context) + ", INTERVAL " + args.render(1, context) + " " + unit.name() + ")" + appendArithmeticSql(context);
     }
-    @Override public ParameterBinder parameterBinder() {
+
+    @Override
+    public ParameterBinder parameterBinder() {
         return args.binder().addParameterBinder(getArithmetic().getArithmeticParameterBinder());
     }
 }

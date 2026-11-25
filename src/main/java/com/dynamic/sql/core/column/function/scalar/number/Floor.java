@@ -23,8 +23,12 @@ import com.dynamic.sql.utils.ExceptionUtils;
  */
 public class Floor extends ColumnFunctionDecorator implements NumberFunction {
 
-    /** 常量通过 Value 绑定，与列表达式走相同转换链路。 */
-    public Floor(Number value) { this(new Value(value)); }
+    /**
+     * 常量通过 Value 绑定，与列表达式走相同转换链路。
+     */
+    public Floor(Number value) {
+        this(new Value(value));
+    }
 
     public Floor(AbstractColumFunction delegateFunction) {
         super(delegateFunction);

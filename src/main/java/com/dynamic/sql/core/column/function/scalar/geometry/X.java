@@ -19,11 +19,20 @@ import com.dynamic.sql.utils.ExceptionUtils;
 import com.dynamic.sql.utils.SqlUtils;
 
 
-/** 读取点的第一坐标分量，不解释为经度；当前仅支持 MySQL，其他方言明确拒绝。 */
+/**
+ * 读取点的第一坐标分量，不解释为经度；当前仅支持 MySQL，其他方言明确拒绝。
+ */
 public class X extends ColumnFunctionDecorator implements ScalarFunction {
     private String coordinate;
-    /** 设置坐标分量，地理范围及轴序由数据库检查。 */
-    public X(AbstractColumFunction geometry, double coordinate) { super(geometry); this.coordinate = SqlUtils.registerValueWithKey(parameterBinder, coordinate); }
+
+    /**
+     * 设置坐标分量，地理范围及轴序由数据库检查。
+     */
+    public X(AbstractColumFunction geometry, double coordinate) {
+        super(geometry);
+        this.coordinate = SqlUtils.registerValueWithKey(parameterBinder, coordinate);
+    }
+
     public X(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
     }

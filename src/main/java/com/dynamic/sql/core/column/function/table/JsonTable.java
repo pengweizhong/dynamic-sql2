@@ -14,7 +14,9 @@ import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.MysqlLiteral;
 import com.dynamic.sql.enums.SqlDialect;
+
 import java.util.Locale;
+
 import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
@@ -102,13 +104,14 @@ public class JsonTable extends AbstractTableFunction {
 
     @Override
     public String render(RenderContext context) {
-        if(context.getSqlDialect()!=SqlDialect.MYSQL
-                || (context.getVersion()!=null && context.getVersion().compareTo(new Version(8,0,4))<0))
+        if (context.getSqlDialect() != SqlDialect.MYSQL
+                || (context.getVersion() != null && context.getVersion().compareTo(new Version(8, 0, 4)) < 0))
             throw new UnsupportedOperationException("JSON_TABLE requires MySQL 8.0.4 or later");
-        StringBuilder sql=new StringBuilder("JSON_TABLE(").append(tableFunction.render(context))
+        StringBuilder sql = new StringBuilder("JSON_TABLE(").append(tableFunction.render(context))
                 .append(", ").append(MysqlLiteral.text(path)).append(" COLUMNS(");
-        for(int i=0;i<columns.size();i++) {
-            if(i>0) sql.append(", ");sql.append(columns.get(i).toString());
+        for (int i = 0; i < columns.size(); i++) {
+            if (i > 0) sql.append(", ");
+            sql.append(columns.get(i).toString());
         }
         return sql.append("))").toString();
     }
@@ -126,11 +129,17 @@ public class JsonTable extends AbstractTableFunction {
         private boolean ordinality;
         private String nestedPath;
         private List<JsonColumn> nestedColumns;
-        /** 嵌套路径继续使用受控列声明，不接受原始 SQL。 */
-        public static JsonColumn nested(String path,JsonColumn... columns) {
-            if(columns==null || columns.length==0) throw new IllegalArgumentException("Nested columns are required");
-            JsonColumn column=new JsonColumn();column.nestedPath=path;
-            column.nestedColumns=Arrays.asList(columns.clone());return column;
+
+        /**
+         * 嵌套路径继续使用受控列声明，不接受原始 SQL。
+         */
+        public static JsonColumn nested(String path, JsonColumn... columns) {
+            if (columns == null || columns.length == 0)
+                throw new IllegalArgumentException("Nested columns are required");
+            JsonColumn column = new JsonColumn();
+            column.nestedPath = path;
+            column.nestedColumns = Arrays.asList(columns.clone());
+            return column;
         }
 
         //提取的字段（必须）
@@ -153,33 +162,38 @@ public class JsonTable extends AbstractTableFunction {
 
         @Override
         public String toString() {
-            if(nestedColumns!=null) {
-                StringBuilder sql=new StringBuilder("NESTED PATH ").append(MysqlLiteral.text(nestedPath)).append(" COLUMNS(");
-                for(int i=0;i<nestedColumns.size();i++) {
-                    if(i>0) sql.append(", ");sql.append(nestedColumns.get(i).toString());
+            if (nestedColumns != null) {
+                StringBuilder sql = new StringBuilder("NESTED PATH ").append(MysqlLiteral.text(nestedPath)).append(" COLUMNS(");
+                for (int i = 0; i < nestedColumns.size(); i++) {
+                    if (i > 0) sql.append(", ");
+                    sql.append(nestedColumns.get(i).toString());
                 }
                 return sql.append(")").toString();
             }
-            String name=MysqlLiteral.identifier(columnName);
-            if(ordinality) return name+" FOR ORDINALITY";
-            String type=dataType==null ? "" : dataType.toUpperCase(Locale.ROOT).replace(" ","");
-            if(!type.matches("(TINYINT|SMALLINT|MEDIUMINT|INT|INTEGER|BIGINT|DOUBLE|FLOAT|DATE|TIME|DATETIME|TIMESTAMP|JSON|BOOLEAN|DECIMAL\\([0-9]+,[0-9]+\\)|VARCHAR\\([0-9]+\\)|CHAR\\([0-9]+\\))"))
+            String name = MysqlLiteral.identifier(columnName);
+            if (ordinality) return name + " FOR ORDINALITY";
+            String type = dataType == null ? "" : dataType.toUpperCase(Locale.ROOT).replace(" ", "");
+            if (!type.matches("(TINYINT|SMALLINT|MEDIUMINT|INT|INTEGER|BIGINT|DOUBLE|FLOAT|DATE|TIME|DATETIME|TIMESTAMP|JSON|BOOLEAN|DECIMAL\\([0-9]+,[0-9]+\\)|VARCHAR\\([0-9]+\\)|CHAR\\([0-9]+\\))"))
                 throw new IllegalArgumentException("Unsupported JSON_TABLE column type");
-            StringBuilder sql=new StringBuilder(name).append(" ").append(type).append(" PATH ").append(MysqlLiteral.text(jsonPath));
-            if(defaultValue!=null) sql.append(" DEFAULT ").append(jsonDefault(defaultValue)).append(" ON EMPTY");
-            for(String event:Arrays.asList("empty","error")) for(OnEvent policy:on) {
-                if(event.equals(policy.event)) {
-                    if(defaultValue!=null && event.equals("empty")) throw new IllegalArgumentException("Duplicate ON EMPTY policy");
-                    sql.append(policy.reject ? " ERROR" : policy.defaultValue==null ? " NULL" : " DEFAULT "+jsonDefault(policy.defaultValue))
-                            .append(" ON ").append(event.toUpperCase(Locale.ROOT));
+            StringBuilder sql = new StringBuilder(name).append(" ").append(type).append(" PATH ").append(MysqlLiteral.text(jsonPath));
+            if (defaultValue != null) sql.append(" DEFAULT ").append(jsonDefault(defaultValue)).append(" ON EMPTY");
+            for (String event : Arrays.asList("empty", "error"))
+                for (OnEvent policy : on) {
+                    if (event.equals(policy.event)) {
+                        if (defaultValue != null && event.equals("empty"))
+                            throw new IllegalArgumentException("Duplicate ON EMPTY policy");
+                        sql.append(policy.reject ? " ERROR" : policy.defaultValue == null ? " NULL" : " DEFAULT " + jsonDefault(policy.defaultValue))
+                                .append(" ON ").append(event.toUpperCase(Locale.ROOT));
+                    }
                 }
-            }
             return sql.toString();
         }
 
-        /** JSON 默认值采用带字符集的十六进制字面量，避免引号及 SQL 模式影响。 */
+        /**
+         * JSON 默认值采用带字符集的十六进制字面量，避免引号及 SQL 模式影响。
+         */
         private static String jsonDefault(Object value) {
-            return "_utf8mb4 "+MysqlLiteral.hex(MysqlLiteral.jsonScalar(value));
+            return "_utf8mb4 " + MysqlLiteral.hex(MysqlLiteral.jsonScalar(value));
         }
 
         public static class OnEvent {
@@ -235,16 +249,31 @@ public class JsonTable extends AbstractTableFunction {
             this.jsonColumn = jsonColumn;
         }
 
-        /** 生成从一开始的行号列。 */
-        public JsonColumnBuilder ordinality() { jsonColumn.ordinality=true;return this; }
-        /** 缺失值或转换错误选择明确报错，而非静默返回 NULL。 */
-        public JsonColumnBuilder errorOnEmpty() {
-            JsonColumn.OnEvent event=new JsonColumn.OnEvent(this);event.event="empty";event.reject=true;
-            jsonColumn.on.add(event);return this;
+        /**
+         * 生成从一开始的行号列。
+         */
+        public JsonColumnBuilder ordinality() {
+            jsonColumn.ordinality = true;
+            return this;
         }
+
+        /**
+         * 缺失值或转换错误选择明确报错，而非静默返回 NULL。
+         */
+        public JsonColumnBuilder errorOnEmpty() {
+            JsonColumn.OnEvent event = new JsonColumn.OnEvent(this);
+            event.event = "empty";
+            event.reject = true;
+            jsonColumn.on.add(event);
+            return this;
+        }
+
         public JsonColumnBuilder errorOnError() {
-            JsonColumn.OnEvent event=new JsonColumn.OnEvent(this);event.event="error";event.reject=true;
-            jsonColumn.on.add(event);return this;
+            JsonColumn.OnEvent event = new JsonColumn.OnEvent(this);
+            event.event = "error";
+            event.reject = true;
+            jsonColumn.on.add(event);
+            return this;
         }
 
         public JsonColumnBuilder column(String columnName) {

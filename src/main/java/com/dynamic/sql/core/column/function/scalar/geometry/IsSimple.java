@@ -17,7 +17,9 @@ import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
 
-/** 判断几何对象是否简单；当前仅支持 MySQL，其他方言明确拒绝。 */
+/**
+ * 判断几何对象是否简单；当前仅支持 MySQL，其他方言明确拒绝。
+ */
 public class IsSimple extends ColumnFunctionDecorator implements ScalarFunction {
     public IsSimple(AbstractColumFunction delegateFunction) {
         super(delegateFunction);
