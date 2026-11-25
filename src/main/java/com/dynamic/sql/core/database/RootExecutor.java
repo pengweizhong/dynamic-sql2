@@ -20,14 +20,13 @@ import com.dynamic.sql.utils.CollectionUtils;
 import com.dynamic.sql.utils.ConverterUtils;
 import com.dynamic.sql.utils.ReflectUtils;
 import com.dynamic.sql.utils.SqlUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.*;
 import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class RootExecutor {

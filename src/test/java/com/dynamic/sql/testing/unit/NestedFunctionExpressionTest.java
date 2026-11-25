@@ -11,15 +11,18 @@ package com.dynamic.sql.testing.unit;
 
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
-import com.dynamic.sql.core.column.function.Value;
 import com.dynamic.sql.core.column.function.RenderContext;
+import com.dynamic.sql.core.column.function.Value;
 import com.dynamic.sql.core.column.function.json.JsonExtract;
 import com.dynamic.sql.core.column.function.json.JsonUnquote;
 import com.dynamic.sql.core.column.function.logical.Coalesce;
 import com.dynamic.sql.core.column.function.logical.IfNull;
 import com.dynamic.sql.core.column.function.scalar.number.Power;
 import com.dynamic.sql.core.column.function.scalar.number.Sqrt;
-import com.dynamic.sql.core.column.function.scalar.string.*;
+import com.dynamic.sql.core.column.function.scalar.string.Concat;
+import com.dynamic.sql.core.column.function.scalar.string.Lower;
+import com.dynamic.sql.core.column.function.scalar.string.SubString;
+import com.dynamic.sql.core.column.function.scalar.string.Trim;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.database.PreparedSql;
 import com.dynamic.sql.enums.SqlDialect;
@@ -28,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * 不连接数据库，验证跨函数类型交叉嵌套的 SQL 结构及绑定契约。

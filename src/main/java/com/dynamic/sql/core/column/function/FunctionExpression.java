@@ -10,12 +10,12 @@
 package com.dynamic.sql.core.column.function;
 
 
-import java.util.Objects;
-
 import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
+
+import java.util.Objects;
 
 /**
  * 常规 MySQL 函数公共表达式：名称由子类固定，业务值统一绑定。

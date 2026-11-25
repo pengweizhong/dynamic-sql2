@@ -11,10 +11,10 @@ package com.dynamic.sql.core.column.function.scalar.number;
 
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.column.function.Value;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
 import com.dynamic.sql.core.column.function.RenderContext;
+import com.dynamic.sql.core.column.function.Value;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
 

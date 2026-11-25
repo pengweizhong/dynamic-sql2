@@ -10,11 +10,8 @@
 package com.dynamic.sql.core.dml.select;
 
 
-import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.column.function.windows.aggregate.AggregateFunction;
 import com.dynamic.sql.core.condition.Condition;
-
-import java.util.function.Consumer;
 
 public interface HavingCondition<C extends HavingCondition<C>> extends Condition<C> {
 

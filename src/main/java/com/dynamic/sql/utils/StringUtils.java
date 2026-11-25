@@ -215,10 +215,10 @@ public class StringUtils {
      * @throws IllegalArgumentException 如果字符串长度不是偶数，或包含非法的十六进制字符
      *
      *                                  <pre>
-     *                                                                                                                                     示例：
-     *                                                                                                                                       hexToBytes("0fa0") -> {0x0F, (byte)0xA0}
-     *                                                                                                                                       hexToBytes("FF01") -> {(byte)0xFF, 0x01}
-     *                                                                                                                                     </pre>
+     *                                                                                                                                                                      示例：
+     *                                                                                                                                                                        hexToBytes("0fa0") -> {0x0F, (byte)0xA0}
+     *                                                                                                                                                                        hexToBytes("FF01") -> {(byte)0xFF, 0x01}
+     *                                                                                                                                                                      </pre>
      */
     public static byte[] hexToBytes(String hex) {
         if (hex == null || hex.isEmpty()) {

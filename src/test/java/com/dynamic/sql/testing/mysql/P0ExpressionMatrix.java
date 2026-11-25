@@ -11,30 +11,37 @@ package com.dynamic.sql.testing.mysql;
 
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.core.column.conventional.Column;
-import com.dynamic.sql.core.column.function.*;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.function.Group;
+import com.dynamic.sql.core.column.function.Value;
+import com.dynamic.sql.core.column.function.json.JsonExtract;
+import com.dynamic.sql.core.column.function.json.JsonUnquote;
 import com.dynamic.sql.core.column.function.logical.*;
-import com.dynamic.sql.core.column.function.scalar.conversion.*;
-import com.dynamic.sql.core.column.function.json.*;
-import com.dynamic.sql.core.column.function.scalar.string.*;
+import com.dynamic.sql.core.column.function.scalar.conversion.Cast;
+import com.dynamic.sql.core.column.function.scalar.conversion.CastTarget;
+import com.dynamic.sql.core.column.function.scalar.conversion.Convert;
 import com.dynamic.sql.core.column.function.scalar.datetime.DateAdd;
-import com.dynamic.sql.core.column.function.scalar.datetime.DateTimeUnit;
-import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.column.function.scalar.datetime.DateFormat;
+import com.dynamic.sql.core.column.function.scalar.datetime.DateTimeUnit;
+import com.dynamic.sql.core.column.function.scalar.string.Concat;
+import com.dynamic.sql.core.column.function.scalar.string.Lower;
+import com.dynamic.sql.core.column.function.scalar.string.SubString;
+import com.dynamic.sql.core.column.function.scalar.string.Trim;
+import com.dynamic.sql.core.column.function.windows.aggregate.Count;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
-
-import java.util.Arrays;
-import java.nio.charset.StandardCharsets;
-
 import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.testing.model.Account;
 import com.dynamic.sql.testing.model.MysqlTypeSample;
 import org.junit.jupiter.api.DynamicTest;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * P0 表达式的实际 MySQL 语义与结果映射验证，常量和嵌套全部走参数绑定。

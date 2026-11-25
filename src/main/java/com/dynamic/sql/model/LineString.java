@@ -14,12 +14,7 @@ import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 线串值对象，沿用 Point 的坐标与 SRID 语义；转换器处理 MySQL 带 SRID 的内部空间二进制。

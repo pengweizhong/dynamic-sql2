@@ -12,13 +12,16 @@ package com.dynamic.sql.testing.mysql;
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.Value;
-import com.dynamic.sql.core.column.function.scalar.string.*;
-import com.dynamic.sql.core.column.function.scalar.datetime.*;
-import com.dynamic.sql.core.column.function.scalar.number.*;
+import com.dynamic.sql.core.column.function.json.*;
+import com.dynamic.sql.core.column.function.logical.Comparison;
+import com.dynamic.sql.core.column.function.logical.Greatest;
+import com.dynamic.sql.core.column.function.logical.IsNull;
+import com.dynamic.sql.core.column.function.logical.Least;
 import com.dynamic.sql.core.column.function.scalar.conversion.Cast;
 import com.dynamic.sql.core.column.function.scalar.conversion.CastTarget;
-import com.dynamic.sql.core.column.function.logical.*;
-import com.dynamic.sql.core.column.function.json.*;
+import com.dynamic.sql.core.column.function.scalar.datetime.*;
+import com.dynamic.sql.core.column.function.scalar.number.*;
+import com.dynamic.sql.core.column.function.scalar.string.*;
 import com.dynamic.sql.testing.model.Account;
 import org.junit.jupiter.api.DynamicTest;
 
@@ -29,7 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * P1 标量逐函数以独立 JDBC 查询核对，所有框架值均走绑定及结果转换。

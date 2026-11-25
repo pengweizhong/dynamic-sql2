@@ -11,13 +11,13 @@ package com.dynamic.sql.testing.unit;
 
 import com.dynamic.sql.plugins.conversion.attribute.YearAttributeConverter;
 import com.dynamic.sql.utils.ConverterUtils;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Date;
 import java.time.Year;
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 /**

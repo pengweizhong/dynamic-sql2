@@ -9,7 +9,7 @@
  */
 package com.dynamic.sql.core.column.function.json;
 
-import com.dynamic.sql.core.column.function.*;
+import com.dynamic.sql.core.column.function.FunctionExpression;
 import com.dynamic.sql.core.column.function.scalar.conversion.Cast;
 import com.dynamic.sql.core.column.function.scalar.conversion.CastTarget;
 

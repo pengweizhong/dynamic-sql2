@@ -9,7 +9,9 @@
  */
 package com.dynamic.sql.core.column.function.scalar.geometry;
 
-import com.dynamic.sql.core.column.function.*;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.scalar.ScalarFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;

@@ -10,12 +10,9 @@
 package com.dynamic.sql.core.column;
 
 
-import com.dynamic.sql.core.AbstractColumnReference;
 import com.dynamic.sql.core.Fn;
 import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.dml.select.SelectDsl;
-
-import java.util.function.Consumer;
 
 /**
  * 表示 SQL 列的算术运算接口。

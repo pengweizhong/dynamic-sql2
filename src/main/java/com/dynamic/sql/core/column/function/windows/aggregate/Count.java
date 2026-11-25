@@ -11,12 +11,12 @@ package com.dynamic.sql.core.column.function.windows.aggregate;
 
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.column.function.ExpressionArguments;
-import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
+import com.dynamic.sql.core.column.function.ExpressionArguments;
 import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.windows.WindowsFunction;
+import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;
 

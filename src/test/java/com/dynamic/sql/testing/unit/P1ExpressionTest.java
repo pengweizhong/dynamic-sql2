@@ -10,19 +10,24 @@
 package com.dynamic.sql.testing.unit;
 
 import com.dynamic.sql.core.Version;
-import com.dynamic.sql.core.column.function.*;
+import com.dynamic.sql.core.column.function.MysqlLiteral;
+import com.dynamic.sql.core.column.function.RenderContext;
+import com.dynamic.sql.core.column.function.Value;
 import com.dynamic.sql.core.column.function.json.JsonObject;
 import com.dynamic.sql.core.column.function.json.JsonSet;
-import com.dynamic.sql.core.column.function.scalar.datetime.*;
+import com.dynamic.sql.core.column.function.scalar.datetime.CurrentTime;
+import com.dynamic.sql.core.column.function.scalar.datetime.DateAdd;
+import com.dynamic.sql.core.column.function.scalar.datetime.DateTimeUnit;
 import com.dynamic.sql.core.column.function.string.GroupConcat;
 import com.dynamic.sql.core.column.function.table.JsonTable;
-import com.dynamic.sql.core.column.function.windows.*;
+import com.dynamic.sql.core.column.function.windows.CumeDist;
+import com.dynamic.sql.core.column.function.windows.Lag;
+import com.dynamic.sql.core.column.function.windows.Over;
 import com.dynamic.sql.enums.SqlDialect;
-import com.dynamic.sql.utils.SqlUtils;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 

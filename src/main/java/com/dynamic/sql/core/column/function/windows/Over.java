@@ -11,14 +11,14 @@ package com.dynamic.sql.core.column.function.windows;
 
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.core.column.conventional.Column;
-import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.ColumFunction;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.dml.select.order.DefaultOrderBy;
 import com.dynamic.sql.core.dml.select.order.NullsFirst;
 import com.dynamic.sql.core.dml.select.order.NullsLast;
 import com.dynamic.sql.core.dml.select.order.OrderBy;
+import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.ExceptionUtils;

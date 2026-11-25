@@ -9,10 +9,8 @@
  */
 package com.dynamic.sql.core.column.function;
 
-import com.dynamic.sql.core.column.conventional.Column;
-
 import com.dynamic.sql.core.FieldFn;
-
+import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 
 import java.util.ArrayList;

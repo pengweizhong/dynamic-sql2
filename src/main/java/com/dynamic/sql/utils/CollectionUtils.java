@@ -38,13 +38,13 @@ public class CollectionUtils {
      * @throws IllegalArgumentException 如果 size 小于等于 0
      *
      *                                  <pre>
-     *                                       示例：
-     *                                  {@code
-     *                                  List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
-     *                                  List<List<Integer>> parts = CollectionUtils.partition(list, 3);
-     *                                  // parts = [[1,2,3], [4,5,6], [7]]
-     *                                  }
-     *                                   </pre>
+     *                                                                        示例：
+     *                                                                   {@code
+     *                                                                   List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
+     *                                                                   List<List<Integer>> parts = CollectionUtils.partition(list, 3);
+     *                                                                   // parts = [[1,2,3], [4,5,6], [7]]
+     *                                                                   }
+     *                                                                    </pre>
      */
     public static <T> List<List<T>> partition(Collection<T> collection, int size) {
         if (collection == null || collection.isEmpty()) {

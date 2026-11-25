@@ -12,15 +12,15 @@ package com.dynamic.sql.testing.mysql;
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.testing.model.MysqlTypeSample;
 import com.dynamic.sql.testing.model.TypeSample;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.function.Executable;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.Stream;
-
-import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.function.Executable;
 
 import static org.junit.jupiter.api.Assertions.*;
 

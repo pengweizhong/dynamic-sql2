@@ -4,7 +4,8 @@
 
 ## 本机验证记录
 
-2026-10-31 已在本机 MySQL 8.4.7（127.0.0.1:3306）的独立数据库 `dynamic_sql2_test` 执行建表、初始化和只读核对。11 张表共 37 行样本；行数、订单聚合、订单明细金额、NULL/空值、JSON、无符号 BIGINT、BIT、生成列和空间类型的核对结果符合脚本预期。
+2026-10-31 已在本机 MySQL 8.4.7（127.0.0.1:3306）的独立数据库 `dynamic_sql2_test` 执行建表、初始化和只读核对。11 张表共 37
+行样本；行数、订单聚合、订单明细金额、NULL/空值、JSON、无符号 BIGINT、BIT、生成列和空间类型的核对结果符合脚本预期。
 
 重置 → 重新建表 → 初始化 → 核对的完整流程也已通过，测试库保留初始化后的数据，方便直接检查。
 
@@ -14,7 +15,8 @@
 mysql --protocol=TCP -h 127.0.0.1 -P 3306 -u root -p dynamic_sql2_test
 ```
 
-MySQL 8.4 会对 `TINYINT(1)` 发出整数显示宽度弃用警告；此列有意保留，用于后续 JDBC `tinyInt1isBit` 映射测试。当前验证仅涉及数据库 SQL，尚未验证框架/JDBC 映射。
+MySQL 8.4 会对 `TINYINT(1)` 发出整数显示宽度弃用警告；此列有意保留，用于后续 JDBC `tinyInt1isBit` 映射测试。当前验证仅涉及数据库
+SQL，尚未验证框架/JDBC 映射。
 
 ## 执行方式
 
@@ -42,16 +44,20 @@ MySQL 8.4 会对 `TINYINT(1)` 发出整数显示宽度弃用警告；此列有�
 
 ## 类型覆盖
 
-通用语义表 ds_type_sample：SMALLINT/INT/BIGINT、DECIMAL(38,10)、FLOAT/DOUBLE、数值布尔、CHAR/VARCHAR/TEXT、BINARY/VARBINARY/BLOB、DATE/TIME(6)/DATETIME(6)/TIMESTAMP(6)、NULL 与默认值。
-样本 1 是所有可空字段为 NULL；2 是零/空字符串/空二进制；3 含中文、emoji、单引号、换行、百分号、下划线及微秒；4/5 含整数和定点数上下界、日期边界。
+通用语义表 ds_type_sample：SMALLINT/INT/BIGINT、DECIMAL(38,10)
+、FLOAT/DOUBLE、数值布尔、CHAR/VARCHAR/TEXT、BINARY/VARBINARY/BLOB、DATE/TIME(6)/DATETIME(6)/TIMESTAMP(6)、NULL 与默认值。
+样本 1 是所有可空字段为 NULL；2 是零/空字符串/空二进制；3 含中文、emoji、单引号、换行、百分号、下划线及微秒；4/5
+含整数和定点数上下界、日期边界。
 
-MySQL 专属 ds_mysql_type_sample：TINYINT、TINYINT(1)、MEDIUMINT、全部整数 UNSIGNED、BIT(1/8/64)、YEAR、负数及超过 24 小时的 TIME、ENUM/SET、JSON、各级 TEXT/BLOB、生成列。
+MySQL 专属 ds_mysql_type_sample：TINYINT、TINYINT(1)、MEDIUMINT、全部整数 UNSIGNED、BIT(1/8/64)、YEAR、负数及超过 24 小时的
+TIME、ENUM/SET、JSON、各级 TEXT/BLOB、生成列。
 包含 unsigned BIGINT 最大值（应考虑 BigInteger）、JSON SQL NULL/JSON null/空对象/数组、二进制零字节及高位字节。
 TINYINT(1) 应分别在 JDBC tinyInt1isBit=true/false 下验证；BIT 不应统一按 Integer 接收。
 浮点值按容差比较，DECIMAL 按精确数值比较；CHAR 填充和空串语义需按数据库能力单独断言。
 LOB 当前验证多种存储类型和内容，不包含超大数据压力测试；后续使用独立大数据用例生成，避免初始化脚本膨胀。
 
-空间表 ds_mysql_spatial_sample：全部七种具体空间类型及通用 GEOMETRY，统一 SRID 0，含 NULL 和正常样本；后续另测 SRID 4326 与轴序差异。
+空间表 ds_mysql_spatial_sample：全部七种具体空间类型及通用 GEOMETRY，统一 SRID 0，含 NULL 和正常样本；后续另测 SRID 4326
+与轴序差异。
 生成列只读验证，写入时应忽略；数据库可存储某类型不等于框架当前已支持其映射。
 
 ## 后续多数据库扩展约定

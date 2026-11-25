@@ -67,22 +67,22 @@
 //                .append("public class ").append(className).append(" {\n")
 //                .append("  public static final String TABLE_ALIAS = \"").append(alias).append("\";\n\n");
 //
-////        List<String> columnNames = new ArrayList<>();
-////        for (Element field : entityClass.getEnclosedElements()) {
-////            if (field.getKind() == ElementKind.FIELD) {
-////                String fieldName = field.getSimpleName().toString();
-////                columnNames.add(fieldName);
-////                builder.append("  public static final ColumnRef ")
-////                        .append(fieldName.toUpperCase())
-////                        .append(" = new ColumnRef(TABLE_ALIAS, \"").append(fieldName).append("\");\n");
-////            }
-////        }
-////
-////        // allColumns()
-////        builder.append("\n  public static List<ColumnRef> allColumns() {\n")
-////                .append("    return Arrays.asList(")
-////                .append(columnNames.stream().map(String::toUpperCase).collect(Collectors.joining(", ")))
-////                .append(");\n  }\n");
+/// /        List<String> columnNames = new ArrayList<>();
+/// /        for (Element field : entityClass.getEnclosedElements()) {
+/// /            if (field.getKind() == ElementKind.FIELD) {
+/// /                String fieldName = field.getSimpleName().toString();
+/// /                columnNames.add(fieldName);
+/// /                builder.append("  public static final ColumnRef ")
+/// /                        .append(fieldName.toUpperCase())
+/// /                        .append(" = new ColumnRef(TABLE_ALIAS, \"").append(fieldName).append("\");\n");
+/// /            }
+/// /        }
+/// /
+/// /        // allColumns()
+/// /        builder.append("\n  public static List<ColumnRef> allColumns() {\n")
+/// /                .append("    return Arrays.asList(")
+/// /                .append(columnNames.stream().map(String::toUpperCase).collect(Collectors.joining(", ")))
+/// /                .append(");\n  }\n");
 //
 //        builder.append("}\n");
 //

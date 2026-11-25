@@ -10,12 +10,11 @@
 package com.dynamic.sql.testing.unit;
 
 import com.dynamic.sql.utils.ConverterUtils;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.sql.Time;
 import java.time.LocalTime;
-
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 

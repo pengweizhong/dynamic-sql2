@@ -9,14 +9,14 @@
  */
 package com.dynamic.sql.testing.model;
 
-import com.dynamic.sql.anno.*;
+import com.dynamic.sql.anno.Id;
+import com.dynamic.sql.anno.Table;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-
-import lombok.Data;
 
 
 /**

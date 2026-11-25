@@ -11,8 +11,8 @@ package com.dynamic.sql.core.column.function;
 
 
 import com.dynamic.sql.core.Fn;
-import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.ColumnArithmetic;
+import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.dml.select.SelectDsl;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 import com.dynamic.sql.exception.DynamicSqlException;

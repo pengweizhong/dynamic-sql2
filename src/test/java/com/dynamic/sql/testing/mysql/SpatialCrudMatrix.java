@@ -15,14 +15,14 @@ import com.dynamic.sql.model.Point;
 import com.dynamic.sql.plugins.conversion.AttributeConverter;
 import com.dynamic.sql.testing.model.MysqlSpatialSample;
 import com.dynamic.sql.utils.WKBUtils;
+import org.junit.jupiter.api.DynamicTest;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.sql.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.Stream;
-
-import org.junit.jupiter.api.DynamicTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -19,7 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * 主键注解元数据独立回归，不要求初始化数据源或连接 Oracle。

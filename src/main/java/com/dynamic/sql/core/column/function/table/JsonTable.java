@@ -13,19 +13,16 @@ package com.dynamic.sql.core.column.function.table;
 import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.Version;
 import com.dynamic.sql.core.column.function.MysqlLiteral;
-import com.dynamic.sql.enums.SqlDialect;
-
-import java.util.Locale;
-
 import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.column.function.TableFunction;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
+import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.exception.DynamicSqlException;
-import com.dynamic.sql.utils.SqlUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import static com.dynamic.sql.core.column.AbstractAliasHelper.bindAlias;
 

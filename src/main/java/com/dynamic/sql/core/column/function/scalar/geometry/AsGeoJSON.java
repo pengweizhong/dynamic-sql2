@@ -9,8 +9,6 @@
  */
 package com.dynamic.sql.core.column.function.scalar.geometry;
 
-import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 
 /**

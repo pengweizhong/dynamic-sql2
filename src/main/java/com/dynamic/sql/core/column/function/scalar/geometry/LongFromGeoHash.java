@@ -9,10 +9,6 @@
  */
 package com.dynamic.sql.core.column.function.scalar.geometry;
 
-import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.column.conventional.Column;
-import com.dynamic.sql.core.column.function.AbstractColumFunction;
-
 /**
  * 读取 GeoHash 坐标；当前仅支持 MySQL，常量使用参数绑定。
  */

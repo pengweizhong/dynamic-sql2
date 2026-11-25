@@ -10,12 +10,11 @@
 package com.dynamic.sql.testing.unit;
 
 import com.dynamic.sql.model.*;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 

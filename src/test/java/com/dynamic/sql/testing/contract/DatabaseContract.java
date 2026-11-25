@@ -10,12 +10,19 @@
 package com.dynamic.sql.testing.contract;
 
 import com.dynamic.sql.core.SqlContext;
-import com.dynamic.sql.testing.model.*;
+import com.dynamic.sql.testing.model.Account;
+import com.dynamic.sql.testing.model.Department;
+import com.dynamic.sql.testing.model.TypeSample;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.*;
-import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 

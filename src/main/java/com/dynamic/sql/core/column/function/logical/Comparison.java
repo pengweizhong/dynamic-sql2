@@ -9,7 +9,9 @@
  */
 package com.dynamic.sql.core.column.function.logical;
 
-import com.dynamic.sql.core.column.function.*;
+import com.dynamic.sql.core.column.function.ColumnFunctionDecorator;
+import com.dynamic.sql.core.column.function.ExpressionArguments;
+import com.dynamic.sql.core.column.function.RenderContext;
 import com.dynamic.sql.core.placeholder.ParameterBinder;
 
 import java.util.Objects;

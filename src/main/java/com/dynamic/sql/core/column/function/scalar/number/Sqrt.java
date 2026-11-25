@@ -11,7 +11,9 @@ package com.dynamic.sql.core.column.function.scalar.number;
 
 import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.column.conventional.Column;
-import com.dynamic.sql.core.column.function.*;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.function.FunctionArity;
+import com.dynamic.sql.core.column.function.FunctionExpression;
 
 /**
  * SQRT 表达式，业务值统一绑定；列值请传入 Column 或其他表达式。

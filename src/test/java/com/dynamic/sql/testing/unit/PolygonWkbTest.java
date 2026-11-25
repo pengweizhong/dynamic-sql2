@@ -13,11 +13,10 @@ import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.Point;
 import com.dynamic.sql.model.Polygon;
 import com.dynamic.sql.utils.WKBUtils;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 

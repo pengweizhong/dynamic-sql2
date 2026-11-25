@@ -11,11 +11,10 @@ package com.dynamic.sql.model;
 
 import com.dynamic.sql.core.column.function.ColumFunction;
 import com.dynamic.sql.core.column.function.RenderContext;
+import com.dynamic.sql.core.placeholder.ParameterBinder;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.dynamic.sql.core.placeholder.ParameterBinder;
 
 /**
  * 针对与算术运算列动态生成

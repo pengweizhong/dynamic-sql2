@@ -11,7 +11,9 @@ package com.dynamic.sql.core.column.function.scalar.string;
 
 import com.dynamic.sql.core.FieldFn;
 import com.dynamic.sql.core.column.conventional.Column;
-import com.dynamic.sql.core.column.function.*;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.function.FunctionExpression;
+import com.dynamic.sql.core.column.function.Value;
 
 /**
  * 子串参数统一绑定，NULL 字符串保持 SQL NULL，重复渲染不新增占位符。

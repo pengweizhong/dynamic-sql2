@@ -11,14 +11,7 @@ package com.dynamic.sql.testing.model;
 
 import com.dynamic.sql.anno.Id;
 import com.dynamic.sql.anno.Table;
-import com.dynamic.sql.model.Geometry;
-import com.dynamic.sql.model.GeometryCollection;
-import com.dynamic.sql.model.LineString;
-import com.dynamic.sql.model.MultiLineString;
-import com.dynamic.sql.model.MultiPoint;
-import com.dynamic.sql.model.MultiPolygon;
-import com.dynamic.sql.model.Point;
-import com.dynamic.sql.model.Polygon;
+import com.dynamic.sql.model.*;
 import lombok.Data;
 
 

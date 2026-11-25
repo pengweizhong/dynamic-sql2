@@ -17,7 +17,6 @@ import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.ColumnMetaData;
 import com.dynamic.sql.utils.StringUtils;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 public class ColumnMetaDataHelper extends MetaDataHelper {

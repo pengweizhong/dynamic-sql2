@@ -21,6 +21,7 @@ import com.dynamic.sql.plugins.conversion.attribute.LocalDateAttributeConverter;
 import com.dynamic.sql.plugins.conversion.attribute.YearAttributeConverter;
 import com.dynamic.sql.table.FieldMeta;
 
+import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Clob;
@@ -35,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.annotation.Nonnull;
 
 
 public class ConverterUtils {

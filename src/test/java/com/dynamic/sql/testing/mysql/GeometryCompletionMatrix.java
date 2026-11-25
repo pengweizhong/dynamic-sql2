@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * 空间扩展逐函数实库核对，框架参数化查询与独立 JDBC 常量查询比较结果。

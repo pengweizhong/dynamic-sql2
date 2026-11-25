@@ -10,11 +10,17 @@
 package com.dynamic.sql.testing.unit;
 
 import com.dynamic.sql.core.FieldFn;
-import com.dynamic.sql.core.column.function.scalar.datetime.*;
 import com.dynamic.sql.core.column.conventional.Column;
-import com.dynamic.sql.core.column.function.*;
-import com.dynamic.sql.core.column.function.scalar.string.*;
+import com.dynamic.sql.core.column.function.AbstractColumFunction;
+import com.dynamic.sql.core.column.function.ExpressionArguments;
+import com.dynamic.sql.core.column.function.RenderContext;
+import com.dynamic.sql.core.column.function.Value;
+import com.dynamic.sql.core.column.function.scalar.datetime.*;
 import com.dynamic.sql.core.column.function.scalar.number.Power;
+import com.dynamic.sql.core.column.function.scalar.string.Concat;
+import com.dynamic.sql.core.column.function.scalar.string.Lower;
+import com.dynamic.sql.core.column.function.scalar.string.SubString;
+import com.dynamic.sql.core.column.function.scalar.string.Trim;
 import com.dynamic.sql.core.database.PreparedSql;
 import com.dynamic.sql.enums.SqlDialect;
 import com.dynamic.sql.utils.SqlUtils;
