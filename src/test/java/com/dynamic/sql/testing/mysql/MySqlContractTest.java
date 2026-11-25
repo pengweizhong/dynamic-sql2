@@ -12,12 +12,14 @@ package com.dynamic.sql.testing.mysql;
 import com.dynamic.sql.context.SqlContextHelper;
 import com.dynamic.sql.context.properties.SchemaProperties;
 import com.dynamic.sql.context.properties.SqlContextProperties;
+import com.dynamic.sql.context.properties.SqlLogProperties;
 import com.dynamic.sql.core.SqlContext;
 import com.dynamic.sql.core.column.conventional.Column;
 import com.dynamic.sql.core.column.function.AbstractColumFunction;
 import com.dynamic.sql.core.column.function.scalar.geometry.*;
 import com.dynamic.sql.core.column.function.windows.RowNumber;
 import com.dynamic.sql.core.column.function.windows.aggregate.Count;
+import com.dynamic.sql.core.column.function.windows.aggregate.Max;
 import com.dynamic.sql.core.column.function.windows.aggregate.Sum;
 import com.dynamic.sql.core.condition.impl.dialect.GenericWhereCondition;
 import com.dynamic.sql.core.database.PreparedSql;
@@ -29,11 +31,13 @@ import com.dynamic.sql.datasource.DataSourceMapping;
 import com.dynamic.sql.datasource.DataSourceUtils;
 import com.dynamic.sql.datasource.connection.ConnectionHandle;
 import com.dynamic.sql.datasource.connection.ConnectionHolder;
+import com.dynamic.sql.enums.LogLevel;
 import com.dynamic.sql.enums.SortOrder;
 import com.dynamic.sql.exception.DynamicSqlException;
 import com.dynamic.sql.model.*;
 import com.dynamic.sql.plugins.id.IdGenerators;
 import com.dynamic.sql.plugins.id.SnowflakeIdGenerator;
+import com.dynamic.sql.plugins.logger.impl.DefaultSqlLogger;
 import com.dynamic.sql.table.TableUtils;
 import com.dynamic.sql.testing.contract.DatabaseContract;
 import com.dynamic.sql.testing.model.*;
@@ -68,11 +72,19 @@ class MySqlContractTest extends DatabaseContract {
     private static Connection transaction;
     private static SqlContext sqlContext;
 
+    private static void initEnvironment() {
+        System.setProperty("DS_TEST_URL",
+                "jdbc:mysql://localhost:3306/dynamic_sql2_test");
+        System.setProperty("DS_TEST_USER", "root");
+        System.setProperty("DS_TEST_PASSWORD", "root");
+    }
+
     /**
      * 从环境变量读取连接配置，注册专用数据源，仅扫描新测试实体。
      */
     @BeforeAll
     static void initialize() throws Exception {
+        initEnvironment();
         IdGenerators.register("mysql-snowflake", new SnowflakeIdGenerator(19));
         AtomicLong customIds = new AtomicLong(98000000);
         IdGenerators.register("mysql-custom", context -> {
@@ -114,6 +126,12 @@ class MySqlContractTest extends DatabaseContract {
         schema.setDataSourceName("contract");
         schema.setGlobalDefault(true);
         schema.setUseSchemaInQuery(false);
+        SqlLogProperties sqlLogProperties = new SqlLogProperties();
+        sqlLogProperties.setEnabled(true);
+        sqlLogProperties.setPrintExecutionTime(true);
+        sqlLogProperties.setLogger(new DefaultSqlLogger());
+        sqlLogProperties.setLevel(LogLevel.INFO);
+        schema.setSqlLogProperties(sqlLogProperties);
         properties.addSchemaProperties(schema);
         DataSourceUtils.checkAndSave(properties, new DataSourceMapping("contract", source, true, new String[]{"com.dynamic.sql.testing.model"}));
         TableUtils.scanAndInitTable("com.dynamic.sql.testing.model");
@@ -123,9 +141,15 @@ class MySqlContractTest extends DatabaseContract {
     /**
      * 必填配置缺失时直接失败，避免集成测试被静默跳过。
      */
-    private static String required(String name) {
-        String value = System.getenv(name);
-        if (value == null) throw new IllegalArgumentException("Missing " + name + "; see src/test/README.md");
+    private static String required(String key) {
+        String value = System.getProperty(key);
+        if (value == null || value.trim().isEmpty()) {
+            value = System.getenv(key);
+        }
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Missing required configuration: " + key);
+        }
         return value;
     }
 
@@ -158,6 +182,16 @@ class MySqlContractTest extends DatabaseContract {
                 }
             }
         }
+    }
+
+    @Test
+    void customTest() {
+        Double one = sqlContext.select()
+                .column(new Max(Account::getBalance))
+                .from(Account.class)
+                .fetch(Double.class)
+                .toOne();
+        System.out.println(one);
     }
 
     /**
@@ -1638,5 +1672,4 @@ class MySqlContractTest extends DatabaseContract {
         assertEquals(Long.valueOf(0), context().selectOne(
                 "SELECT COUNT(*) FROM ds_department WHERE name='reject-null-id'", Long.class));
     }
-
 }
